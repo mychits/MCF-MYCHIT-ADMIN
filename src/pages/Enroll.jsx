@@ -699,7 +699,7 @@ const Enroll = () => {
                   value={formData?.payment_type || undefined}
                   onChange={(value) => handleAntDSelect("payment_type", value)}
                 >
-                  {["Daily", "Weekely", "Monthly"].map((pType) => (
+                  {["Daily", "Weekly", "Monthly"].map((pType) => (
                     <Select.Option key={pType} value={pType}>
                       {pType}
                     </Select.Option>
@@ -1012,7 +1012,7 @@ const Enroll = () => {
                   value={updateFormData?.payment_type || undefined}
                   onChange={(value) => handleAntInputDSelect("payment_type", value)}
                 >
-                  {["Daily", "Weekely", "Monthly"].map((pType) => (
+                  {["Daily", "Weekly", "Monthly"].map((pType) => (
                     <Select.Option key={pType.toLowerCase()} value={pType}>
                       {pType}
                     </Select.Option>

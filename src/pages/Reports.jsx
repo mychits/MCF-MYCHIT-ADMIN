@@ -82,7 +82,7 @@ import { FaPersonWalkingArrowLoopLeft } from "react-icons/fa6";
 import { RiMoneyRupeeCircleFill, RiAuctionFill } from "react-icons/ri";
 import { LiaCalculatorSolid } from "react-icons/lia";
 import { GiMoneyStack } from "react-icons/gi";
-
+import { TbReportSearch } from "react-icons/tb";
 const subMenus = [
   { title: "Daybook", link: "/reports/daybook", Icon: FaCalendarDays },
   { title: "Group Report", link: "/reports/group-report", Icon: FaPeopleGroup },
@@ -129,6 +129,7 @@ const subMenus = [
   },
   { title: "Loan Report", link: "/reports/loan-report", Icon: GiMoneyStack },
   { title: "Sales Report", link: "/reports/sales-report", Icon: FaUserCheck },
+   { title: "Payment Summary", link: "/reports/payment-summary", Icon: TbReportSearch },
 ];
 
 const Reports = () => {

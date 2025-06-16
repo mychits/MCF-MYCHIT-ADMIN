@@ -52,6 +52,7 @@ import Employee from "./pages/Employee";
 import EmployeeProfile from "./pages/EmployeeProfile"
 import LeadSettings from "./pages/LeadSettings";
 import SalesReport from "./pages/SalesReport";
+import PaymentSummary from './pages/PaymentSummary';
 function App() {
   return (
     <>
@@ -319,6 +320,7 @@ function App() {
               <Route path="employee-report" element={<EmployeeReport />} />
               <Route path="commission-report" element={<CommissionReport />} />
               <Route path="enrollment-report" element={<EnrollmentReport />} />
+              <Route path="payment-summary"element={<PaymentSummary/>} />
             </Route>
 
             <Route
