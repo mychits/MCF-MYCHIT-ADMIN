@@ -28,6 +28,7 @@ const PaymentSummary = () => {
         const reportResponse = await api.get("/user/get-daily-payments");
 
         const processedData = processRawData(reportResponse.data);
+        console.info(processedData)
         setUsersData(processedData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -61,6 +62,19 @@ const PaymentSummary = () => {
               groupName: data.enrollment?.group?.group_name || "",
               payment_type: data.enrollment?.payment_type || "",
               latestPaymentDate: data.payments?.latestPaymentDate || null,
+              latestPaymentAmount: data.payments?.latestPaymentAmount || null,
+              amountToBePaid: data.enrollment?.group?.group_type === "double"
+                ? (Number(data.enrollment?.group?.group_install) * Number(data?.auction?.auctionCount) + Number(data.enrollment?.group?.group_install) || 0)
+                : (Number(data.payments?.totalPayable) + Number(data.enrollment?.group?.group_install) + Number(data?.firstAuction?.firstDividentHead) || 0),
+              balance:
+                data.enrollment?.group?.group_type === "double"
+                  ? (Number(data.enrollment?.group?.group_install) * Number(data?.auction?.auctionCount) +
+                    Number(data.enrollment?.group?.group_install) -
+                    Number(data.payments?.totalPaidAmount) || 0)
+                  : (Number(data.payments?.totalPayable) +
+                    Number(data.enrollment?.group?.group_install) +
+                    Number(data?.firstAuction?.firstDividentHead) -
+                    Number(data?.payments?.totalPaidAmount) || 0),
               referredBy: data.enrollment?.agent
                 ? data.enrollment.agent
                 : data.enrollment.referred_customer
@@ -221,7 +235,10 @@ const PaymentSummary = () => {
     { key: "groupValue", header: "Group Value" },
     { key: "payment_type", header: "Payment Type" },
     { key: "paymentsTicket", header: "Ticket" },
+    { key: "latestPaymentAmount", header: "Latest Amount" },
+    { key: "amountToBePaid", header: "Amount To be Paid" },
     { key: "amountPaid", header: "Amount Paid" },
+    { key: "balance", header: "Balance" },
     {
       key: "latestPaymentDate",
       header: "Payment Date",
