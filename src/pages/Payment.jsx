@@ -1315,7 +1315,7 @@ const Payment = () => {
                         <option value="online">Online</option>
                         {modifyPayment && (
                           <>
-                            <option value="others">Suspense</option>
+                            <option value="suspense">Suspense</option>
                             <option value="credit">Credit</option>
                             <option value="adjustment">Adjustment</option>
                             <option value="others">Others</option>

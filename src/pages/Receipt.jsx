@@ -41,8 +41,8 @@ const Receipt = () => {
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showFilterField, setShowFilterField] = useState(false);
-  const [selectedLabel,setSelectedLabel] = useState("Today");
-  
+  const [selectedLabel, setSelectedLabel] = useState("Today");
+
   const now = new Date();
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
@@ -53,7 +53,7 @@ const Receipt = () => {
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState("");
   const [payments, setPayments] = useState([]);
-
+  const [showAllPaymentModes, setShowAllPaymentModes] = useState(false);
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -70,7 +70,22 @@ const Receipt = () => {
     type: "info",
   });
   const handleModalClose = () => setShowUploadModal(false);
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    const userObj = JSON.parse(user);
 
+    if (
+      userObj &&
+      userObj.admin_access_right_id?.access_permissions?.edit_payment
+    ) {
+      const showPaymentsModes =
+        userObj.admin_access_right_id?.access_permissions?.edit_payment ===
+        "true"
+          ? true
+          : false;
+      setShowAllPaymentModes(showPaymentsModes);
+    }
+  }, []);
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -163,7 +178,7 @@ const Receipt = () => {
     { value: "ThisMonth", label: "This Month" },
     { value: "LastMonth", label: "Last Month" },
     { value: "ThisYear", label: "This Year" },
-    { value: "Custom", label: "Custom"},
+    { value: "Custom", label: "Custom" },
   ];
 
   const handleGroupPayment = async (groupId) => {
@@ -172,7 +187,7 @@ const Receipt = () => {
   };
 
   const handleSelectFilter = (value) => {
-    setSelectedLabel(value)
+    setSelectedLabel(value);
     //const { value } = e.target;
     setShowFilterField(false);
 
@@ -233,7 +248,6 @@ const Receipt = () => {
           );
 
           setFilteredAuction(validPayments);
-         
 
           const totalAmount = validPayments.reduce(
             (sum, payment) => sum + Number(payment.amount || 0),
@@ -253,7 +267,7 @@ const Receipt = () => {
             old_receipt_no: group?.old_receipt_no,
             ticket: group?.ticket,
             amount: group?.amount,
-            transaction_date:group?.createdAt?.split("T")?.[0],
+            transaction_date: group?.createdAt?.split("T")?.[0],
             mode: group?.pay_type,
             collected_by:
               group?.collected_by?.name ||
@@ -262,7 +276,7 @@ const Receipt = () => {
             action: (
               <div className="flex justify-center gap-2">
                 <Dropdown
-                trigger={['click']}
+                  trigger={["click"]}
                   menu={{
                     items: [
                       {
@@ -468,7 +482,7 @@ const Receipt = () => {
                       showSearch
                       popupMatchSelectWidth={false}
                       onChange={handleSelectFilter}
-                      value ={selectedLabel}
+                      value={selectedLabel}
                       placeholder="Search Or Select Filter"
                       filterOption={(input, option) =>
                         option.children
@@ -609,6 +623,14 @@ const Receipt = () => {
                       <Select.Option value="">All</Select.Option>
                       <Select.Option value="cash">Cash</Select.Option>
                       <Select.Option value="online">Online</Select.Option>
+                      {showAllPaymentModes && (
+                        <>
+                          <option value="suspense">Suspense</option>
+                          <option value="credit">Credit</option>
+                          <option value="adjustment">Adjustment</option>
+                          <option value="others">Others</option>
+                        </>
+                      )}
                     </Select>
                   </div>
                   <div>

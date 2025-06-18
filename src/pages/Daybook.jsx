@@ -46,7 +46,7 @@ const Daybook = () => {
   const [payments, setPayments] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [selectedLabel, setSelectedLabel] = useState("Today")
-
+const [showAllPaymentModes,setShowAllPaymentModes] = useState(false);
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -61,7 +61,22 @@ const Daybook = () => {
     pay_type: "cash",
     transaction_id: "",
   });
+ useEffect(() => {
+    const user = localStorage.getItem("user");
+    const userObj = JSON.parse(user);
 
+    if (
+      userObj &&
+      userObj.admin_access_right_id?.access_permissions?.edit_payment
+    ) {
+      const showPaymentsModes =
+        userObj.admin_access_right_id?.access_permissions?.edit_payment ===
+        "true"
+          ? true
+          : false;
+      setShowAllPaymentModes(showPaymentsModes);
+    }
+  }, []);
   const handleModalClose = () => setShowUploadModal(false);
   useEffect(() => {
     const fetchGroups = async () => {
@@ -538,6 +553,14 @@ const Daybook = () => {
                       <Select.Option value="">All</Select.Option>
                       <Select.Option value="cash">Cash</Select.Option>
                       <Select.Option value="online">Online</Select.Option>
+                       {showAllPaymentModes && (
+                          <>
+                            <option value="suspense">Suspense</option>
+                            <option value="credit">Credit</option>
+                            <option value="adjustment">Adjustment</option>
+                            <option value="others">Others</option>
+                          </>
+                        )}
                     </Select>
                   </div>
                  
