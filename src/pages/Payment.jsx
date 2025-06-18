@@ -3,17 +3,10 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import api from "../instance/TokenInstance";
 import Modal from "../components/modals/Modal";
-//import PaymentModal from "../components/modals/PaymentModal";
-import UploadModal from "../components/modals/UploadModal";
 import DataTable from "../components/layouts/Datatable";
-import { BiPrinter } from "react-icons/bi";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import CustomAlert from "../components/alerts/CustomAlert";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { FaWhatsappSquare } from "react-icons/fa";
-import PrintModal from "../components/modals/PrintModal";
-import PaymentPrint from "../components/printFormats/PaymentPrint";
 import Navbar from "../components/layouts/Navbar";
 import { Select, Dropdown, Modal as AntModal, Drawer, Tooltip } from "antd";
 import { IoMdMore } from "react-icons/io";
@@ -1318,6 +1311,14 @@ const Payment = () => {
                       >
                         <option value="cash">Cash</option>
                         <option value="online">Online</option>
+                        {modifyPayment && (
+                          <>
+                          <option value="others">Suspense</option>
+                          <option value="credit">Credit</option>
+                          <option value="adjustment">Adjustment</option>
+                          <option value="others">Others</option>
+                          </>
+                        )}
                       </select>
                     </div>
                   </div>
