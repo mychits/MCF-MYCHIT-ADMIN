@@ -49,6 +49,7 @@ import DueMessage from "../pages/DueMessage";
 import Reports from "../pages/Reports";
 import LeadSettings from "../pages/LeadSettings";
 import Designation from "../pages/Designation";
+import Guarantor from "../pages/Guarantor";
 
 const mainRoutes = createBrowserRouter([
   {
@@ -167,6 +168,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Enroll />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/guarantor",
+    element: (
+      <ProtectedRoute>
+        <Guarantor />
       </ProtectedRoute>
     ),
   },

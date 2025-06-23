@@ -32,6 +32,7 @@ import { FaPersonMilitaryPointing } from "react-icons/fa6";
 import { GiRoundTable } from "react-icons/gi";
 import { GrUserSettings } from "react-icons/gr";
 import { TbCoinRupeeFilled } from "react-icons/tb";
+import { FaHandshake } from "react-icons/fa";
 const MenuSidebar = [
   {
     id: "$1",
@@ -63,6 +64,12 @@ const MenuSidebar = [
     title: "Enrollments ",
     icon: <FaPeopleArrows />,
     link: "/enrollment",
+  },
+  {
+    id: "$97",
+    title: "Guarantor ",
+    icon: <FaHandshake />,
+    link: "/guarantor",
   },
 
   {
