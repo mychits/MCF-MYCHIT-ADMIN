@@ -63,6 +63,7 @@ import BecomeAgent from "../pages/BecomeAgent";
 import PayOutOthers from "../pages/PayOutOthers";
 import PayInMenu from "../pages/PayInMenu";
 import RegistrationFee from "../pages/RegistrationFees";
+import PrintPaymentOut from "../pages/PrintPaymentOut";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -115,6 +116,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <RegistrationFee />
+      </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/print-payment-out/:id",
+    element: (
+      <ProtectedRoute>
+        <PrintPaymentOut />
       </ProtectedRoute>
     ),
   },

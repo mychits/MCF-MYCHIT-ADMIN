@@ -24,22 +24,21 @@ const PayOutCommission = () => {
   });
   const [agents, setAgents] = useState([]);
   const [commissionPayments, setCommissionPayments] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Used for form submission and initial table load
-  const [isLoadingCommissionCalculation, setIsLoadingCommissionCalculation] = useState(false); // New loader for commission calculation
+  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoadingCommissionCalculation, setIsLoadingCommissionCalculation] = useState(false); 
   const [adminName, setAdminName] = useState("");
   const [errors, setErrors] = useState({});
   const [reRender, setReRender] = useState(0);
 
-  // Removed date filters for the main table as requested by the user.
-  // The main table will now fetch all commission payments or rely on backend defaults.
+
   const today = new Date();
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
 
   const [commissionForm, setCommissionForm] = useState({
     agent_id: "",
-    pay_date: new Date().toISOString().split("T")[0], // Date of the actual payment (transaction date)
-    // New fields for commission calculation period within the modal
+    pay_date: new Date().toISOString().split("T")[0],
+  
     commissionCalculationFromDate: firstDayOfMonth.toISOString().split("T")[0],
     commissionCalculationToDate: today.toISOString().split("T")[0],
     amount: "", // This will be auto-populated
@@ -67,11 +66,11 @@ const [incentiveAmount, setIncentiveAmount] = useState("0.00");
     }
   };
 
-  // Fetch commission payments - removed date filters for the main table as per user request
+ 
   const fetchCommissionPayments = async () => {
     setIsLoading(true);
     try {
-      const response = await API.get("/payment-out/get-commission-payments"); // No date parameters
+      const response = await API.get("/payment-out/get-commission-payments");
       const responseData = response.data.map((payment,index) => ({
         id:index+1,
         _id: payment._id,
@@ -80,8 +79,8 @@ const [incentiveAmount, setIncentiveAmount] = useState("0.00");
         pay_date:payment.pay_date,
         amount: payment.amount,
         pay_type: payment.pay_type,
-         commission_from: payment.commissionCalculationFromDate?.split("T")[0] || "-",  
-  commission_to: payment.commissionCalculationToDate?.split("T")[0] || "-",      
+        commission_from: payment.commissionCalculationFromDate?.split("T")[0] || "-",  
+        commission_to: payment.commissionCalculationToDate?.split("T")[0] || "-",      
         transaction_id: payment.transaction_id,
         note: payment.note,
         pay_for: payment.pay_for,
@@ -101,17 +100,17 @@ const [incentiveAmount, setIncentiveAmount] = useState("0.00");
     const user = localStorage.getItem("user");
     const userObj = JSON.parse(user);
     setAdminId(userObj._id);
-    setAdminName(userObj.name || "");
+    setAdminName(userObj.full_name || userObj.name || "");
 
     if (userObj?.admin_access_right_id?.access_permissions?.edit_payment) {
       setModifyPayment(
         userObj.admin_access_right_id.access_permissions.edit_payment === "true"
       );
     }
-    // Initial fetch of agents and commission payments
+    
     fetchAgents();
     fetchCommissionPayments();
-  }, [reRender]); // reRender is used to force a re-fetch of data.
+  }, [reRender]);
 
 const calculateTotalPayableCommission = async (agentId, calcFromDate, calcToDate) => {
   if (!agentId || !calcFromDate || !calcToDate) {
@@ -124,7 +123,7 @@ const calculateTotalPayableCommission = async (agentId, calcFromDate, calcToDate
     const fromDateForCalc = calcFromDate;
     const toDateForCalc = calcToDate;
 
-    // 1. Fetch Target Data
+    
     const targetRes = await API.get("/target/get-targets", {
       params: { fromDate: fromDateForCalc, toDate: toDateForCalc, agentId },
     });
@@ -154,7 +153,7 @@ const calculateTotalPayableCommission = async (agentId, calcFromDate, calcToDate
     }
     totalTarget = Math.round(totalTarget);
 
-    // 2. Fetch Commission Report (Customer-wise)
+  
     let comm = { summary: { actual_business: 0 }, commission_data: [] };
     try {
       const detailedCommRes = await API.get(
@@ -174,16 +173,16 @@ const calculateTotalPayableCommission = async (agentId, calcFromDate, calcToDate
       }
     }
 
-    // 3. Save Customer Breakdown to State
+
     setCommissionBreakdown(comm.commission_data || []);
 
-    // 4. Calculate Actual Business
+   
     let achievedBusiness = comm?.summary?.actual_business || 0;
     if (typeof achievedBusiness === "string") {
       achievedBusiness = Number(achievedBusiness.replace(/[^0-9.-]+/g, ""));
     }
 
-    // 5. Sum Actual Commissions
+   
     let actualCommission = 0;
     if (comm?.commission_data) {
       actualCommission = comm.commission_data.reduce((sum, item) => {
@@ -201,7 +200,7 @@ const calculateTotalPayableCommission = async (agentId, calcFromDate, calcToDate
       }, 0);
     }
 
-    // 6. Calculate Incentive
+
     const difference = totalTarget - achievedBusiness;
     const designation =
       rawTargets.find(

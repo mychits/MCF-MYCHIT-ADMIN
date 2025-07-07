@@ -14,6 +14,10 @@ import BackdropBlurLoader from "../components/loaders/BackdropBlurLoader";
 import { FaReceipt } from "react-icons/fa";
 import { fieldSize } from "../data/fieldSize";
 
+import { Dropdown } from "antd";
+import { IoMdMore } from "react-icons/io";
+import { Link } from "react-router-dom";
+
 const GeneralPaymentOut = () => {
   const { paymentType } = useParams();
   const [groups, setGroups] = useState([]);
@@ -54,6 +58,10 @@ const GeneralPaymentOut = () => {
   const [lastThreePayments, setLastThreePayments] = useState([]);
   const [adminName, setAdminName] = useState("");
   const [showOthersField, setShowOthersField] = useState(false);
+
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentUpdateId, setCurrentUpdateId] = useState(null);
+
   const [disbursementType, setDisbursementType] = useState("");
   const disbursementTypes = [
     {
@@ -161,6 +169,50 @@ const GeneralPaymentOut = () => {
     }
   }, []);
 
+  const dropDownItems = (group) => [
+    {
+      key: "1",
+      label: (
+        <Link to={`/print-payment-out/${group._id}`} className="text-blue-600">
+          Print
+        </Link>
+      ),
+    },
+    // {
+    //   key: "2",
+    //   label: (
+    //     <div
+    //       className="text-green-600"
+    //       onClick={() => handleViewModalOpen(group._id)}
+    //     >
+    //       View
+    //     </div>
+    //   ),
+    // },
+    {
+      key: "3",
+      label: (
+        <div
+          className="text-red-600"
+          onClick={() => handleDeleteModalOpen(group._id)}
+        >
+          Delete
+        </div>
+      ),
+    },
+    {
+      key: "4",
+      label: (
+        <div
+          className="text-blue-600"
+          onClick={() => handleUpdateModalOpen(group._id)}
+        >
+          Edit
+        </div>
+      ),
+    },
+  ];
+
   useEffect(() => {
     const usr = localStorage.getItem("user");
     let admin_type = null;
@@ -204,6 +256,17 @@ const GeneralPaymentOut = () => {
               disbursed_by: group?.admin_type?.admin_name || "Super Admin",
               disbursement_type: group.disbursement_type,
               note: group.note,
+              action: (
+                <div className="flex justify-center gap-2">
+                  <Dropdown
+                    trigger={["click"]}
+                    menu={{ items: dropDownItems(group) }}
+                    placement="bottomLeft"
+                  >
+                    <IoMdMore className="cursor-pointer text-xl" />
+                  </Dropdown>
+                </div>
+              ),
             };
           });
           setTablePayments(formattedData);
@@ -334,25 +397,43 @@ const GeneralPaymentOut = () => {
     }
   };
 
-  const handleGroupChange = async (groupId) => {
-    setSelectedGroup(groupId);
+ const handleGroupChange = async (groupId) => {
+  setSelectedGroup(groupId);
 
-    if (groupId) {
-      try {
-        const response = await api.get(`/enroll/get-group-enroll/${groupId}`);
-        if (response.data && response.data.length > 0) {
-          setFilteredUsers(response.data);
-        } else {
-          setFilteredUsers([]);
-        }
-      } catch (error) {
-        console.error("Error fetching enrollment data:", error);
+  if (groupId) {
+    try {
+      const response = await api.get(`/enroll/get-group-enroll/${groupId}`);
+
+      if (response.data && response.data.length > 0) {
+        setFilteredUsers(response.data);
+      } else {
         setFilteredUsers([]);
       }
-    } else {
+    } catch (error) {
+      if (error.response?.status === 404) {
+        console.warn("No enrollments found for this group.");
+        setAlertConfig({
+          visibility: true,
+          type: "info",
+          message: "No enrollments found for the selected group.",
+          noReload: true,
+        });
+      } else {
+        console.error("Error fetching enrollment data:", error);
+        setAlertConfig({
+          visibility: true,
+          type: "error",
+          message: "Failed to fetch enrollment data. Please try again.",
+          noReload: true,
+        });
+      }
       setFilteredUsers([]);
     }
-  };
+  } else {
+    setFilteredUsers([]);
+  }
+};
+
 
   const fetchWinAmount = async (userId, groupId, ticket) => {
     try {
@@ -515,13 +596,25 @@ const GeneralPaymentOut = () => {
               receipt: group.receipt_no,
               old_receipt: group.old_receipt_no,
               amount: group.amount,
-              date: group?.pay_date.split("T")[0],
-              transaction_date: group?.createdAt?.split("T")[0],
+              date: formatPayDate(group.pay_date),
+              transaction_date: formatPayDate(group.createdAt),
               disbursed_by: group?.admin_type?.admin_name || "Super Admin",
-              disbursement_type: group?.disbursement_type,
+              disbursement_type: group.disbursement_type,
               note: group.note,
+              action: (
+                <div className="flex justify-center gap-2">
+                  <Dropdown
+                    trigger={["click"]}
+                    menu={{ items: dropDownItems(group) }}
+                    placement="bottomLeft"
+                  >
+                    <IoMdMore className="cursor-pointer text-xl" />
+                  </Dropdown>
+                </div>
+              ),
             };
           });
+
           setTablePayments(formattedData);
         } else {
           setFilteredAuction([]);
@@ -656,28 +749,30 @@ const GeneralPaymentOut = () => {
 
   const handleDeleteModalOpen = async (groupId) => {
     try {
-      const response = await api.get(`/payment/get-payment-by-id/${groupId}`);
+      const response = await api.get(
+        `/payment-out/get-payment-out-by-id/${groupId}`
+      );
       setCurrentGroup(response.data);
       setShowModalDelete(true);
     } catch (error) {
-      console.error("Error fetching enroll:", error);
+      console.error("Error fetching payment out for delete:", error);
     }
   };
 
   const handleDeleteAuction = async () => {
     if (currentGroup) {
       try {
-        await api.delete(`/payment/delete-payment/${currentGroup._id}`);
-
+        await api.delete(`/payment-out/delete-payment/${currentGroup._id}`);
         setShowModalDelete(false);
         setCurrentGroup(null);
         setAlertConfig({
           visibility: true,
-          message: "Payment deleted successfully",
+          message: "Payment Out deleted successfully",
           type: "success",
         });
+        setRerender((prev) => prev + 1); // Refresh the table
       } catch (error) {
-        console.error("Error deleting auction:", error);
+        console.error("Error deleting payment out:", error);
       }
     }
   };
@@ -685,67 +780,131 @@ const GeneralPaymentOut = () => {
   const handleViewModalOpen = async (groupId) => {
     try {
       setLoading(true);
-      setShowModalView(true);
-      setCurrentGroupId(groupId);
       setViewLoader(true);
-      const response = await api.get(`/payment/get-payment-by-id/${groupId}`);
+      const response = await api.get(
+        `/payment-out/get-payment-out-by-id/${groupId}`
+      );
       setCurrentViewGroup(response.data);
+      setShowModalView(true); // Show modal after data is ready
     } catch (error) {
-      console.error("Error viewing Payment:", error);
+      console.error("Error viewing PaymentOut:", error);
     } finally {
       setLoading(false);
       setViewLoader(false);
     }
   };
 
-  const handleUpdateModalOpen = async (groupId) => {
-    try {
-      const response = await api.get(`/payment/get-payment-by-id/${groupId}`);
-      setCurrentUpdateAmount(response.data);
-      setUpdateFormData({
-        amount: response?.data?.amount,
-        pay_date: response?.data?.pay_date.split("T")[0],
-      });
-      setShowUpdateModal(true);
-    } catch (error) {
-      console.error("Error fetching Payment Amount data:", error);
-    }
-  };
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    try {
-      await api.put(
-        `/payment/update-payment-amount/${currentUpdateAmount._id}`,
-        updateFormData
-      );
-      setShowUpdateModal(false);
+const handleUpdateModalOpen = async (groupId) => {
+  try {
+    setViewLoader(true);
+    setLoading(true);
 
+    // Step 1: Fetch payment out data
+    const response = await api.get(`/payment-out/get-payment-out-by-id/${groupId}`);
+    const data = response.data;
+
+    // Step 2: Load group & ticket options for the customer
+    await handleCustomer(data.user_id?._id); // Important: Await this!
+
+    // Step 3: Set form fields including group and ticket
+    setFormData({
+      user_id: data?.user_id?._id || "",
+      group_id: data?.group_id?._id || "",
+      ticket: data?.ticket || "",
+      amount: data?.amount || "",
+      pay_type: data?.pay_type || "",
+      pay_date: data?.pay_date?.split("T")[0] || "",
+      disbursement_type: data?.disbursement_type || "",
+      note: data?.note || "",
+    });
+
+    // NEW ADDITION: Set paymentGroupTickets for the selected group and ticket
+    if (data.group_id?._id && data.ticket) {
+      setPaymentGroupTickets([`chit-${data.group_id._id}|${data.ticket}`]);
+    } else {
+      setPaymentGroupTickets([]);
+    }
+
+    setCurrentUpdateId(data._id);
+    setIsEditMode(true);
+    setShowModal(true);
+  } catch (error) {
+    console.error("Error opening edit modal:", error);
+  } finally {
+    setLoading(false);
+    setViewLoader(false);
+  }
+};
+
+const handleUpdate = async (e) => {
+  e.preventDefault();
+
+  try {
+    if (!currentUpdateId) {
+      console.error("❌ Missing currentUpdateId, cannot proceed with update.");
+      return;
+    }
+
+    const response = await api.put(
+      `/payment-out/update-payment-amount/${currentUpdateId}`,
+      formData
+    );
+
+    if (response.status === 200) {
+      // ✅ First show the alert
       setAlertConfig({
         visibility: true,
-        message: "Payment Amount Updated Successfully",
+        message: "Payment Out updated successfully",
         type: "success",
+        noReload: false,
       });
-    } catch (error) {
-      console.error("Error updating Payment Amount:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        setAlertConfig({
-          visibility: true,
-          message: `${error?.response?.data?.message}`,
-          type: "error",
-        });
-      } else {
-        setAlertConfig({
-          visibility: true,
-          message: "An unexpected error occurred. Please try again.",
-          type: "error",
-        });
-      }
+
+      // ✅ Then auto-close the alert after 2 seconds
+      setTimeout(() => {
+        setAlertConfig((prev) => ({
+          ...prev,
+          visibility: false,
+        }));
+      }, 2000);
+
+      // ✅ Then close modal and reset state
+      setShowModal(false);
+      setIsEditMode(false);
+      setCurrentUpdateId(null);
+
+      setFormData({
+        user_id: "",
+        pay_date: today,
+        amount: "",
+        pay_type: "cash",
+        transaction_id: "",
+        payment_group_tickets: [],
+        disbursement_type: "Auction Winning Payout",
+        note: "",
+      });
+
+      setRerender((prev) => prev + 1);
     }
-  };
+  } catch (error) {
+    console.error("❌ Error updating payment out:", error);
+
+    setAlertConfig({
+      visibility: true,
+      message: "Error updating payment. Please try again.",
+      type: "error",
+      noReload: true,
+    });
+
+    setTimeout(() => {
+      setAlertConfig((prev) => ({
+        ...prev,
+        visibility: false,
+      }));
+    }, 3000);
+  }
+};
+
+
   const handleDisbursementTypeChange = (event) => {
     const { name, value } = event.target;
     setDisbursementType(value);
@@ -791,6 +950,33 @@ const GeneralPaymentOut = () => {
               message={alertConfig.message}
               noReload={alertConfig.noReload}
             />
+
+
+{/* {alertConfig.visibility && (
+  <div
+    style={{
+      position: "fixed",
+      top: "80px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      backgroundColor:
+        alertConfig.type === "success"
+          ? "#4CAF50"
+          : alertConfig.type === "error"
+          ? "#f44336"
+          : "#2196F3",
+      color: "#fff",
+      padding: "12px 24px",
+      borderRadius: "8px",
+      zIndex: 9999,
+    }}
+  >
+    {alertConfig.message}
+  </div>
+)} */}
+
+
+
             <div className="flex-grow p-7">
               <h1 className="text-2xl font-semibold">
                 <span className="text-2xl text-red-500 font-bold">
@@ -843,10 +1029,10 @@ const GeneralPaymentOut = () => {
                             pay_type: "cash",
                             transaction_id: "",
                             payment_group_tickets: [],
-                            disbursement_type: "Auction Winning Payout", 
+                            disbursement_type: "Auction Winning Payout",
                             note: "",
                           });
-                          setDisbursementType("Auction Winning Payout"); 
+                          setDisbursementType("Auction Winning Payout");
                           setSelectedGroupId("");
                           setPaymentGroupTickets([]);
                           setErrors({});
@@ -905,7 +1091,19 @@ const GeneralPaymentOut = () => {
                 <h3 className="mb-4 text-xl font-bold text-gray-900">
                   Add Payment Out
                 </h3>
-                <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+                {/* <form className="space-y-6" onSubmit={handleSubmit} noValidate> */}
+                <form
+                  className="space-y-6"
+                  onSubmit={(e) => {
+                    e.preventDefault(); // Keep this here
+                    if (isEditMode) {
+                      handleUpdate(e); // ✅ Pass the event object 'e' to handleUpdate
+                    } else {
+                      handleSubmit(e); // ✅ Also ensure handleSubmit receives 'e' if it's not already
+                    }
+                  }}
+                  noValidate
+                >
                   <Drawer
                     closable
                     destroyOnHidden
@@ -1280,7 +1478,7 @@ const GeneralPaymentOut = () => {
                         className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
                               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                       >
-                        Save Payment Out
+                      {isEditMode ? "Update Payment Out" : "Save Payment Out"}
                       </button>
                     </Tooltip>
                   </div>
@@ -1290,6 +1488,93 @@ const GeneralPaymentOut = () => {
           </div>
         </div>
       )}
+   
+
+      <Modal
+        isVisible={showModalDelete}
+        onClose={() => {
+          setShowModalDelete(false);
+          setCurrentGroup(null);
+        }}
+      >
+        <div className="py-6 px-5 text-left">
+          <h3 className="mb-4 text-xl font-bold text-gray-900">
+            Are you sure you want to delete?
+          </h3>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleDeleteAuction();
+            }}
+          >
+            <button
+              type="submit"
+              className="w-full text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5"
+            >
+              Delete
+            </button>
+          </form>
+        </div>
+      </Modal>
+
+      {/* ✅ Edit Modal */}
+      <Modal
+        isVisible={showUpdateModal}
+        onClose={() => {
+          setShowUpdateModal(false);
+          setCurrentUpdateAmount(null);
+        }}
+      >
+        <div className="py-6 px-5 text-left">
+          <h3 className="mb-4 text-xl font-bold text-gray-900">
+            Edit Payment Out
+          </h3>
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Amount
+              </label>
+              <input
+                type="number"
+                value={updateFormData.amount}
+                onChange={(e) =>
+                  setUpdateFormData({
+                    ...updateFormData,
+                    amount: e.target.value,
+                  })
+                }
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Pay Date
+              </label>
+              <input
+                type="date"
+                value={updateFormData.pay_date}
+                onChange={(e) =>
+                  setUpdateFormData({
+                    ...updateFormData,
+                    pay_date: e.target.value,
+                  })
+                }
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300 sm:text-sm"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md"
+            >
+              Update
+            </button>
+          </form>
+        </div>
+      </Modal>
     </>
   );
 };
