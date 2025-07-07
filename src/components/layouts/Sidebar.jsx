@@ -147,7 +147,7 @@ const MenuSidebar = [
             id: "&^$2",
             title: "Pay-In ",
             icon: <TbReceiptRupee size={20} />,
-            link: "/payment",
+            link: "/pay-in-menu",
           },
           {
             id: "&^$3",

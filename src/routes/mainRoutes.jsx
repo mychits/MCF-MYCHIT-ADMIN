@@ -61,6 +61,8 @@ import Guarantor from "../pages/Guarantor";
 import DreamAsset from "../pages/DreamAsset";
 import BecomeAgent from "../pages/BecomeAgent";
 import PayOutOthers from "../pages/PayOutOthers";
+import PayInMenu from "../pages/PayInMenu";
+import RegistrationFee from "../pages/RegistrationFees";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -89,6 +91,30 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Group />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/pay-in-menu",
+    element: (
+      <ProtectedRoute>
+        <PayInMenu />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/pay-in-menu/payment",
+    element: (
+      <ProtectedRoute>
+        <Payment />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/pay-in-menu/registration-fee",
+    element: (
+      <ProtectedRoute>
+        <RegistrationFee />
       </ProtectedRoute>
     ),
   },
