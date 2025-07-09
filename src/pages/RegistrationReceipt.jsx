@@ -13,7 +13,7 @@ const RegistrationReceipt = () => {
     useEffect(() => {
         const fetchPayment = async () => {
             try {
-                const response = await api.get(`/registration-fee/get-registration-fee-receipt-by-id/${id}`);
+                const response = await api.get(`/registration-fee/get-registration-fee-by-id/${id}`);
                 if (response.data) {
                     console.log(response.data);
                     setPayment(response.data);

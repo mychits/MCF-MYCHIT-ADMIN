@@ -1380,7 +1380,10 @@ const UserReport = () => {
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState("");
   const [filteredAuction, setFilteredAuction] = useState([]); // This holds the raw enrollment data for the selected user
   const [groupInfo, setGroupInfo] = useState({});
-
+  const [registrationFee, setRegistrationFee] = useState({
+    amount: 0,
+    createdAt: null,
+  });
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split("T")[0];
@@ -1399,7 +1402,9 @@ const UserReport = () => {
   const [filteredBorrowerData, setFilteredBorrowerData] = useState([]);
   const [filteredDisbursement, setFilteredDisbursement] = useState([]);
   const [disbursementLoading, setDisbursementLoading] = useState(false);
-
+  const [registrationAmount, setRegistrationAmount] = useState(null);
+const [registrationDate, setRegistrationDate] = useState(null);
+const [finalPaymentBalance, setFinalPaymentBalance] = useState(0);
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
@@ -1917,86 +1922,323 @@ const UserReport = () => {
   };
 
   // EFFECT: Fetch Enrollment Payments (Customer Ledger)
-  useEffect(() => {
-    const fetchEnroll = async () => {
-      setTableEnrolls([]); // Clear previous data
-      setBasicLoading(true);
-      setGroupPaid(""); // Clear specific group totals
-      setGroupToBePaid(""); // Clear specific group totals
+  // useEffect(() => {
+  //   const fetchEnroll = async () => {
+  //     setTableEnrolls([]); // Clear previous data
+  //     setBasicLoading(true);
+  //     setGroupPaid(""); // Clear specific group totals
+  //     setGroupToBePaid(""); // Clear specific group totals
 
+  //     try {
+  //       setIsLoading(true);
+  //       const response = await api.get(
+  //         `/enroll/get-user-payment?group_id=${EnrollGroupId.groupId}&ticket=${EnrollGroupId.ticket}&user_id=${selectedGroup}`
+  //       );
+
+  //       if (response.data && response.data.length > 0) {
+  //         // Removed setFilteredUsers(response.data);
+  //         const Paid = response.data;
+  //         setGroupPaid(Paid[0]?.groupPaidAmount || 0); // Use optional chaining and default
+  //         const toBePaid = response.data;
+  //         setGroupToBePaid(toBePaid[0]?.totalToBePaidAmount || 0); // Use optional chaining and default
+
+  //         let balance = 0;
+  //         const formattedData = response.data.map((group, index) => {
+  //           balance += Number(group.amount);
+  //           return {
+  //             _id: group._id,
+  //             id: index + 1,
+  //             date: formatPayDate(group?.pay_date),
+  //             amount: group.amount,
+  //             receipt: group.receipt_no,
+  //             old_receipt: group.old_receipt_no,
+  //             type: group.pay_type,
+  //             balance,
+  //           };
+  //         });
+  //         formattedData.push({
+  //           // This is for displaying total balance at the end
+  //           id: "",
+  //           date: "",
+  //           amount: "",
+  //           receipt: "",
+  //           old_receipt: "",
+  //           type: "TOTAL",
+  //           balance, // Final balance
+  //         });
+
+  //         setTableEnrolls(formattedData);
+  //       } else {
+  //         // Removed setFilteredUsers([]);
+  //         setTableEnrolls([]); // Explicitly set to empty if no data
+  //         setGroupPaid("");
+  //         setGroupToBePaid("");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching enrollment data:", error);
+  //       // Removed setFilteredUsers([]);
+  //       setTableEnrolls([]); // Explicitly set to empty on error
+  //       setGroupPaid("");
+  //       setGroupToBePaid("");
+  //     } finally {
+  //       setBasicLoading(false);
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   // Only fetch if a user is selected AND either a specific group/ticket OR Loan is selected
+  //   if (selectedGroup && (EnrollGroupId.groupId || EnrollGroupId.ticket)) {
+  //     if (EnrollGroupId.groupId !== "Loan") {
+  //       // Ensure it's not handled by loan payments effect
+  //       fetchEnroll();
+  //     }
+  //   } else if (
+  //     selectedGroup &&
+  //     !EnrollGroupId.groupId &&
+  //     !EnrollGroupId.ticket
+  //   ) {
+  //     // If a customer is selected but no specific group/ticket, clear the table
+  //     setTableEnrolls([]);
+  //     setGroupPaid("");
+  //     setGroupToBePaid("");
+  //   }
+  // }, [selectedGroup, EnrollGroupId.groupId, EnrollGroupId.ticket]);
+
+//   useEffect(() => {
+//     const fetchRegistrationFee = async () => {
+//       if (
+//         activeTab === "basicReport" &&
+//         selectedGroup &&
+//         EnrollGroupId.groupId &&
+//         EnrollGroupId.ticket &&
+//         EnrollGroupId.groupId !== "Loan"
+//       ) {
+//         try {
+//           // Reset all values before fetch
+//           setTableEnrolls([]);
+//           setGroupPaid("");
+//           setGroupToBePaid("");
+//           setRegistrationAmount(null);
+//           setRegistrationDate(null);
+//           setBasicLoading(true);
+//           setIsLoading(true);
+
+//           const response = await api.get(
+//             "/enroll/get-user-registration-fee-report",
+//             {
+//               params: {
+//                 group_id: EnrollGroupId.groupId,
+//                 ticket: EnrollGroupId.ticket,
+//                 user_id: selectedGroup,
+//               },
+//             }
+//           );
+
+//           const { payments = [], registrationFee = {} } = response.data || {};
+         
+
+
+// // ✅ Insert Registration Fee row separately (does NOT impact balance)
+// if (registrationFee > 0) {
+//   formattedData.push({
+//     id: "-", // or leave empty
+//     date: registrationFee.createdAt
+//       ? new Date(registrationFee.createdAt).toLocaleDateString("en-GB")
+//       : "",
+//     amount: registrationFee.amount,
+//     receipt: registrationFee.receipt_no,
+//     old_receipt: "-",
+//     type: registrationFee.pay_for,
+//     balance: "-", // Don't count in balance
+//   });
+// }
+
+//           // ✅ Set Group Paid and To Be Paid (if fields available in payment[0])
+//           setGroupPaid(payments[0]?.groupPaidAmount || 0);
+//           setGroupToBePaid(payments[0]?.totalToBePaidAmount || 0);
+
+//           // ✅ Build TableEnrolls with running balance
+//           let balance = 0;
+//           const formattedData = payments.map((payment, index) => {
+//             balance += Number(payment.amount || 0);
+//             return {
+//               _id: payment._id,
+//               id: index + 1,
+//               date: formatPayDate(payment?.pay_date),
+//               amount: payment.amount,
+//               receipt: payment.receipt_no,
+//               old_receipt: payment.old_receipt_no,
+//               type: payment.pay_type,
+//               balance,
+//             };
+//           });
+
+//           if (formattedData.length > 0) {
+//             formattedData.push({
+//               id: "",
+//               date: "",
+//               amount: "",
+//               receipt: "",
+//               old_receipt: "",
+//               type: "TOTAL",
+//               balance,
+//             });
+//             setFinalPaymentBalance(balance);
+//           } else {
+//             setFinalPaymentBalance(0); // reset
+//           }
+
+//           setTableEnrolls(formattedData);
+
+//           // ✅ Set Registration Fee values
+//           if (registrationFee.amount > 0) {
+//             setRegistrationAmount(registrationFee.amount);
+//             setRegistrationDate(
+//               registrationFee.createdAt
+//                 ? new Date(registrationFee.createdAt).toLocaleDateString(
+//                     "en-GB"
+//                   )
+//                 : null
+//             );
+//           }
+//         } catch (error) {
+//           console.error("Error fetching registration fee and payments:", error);
+//           setTableEnrolls([]);
+//           setGroupPaid("");
+//           setGroupToBePaid("");
+//           setRegistrationAmount(null);
+//           setRegistrationDate(null);
+//         } finally {
+//           setBasicLoading(false);
+//           setIsLoading(false);
+//         }
+//       } else {
+//         // Reset if invalid
+//         setTableEnrolls([]);
+//         setGroupPaid("");
+//         setGroupToBePaid("");
+//         setRegistrationAmount(null);
+//         setRegistrationDate(null);
+//       }
+//     };
+
+//     fetchRegistrationFee();
+//   }, [activeTab, selectedGroup, EnrollGroupId.groupId, EnrollGroupId.ticket]);
+
+useEffect(() => {
+  const fetchRegistrationFee = async () => {
+    if (
+      activeTab === "basicReport" &&
+      selectedGroup &&
+      EnrollGroupId.groupId &&
+      EnrollGroupId.ticket &&
+      EnrollGroupId.groupId !== "Loan"
+    ) {
       try {
+        // Reset all values before fetch
+        setTableEnrolls([]);
+        setGroupPaid("");
+        setGroupToBePaid("");
+        setRegistrationAmount(null);
+        setRegistrationDate(null);
+        setBasicLoading(true);
         setIsLoading(true);
+
         const response = await api.get(
-          `/enroll/get-user-payment?group_id=${EnrollGroupId.groupId}&ticket=${EnrollGroupId.ticket}&user_id=${selectedGroup}`
+          "/enroll/get-user-registration-fee-report",
+          {
+            params: {
+              group_id: EnrollGroupId.groupId,
+              ticket: EnrollGroupId.ticket,
+              user_id: selectedGroup,
+            },
+          }
         );
 
-        if (response.data && response.data.length > 0) {
-          // Removed setFilteredUsers(response.data);
-          const Paid = response.data;
-          setGroupPaid(Paid[0]?.groupPaidAmount || 0); // Use optional chaining and default
-          const toBePaid = response.data;
-          setGroupToBePaid(toBePaid[0]?.totalToBePaidAmount || 0); // Use optional chaining and default
+        const { payments = [], registrationFee = {} } = response.data || {};
 
-          let balance = 0;
-          const formattedData = response.data.map((group, index) => {
-            balance += Number(group.amount);
-            return {
-              _id: group._id,
-              id: index + 1,
-              date: formatPayDate(group?.pay_date),
-              amount: group.amount,
-              receipt: group.receipt_no,
-              old_receipt: group.old_receipt_no,
-              type: group.pay_type,
-              balance,
-            };
-          });
+        // ✅ Set Group Paid and To Be Paid
+        setGroupPaid(payments[0]?.groupPaidAmount || 0);
+        setGroupToBePaid(payments[0]?.totalToBePaidAmount || 0);
+
+        // ✅ Build TableEnrolls with running balance
+        let balance = 0;
+        const formattedData = payments.map((payment, index) => {
+          balance += Number(payment.amount || 0);
+          return {
+            _id: payment._id,
+            id: index + 1,
+            date: formatPayDate(payment?.pay_date),
+            amount: payment.amount,
+            receipt: payment.receipt_no,
+            old_receipt: payment.old_receipt_no,
+            type: payment.pay_type,
+            balance,
+          };
+        });
+
+        // ✅ Insert Registration Fee row separately (DO NOT impact balance)
+        if (registrationFee?.amount > 0) {
           formattedData.push({
-            // This is for displaying total balance at the end
+            id: "-",
+            date: registrationFee.createdAt
+              ? new Date(registrationFee.createdAt).toLocaleDateString("en-GB")
+              : "",
+            amount: registrationFee.amount,
+            receipt: registrationFee.receipt_no,
+            old_receipt: "-",
+            type: registrationFee.pay_for || "Reg Fee",
+            balance: "-", // Registration shouldn't count in balance
+          });
+
+          // Also set values separately
+          setRegistrationAmount(registrationFee.amount);
+          setRegistrationDate(
+            registrationFee.createdAt
+              ? new Date(registrationFee.createdAt).toLocaleDateString("en-GB")
+              : null
+          );
+        }
+
+        // ✅ Append Total Row
+        if (formattedData.length > 0) {
+          formattedData.push({
             id: "",
             date: "",
             amount: "",
             receipt: "",
             old_receipt: "",
             type: "TOTAL",
-            balance, // Final balance
+            balance,
           });
-
-          setTableEnrolls(formattedData);
+          setFinalPaymentBalance(balance);
         } else {
-          // Removed setFilteredUsers([]);
-          setTableEnrolls([]); // Explicitly set to empty if no data
-          setGroupPaid("");
-          setGroupToBePaid("");
+          setFinalPaymentBalance(0); // reset
         }
+
+        setTableEnrolls(formattedData);
       } catch (error) {
-        console.error("Error fetching enrollment data:", error);
-        // Removed setFilteredUsers([]);
-        setTableEnrolls([]); // Explicitly set to empty on error
+        console.error("Error fetching registration fee and payments:", error);
+        setTableEnrolls([]);
         setGroupPaid("");
         setGroupToBePaid("");
+        setRegistrationAmount(null);
+        setRegistrationDate(null);
       } finally {
         setBasicLoading(false);
         setIsLoading(false);
       }
-    };
-    // Only fetch if a user is selected AND either a specific group/ticket OR Loan is selected
-    if (selectedGroup && (EnrollGroupId.groupId || EnrollGroupId.ticket)) {
-      if (EnrollGroupId.groupId !== "Loan") {
-        // Ensure it's not handled by loan payments effect
-        fetchEnroll();
-      }
-    } else if (
-      selectedGroup &&
-      !EnrollGroupId.groupId &&
-      !EnrollGroupId.ticket
-    ) {
-      // If a customer is selected but no specific group/ticket, clear the table
+    } else {
+      // Reset if invalid
       setTableEnrolls([]);
       setGroupPaid("");
       setGroupToBePaid("");
+      setRegistrationAmount(null);
+      setRegistrationDate(null);
     }
-  }, [selectedGroup, EnrollGroupId.groupId, EnrollGroupId.ticket]);
+  };
+
+  fetchRegistrationFee();
+}, [activeTab, selectedGroup, EnrollGroupId.groupId, EnrollGroupId.ticket]);
 
   const Basiccolumns = [
     { key: "id", header: "SL. NO" },
@@ -2140,6 +2382,8 @@ const UserReport = () => {
         <CircularLoader color="text-green-600" />
       </div>
     );
+
+
 
   return (
     <>
@@ -2759,8 +3003,49 @@ const UserReport = () => {
                                       {`${loan.loan_id} | ₹${loan.loan_amount}`}
                                     </option>
                                   ))}
+                                {registrationFee.amount > 0 && (
+                                  <div className="mt-6 p-4 border rounded bg-gray-100 w-fit text-gray-800 shadow">
+                                    <p className="text-sm font-semibold">
+                                      Registration Fee Info
+                                    </p>
+                                    <p>
+                                      <strong>Amount:</strong> ₹
+                                      {registrationFee.amount}
+                                    </p>
+                                    <p>
+                                      <strong>Date:</strong>{" "}
+                                      {registrationFee.createdAt
+                                        ? new Date(
+                                            registrationFee.createdAt
+                                          ).toLocaleDateString("en-GB")
+                                        : "N/A"}
+                                    </p>
+                                  </div>
+                                )}
                               </select>
                             </div>
+                             <div className="mt-6 flex justify-center gap-8 flex-wrap">
+  <input
+    type="text"
+    value={`Registration Fee: ₹${registrationAmount || 0}`}
+    readOnly
+    className="px-4 py-2 border rounded font-semibold w-60 text-center bg-green-100 text-green-800 border-green-400"
+  />
+
+  <input
+    type="text"
+    value={`Payment Balance: ₹${finalPaymentBalance}`}
+    readOnly
+    className="px-4 py-2 border rounded font-semibold w-60 text-center bg-blue-100 text-blue-800 border-blue-400"
+  />
+
+  <input
+    type="text"
+    value={`Total: ₹${Number(finalPaymentBalance) + Number(registrationAmount || 0)}`}
+    readOnly
+    className="px-4 py-2 border rounded font-semibold w-60 text-center bg-purple-100 text-purple-800 border-purple-400"
+  />
+</div>
                           </div>
 
                           {(TableEnrolls.length > 0 ||

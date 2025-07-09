@@ -269,12 +269,17 @@ const DataTable = ({
                           [column.key]: value,
                         }))
                       }
-                      filterOption={(input, option) =>
-                        option.children
-                          .toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
+                      // filterOption={(input, option) =>
+                      //   option.children
+                      //     .toString()
+                      //     .toLowerCase()
+                      //     .includes(input.toLowerCase())
+                      // }
+                      filterOption={(input, option) => {
+                        const label =
+                          option?.children?.toString().toLowerCase() || "";
+                        return label.includes(input.toLowerCase());
+                      }}
                     >
                       <Select.Option value="">All</Select.Option>
                       {[
