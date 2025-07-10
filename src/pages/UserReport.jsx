@@ -2154,7 +2154,7 @@ useEffect(() => {
           }
         );
 
-        const { payments = [], registrationFee = {} } = response.data || {};
+        const { payments = [], registrationFees = [] } = response.data || {};
 
         // ✅ Set Group Paid and To Be Paid
         setGroupPaid(payments[0]?.groupPaidAmount || 0);
@@ -2176,25 +2176,31 @@ useEffect(() => {
           };
         });
 
-        // ✅ Insert Registration Fee row separately (DO NOT impact balance)
-        if (registrationFee?.amount > 0) {
+        // ✅ Insert all Registration Fee rows (DO NOT impact balance)
+        let totalRegAmount = 0;
+        registrationFees.forEach((regFee, idx) => {
           formattedData.push({
             id: "-",
-            date: registrationFee.createdAt
-              ? new Date(registrationFee.createdAt).toLocaleDateString("en-GB")
+            date: regFee.createdAt
+              ? new Date(regFee.createdAt).toLocaleDateString("en-GB")
               : "",
-            amount: registrationFee.amount,
-            receipt: registrationFee.receipt_no,
+            amount: regFee.amount,
+            receipt: regFee.receipt_no,
             old_receipt: "-",
-            type: registrationFee.pay_for || "Reg Fee",
-            balance: "-", // Registration shouldn't count in balance
+            type: regFee.pay_for || "Reg Fee",
+            balance: "-", // Don't affect running balance
           });
 
-          // Also set values separately
-          setRegistrationAmount(registrationFee.amount);
+          totalRegAmount += Number(regFee.amount || 0);
+        });
+
+        setRegistrationAmount(totalRegAmount);
+
+        // Set first reg fee date if available
+        if (registrationFees.length > 0) {
           setRegistrationDate(
-            registrationFee.createdAt
-              ? new Date(registrationFee.createdAt).toLocaleDateString("en-GB")
+            registrationFees[0]?.createdAt
+              ? new Date(registrationFees[0].createdAt).toLocaleDateString("en-GB")
               : null
           );
         }
