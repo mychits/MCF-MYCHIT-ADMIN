@@ -44,7 +44,7 @@ const HardTransfer = () => {
   const fetchTransfers = async () => {
     try {
       setIsDataTableLoading(true);
-      const res = await api.get("/enroll/transfer/get-all");
+      const res = await api.get("/enroll/transfer/get-all/");
       console.log(res.data,"response data")
       const formattedData = (res.data || []).map((transfer, index) => {
         const fromGroupName = (
@@ -183,6 +183,7 @@ const HardTransfer = () => {
         },
       });
       setAmountPaid(res.data.amountPaid || 0);
+      setTransferAmount(res.data.amountPaid || 0);
     } catch (error) {
       setAmountPaid(0);
       console.error("Failed to fetch amount paid", error);
@@ -222,7 +223,7 @@ const HardTransfer = () => {
         toTicket: Number(destinationTicket),
         transferType: "Hard",
       };
-      const res = await api.post("/enroll/transfer-customer", payload);
+      const res = await api.post("/enroll/hard-transfer-customer", payload);
       if (res.status === 200 || res.status === 201) {
         const transfer = res.data;
         const formatted = {
@@ -379,6 +380,7 @@ const HardTransfer = () => {
                     .filter((e) => e.user_id?._id && e.tickets)
                     .map((e) => (
                       <Select.Option
+                      className={`${e.deleted ? "text-red-500" :"text-black"}`}
                         key={e._id}
                         value={`${e.user_id._id}|${e.tickets}`}
                       >
@@ -425,10 +427,11 @@ const HardTransfer = () => {
               <Form.Item label={<span className="font-medium">Transfer Amount</span>}>
                 <Input
                   size="large"
-                  placeholder="Enter Amount to Transfer"
-                  value={transferAmount}
+                  placeholder="Transfer Amount"
+                  value={transferAmount || 0}
                   onChange={(e) => handleChange("transfer_amount", e.target.value)}
                   style={{ fontSize: "16px", height: "52px" }}
+                  disabled
                 />
               </Form.Item>
             </Col>

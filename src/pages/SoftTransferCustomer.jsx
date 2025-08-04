@@ -44,7 +44,7 @@ const SoftTransferCustomer = () => {
   const fetchTransfers = async () => {
     try {
       setIsDataTableLoading(true);
-      const res = await api.get("/enroll/transfer/get-all");
+      const res = await api.get("/enroll/transfer/get-all/Soft");
       console.log(res.data, "response data");
       const formattedData = (res.data || []).map((transfer, index) => {
         const fromGroupName =
@@ -305,6 +305,7 @@ const SoftTransferCustomer = () => {
             <Button
               onClick={handleAddTransferClick}
               className="bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
+
               disabled={loader}
             >
               {loader ? (
