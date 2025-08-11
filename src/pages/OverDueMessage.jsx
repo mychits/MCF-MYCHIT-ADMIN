@@ -292,7 +292,7 @@ const OverDueMessage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [totalUsers, setTotalUsers] = useState(0);
   const [notifier, contextHolder] = notification.useNotification();
-
+  const [selectAll, setSelectAll] = useState(false);
   const groupOptions = [...new Set(usersData.map((u) => u.groupName))];
 
   const filteredUsers = useMemo(() => {
@@ -347,7 +347,14 @@ const OverDueMessage = () => {
       };
     });
   }, [usersData, groupFilter, fromDate, toDate, searchText, activeUserData]);
-
+useEffect(() => {
+  if (filteredUsers.length > 0) {
+    const allSelected = filteredUsers.every((user) => user.isSelected);
+    setSelectAll(allSelected);
+  } else {
+    setSelectAll(false);
+  }
+}, [filteredUsers]);
   const visibleSelectedCount = useMemo(() => {
     return filteredUsers.filter((user) => user.isSelected).length;
   }, [filteredUsers]);
@@ -424,7 +431,7 @@ const OverDueMessage = () => {
               const paymentsTicket = data.payments.ticket;
               const groupName = data.enrollment.group.group_name;
 
-              // 🟡 CHANGE 1: Handle amountToBePaid and totalToBePaid consistently
+              //  CHANGE 1: Handle amountToBePaid and totalToBePaid consistently
               const totalToBePaid =
                 groupType === "double"
                   ? groupInstall * auctionCount + groupInstall
@@ -443,7 +450,7 @@ const OverDueMessage = () => {
 
               const userName = usrData.userName;
 
-              // 🟡 CHANGE 2: New fields from latestPayment info
+              //  CHANGE 2: New fields from latestPayment info
               const latestPaymentAmount = data.latestPaymentAmount || 0; // ⬅ Added for clarity
               const latestPaymentDate = data.latestPaymentDate || ""; // ⬅ Added for clarity
 
@@ -551,6 +558,45 @@ const OverDueMessage = () => {
                       ))}
                     </Select>
                   </div>
+                  <div className="flex items-center mt-6">
+  <input
+    type="checkbox"
+    checked={selectAll}
+    onChange={(e) => {
+      const isChecked = e.target.checked;
+      setSelectAll(isChecked);
+
+      // Update all filtered users
+      setActiveUserData((prev) => {
+        const updated = { ...prev };
+        filteredUsers.forEach((user) => {
+          updated[user._id] = {
+            info: {
+              ...updated[user._id]?.info,
+              status: isChecked,
+              balance: user.balance,
+              userPhone: user.userPhone,
+              paymentsTicket: user.paymentsTicket,
+              groupName: user.groupName,
+              userName: user.userName,
+              groupId: user.groupId,
+              userId: user.userId,
+              amountPaid: user.amountPaid,
+              amountToBePaid: user.totalToBePaid,
+              latestPaymentDate: user.latestPaymentDate,
+              latestPaymentAmount: user.latestPaymentAmount,
+              paymentType: user.payment_type,
+            },
+          };
+        });
+        return updated;
+      });
+    }}
+    className="mr-2"
+  />
+  <label className="text-sm font-medium text-gray-700">Select All</label>
+</div>
+
                 </div>
                 <div className="flex justify-end mb-4">
                   <button
@@ -583,4 +629,5 @@ const OverDueMessage = () => {
     </div>
   );
 };
+
 export default OverDueMessage;

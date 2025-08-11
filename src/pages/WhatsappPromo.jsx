@@ -46,7 +46,7 @@ const WhatsappPromo = () => {
   const [selectedGroupName, setSelectedGroupName] = useState("");
   const [allLeads, setAllLeads] = useState([]);
   const [allEnrolls, setAllEnrolls] = useState([]);
-  const [selectedLabel, setSelectedLabel] = useState("Today");
+  const [selectedLabel, setSelectedLabel] = useState("All");
   
   // Effect to update the header title based on selectedReferrerType
   useEffect(() => {
@@ -125,11 +125,13 @@ const WhatsappPromo = () => {
     setSelectedToDate(formatDate(end));
 
   } else if (value === "Custom") {
-    // ✅ Do NOT override dates. Allow user to select manually.
+    //  Do NOT override dates. Allow user to select manually.
     // Just keep the currently selectedFromDate / selectedToDate
   }
 };
-
+useEffect(() => {
+  handleSelectFilter("All");
+}, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -180,7 +182,7 @@ const WhatsappPromo = () => {
           //   Array.isArray(res.data) ? res.data : res.data.users || []
           // );
           try {
-            // ✅ Fetch Agents
+            //  Fetch Agents
             const agentRes = await api.get("/agent/get");
             const allAgents = Array.isArray(agentRes.data)
               ? agentRes.data
@@ -189,13 +191,13 @@ const WhatsappPromo = () => {
               (a) => a.agent_type === "agent"
             );
 
-            // ✅ Fetch Employees
+            //  Fetch Employees
             const empRes = await api.get("/agent/get-employee");
             const employees = Array.isArray(empRes.data.employee)
               ? empRes.data.employee
               : [];
 
-            // ✅ Combine Agents + Employees
+            //  Combine Agents + Employees
             setAgentList([...filteredAgents, ...employees]);
           } catch (error) {
             console.error("Error fetching agents and employees:", error);
@@ -289,7 +291,7 @@ const WhatsappPromo = () => {
         visibility: true,
       });
 
-      // ✅ Reset selection after sending
+      //  Reset selection after sending
       const updatedSelection = { ...selectUser };
       whatsappData.forEach((entry) => {
         updatedSelection[entry.info.userId] = false;
@@ -308,7 +310,7 @@ const WhatsappPromo = () => {
 
 
   const filteredData = useMemo(() => {
-  // ✅ Use selectedFromDate and selectedToDate
+  //  Use selectedFromDate and selectedToDate
   const from = selectedFromDate
     ? moment(selectedFromDate, "YYYY-MM-DD").startOf("day")
     : null;
@@ -320,7 +322,7 @@ const WhatsappPromo = () => {
   const filterFn = (item) => {
     const created = item?.createdAt ? moment(item.createdAt) : null;
 
-    // ✅ Only apply date range if label is not "All"
+    //  Only apply date range if label is not "All"
     const isWithinDateRange =
       (!from || (created && created.isSameOrAfter(from))) &&
       (!to || (created && created.isSameOrBefore(to)));
@@ -393,8 +395,8 @@ const WhatsappPromo = () => {
   allEnrolls,
   selectedReferrerName,
   selectedReferrerType,
-  selectedFromDate,   // ✅ FIXED
-  selectedToDate,     // ✅ FIXED
+  selectedFromDate,   //  FIXED
+  selectedToDate,     //  FIXED
   selectedGroupName,
 ]);
 

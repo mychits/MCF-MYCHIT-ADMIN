@@ -86,8 +86,8 @@ const Lead = () => {
     fetchGroups();
   }, [reloadTrigger]);
 
-    const handleAssignTask = (leadId) => {
-  navigate("/task", { state: { leadId } }); // ✅ pass leadId
+    const handleAssignTask = (leadId, leadTypeName) => {
+  navigate("/task", { state: { leadId , leadTypeName } }); //  pass leadId
 }
 
   useEffect(() => {
@@ -151,7 +151,7 @@ const Lead = () => {
                       label: (
                         <div
                           className="text-blue-600"
-                          onClick={() => handleAssignTask(group._id)}
+                          onClick={() => handleAssignTask(group._id, group.lead_type_name)}
                         >
                           Assign Task
                         </div>

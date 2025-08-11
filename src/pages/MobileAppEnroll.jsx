@@ -106,15 +106,13 @@ const MobileAppEnroll = () => {
           payment_type: item.payment_type,
           chit_asking_month: item.chit_asking_month,
           referred_type: item.referred_type,
-          referred_by:  item?.agent?.name && item?.agent?.phone_number
-                  ? `${item.agent.name} | ${item.agent.phone_number}`
-                  : item?.referred_customer?.full_name &&
-                    item?.referred_customer?.phone_number
-                  ? `${item.referred_customer.full_name} | ${item?.referred_customer?.phone_number}`
-                  : item?.referred_lead?.lead_name &&
-                    item?.referred_lead?.agent_number
-                  ? `${item.referred_lead.lead_name} | ${item.referred_lead.agent_number}`
-                  : "N/A",
+          referred_by:item?.referred_type === "Agent" && item?.agent?.name && item?.agent?.phone_number
+    ? `${item.agent.name} | ${item.agent.phone_number}`
+  : item?.referred_type === "Customer" && item?.referred_customer?.full_name && item?.referred_customer?.phone_number
+    ? `${item.referred_customer.full_name} | ${item.referred_customer.phone_number}`
+  : item?.referred_type === "Lead" && item?.referred_lead?.lead_name && item?.referred_lead?.agent_number
+    ? `${item.referred_lead.lead_name} | ${item.referred_lead.agent_number}`
+  : "N/A",
 
           enrollment_date: item.createdAt?.split("T")[0],
           action: (
