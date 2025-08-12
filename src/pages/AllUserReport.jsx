@@ -105,6 +105,7 @@ const filteredUsers = useMemo(() => {
                         groupInstall +
                         firstDividentHead -
                         totalPaidAmount,
+                  status: data.isPrized === "true" ? "Prized" : "Un Prized",
                 };
 
                 usersList.push(tempUsr);
@@ -166,6 +167,7 @@ const filteredUsers = useMemo(() => {
     { key: "profit", header: "Profit" },
     { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
+    {key: "status", header: "Status"},
   ];
 
   return (
