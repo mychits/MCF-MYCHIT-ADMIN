@@ -17,10 +17,19 @@ const DataTable = ({
   isExportEnabled = true,
   data = [],
   columns = [],
+  exportCols = [],
   exportedFileName = "export.csv",
 }) => {
   const safeData = Array.isArray(data) ? data : [];
   const safeColumns = Array.isArray(columns) ? columns : [];
+  const exportColumns =
+    exportCols?.length <= 0
+      ? Array.isArray(columns)
+        ? columns
+        : []
+      : Array.isArray(exportCols)
+      ? exportCols
+      : [];
 
   const [currentPage, setCurrentPage] = useState(1);
   const [active, setActive] = useState({});
@@ -89,9 +98,9 @@ const DataTable = ({
   );
 
   const exportToExcel = () => {
-    const headers = safeColumns.map((col) => col.header).join(",");
+    const headers = exportColumns.map((col) => col.header).join(",");
     const rows = processedData
-      .map((item) => safeColumns.map((col) => item[col.key]).join(","))
+      .map((item) => exportColumns.map((col) => item[col.key]).join(","))
       .join("\n");
     const csv = `${headers}\n${rows}`;
     const blob = new Blob([csv], { type: "text/csv" });

@@ -28,19 +28,20 @@ const AllUserReport = () => {
     totalBalance: 0,
   });
 
-const filteredUsers = useMemo(() => {
-  return filterOption(
-    usersData.filter((u) => {
-      const matchGroup = groupFilter ? u.groupName === groupFilter : true;
-      const enrollmentDate = new Date(u.enrollmentDate);
-      const matchFromDate = fromDate ? enrollmentDate >= new Date(fromDate) : true;
-      const matchToDate = toDate ? enrollmentDate <= new Date(toDate) : true;
-      return matchGroup && matchFromDate && matchToDate;
-    }),
-    searchText
-  );
-}, [usersData, groupFilter, fromDate, toDate, searchText]);
-
+  const filteredUsers = useMemo(() => {
+    return filterOption(
+      usersData.filter((u) => {
+        const matchGroup = groupFilter ? u.groupName === groupFilter : true;
+        const enrollmentDate = new Date(u.enrollmentDate);
+        const matchFromDate = fromDate
+          ? enrollmentDate >= new Date(fromDate)
+          : true;
+        const matchToDate = toDate ? enrollmentDate <= new Date(toDate) : true;
+        return matchGroup && matchFromDate && matchToDate;
+      }),
+      searchText
+    );
+  }, [usersData, groupFilter, fromDate, toDate, searchText]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,7 +67,7 @@ const filteredUsers = useMemo(() => {
                 const id = data?.enrollment?._id;
                 const tempUsr = {
                   sl_no: count,
-                  _id:id,
+                  _id: id,
                   userName: usrData.userName,
                   userPhone: usrData.phone_number,
                   customerId: usrData.customer_id,
@@ -106,6 +107,16 @@ const filteredUsers = useMemo(() => {
                         firstDividentHead -
                         totalPaidAmount,
                   status: data.isPrized === "true" ? "Prized" : "Un Prized",
+                  statusDiv:
+                    data.isPrized === "true" ? (
+                      <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full shadow-sm border border-green-300">
+                        <span className="font-semibold text-sm">Prized</span>
+                      </div>
+                    ) : (
+                       <div className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full shadow-sm border border-red-300">
+                        <span className="font-semibold text-sm">Un Prized</span>
+                      </div>
+                    ),
                 };
 
                 usersList.push(tempUsr);
@@ -124,29 +135,37 @@ const filteredUsers = useMemo(() => {
     fetchData();
   }, []);
 
- useEffect(() => {
-  const totalCustomers = filteredUsers.length;
-  const groupSet = new Set(filteredUsers.map((user) => user.groupName));
-  const totalGroups = groupFilter ? 1 : groupSet.size;
+  useEffect(() => {
+    const totalCustomers = filteredUsers.length;
+    const groupSet = new Set(filteredUsers.map((user) => user.groupName));
+    const totalGroups = groupFilter ? 1 : groupSet.size;
 
-  const totalToBePaid = filteredUsers.reduce(
-    (sum, u) => sum + (u.totalToBePaid || 0),
-    0
-  );
-  const totalProfit = filteredUsers.reduce((sum, u) => sum + (u.profit || 0), 0);
-  const totalPaid = filteredUsers.reduce((sum, u) => sum + (u.amountPaid || 0), 0);
-  const totalBalance = filteredUsers.reduce((sum, u) => sum + (u.balance || 0), 0);
+    const totalToBePaid = filteredUsers.reduce(
+      (sum, u) => sum + (u.totalToBePaid || 0),
+      0
+    );
+    const totalProfit = filteredUsers.reduce(
+      (sum, u) => sum + (u.profit || 0),
+      0
+    );
+    const totalPaid = filteredUsers.reduce(
+      (sum, u) => sum + (u.amountPaid || 0),
+      0
+    );
+    const totalBalance = filteredUsers.reduce(
+      (sum, u) => sum + (u.balance || 0),
+      0
+    );
 
-  setTotals({
-    totalCustomers,
-    totalGroups,
-    totalToBePaid,
-    totalProfit,
-    totalPaid,
-    totalBalance,
-  });
-}, [filteredUsers, groupFilter]);
-
+    setTotals({
+      totalCustomers,
+      totalGroups,
+      totalToBePaid,
+      totalProfit,
+      totalPaid,
+      totalBalance,
+    });
+  }, [filteredUsers, groupFilter]);
 
   const Auctioncolumns = [
     { key: "sl_no", header: "SL. NO" },
@@ -167,9 +186,26 @@ const filteredUsers = useMemo(() => {
     { key: "profit", header: "Profit" },
     { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
-    {key: "status", header: "Status"},
+    { key: "statusDiv", header: "Status" },
   ];
-
+  const ExcelColumns = [
+    { key: "sl_no", header: "SL. NO" },
+    { key: "userName", header: "Customer Name" },
+    { key: "userPhone", header: "Phone Number" },
+    { key: "customerId", header: "Customer Id" },
+    { key: "groupName", header: "Group Name" },
+    { key: "groupValue", header: "Group Value" },
+    { key: "enrollmentDate", header: "Enrollment Date" },
+    { key: "referred_type", header: "Referred Type" },
+    { key: "reffered_by", header: "Referred By" },
+    { key: "payment_type", header: "Payment Type" },
+    { key: "paymentsTicket", header: "Ticket" },
+    { key: "totalToBePaid", header: "Amount to be Paid" },
+    { key: "profit", header: "Profit" },
+    { key: "amountPaid", header: "Amount Paid" },
+    { key: "balance", header: "Balance" },
+    { key: "status", header: "Status" },
+  ];
   return (
     <div className="w-screen">
       <div className="flex mt-30">
@@ -254,11 +290,11 @@ const filteredUsers = useMemo(() => {
                       searchText
                     )}
                     columns={Auctioncolumns}
+                    exportCols={ExcelColumns}
                     exportedFileName={`CustomerReport.csv`}
                   />
                 </div>
 
-             
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
                   <div className="flex flex-col border p-4 rounded shadow">
                     <span className="text-xl font-bold text-gray-700">
@@ -319,5 +355,3 @@ const filteredUsers = useMemo(() => {
 };
 
 export default AllUserReport;
-
-
