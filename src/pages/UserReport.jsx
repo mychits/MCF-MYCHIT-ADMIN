@@ -47,30 +47,30 @@ const UserReport = () => {
     createdAt: null,
   });
   const [visibleRows, setVisibleRows] = useState({
-  row1: false,
-  row2: false,
-  row3: false,
-  row4: false,
-  row5: false,
-  row6: false,
-  row7: false,
-  row8: false,
-  row9: false,
-});
+    row1: false,
+    row2: false,
+    row3: false,
+    row4: false,
+    row5: false,
+    row6: false,
+    row7: false,
+    row8: false,
+    row9: false,
+  });
 
-// Reusable Input component
-const Input = ({ label, value }) => (
-  <div className="flex flex-col flex-1">
-    <label className="mb-1 text-sm font-medium text-gray-700">{label}</label>
-    <input
-      type="text"
-      placeholder={label}
-      value={value || ""}
-      readOnly
-      className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-    />
-  </div>
-);
+  // Reusable Input component
+  const Input = ({ label, value }) => (
+    <div className="flex flex-col flex-1">
+      <label className="mb-1 text-sm font-medium text-gray-700">{label}</label>
+      <input
+        type="text"
+        placeholder={label}
+        value={value || ""}
+        readOnly
+        className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+      />
+    </div>
+  );
   const [TotalToBepaid, setTotalToBePaid] = useState("");
   const [Totalpaid, setTotalPaid] = useState("");
   const [Totalprofit, setTotalProfit] = useState("");
@@ -540,6 +540,7 @@ const Input = ({ label, value }) => (
 
         if (response.data && response.data.length > 0) {
           setFilteredAuction(response.data);
+          console.log(response.data,"resienns")
 
           const formattedData = response.data
             .map((group, index) => {
@@ -589,6 +590,8 @@ const Input = ({ label, value }) => (
                       totalPaidAmount,
                 referred_type: group?.enrollment?.referred_type || "N/A",
                 referrer_name: group?.enrollment?.referrer_name || "N/A",
+                customer_status: group?.enrollment?.customer_status || "N/A",
+                removal_reason : group?.enrollment?.removal_reason || "N/A"
               };
             })
             .filter((item) => item !== null);
@@ -638,6 +641,8 @@ const Input = ({ label, value }) => (
   }, []);
   const Auctioncolumns = [
     { key: "id", header: "SL. NO" },
+    { key: "customer_status", header: "Customer Status" },
+    { key: "removal_reason", header: "Removal Reason" },
     { key: "group", header: "Group Name" },
     { key: "ticket", header: "Ticket" },
     { key: "referred_type", header: "Referrer Type" },
@@ -1001,159 +1006,250 @@ const Input = ({ label, value }) => (
                                 })()}
                             </div>
 
-      <div className="mt-5">
-  {/* Toggle Buttons */}
-  <div className="flex flex-wrap gap-4 mb-6">
-    <button
-      onClick={() => setVisibleRows((prev) => ({ ...prev, row1: !prev.row1 }))}
-      className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${visibleRows.row1
-          ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-          : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"}
+                            <div className="mt-5">
+                              {/* Toggle Buttons */}
+                              <div className="flex flex-wrap gap-4 mb-6">
+                                <button
+                                  onClick={() =>
+                                    setVisibleRows((prev) => ({
+                                      ...prev,
+                                      row1: !prev.row1,
+                                    }))
+                                  }
+                                  className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
+        ${
+          visibleRows.row1
+            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+        }
       `}
-    >
-      {visibleRows.row1 ? "✓ Hide Basic Info" : "Show Basic Info"}
-    </button>
+                                >
+                                  {visibleRows.row1
+                                    ? "✓ Hide Basic Info"
+                                    : "Show Basic Info"}
+                                </button>
 
-    <button
-      onClick={() => setVisibleRows((prev) => ({ ...prev, row2: !prev.row2 }))}
-      className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${visibleRows.row2
-          ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-          : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"}
+                                <button
+                                  onClick={() =>
+                                    setVisibleRows((prev) => ({
+                                      ...prev,
+                                      row2: !prev.row2,
+                                    }))
+                                  }
+                                  className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
+        ${
+          visibleRows.row2
+            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+        }
       `}
-    >
-      {visibleRows.row2 ? "✓ Hide Address Info" : "Show Address Info"}
-    </button>
+                                >
+                                  {visibleRows.row2
+                                    ? "✓ Hide Address Info"
+                                    : "Show Address Info"}
+                                </button>
 
-    <button
-      onClick={() => setVisibleRows((prev) => ({ ...prev, row3: !prev.row3 }))}
-      className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${visibleRows.row3
-          ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-          : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"}
+                                <button
+                                  onClick={() =>
+                                    setVisibleRows((prev) => ({
+                                      ...prev,
+                                      row3: !prev.row3,
+                                    }))
+                                  }
+                                  className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
+        ${
+          visibleRows.row3
+            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+        }
       `}
-    >
-      {visibleRows.row3 ? "✓ Hide Regional Info" : "Show Regional Info"}
-    </button>
+                                >
+                                  {visibleRows.row3
+                                    ? "✓ Hide Regional Info"
+                                    : "Show Regional Info"}
+                                </button>
 
-    <button
-      onClick={() => setVisibleRows((prev) => ({ ...prev, row4: !prev.row4 }))}
-      className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${visibleRows.row4
-          ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-          : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"}
+                                <button
+                                  onClick={() =>
+                                    setVisibleRows((prev) => ({
+                                      ...prev,
+                                      row4: !prev.row4,
+                                    }))
+                                  }
+                                  className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
+        ${
+          visibleRows.row4
+            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+        }
       `}
-    >
-      {visibleRows.row4
-        ? "✓ Hide Referral, Nominee & Bank Details"
-        : "Show Referral, Nominee & Bank Details"}
-    </button>
-  </div>
+                                >
+                                  {visibleRows.row4
+                                    ? "✓ Hide Referral, Nominee & Bank Details"
+                                    : "Show Referral, Nominee & Bank Details"}
+                                </button>
+                              </div>
 
-  {/* Row 1: Basic Info */}
-  {visibleRows.row1 && (
-    <div className="flex gap-8 mb-6">
-      <div className="flex flex-col w-full gap-4">
-        <Input label="Name" value={group.full_name} />
-        <Input label="Email" value={group.email} />
-      </div>
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="Phone Number" value={group.phone_number} />
-        <Input label="Adhaar Number" value={group.adhaar_no} />
-      </div>
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="PAN Number" value={group.pan_no} />
-        <Input label="Pincode" value={group.pincode} />
-      </div>
-    </div>
-  )}
+                              {/* Row 1: Basic Info */}
+                              {visibleRows.row1 && (
+                                <div className="flex gap-8 mb-6">
+                                  <div className="flex flex-col w-full gap-4">
+                                    <Input
+                                      label="Name"
+                                      value={group.full_name}
+                                    />
+                                    <Input label="Email" value={group.email} />
+                                  </div>
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="Phone Number"
+                                      value={group.phone_number}
+                                    />
+                                    <Input
+                                      label="Adhaar Number"
+                                      value={group.adhaar_no}
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="PAN Number"
+                                      value={group.pan_no}
+                                    />
+                                    <Input
+                                      label="Pincode"
+                                      value={group.pincode}
+                                    />
+                                  </div>
+                                </div>
+                              )}
 
-  {/* Row 2: Address Info */}
-  {visibleRows.row2 && (
-    <div className="flex gap-8 mb-6">
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="Address" value={group.address} />
-        <Input label="Gender" value={group.gender} />
-      </div>
-      <div className="flex flex-col gap-4 w-full">
-        <Input
-          label="Date of Birth"
-          value={
-            group.dateofbirth
-              ? new Date(group.dateofbirth).toISOString().split("T")[0]
-              : ""
-          }
-        />
-        <Input
-          label="Collection Area"
-          value={group?.collection_area?.route_name}
-        />
-      </div>
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="Marital Status" value={group.marital_status} />
-        <Input label="Father Name" value={group.father_name} />
-      </div>
-    </div>
-  )}
+                              {/* Row 2: Address Info */}
+                              {visibleRows.row2 && (
+                                <div className="flex gap-8 mb-6">
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="Address"
+                                      value={group.address}
+                                    />
+                                    <Input
+                                      label="Gender"
+                                      value={group.gender}
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="Date of Birth"
+                                      value={
+                                        group.dateofbirth
+                                          ? new Date(group.dateofbirth)
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : ""
+                                      }
+                                    />
+                                    <Input
+                                      label="Collection Area"
+                                      value={group?.collection_area?.route_name}
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="Marital Status"
+                                      value={group.marital_status}
+                                    />
+                                    <Input
+                                      label="Father Name"
+                                      value={group.father_name}
+                                    />
+                                  </div>
+                                </div>
+                              )}
 
-  {/* Row 3: Regional Info */}
-  {visibleRows.row3 && (
-    <div className="flex gap-8 mb-6">
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="Nationality" value={group.nationality} />
-        <Input label="Village" value={group.village} />
-      </div>
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="Taluk" value={group.taluk} />
-        <Input label="District" value={group.district} />
-      </div>
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="State" value={group.state} />
-        <Input label="Alternate Number" value={group.alternate_number} />
-      </div>
-    </div>
-  )}
+                              {/* Row 3: Regional Info */}
+                              {visibleRows.row3 && (
+                                <div className="flex gap-8 mb-6">
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="Nationality"
+                                      value={group.nationality}
+                                    />
+                                    <Input
+                                      label="Village"
+                                      value={group.village}
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input label="Taluk" value={group.taluk} />
+                                    <Input
+                                      label="District"
+                                      value={group.district}
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input label="State" value={group.state} />
+                                    <Input
+                                      label="Alternate Number"
+                                      value={group.alternate_number}
+                                    />
+                                  </div>
+                                  
+                                </div>
+                              )}
 
-  {/* Row 4: Referral, Nominee & Bank Info */}
-  {visibleRows.row4 && (
-    <div className="flex gap-8 mb-6">
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="Referral Name" value={group.referral_name} />
-        <Input label="Nominee Name" value={group.nominee_name} />
-        <Input
-          label="Nominee DOB"
-          value={
-            group.nominee_dateofbirth
-              ? new Date(group.nominee_dateofbirth).toISOString().split("T")[0]
-              : ""
-          }
-        />
-      </div>
-      <div className="flex flex-col gap-4 w-full">
-        <Input
-          label="Nominee Phone Number"
-          value={group.nominee_phone_number}
-        />
-        <Input
-          label="Nominee Relationship"
-          value={group.nominee_relationship}
-        />
-        <Input label="Bank Name" value={group.bank_name} />
-      </div>
-      <div className="flex flex-col gap-4 w-full">
-        <Input label="Bank Branch Name" value={group.bank_branch_name} />
-        <Input label="Bank Account Number" value={group.bank_account_number} />
-        <Input label="Bank IFSC Code" value={group.bank_IFSC_code} />
-      </div>
-    </div>
-  )}
-</div>
-
-
-
-
-
+                              {/* Row 4: Referral, Nominee & Bank Info */}
+                              {visibleRows.row4 && (
+                                <div className="flex gap-8 mb-6">
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="Referral Name"
+                                      value={group.referral_name}
+                                    />
+                                    <Input
+                                      label="Nominee Name"
+                                      value={group.nominee_name}
+                                    />
+                                    <Input
+                                      label="Nominee DOB"
+                                      value={
+                                        group.nominee_dateofbirth
+                                          ? new Date(group.nominee_dateofbirth)
+                                              .toISOString()
+                                              .split("T")[0]
+                                          : ""
+                                      }
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="Nominee Phone Number"
+                                      value={group.nominee_phone_number}
+                                    />
+                                    <Input
+                                      label="Nominee Relationship"
+                                      value={group.nominee_relationship}
+                                    />
+                                    <Input
+                                      label="Bank Name"
+                                      value={group.bank_name}
+                                    />
+                                  </div>
+                                  <div className="flex flex-col gap-4 w-full">
+                                    <Input
+                                      label="Bank Branch Name"
+                                      value={group.bank_branch_name}
+                                    />
+                                    <Input
+                                      label="Bank Account Number"
+                                      value={group.bank_account_number}
+                                    />
+                                    <Input
+                                      label="Bank IFSC Code"
+                                      value={group.bank_IFSC_code}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
 
                             <div className="mt-10">
                               <h3 className="text-lg font-medium mb-4">
@@ -1172,23 +1268,23 @@ const Input = ({ label, value }) => (
                                     columns={Auctioncolumns}
                                     exportedPdfName={`Customer Report`}
                                     printHeaderKeys={[
-                                  "Customer Name",
-                                  "Phone Number",
-                                  "Total Amount To Be Paid",
-                                  "Total Profit",
-                                  "Total Net To be Paid",
-                                  "Total Balance"
-                                ]}
-                                printHeaderValues={[
-                                  group.full_name,
-                                  group?.phone_number,
-                                  TotalToBepaid,
-                                  Totalprofit,
-                                  NetTotalprofit,
-                                   NetTotalprofit && Totalpaid
-                                      ? NetTotalprofit - Totalpaid
-                                      : "",
-                                ]}
+                                      "Customer Name",
+                                      "Phone Number",
+                                      "Total Amount To Be Paid",
+                                      "Total Profit",
+                                      "Total Net To be Paid",
+                                      "Total Balance",
+                                    ]}
+                                    printHeaderValues={[
+                                      group.full_name,
+                                      group?.phone_number,
+                                      TotalToBepaid,
+                                      Totalprofit,
+                                      NetTotalprofit,
+                                      NetTotalprofit && Totalpaid
+                                        ? NetTotalprofit - Totalpaid
+                                        : "",
+                                    ]}
                                     exportedFileName={`CustomerReport-${
                                       TableAuctions.length > 0
                                         ? TableAuctions[0].date +
@@ -1388,7 +1484,7 @@ const Input = ({ label, value }) => (
                           (borrowersData.length > 0 && !basicLoading) ? (
                             <div className="mt-10">
                               <DataTable
-                              exportedPdfName="Customer Ledger Report"
+                                exportedPdfName="Customer Ledger Report"
                                 printHeaderKeys={[
                                   "Customer Name",
                                   "Customer Id",
@@ -1443,14 +1539,14 @@ const Input = ({ label, value }) => (
                               data={filteredDisbursement}
                               columns={DisbursementColumns}
                               exportedPdfName={`Customer Payout Report`}
-                                    printHeaderKeys={[
-                                  "Customer Name",
-                                   "Phone Number"
-                                ]}
-                                printHeaderValues={[
-                                  group?.full_name,
-                                  group?.phone_number,
-                                ]}
+                              printHeaderKeys={[
+                                "Customer Name",
+                                "Phone Number",
+                              ]}
+                              printHeaderValues={[
+                                group?.full_name,
+                                group?.phone_number,
+                              ]}
                             />
                           </div>
                         ) : (

@@ -524,16 +524,18 @@ const Enroll = () => {
     }
   };
 
-  const handleRemoveGroup = async () => {
+  const handleRemoveGroup = async (e) => {
+    e.preventDefault();
+
     if (currentGroup) {
        const user_id = currentGroup.user_id?._id
        if(user_id){
       try {
-        await api.delete(`/enroll/remove-enroll/${currentGroup._id}`, {
+        await api.put(`/enroll/remove-enroll/${currentGroup._id}`, {
           user_id,
           deleted_by: admin,
           deleted_at: new Date(),
-          removalReason,
+          removalReason
         });
         setRemovalReason("")
         setShowModalRemove(false);
@@ -1501,10 +1503,11 @@ const Enroll = () => {
               className="block w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500"
             >
               <option value="">-- Select Reason --</option>
-              <option value="Closed">Customer Closed</option>
-              <option value="InActive">InActive Customer</option>
-              <option value="Fraudulent Activity">Fraudulent Activity</option>
-              <option value="Other">Other</option>
+              <option value="Group Closed">Group Closed</option>
+              <option value="Chit Cancellation">InChit Cancellation</option>
+              <option value="In Active Customer">InActive Customer</option>
+              <option value="Legal">Legal</option>
+              <option value="Others">Others</option>
             </select>
           </div>
 
