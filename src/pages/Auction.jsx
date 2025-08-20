@@ -78,7 +78,6 @@ const Auction = () => {
         const response = await api.get(
           `/double/get-double/${selectedAuctionGroupId}`
         );
-        console.log(response.data);
         setDouble(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -143,6 +142,7 @@ const Auction = () => {
   const handleChangeUser = (e) => {
     const { name, value } = e.target;
     const [user_id, ticket] = value.split("-");
+    console.log(user_id,ticket,"this is it");
     setFormData((prevData) => ({
       ...prevData,
       user_id,
@@ -198,16 +198,11 @@ const Auction = () => {
     handleGroupAuctionChange(groupId);
   };
 
-  const formatPayDate = (dateString) => {
-    const date = new Date(dateString);
-    const options = { day: "numeric", month: "short", year: "numeric" };
-    return date.toLocaleDateString("en-US", options).replace(",", " ");
-  };
   const prevDate = (dateString) => {
     const date = new Date(dateString);
     date.setDate(date.getDate() - 10);
-   
-    return date.toISOString()?.split("T")[0]
+
+    return date.toISOString()?.split("T")[0];
   };
   const handleGroupAuctionChange = async (groupId) => {
     setSelectedAuctionGroup(groupId);
@@ -221,7 +216,7 @@ const Auction = () => {
           const formattedData = [
             {
               id: 1,
-              auction_date:prevDate(response?.data[0]?.auction_date),
+              auction_date: prevDate(response?.data[0]?.auction_date),
               name: "Commencement",
               phone_number: "Commencement",
               ticket: "Commencement",
@@ -599,10 +594,10 @@ const Auction = () => {
                       (user) =>
                         user?.user_id?._id && (
                           <option
-                            key={`${user.user_id._id}-${user.tickets}`}
-                            value={`${user.user_id._id}-${user.tickets}`}
+                            key={`${user.user_id?._id}-${user.tickets}`}
+                            value={`${user.user_id?._id}-${user.tickets}`}
                           >
-                            {user.user_id.full_name} | {user.tickets}
+                            {user.user_id?.full_name} | {user.tickets}
                           </option>
                         )
                     )}

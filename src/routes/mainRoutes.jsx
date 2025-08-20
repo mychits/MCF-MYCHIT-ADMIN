@@ -78,6 +78,9 @@ import HardTransferCustomer from "../pages/HardTransfer";
 import UnApprovedCustomer from "../pages/UnApprovedCustomer";
 import PaymentLink from "../pages/PaymentLink";
 import MobileAppEnroll from "../pages/MobileAppEnroll";
+import PaymentLinkMenu from "../pages/PaymentLinkMenu";
+import ChitBulkPaymentLink from "../pages/BulkChitPaymentLink";
+import IndividualChitPaymentLink from "../pages/IndividualChitPaymentLink";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -111,7 +114,6 @@ const mainRoutes = createBrowserRouter([
   },
   {
     path: "/reg-fee-print/:id",
-
     element: <RegistrationReceipt />,
   },
 
@@ -148,6 +150,31 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
+    path: "/pay-in-menu/payment-link-menu",
+    element: (
+      <ProtectedRoute>
+        <PaymentLinkMenu />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/pay-in-menu/payment-link-menu/chit-payment",
+    element: (
+      <ProtectedRoute>
+        <IndividualChitPaymentLink />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/pay-in-menu/payment-link-menu/chit-bulk-payment",
+    element: (
+      <ProtectedRoute>
+        <ChitBulkPaymentLink />
+      </ProtectedRoute>
+    ),
+  },
+
+  {
     path: "/print-payment-out/:id",
     element: (
       <ProtectedRoute>
@@ -157,12 +184,11 @@ const mainRoutes = createBrowserRouter([
   },
   {
     path: "/mobile-app-enroll",
-    element :  (
+    element: (
       <ProtectedRoute>
-      <MobileAppEnroll/>
+        <MobileAppEnroll />
       </ProtectedRoute>
     ),
-    
   },
 
   {
@@ -417,7 +443,7 @@ const mainRoutes = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-   ,
+  ,
   {
     path: "hard-transfer",
     element: (
