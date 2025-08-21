@@ -320,10 +320,10 @@ const IndividualChitPaymentLink = () => {
     if (groupId) {
       let url;
       if (groupId === "today") {
-        url = `/payment-link/get-payments?from_date=${today}&to_date=${today}`;
+        url = `/paymentapi/payment-link/get-payments?from_date=${today}&to_date=${today}`;
         setEnableGroupColumn(true);
       } else {
-        url = `/payment-link/${groupId}`;
+        url = `/paymentapi/payment-link/${groupId}`;
         setEnableGroupColumn(false);
       }
       try {
@@ -461,7 +461,7 @@ const IndividualChitPaymentLink = () => {
       setShowModalView(true);
       setCurrentGroupId(groupId);
       setViewLoader(true);
-      const response = await api.get(`/payment-link/${groupId}`);
+      const response = await api.get(`/paymentapi/payment-link/${groupId}`);
       setCurrentViewGroup(response.data);
     } catch (error) {
       console.error("Error viewing Payment:", error);
