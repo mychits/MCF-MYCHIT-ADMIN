@@ -76,12 +76,16 @@ const IndividualChitPaymentLink = () => {
     noReload: false,
     type: "info",
   });
+  const tomorrow =new Date().toISOString().split("T")[0]
 
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     user_id: "",
     amount: "",
     payment_group_tickets: [],
+    expiry: tomorrow,
+    send_sms: true,
+    send_email: true,
   });
 
   useEffect(() => {
@@ -99,7 +103,7 @@ const IndividualChitPaymentLink = () => {
       try {
         setTablePayments([]);
         setIsLoading(true);
-        const response = await api.get("/payment-link/payments", {
+        const response = await api.get("/paymentapi/payment-link", {
           params: {
             from_date: today,
             to_date: today,
@@ -116,7 +120,7 @@ const IndividualChitPaymentLink = () => {
               group_name: group?.group_id?.group_name,
               ticket: group.ticket,
               amount: group.amount,
-              payment_status:group.payment_status,
+              payment_status: group.payment_status,
               transaction_date: formatPayDate(group.createdAt),
               action: (
                 <div className="flex justify-center gap-2">
@@ -393,7 +397,7 @@ const IndividualChitPaymentLink = () => {
         formData.payment_group_tickets = paymentGroupTickets;
         formData.admin_type = admin_type?._id;
         setOpenBackdropLoader(true);
-        const response = await api.post("/payment-link", formData);
+        const response = await api.post("/paymentapi/payment-link", formData);
         if (response.status === 201) {
           setSelectedGroupId("");
           setPaymentGroupTickets([]);
@@ -729,6 +733,69 @@ const IndividualChitPaymentLink = () => {
                         />
                       </div>
                     )}
+                  </div>
+                  {/* Expiry Date Field */}
+                  <div className="w-full">
+                    <label
+                      htmlFor="expiry"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      Expiry Date
+                    </label>
+                    <input
+                      id="expiry"
+                      type="date"
+                      name="expiry"
+                      value={formData.expiry}
+                      onChange={handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    />
+                  </div>
+
+                  {/* Send SMS Checkbox */}
+                  <div className="flex items-center">
+                    <input
+                      id="send_sms"
+                      type="checkbox"
+                      name="send_sms"
+                      checked={formData.send_sms}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          send_sms: e.target.checked,
+                        }))
+                      }
+                      className="w-4 h-4 border border-gray-300 rounded bg-gray-50"
+                    />
+                    <label
+                      htmlFor="send_sms"
+                      className="ml-2 text-sm font-medium text-gray-900"
+                    >
+                      Send SMS
+                    </label>
+                  </div>
+
+                  {/* Send Email Checkbox */}
+                  <div className="flex items-center">
+                    <input
+                      id="send_email"
+                      type="checkbox"
+                      name="send_email"
+                      checked={formData.send_email}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          send_email: e.target.checked,
+                        }))
+                      }
+                      className="w-4 h-4 border border-gray-300 rounded bg-gray-50"
+                    />
+                    <label
+                      htmlFor="send_email"
+                      className="ml-2 text-sm font-medium text-gray-900"
+                    >
+                      Send Email
+                    </label>
                   </div>
 
                   <div className="flex justify-end pt-4">
