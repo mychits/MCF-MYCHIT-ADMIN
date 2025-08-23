@@ -82,6 +82,7 @@ import PaymentLinkMenu from "../pages/PaymentLinkMenu";
 import ChitBulkPaymentLink from "../pages/BulkChitPaymentLink";
 import IndividualChitPaymentLink from "../pages/IndividualChitPaymentLink";
 import CollectionAreaMapping from "../pages/CollectionAreaMapping";
+import IndividualRegistrationChitPaymentLink from "../pages/IndividualRegistrationChitPaymentLink"
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -171,6 +172,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <IndividualChitPaymentLink />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/pay-in-menu/payment-link-menu/registration-chit-payment",
+    element: (
+      <ProtectedRoute>
+        <IndividualRegistrationChitPaymentLink />
       </ProtectedRoute>
     ),
   },

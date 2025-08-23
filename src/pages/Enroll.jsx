@@ -61,7 +61,7 @@ const Enroll = () => {
     referred_lead: "",
     email_id: "",
     chit_asking_month: "",
-    admin_type: "",
+    created_by: "",
   });
   const [isVerified, setIsVerified] = useState(false);
   const [updateFormData, setUpdateFormData] = useState({
@@ -89,7 +89,8 @@ const Enroll = () => {
     const adminId = userObj._id;
     if (adminId) {
       setAdmin(userObj._id);
-      setFormData(prev => ({...prev,admin_type:adminId}));
+      
+      setFormData(prev => ({...prev,created_by:adminId}));
     } else {
       setAdmin("");
     }
@@ -100,6 +101,7 @@ const Enroll = () => {
         const response = await api.get("/group/get-group-admin");
 
         setGroups(response.data);
+       
       } catch (error) {
         console.error("Error fetching group data:", error);
       }
