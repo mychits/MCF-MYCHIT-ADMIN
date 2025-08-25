@@ -40,17 +40,17 @@ const handleEnrollmentRequestPrint = async (id) => {
             const boxHeight = lineHeight;
 
             // Shadow effect (smoothed)
-            doc.setDrawColor(180);
-            doc.setFillColor(153, 153, 153); // shadow color
-            doc.roundedRect(
-                x + 1.5,
-                y + 1.5,
-                boxWidth,
-                boxHeight,
-                radius,
-                radius,
-                "F"
-            );
+            // doc.setDrawColor(180);
+            // doc.setFillColor(153, 153, 153); // shadow color
+            // doc.roundedRect(
+            //     x + 1.5,
+            //     y + 1.5,
+            //     boxWidth,
+            //     boxHeight,
+            //     radius,
+            //     radius,
+            //     "F"
+            // );
 
             // Main text box with fill
             doc.setDrawColor(0);
@@ -86,17 +86,17 @@ const handleEnrollmentRequestPrint = async (id) => {
             const boxHeight = lineHeight;
 
             // Shadow effect (smoothed)
-            doc.setDrawColor(180);
-            doc.setFillColor(153, 153, 153); // shadow color
-            doc.roundedRect(
-                x + 1.5,
-                y + 1.5,
-                boxWidth,
-                boxHeight,
-                radius,
-                radius,
-                "F"
-            );
+            // doc.setDrawColor(180);
+            // doc.setFillColor(153, 153, 153); // shadow color
+            // doc.roundedRect(
+            //     x + 1.5,
+            //     y + 1.5,
+            //     boxWidth,
+            //     boxHeight,
+            //     radius,
+            //     radius,
+            //     "F"
+            // );
 
             // Main text box with fill
             doc.setDrawColor(0);
@@ -117,17 +117,17 @@ const handleEnrollmentRequestPrint = async (id) => {
             const x = margin;
 
             // Shadow effect
-            doc.setDrawColor(180);
-            doc.setFillColor(153, 153, 153); // shadow color
-            doc.roundedRect(
-                x + 1,
-                y + 1,
-                boxWidth,
-                boxHeight,
-                radius,
-                radius,
-                "F"
-            );
+            // doc.setDrawColor(180);
+            // doc.setFillColor(153, 153, 153); // shadow color
+            // doc.roundedRect(
+            //     x + 1,
+            //     y + 1,
+            //     boxWidth,
+            //     boxHeight,
+            //     radius,
+            //     radius,
+            //     "F"
+            // );
 
             // Main box
             doc.setDrawColor(0);
@@ -169,17 +169,17 @@ const handleEnrollmentRequestPrint = async (id) => {
 
 
             // Shadow effect (smoothed)
-            doc.setDrawColor(180);
-            doc.setFillColor(153, 153, 153); // shadow color
-            doc.roundedRect(
-                x + 1.5,
-                y + 1.5,
-                boxWidth,
-                boxHeight,
-                radius,
-                radius,
-                "F"
-            );
+            // doc.setDrawColor(180);
+            // doc.setFillColor(153, 153, 153); // shadow color
+            // doc.roundedRect(
+            //     x + 1.5,
+            //     y + 1.5,
+            //     boxWidth,
+            //     boxHeight,
+            //     radius,
+            //     radius,
+            //     "F"
+            // );
 
 
 
@@ -429,4 +429,4 @@ const handleEnrollmentRequestPrint = async (id) => {
         console.error("Error generating PDF:", error);
     }
 };
-export default handleEnrollmentRequestPrint;
+export default handleEnrollmentRequestPrint;    
