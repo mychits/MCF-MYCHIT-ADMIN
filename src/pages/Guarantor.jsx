@@ -524,7 +524,7 @@ const Guarantor = () => {
         guarantor_referred_type: guarantor?.guarantor_referred_type || "",
         guarantor_photo: guarantor?.guarantor_photo || "",
         guarantor_pan_document: guarantor?.guarantor_pan_document || "",
-        guarantor_aadhar_document: guarantor?.guarantor_aadhar_document,
+        guarantor_aadhar_document: guarantor?.guarantor_aadhar_document || "",
       });
 
       setCurrentUpdateGuarantor(guarantor);
