@@ -72,11 +72,13 @@ const AllUserReport = () => {
                   userPhone: usrData.phone_number,
                   customerId: usrData.customer_id,
                   collectionArea: usrData.collection_area || "N/A",
+                  collectionExecutive: usrData.collection_executive || "N/A",
                   amountPaid: totalPaidAmount,
                   paymentsTicket: data.payments.ticket,
                   groupValue: data?.enrollment?.group?.group_value,
                   groupName: data.enrollment.group.group_name,
                   profit: totalProfit,
+                  relationshipManager :data?.enrollment?.relationship_manager?.name || "N/A",
 
                   reffered_by: data?.enrollment?.agent
                     ? data.enrollment.agent
@@ -114,7 +116,7 @@ const AllUserReport = () => {
                         <span className="font-semibold text-sm">Prized</span>
                       </div>
                     ) : (
-                       <div className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full shadow-sm border border-red-300">
+                      <div className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full shadow-sm border border-red-300">
                         <span className="font-semibold text-sm">Un Prized</span>
                       </div>
                     ),
@@ -185,6 +187,8 @@ const AllUserReport = () => {
     { key: "paymentsTicket", header: "Ticket" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
     { key: "profit", header: "Profit" },
+    { key: "relationshipManager", header: "Relationship Manager" },
+    { key: "collectionExecutive", header: "Collection Executive" },
     { key: "collectionArea", header: "Collection Area" },
     { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
@@ -204,32 +208,43 @@ const AllUserReport = () => {
     { key: "paymentsTicket", header: "Ticket" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
     { key: "profit", header: "Profit" },
+    { key: "relationshipManager", header: "Relationship Manager" },
+    { key: "collectionExecutive", header: "Collection Executive" },
+    { key: "collectionArea", header: "Collection Area" },
     { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
     { key: "status", header: "Status" },
   ];
   const filteredTableData = filterOption(
-  usersData.filter((u) => {
-    const matchGroup = groupFilter ? u.groupName === groupFilter : true;
-    const enrollmentDate = new Date(u.enrollmentDate);
-    const matchFromDate = fromDate ? enrollmentDate >= new Date(fromDate) : true;
-    const matchToDate = toDate ? enrollmentDate <= new Date(toDate) : true;
-    return matchGroup && matchFromDate && matchToDate;
-  }),
-  searchText
-);
+    usersData.filter((u) => {
+      const matchGroup = groupFilter ? u.groupName === groupFilter : true;
+      const enrollmentDate = new Date(u.enrollmentDate);
+      const matchFromDate = fromDate
+        ? enrollmentDate >= new Date(fromDate)
+        : true;
+      const matchToDate = toDate ? enrollmentDate <= new Date(toDate) : true;
+      return matchGroup && matchFromDate && matchToDate;
+    }),
+    searchText
+  );
 
-// 2️⃣ Totals calculation
-const total = {
-  totalCustomers: filteredTableData.length,
-  totalGroups: new Set(filteredTableData.map(u => u.groupName)).size,
-  totalToBePaid: filteredTableData.reduce((sum, u) => sum + (u.toBePaid || 0), 0),
-  totalProfit: filteredTableData.reduce((sum, u) => sum + (u.profit || 0), 0),
-  totalPaid: filteredTableData.reduce((sum, u) => sum + (u.paid || 0), 0),
-  totalBalance: filteredTableData.reduce((sum, u) => sum + (u.balance || 0), 0)
-};
-const selectednewGroup =
-  groupOptions.find((g) => g._id === groupFilter) || "—";
+  // 2️⃣ Totals calculation
+  const total = {
+    totalCustomers: filteredTableData.length,
+    totalGroups: new Set(filteredTableData.map((u) => u.groupName)).size,
+    totalToBePaid: filteredTableData.reduce(
+      (sum, u) => sum + (u.toBePaid || 0),
+      0
+    ),
+    totalProfit: filteredTableData.reduce((sum, u) => sum + (u.profit || 0), 0),
+    totalPaid: filteredTableData.reduce((sum, u) => sum + (u.paid || 0), 0),
+    totalBalance: filteredTableData.reduce(
+      (sum, u) => sum + (u.balance || 0),
+      0
+    ),
+  };
+  const selectednewGroup =
+    groupOptions.find((g) => g._id === groupFilter) || "—";
   return (
     <div className="w-screen">
       <div className="flex mt-30">
@@ -318,34 +333,38 @@ const selectednewGroup =
                     exportedFileName={`CustomerReport.csv`}
                   /> */}
                   <DataTable
-  data={filteredTableData}
-  columns={Auctioncolumns}
-  exportCols={ExcelColumns}
-  exportedPdfName={`All Customer Report`}
-  printHeaderKeys={[
-    "From Date",
-    "Group Name",
-    "To Date",
-    "Total Customers",
-    "Total Groups",
-    "Amount to be Paid",
-    "Total Profit",
-    "Total Amount Paid",
-    "Total Balance"
-  ]}
-  printHeaderValues={[
-    fromDate ? new Date(fromDate).toLocaleDateString("en-GB") : "—",
-    groupFilter || "All Groups",
-    toDate ? new Date(toDate).toLocaleDateString("en-GB") : "—",
-    total.totalCustomers,
-    total.totalGroups,
-    `₹${total.totalToBePaid.toLocaleString("en-IN")}`,
-    `₹${total.totalProfit.toLocaleString("en-IN")}`,
-    `₹${total.totalPaid.toLocaleString("en-IN")}`,
-    `₹${total.totalBalance.toLocaleString("en-IN")}`
-  ]}
-  exportedFileName={`CustomerReport.csv`}
-/>
+                    data={filteredTableData}
+                    columns={Auctioncolumns}
+                    exportCols={ExcelColumns}
+                    exportedPdfName={`All Customer Report`}
+                    printHeaderKeys={[
+                      "From Date",
+                      "Group Name",
+                      "To Date",
+                      "Total Customers",
+                      "Total Groups",
+                      "Amount to be Paid",
+                      "Total Profit",
+                      "Total Amount Paid",
+                      "Total Balance",
+                    ]}
+                    printHeaderValues={[
+                      fromDate
+                        ? new Date(fromDate).toLocaleDateString("en-GB")
+                        : "—",
+                      groupFilter || "All Groups",
+                      toDate
+                        ? new Date(toDate).toLocaleDateString("en-GB")
+                        : "—",
+                      total.totalCustomers,
+                      total.totalGroups,
+                      `₹${total.totalToBePaid.toLocaleString("en-IN")}`,
+                      `₹${total.totalProfit.toLocaleString("en-IN")}`,
+                      `₹${total.totalPaid.toLocaleString("en-IN")}`,
+                      `₹${total.totalBalance.toLocaleString("en-IN")}`,
+                    ]}
+                    exportedFileName={`CustomerReport.csv`}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
