@@ -1253,7 +1253,7 @@ const Guarantor = () => {
                     </Link>
                   </div>
                   <div className="flex flex-row justify-between space-x-4">
-                  <div>
+                  <div className="w-1/2">
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="guarantor_pan_document"
@@ -1279,7 +1279,7 @@ const Guarantor = () => {
                       />
                     </Link>
                   </div>
-                  <div>
+                  <div className="w-1/2">
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
                       htmlFor="guarantor_aadhar_document"
