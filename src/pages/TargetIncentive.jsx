@@ -36,6 +36,7 @@ const TargetIncentive = () => {
     remaining: 0,
     startDate: "",
     endDate: "",
+    incentiveAmount: 0, // NEW: Store calculated incentive amount
   });
 
   // Initialize with current month
@@ -97,85 +98,109 @@ const TargetIncentive = () => {
     }
   };
 
-const fetchTargetData = async (employeeId) => {
-  try {
-    if (!employeeId || !selectedMonth) return;
-    const abortController = new AbortController();
-
-    const [year] = selectedMonth.split("-");
+  // NEW: Calculate incentive commission (0% till target, 1% after target)
+  const calculateIncentiveCommission = (achievedBusiness, targetAmount) => {
+    // Convert to numbers if they're strings
+    const achievedNum = typeof achievedBusiness === 'string' ? 
+      Number(achievedBusiness.replace(/[^0-9.-]+/g, '')) : achievedBusiness;
+    const targetNum = typeof targetAmount === 'string' ? 
+      Number(targetAmount.replace(/[^0-9.-]+/g, '')) : targetAmount;
     
-    // Fetch target details for the selected agent
-    const targetRes = await api.get(`/target/agent/${employeeId}`, {
-      params: { year },
-      signal: abortController.signal,
-    });
-
-    // Map month number to month name (01-12 to January-December)
-    const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-    const monthNumber = parseInt(selectedMonth.split("-")[1], 10);
-    const monthName = monthNames[monthNumber - 1];
-
-    let targetForMonth = 0;
-    if (targetRes.data && targetRes.data.length > 0) {
-      const monthData = targetRes.data[0].monthData || {};
-      targetForMonth = Number(monthData[monthName] || 0);
+    if (achievedNum <= targetNum) {
+      // Up to target: 0% commission
+      return 0;
+    } else {
+      // Beyond target: 1% of the excess business
+      return (achievedNum - targetNum) * 0.01;
     }
+  };
 
-    // Calculate first and last day of selected month
-    const [yearPart, monthPart] = selectedMonth.split("-");
-    const firstDay = `${yearPart}-${monthPart}-01`;
-    const lastDay = new Date(yearPart, monthPart, 0).toISOString().split("T")[0];
+  const fetchTargetData = async (employeeId) => {
+    try {
+      if (!employeeId || !selectedMonth) return;
+      const abortController = new AbortController();
 
-    // Fetch commission data to get achieved
-    const { data: comm } = await api.get(
-      "/enroll/get-detailed-commission-per-month",
-      {
-        params: {
-          agent_id: employeeId,
-          from_date: firstDay,
-          to_date: lastDay,
-        },
+      const [year] = selectedMonth.split("-");
+      
+      
+      const targetRes = await api.get(`/target/agent/${employeeId}`, {
+        params: { year },
         signal: abortController.signal,
-      }
-    );
-
-    let achieved = comm?.summary?.actual_business || 0;
-    if (typeof achieved === "string") {
-      achieved = Number(achieved.replace(/[^0-9.-]+/g, ""));
-    }
-
-    const remaining = Math.max(targetForMonth - achieved, 0);
-    const difference = targetForMonth - achieved;
-
-    // Format first and last day for display
-    const startDateDisplay = firstDay;
-    const endDateDisplay = lastDay;
-
-    setTargetData({
-      target: Math.round(targetForMonth),
-      achieved,
-      remaining,
-      difference,
-      startDate: startDateDisplay,
-      endDate: endDateDisplay,
-    });
-  } catch (err) {
-    if (err.name !== "AbortError") {
-      console.error("Error fetching target data:", err);
-      setTargetData({
-        target: 0,
-        achieved: 0,
-        remaining: 0,
-        difference: 0,
-        startDate: "",
-        endDate: "",
       });
+
+      
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      const monthNumber = parseInt(selectedMonth.split("-")[1], 10);
+      const monthName = monthNames[monthNumber - 1];
+
+      let targetForMonth = 0;
+      if (targetRes.data && targetRes.data.length > 0) {
+        const monthData = targetRes.data[0].monthData || {};
+        targetForMonth = Number(monthData[monthName] || 0);
+      }
+
+      
+      const [yearPart, monthPart] = selectedMonth.split("-");
+      const firstDay = `${yearPart}-${monthPart}-01`;
+      const lastDay = new Date(yearPart, monthPart, 0).toISOString().split("T")[0];
+
+      
+      const { data: comm } = await api.get(
+        "/enroll/get-detailed-commission-per-month",
+        {
+          params: {
+            agent_id: employeeId,
+            from_date: firstDay,
+            to_date: lastDay,
+          },
+          signal: abortController.signal,
+        }
+      );
+
+      let achieved = comm?.summary?.actual_business || 0;
+      if (typeof achieved === "string") {
+        achieved = Number(achieved.replace(/[^0-9.-]+/g, ""));
+      }
+
+      const remaining = Math.max(targetForMonth - achieved, 0);
+      const difference = targetForMonth - achieved;
+
+     
+      const incentiveAmount = calculateIncentiveCommission(achieved, targetForMonth);
+
+     
+      const startDateDisplay = firstDay;
+      const endDateDisplay = lastDay;
+
+      setTargetData({
+        target: Math.round(targetForMonth),
+        achieved,
+        remaining,
+        difference,
+        startDate: startDateDisplay,
+        endDate: endDateDisplay,
+        incentiveAmount, 
+        
+      });
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        console.error("Error fetching target data:", err);
+        setTargetData({
+          target: 0,
+          achieved: 0,
+          remaining: 0,
+          difference: 0,
+          startDate: "",
+          endDate: "",
+          incentiveAmount: 0,
+        });
+      }
     }
-  }
-};
+  };
+  
   const fetchAllCommissionReport = async () => {
     if (!selectedMonth) return;
     
@@ -221,9 +246,7 @@ const fetchTargetData = async (employeeId) => {
         remaining: 0,
         startDate: "",
         endDate: "",
-        designation: "",
-        incentiveAmount: "₹0.00",
-        incentivePercent: "0%",
+        incentiveAmount: 0,
       });
       await fetchAllCommissionReport();
     } else {
@@ -284,29 +307,6 @@ const fetchTargetData = async (employeeId) => {
     }
   };
 
-  const handlePayNow = () => {
-    const actual = parseFloat(
-      (commissionTotalDetails?.total_actual || "0")
-        .toString()
-        .replace(/[^0-9.-]+/g, "")
-    );
-
-    const total = actual;
-
-    setCommissionForm({
-      agent_id: selectedEmployeeId,
-      pay_date: new Date().toISOString().split("T")[0],
-      amount: total.toFixed(2),
-      pay_type: "cash",
-      transaction_id: "",
-      note: "",
-      pay_for: "commission",
-      admin_type: adminId,
-    });
-
-    setErrors({});
-    setShowCommissionModal(true);
-  };
 
   const processedTableData = employeeCustomerData.map((item, index) => ({
     ...item,
@@ -329,7 +329,7 @@ const fetchTargetData = async (employeeId) => {
     { key: "commission_released", header: "Commission Released" },
   ];
 
-  // Get current month for max attribute
+ 
   const today = new Date();
   const currentMonth = `${today.getFullYear()}-${String(
     today.getMonth() + 1
@@ -586,24 +586,39 @@ const fetchTargetData = async (employeeId) => {
                         />
                       </div>
 
+                      {/* MODIFIED: Total Payable now shows incentive amount */}
                       <div>
                         <label className="block font-medium">Total Payable</label>
                         <input
                           readOnly
-                          value={(() => {
-                            const actual = parseFloat(
-                              (commissionTotalDetails?.total_actual || "0")
-                                .toString()
-                                .replace(/[^0-9.-]+/g, "")
-                            );
-                            return `₹${actual.toLocaleString("en-IN")}`;
-                          })()}
+                          value={`₹${targetData.incentiveAmount.toLocaleString(
+                            "en-IN",
+                            { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                          )}`}
                           className="border px-3 py-2 rounded w-full bg-gray-50 text-green-700 font-bold"
                         />
                       </div>
+                      
+                      {/* ADDED: Incentive breakdown for clarity */}
+                      <div className="col-span-3">
+                        <div className="bg-blue-50 p-3 rounded">
+                          <p className="text-sm font-medium text-blue-800">
+                            Incentive Breakdown:
+                          </p>
+                          <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
+                            <li>
+                              Up to target (0%): ₹0.00
+                            </li>
+                            {targetData.achieved > targetData.target && (
+                              <li>
+                                Beyond target (1%): ₹{((targetData.achieved - targetData.target) * 0.01)
+                                  .toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
                     </div>
-
-                  
                   </div>
                 )}
 
@@ -645,6 +660,7 @@ const fetchTargetData = async (employeeId) => {
                         className="w-full border p-2 rounded"
                       />
                     </div>
+                    {/* MODIFIED: Total Payable Commission now shows incentive amount */}
                     <div>
                       <label className="block text-sm font-medium">
                         Total Payable Commission
@@ -764,14 +780,9 @@ const fetchTargetData = async (employeeId) => {
                       `₹${targetData?.target?.toLocaleString("en-IN") || "0"}`,
                       `₹${targetData?.achieved?.toLocaleString("en-IN") || "0"}`,
                       `₹${targetData?.remaining?.toLocaleString("en-IN") || "0"}`,
-                      (() => {
-                        const actual = parseFloat(
-                          (commissionTotalDetails?.total_actual || "0")
-                            .toString()
-                            .replace(/[^0-9.-]+/g, "")
-                        );
-                        return `₹${actual.toLocaleString("en-IN")}`;
-                      })(),
+                      // MODIFIED: Using incentive amount
+                      `₹${targetData?.incentiveAmount?.toLocaleString("en-IN", 
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}`,
                       `₹${commissionTotalDetails?.actual_business?.toLocaleString(
                         "en-IN"
                       ) || "0"

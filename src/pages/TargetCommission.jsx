@@ -36,6 +36,7 @@ const TargetCommission = () => {
     remaining: 0,
     startDate: "",
     endDate: "",
+    targetCommission: 0, // NEW: Store calculated target-based commission
   });
 
   // Initialize with current month
@@ -94,6 +95,30 @@ const TargetCommission = () => {
       if (!abortController.signal.aborted) {
         setLoading(false);
       }
+    }
+  };
+
+  // NEW: Calculate target-based commission
+  const calculateTargetCommission = (achievedBusiness, targetAmount) => {
+    // Convert to numbers if they're strings
+    const achievedNum =
+      typeof achievedBusiness === "string"
+        ? Number(achievedBusiness.replace(/[^0-9.-]+/g, ""))
+        : achievedBusiness;
+    const targetNum =
+      typeof targetAmount === "string"
+        ? Number(targetAmount.replace(/[^0-9.-]+/g, ""))
+        : targetAmount;
+
+    if (achievedNum <= targetNum) {
+      // Up to target: 0.5% of achieved business
+      return achievedNum * 0.005;
+    } else {
+      // Up to target: 0.5% of target
+      const upToTarget = targetNum * 0.005;
+      // Beyond target: 1% of remaining business
+      const beyondTarget = (achievedNum - targetNum) * 0.01;
+      return upToTarget + beyondTarget;
     }
   };
 
@@ -166,6 +191,12 @@ const TargetCommission = () => {
       const startDateDisplay = firstDay;
       const endDateDisplay = lastDay;
 
+      // Calculate target-based commission
+      const targetCommission = calculateTargetCommission(
+        achieved,
+        targetForMonth
+      );
+
       setTargetData({
         target: Math.round(targetForMonth),
         achieved,
@@ -173,6 +204,7 @@ const TargetCommission = () => {
         difference,
         startDate: startDateDisplay,
         endDate: endDateDisplay,
+        targetCommission, // Store the calculated commission
       });
     } catch (err) {
       if (err.name !== "AbortError") {
@@ -184,10 +216,12 @@ const TargetCommission = () => {
           difference: 0,
           startDate: "",
           endDate: "",
+          targetCommission: 0,
         });
       }
     }
   };
+
   const fetchAllCommissionReport = async () => {
     if (!selectedMonth) return;
 
@@ -236,6 +270,7 @@ const TargetCommission = () => {
         designation: "",
         incentiveAmount: "₹0.00",
         incentivePercent: "0%",
+        targetCommission: 0,
       });
       await fetchAllCommissionReport();
     } else {
@@ -297,18 +332,13 @@ const TargetCommission = () => {
   };
 
   const handlePayNow = () => {
-    const actual = parseFloat(
-      (commissionTotalDetails?.total_actual || "0")
-        .toString()
-        .replace(/[^0-9.-]+/g, "")
-    );
-
-    const total = actual;
+    // Use target-based commission calculation instead of total_actual
+    const targetCommission = targetData.targetCommission;
 
     setCommissionForm({
       agent_id: selectedEmployeeId,
       pay_date: new Date().toISOString().split("T")[0],
-      amount: total.toFixed(2),
+      amount: targetCommission.toFixed(2),
       pay_type: "cash",
       transaction_id: "",
       note: "",
@@ -610,22 +640,57 @@ const TargetCommission = () => {
                         />
                       </div>
 
+                      {/* MODIFIED: Total Payable now uses target-based commission */}
                       <div>
                         <label className="block font-medium">
-                          Total Payable
+                          Total Payable Commission
                         </label>
                         <input
                           readOnly
-                          value={(() => {
-                            const actual = parseFloat(
-                              (commissionTotalDetails?.total_actual || "0")
-                                .toString()
-                                .replace(/[^0-9.-]+/g, "")
-                            );
-                            return `₹${actual.toLocaleString("en-IN")}`;
-                          })()}
+                          value={`₹${targetData.targetCommission.toLocaleString(
+                            "en-IN",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )}`}
                           className="border px-3 py-2 rounded w-full bg-gray-50 text-green-700 font-bold"
                         />
+                      </div>
+
+                      {/* ADDED: Commission breakdown for clarity */}
+                      <div className="col-span-3">
+                        <div className="bg-blue-50 p-3 rounded">
+                          <p className="text-sm font-medium text-blue-800">
+                            Commission Breakdown:
+                          </p>
+                          <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
+                            <li>
+                              Up to target (0.5%): ₹
+                              {(
+                                Math.min(
+                                  targetData.achieved,
+                                  targetData.target
+                                ) * 0.005
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </li>
+                            {targetData.achieved > targetData.target && (
+                              <li>
+                                Beyond target (1%): ₹
+                                {(
+                                  (targetData.achieved - targetData.target) *
+                                  0.01
+                                ).toLocaleString("en-IN", {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </li>
+                            )}
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -669,6 +734,7 @@ const TargetCommission = () => {
                         className="w-full border p-2 rounded"
                       />
                     </div>
+                    {/* MODIFIED: Total Payable Commission now shows target-based calculation */}
                     <div>
                       <label className="block text-sm font-medium">
                         Total Payable Commission
@@ -793,14 +859,13 @@ const TargetCommission = () => {
                       `₹${
                         targetData?.remaining?.toLocaleString("en-IN") || "0"
                       }`,
-                      (() => {
-                        const actual = parseFloat(
-                          (commissionTotalDetails?.total_actual || "0")
-                            .toString()
-                            .replace(/[^0-9.-]+/g, "")
-                        );
-                        return `₹${actual.toLocaleString("en-IN")}`;
-                      })(),
+                      // MODIFIED: Using target-based commission
+                      `₹${
+                        targetData?.targetCommission?.toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }) || "0.00"
+                      }`,
                       `₹${
                         commissionTotalDetails?.actual_business?.toLocaleString(
                           "en-IN"
