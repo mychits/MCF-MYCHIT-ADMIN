@@ -170,7 +170,7 @@ const TargetPayOutCommissionIncentive = () => {
       }
 
       const remaining = Math.max(targetForMonth - achieved, 0);
-      const difference = achieved - targetForMonth;
+      const difference = targetForMonth - achieved;
 
       // Calculate commission/incentive based on agent type
       let upToTarget = 0;
@@ -212,6 +212,20 @@ const TargetPayOutCommissionIncentive = () => {
         targetDisplay: targetDisplay,
         calculationType: type === "employee" ? "incentive" : "commission",
       });
+
+      if (type === "agent") {
+        setCalculatedAmount(totalCommission.toFixed(2));
+        setCommissionForm((prev) => ({
+          ...prev,
+          amount: totalCommission.toFixed(2),
+        }));
+      } else {
+        setCalculatedAmount(totalCommission.toFixed(2));
+        setCommissionForm((prev) => ({
+          ...prev,
+          amount: totalCommission.toFixed(2),
+        }));
+      }
 
       // Store commission breakdown for display
       setCommissionBreakdown(comm?.data?.commission_data || []);
@@ -310,29 +324,34 @@ const TargetPayOutCommissionIncentive = () => {
     setCommissionForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
 
-    // Trigger calculation if agent or month changes, and both are filled
-    const updatedAgentId =
-      name === "agent_id" ? value : commissionForm.agent_id;
-    const updatedMonth =
-      name === "selectedMonth" ? value : commissionForm.selectedMonth;
-
-    if (updatedAgentId && updatedMonth && agentType) {
-      calculateTotalPayableCommission(updatedAgentId, updatedMonth, agentType);
-    } else {
-      setCalculatedAmount("0.00");
-      setTargetData({
-        target: 0,
-        achieved: 0,
-        remaining: 0,
-        difference: 0,
-        upToTarget: 0,
-        beyondTarget: 0,
-        targetCommission: 0,
-        isTargetSet: false,
-        targetDisplay: "Not Set",
-        calculationType: agentType === "employee" ? "incentive" : "commission",
-      });
-      setCommissionBreakdown([]);
+    if (name === "agent_id" || name === "selectedMonth") {
+      const updatedAgentId =
+        name === "agent_id" ? value : commissionForm.agent_id;
+      const updatedMonth =
+        name === "selectedMonth" ? value : commissionForm.selectedMonth;
+      if (updatedAgentId && updatedMonth && agentType) {
+        calculateTotalPayableCommission(
+          updatedAgentId,
+          updatedMonth,
+          agentType
+        );
+      } else {
+        setCalculatedAmount("0.00");
+        setTargetData({
+          target: 0,
+          achieved: 0,
+          remaining: 0,
+          difference: 0,
+          upToTarget: 0,
+          beyondTarget: 0,
+          targetCommission: 0,
+          isTargetSet: false,
+          targetDisplay: "Not Set",
+          calculationType:
+            agentType === "employee" ? "incentive" : "commission",
+        });
+        setCommissionBreakdown([]);
+      }
     }
   };
 
@@ -554,6 +573,22 @@ const TargetPayOutCommissionIncentive = () => {
                       }));
                       setAlreadyPaid("0.00");
                       setRemainingPayable("0.00");
+                      setTargetData({
+                        target: 0,
+                        achieved: 0,
+                        remaining: 0,
+                        difference: 0,
+                        upToTarget: 0,
+                        beyondTarget: 0,
+                        targetCommission: 0,
+                        isTargetSet: false,
+                        targetDisplay: "Not Set",
+                        calculationType:
+                          selected === "employee" ? "incentive" : "commission",
+                      });
+                      setCommissionBreakdown([]);
+                      setCalculatedAmount("0.00");
+                      setErrors({});
                     }}
                   >
                     <option value="" disabled>
@@ -872,7 +907,7 @@ const TargetPayOutCommissionIncentive = () => {
                   )}
                 </div>
 
-                {agentType === "agent" && commissionBreakdown.length > 0 && (
+                {agentType === "agent" && commissionBreakdown.length > 0 &&!isLoading && (
                   <div className="mt-6 bg-gray-100 p-3 rounded-lg shadow-inner border border-gray-300">
                     <h4 className="font-semibold text-gray-800 mb-3 text-lg">
                       Commission Breakdown (Customer-wise)
@@ -891,7 +926,7 @@ const TargetPayOutCommissionIncentive = () => {
                               Group
                             </th>
                             <th className="border px-3 py-2 text-right">
-                              Commission (₹)
+                              Released Group value (₹)
                             </th>
                           </tr>
                         </thead>
@@ -908,7 +943,9 @@ const TargetPayOutCommissionIncentive = () => {
                                 {item.group_name || "-"}
                               </td>
                               <td className="border px-3 py-2 text-right">
-                                {item.actual_commission_digits || "₹0"}
+                                {item.commission_released === "Yes"
+                                  ? item.group_value
+                                  : "₹0"}
                               </td>
                             </tr>
                           ))}
@@ -917,7 +954,53 @@ const TargetPayOutCommissionIncentive = () => {
                     </div>
                   </div>
                 )}
-
+                {agentType === "employee" && commissionBreakdown.length > 0 && !isLoading &&(
+                  <div className="mt-6 bg-gray-100 p-3 rounded-lg shadow-inner border border-gray-300">
+                    <h4 className="font-semibold text-gray-800 mb-3 text-lg">
+                      Incentive Breakdown (Customer-wise)
+                    </h4>
+                    <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                      <table className="min-w-full text-sm border">
+                        <thead>
+                          <tr className="bg-blue-100 text-gray-700">
+                            <th className="border px-3 py-2 text-left">
+                              Customer
+                            </th>
+                            <th className="border px-3 py-2 text-left">
+                              Phone
+                            </th>
+                            <th className="border px-3 py-2 text-left">
+                              Group
+                            </th>
+                            <th className="border px-3 py-2 text-right">
+                              Released Group value (₹)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {commissionBreakdown.map((item, index) => (
+                            <tr key={index} className="hover:bg-gray-50">
+                              <td className="border px-3 py-2">
+                                {item.user_name || "-"}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {item.phone_number || "-"}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {item.group_name || "-"}
+                              </td>
+                              <td className="border px-3 py-2 text-right">
+                                {item.commission_released === "Yes"
+                                  ? item.group_value
+                                  : "₹0"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
                 <div className="w-full">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
                     Payment Mode
