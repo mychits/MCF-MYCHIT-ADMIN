@@ -411,7 +411,7 @@ const PayOutReport = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await api.get("/group/get-group-admin");
+        const response = await api.get("/group/get-all-group-admin");
         setActualGroups(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -914,7 +914,7 @@ const PayOutReport = () => {
                       onChange={handleGroupPayment}
                     >
                       <Select.Option key={"#1"} value={"today"}>
-                        {"Today's Payments"}
+                        {"Payments"}
                       </Select.Option>
                       {actualGroups.map((group) => (
                         <Select.Option key={group._id} value={group._id}>

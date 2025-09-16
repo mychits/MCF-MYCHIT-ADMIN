@@ -89,6 +89,7 @@ import TargetPayOutSalary from "../pages/TargetPayoutSalary";
 import TargetPayOutCommissionIncentive from "../pages/TargetPayOutCommissionIncentive";
 import TargetCommission from "../pages/TargetCommission";
 import TargetPayOutMenu from "../pages/TargetPayOutMenu";
+import MonthlyInstallmentTurnoverReport from "../pages/MonthlyInstallmentTurnoverReport";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -533,6 +534,7 @@ const mainRoutes = createBrowserRouter([
       { path: "commission-report", element: <CommissionReport /> },
       { path: "enrollment-report", element: <EnrollmentReport /> },
       { path: "payment-summary", element: <PaymentSummary /> },
+      {path: "monthly-install-turnover", element:<MonthlyInstallmentTurnoverReport/>},
       {
         path: "due-report",
         element: <DueReport />,

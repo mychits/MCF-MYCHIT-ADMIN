@@ -85,6 +85,7 @@ import { LiaCalculatorSolid } from "react-icons/lia";
 import { GiMoneyStack } from "react-icons/gi";
 import { TbReportSearch } from "react-icons/tb";
 import { MdOutlinePayment } from "react-icons/md";
+import { SlCalender } from "react-icons/sl";
 const subMenus = [
   { title: "Daybook", link: "/reports/daybook", Icon: FaCalendarDays },
   { title: "Group Report", link: "/reports/group-report", Icon: FaPeopleGroup },
@@ -108,11 +109,11 @@ const subMenus = [
     link: "/reports/employee-report",
     Icon: FaUserTie,
   },
-  {
-    title: "Commission Report",
-    link: "/reports/commission-report",
-    Icon: RiMoneyRupeeCircleFill,
-  },
+  // {
+  //   title: "Commission Report",
+  //   link: "/reports/commission-report",
+  //   Icon: RiMoneyRupeeCircleFill,
+  // },
   {
     title: "Receipt Report",
     link: "/reports/receipt",
@@ -142,6 +143,7 @@ const subMenus = [
   { title: "Loan Report", link: "/reports/loan-report", Icon: GiMoneyStack },
   { title: "Sales Report", link: "/reports/sales-report", Icon: FaUserCheck },
    { title: "Payment Summary", link: "/reports/payment-summary", Icon: TbReportSearch },
+   {title: "Monthly Installment Turnover", link: "/reports/monthly-install-turnover", Icon: SlCalender },
 ];
 
 const Reports = () => {

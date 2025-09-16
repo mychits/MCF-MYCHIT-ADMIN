@@ -713,7 +713,7 @@ const handleSalaryPrint = () => {
                 <td><strong>GROSS EARNINGS</strong></td>
                 <td><strong>₹${monthlySalary.toFixed(2)}</strong></td>
                 <td><strong>TOTAL DEDUCTIONS</strong></td>
-                <td><strong>₹${(deduction + monthlySalary * 0.12 + 200).toFixed(2)}</strong></td>
+                <td><strong>₹${(deduction).toFixed(2)}</strong></td>
               </tr>
             </tbody>
           </table>
@@ -732,103 +732,266 @@ const handleSalaryPrint = () => {
 
     // --- FORMAT 2 (Optional, same structure) ---
     const format2 = `
-      <!DOCTYPE html>
-      <html><head><meta charset="UTF-8"><title>Salary Slip - ${agent?.name || "Employee"}</title>
-      <style>
-        @page { size: A4; margin: 10mm; }
-        body { font-family: 'Helvetica', Arial, sans-serif; margin: 0; color: #2c3e50; background: #fff; line-height: 1.4; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .header { margin-bottom: 30px; }
-        .header-line { height: 4px; background: linear-gradient(90deg, #3498db, #2980b9); margin-bottom: 20px; }
-        .header-content { display: flex; align-items: start; gap: 20px; }
-        .logo { width: 60px; height: 60px; border-radius: 50%; }
-        .company-section { flex: 1; }
-        .company-name { font-size: 26px; font-weight: 300; color: #2c3e50; margin-bottom: 5px; }
-        .company-tagline { font-size: 12px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; }
-        .payslip-info { text-align: right; background: #ecf0f1; padding: 15px; border-radius: 8px; min-width: 200px; }
-        .info-item { font-size: 11px; margin: 3px 0; color: #34495e; }
-        .info-value { font-weight: 600; color: #2c3e50; }
-        .section { margin: 25px 0; }
-        .section-header { font-size: 14px; font-weight: 600; color: #2980b9; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .emp-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #ecf0f1; }
-        .emp-label { font-size: 13px; color: #7f8c8d; font-weight: 500; }
-        .emp-value { font-size: 13px; color: #2c3e50; font-weight: 600; }
-        .salary-container { background: #fff; border: 1px solid #ecf0f1; border-radius: 8px; overflow: hidden; }
-        .salary-header { background: #34495e; color: #fff; display: grid; grid-template-columns: 1fr 120px 1fr 120px; }
-        .salary-header div { padding: 15px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-        .salary-row { display: grid; grid-template-columns: 1fr 120px 1fr 120px; border-bottom: 1px solid #ecf0f1; }
-        .salary-row:nth-child(even) { background: #f8f9fa; }
-        .salary-row div { padding: 12px 15px; font-size: 12px; }
-        .amount { font-weight: 600; text-align: right; }
-        .earning { color: #27ae60; }
-        .deduction { color: #e74c3c; }
-        .total-row { background: #3498db !important; color: #fff; font-weight: bold; }
-        .net-pay { background: #2c3e50; color: #fff; padding: 25px; border-radius: 8px; text-align: center; margin: 25px 0; }
-        .net-label { font-size: 14px; margin-bottom: 8px; opacity: 0.8; }
-        .net-value { font-size: 28px; font-weight: 300; margin-bottom: 15px; }
-        .amount-text { background: rgba(255,255,255,0.1); padding: 12px; border-radius: 4px; font-size: 11px; }
-        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ecf0f1; color: #95a5a6; font-size: 10px; }
-      </style></head><body><div class="container">
-        <div class="header">
-          <div class="header-line"></div>
-          <div class="header-content">
-            <img src="${imageInput}" class="logo" alt="Logo">
-            <div class="company-section">
-              <div class="company-name">Mychits</div>
-              <div class="company-tagline">Excellence in Business Solutions</div>
-            </div>
-            <div class="payslip-info">
-              <div class="info-item">ID: <span class="info-value">${payslipId}</span></div>
-              <div class="info-item">Generated: <span class="info-value">${new Date().toLocaleDateString()}</span></div>
-            </div>
-          </div>
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@page { 
+  size: A4; 
+  margin: 12mm; 
+}
+
+
+
+body { 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+  margin: 0; 
+  color: #1a202c; 
+  background: #f7fafc; 
+  padding: 0;
+  width: 210mm;
+  height: 297mm;
+}
+.document { 
+  background: #fff; 
+  margin: 0 auto; 
+  width: 100%; 
+  height: auto; 
+  min-height: calc(297mm - 24mm);; /* A4 height minus margins */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.header-band { 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+  color: #fff; 
+  padding: 20px; 
+}
+.header-content { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  gap: 20px; 
+}
+.logo-circle { 
+  width: 70px; 
+  height: 70px; 
+  background: rgba(255,255,255,0.2); 
+  border-radius: 6px;   /* ⬅️ small rounded box instead of circle */
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  backdrop-filter: blur(10px); 
+}
+
+.logo-circle img { 
+  width: 50px; 
+  height: 50px; 
+  border-radius: 4px;   /* ⬅️ box edges (adjust/remove if you want sharp corners) */
+}
+.header-text { flex: 1; }
+.company-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.company-subtitle { font-size: 11px; opacity: 0.9; line-height: 1.4; }
+.header-meta { 
+  text-align: right; 
+  background: rgba(255,255,255,0.15); 
+  padding: 12px; 
+  border-radius: 10px; 
+  font-size: 11px; 
+}
+.meta-line { margin: 2px 0; }
+.meta-value { font-weight: 400; }
+.content { 
+  flex: 1;
+  padding: 1px 1px; 
+}
+.payslip-title { 
+  text-align: center; 
+  font-size: 24px; 
+  font-weight: 500; 
+  color: #4a5568; 
+  margin: 20px 0; 
+  letter-spacing: 2px; 
+}
+.card { 
+  background: #fff; 
+  border: 1px solid #e2e8f0; 
+  border-radius: 10px; 
+  margin-bottom: 20px; 
+  overflow: hidden; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+}
+.card-header { 
+  background: #f7fafc; 
+  padding: 12px; 
+  border-bottom: 1px solid #e2e8f0; 
+  font-weight: 600; 
+  color: #4a5568; 
+}
+.card-body { padding: 15px; }
+.info-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 12px; 
+}
+.info-pair { 
+  display: flex; 
+  justify-content: space-between; 
+  padding: 6px 0; 
+  border-bottom: 1px dotted #e2e8f0; 
+  font-size: 12px; 
+}
+.info-pair:last-child { border-bottom: none; }
+.salary-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px; 
+}
+.earnings-card { border-left: 4px solid #48bb78; }
+.deductions-card { border-left: 4px solid #f56565; }
+.item-row { 
+  display: flex; 
+  justify-content: space-between; 
+  padding: 8px 0; 
+  border-bottom: 1px solid #f7fafc; 
+  font-size: 12px;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+  .document {
+    box-shadow: none;
+    page-break-after: avoid; /* 👈 prevent extra blank page */
+  }
+}
+
+.item-row:last-child { border-bottom: 2px solid #e2e8f0; }
+.item-name { color: #4a5568; }
+.item-amount { color: #2d3748; font-weight: 600; }
+.total-amount { 
+  background: #edf2f7; 
+  padding: 10px; 
+  border-radius: 6px; 
+  font-weight: 700; 
+  text-align: right; 
+}
+.net-section { 
+  background: linear-gradient(135deg, #4299e1, #3182ce); 
+  color: #fff; 
+  padding: 20px; 
+  border-radius: 10px; 
+  text-align: center; 
+  margin: 25px 0; 
+}
+.net-title { font-size: 14px; margin-bottom: 8px; }
+.net-figure { font-size: 28px; font-weight: 500; margin-bottom: 10px; }
+.net-words { font-size: 11px; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 6px; }
+.signature-section { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px; 
+  margin-top: 15px; 
+}
+.signature-line { 
+  border-top: 1px solid #cbd5e0; 
+  margin-top: 40px; 
+  padding-top: 8px; 
+  font-size: 11px; 
+  color: #718096; 
+}
+.footer-text { 
+  text-align: center; 
+  color: #a0aec0; 
+  font-size: 9px; 
+  margin: 25px 0; 
+}
+</style>
+</head>
+<body>
+<div class="document">
+  <div class="header-band">
+    <div class="header-content">
+      <div class="logo-circle">
+        <img src="${imageInput}" alt="Logo">
+      </div>
+      <div class="header-text">
+        <div class="company-title">Mychits</div>
+        <div class="company-subtitle">No 11/36-25, 2nd Main, Kathriguppe Main Road, Bangalore, Karnataka, India - 560070</div>
+      </div>
+      <div class="header-meta">
+        <div class="meta-line">Payslip ID: <span class="meta-value">${payslipId}</span></div>
+        <div class="meta-line">Period: <span class="meta-value">${monthYear}</span></div>
+        <div class="meta-line">Date: <span class="meta-value">${formatDate(payDate)}</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="payslip-title">PAYSLIP</div>
+    <div class="card">
+      <div class="card-header">Employee Information</div>
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-pair"><span>Employee Name</span><span>${agent?.name || "N/A"}</span></div>
+          <div class="info-pair"><span>Employee ID</span><span>${agent?.employeeCode || "N/A"}</span></div>
+          <div class="info-pair"><span>Designation</span><span>${agent?.designation_id?.title || "N/A"}</span></div>
+          <div class="info-pair"><span>Department</span><span>${agent?.department || "N/A"}</span></div>
+          <div class="info-pair"><span>Pay Period</span><span>${formatDate(fromDate)} to ${formatDate(toDate)}</span></div>
+          <div class="info-pair"><span>Working Days</span><span>${daysInMonth - absentDays}</span></div>
         </div>
-        <div class="section">
-          <div class="section-header">Employee Information</div>
-          <div class="emp-row"><div class="emp-label">Employee Name</div><div class="emp-value">${agent?.name || "N/A"}</div></div>
-          <div class="emp-row"><div class="emp-label">Employee ID</div><div class="emp-value">${agent?.employeeCode || "N/A"}</div></div>
-          <div class="emp-row"><div class="emp-label">Designation</div><div class="emp-value">${agent?.designation_id?.title || "N/A"}</div></div>
-          <div class="emp-row"><div class="emp-label">Department</div><div class="emp-value">${agent?.department || "N/A"}</div></div>
-          <div class="emp-row"><div class="emp-label">Pay Period</div><div class="emp-value">${formatDate(fromDate)} to ${formatDate(toDate)}</div></div>
-          <div class="emp-row"><div class="emp-label">Working Days</div><div class="emp-value">${daysInMonth - absentDays}</div></div>
-          <div class="emp-row"><div class="emp-label">LOP Days</div><div class="emp-value">${absentDays}</div></div>
+      </div>
+    </div>
+    <div class="salary-grid">
+      <div class="card earnings-card">
+        <div class="card-header" style="color: #48bb78;">Earnings</div>
+        <div class="card-body">
+          <div class="item-row"><div class="item-name">Basic Salary</div><div class="item-amount">₹${monthlySalary.toFixed(2)}</div></div>
+          <div class="item-row"><div class="item-name">HRA (40%)</div><div class="item-amount">₹${(0).toFixed(2)}</div></div>
+          <div class="item-row"><div class="item-name">Special Allowance</div><div class="item-amount">₹${(0).toFixed(2)}</div></div>
+          <div class="item-row"><div class="item-name">Conveyance</div><div class="item-amount">₹0.00</div></div>
+          <div class="total-amount">Total: ₹${monthlySalary.toFixed(2)}</div>
         </div>
-        <div class="section">
-          <div class="section-header">Salary Breakdown</div>
-          <div class="salary-container">
-            <div class="salary-header">
-              <div>Earnings</div><div>Amount</div><div>Deductions</div><div>Amount</div>
-            </div>
-            <div class="salary-row">
-              <div>Basic Salary</div><div class="amount earning">₹${monthlySalary.toFixed(2)}</div><div>Loss of Pay</div><div class="amount deduction">₹${deduction.toFixed(2)}</div>
-            </div>
-            <div class="salary-row">
-              <div>HRA (40%)</div><div class="amount earning">₹${(monthlySalary * 0.4).toFixed(2)}</div><div>PF (12%)</div><div class="amount deduction">₹${(monthlySalary * 0.12).toFixed(2)}</div>
-            </div>
-            <div class="salary-row">
-              <div>Special Allowance</div><div class="amount earning">₹${(monthlySalary * 0.3).toFixed(2)}</div><div>Professional Tax</div><div class="amount deduction">₹200.00</div>
-            </div>
-            <div class="salary-row">
-              <div>Conveyance</div><div class="amount earning">₹1600.00</div><div>TDS</div><div class="amount deduction">₹0.00</div>
-            </div>
-            <div class="salary-row total-row">
-              <div>Total Earnings</div><div class="amount">₹${monthlySalary.toFixed(2)}</div><div>Total Deductions</div><div class="amount">₹${(deduction + monthlySalary * 0.12 + 200).toFixed(2)}</div>
-            </div>
-          </div>
+      </div>
+      <div class="card deductions-card">
+        <div class="card-header" style="color: #f56565;">Deductions</div>
+        <div class="card-body">
+          <div class="item-row"><div class="item-name">Loss of Pay</div><div class="item-amount">₹${deduction.toFixed(2)}</div></div>
+          <div class="item-row"><div class="item-name">PF</div><div class="item-amount">₹${(1800).toFixed(2)}</div></div>
+          <div class="item-row"><div class="item-name">Health Insurance</div><div class="item-amount">₹₹${(200).toFixed(2)}</div></div>
+          <div class="item-row"><div class="item-name">TDS</div><div class="item-amount">₹0.00</div></div>
+          <div class="total-amount">Total: ₹${(parseFloat(deduction)).toFixed(2)}</div>
         </div>
-        <div class="net-pay">
-          <div class="net-label">Net Payable</div>
-          <div class="net-value">₹${net.toFixed(2)}</div>
-          <div class="amount-text">Indian Rupees ${amountInWords} Only</div>
-        </div>
-        <div class="footer">System Generated • No Signature Required • Confidential Document</div>
-      </div></body></html>
-    `;
+      </div>
+    </div>
+    <div class="net-section">
+      <div class="net-title">Net Payable Amount</div>
+      <div class="net-figure">₹${parseFloat(net).toFixed(2)}</div>
+      <div class="net-words">Amount in Words: Indian Rupees ${amountInWords} Only</div>
+    </div>
+    <div class="signature-section">
+      <div class="signature-line">Employee Signature</div>
+      <div class="signature-line">Authorized Signatory</div>
+    </div>
+    <div class="footer-text">
+      This is a computer generated payslip and does not require signature.<br>
+      &copy; ${new Date().getFullYear()} Mychits.
+    </div>
+  </div>
+</div>
+</body>
+</html>`;
+
 
     const htmlContent = printFormat === "format1" ? format1 : format2;
+    const fileName = `${agent?.name || "Employee"}_${monthYear} Slip`;
 
     const printWindow = window.open("", "_blank");
     printWindow.document.write(htmlContent);
+    printWindow.document.title = fileName;
     printWindow.document.close();
     printWindow.print();
   } catch (err) {

@@ -164,13 +164,14 @@ const EnrollmentReport = () => {
 
 
   const groupOptions = [
+    { value: "All", label: "All" },
     { value: "Today", label: "Today" },
     { value: "Yesterday", label: "Yesterday" },
     { value: "ThisMonth", label: "This Month" },
     { value: "LastMonth", label: "Last Month" },
     { value: "ThisYear", label: "This Year" },
     { value: "Custom", label: "Custom" },
-    { value: "All", label: "All" }
+    
   ];
 
   const handleSelectFilter = (value) => {

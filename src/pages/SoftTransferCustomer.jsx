@@ -82,7 +82,7 @@ const SoftTransferCustomer = () => {
   const handleAddTransferClick = async () => {
     try {
       setLoader(true);
-      const response = await api.get("/group/get-group");
+      const response = await api.get("/group/get-all-group-admin");
       setAllGroups(response.data);
       setShowModal(true);
     } catch (err) {
