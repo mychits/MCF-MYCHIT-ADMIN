@@ -92,6 +92,8 @@ import TargetPayOutMenu from "../pages/TargetPayOutMenu";
 import MonthlyInstallmentTurnoverReport from "../pages/MonthlyInstallmentTurnoverReport";
 import HoldedCustomerReport from "../pages/HoldedCustomerReport"
 import Insurance from "../pages/Insurance";
+
+import RegistrationFeeReport from "../pages/RegistrationFeeReport";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -516,8 +518,10 @@ const mainRoutes = createBrowserRouter([
       { path: "payout", element: <PayOutReport /> },
       { path: "sales-report", element: <SalesReport /> },
       { path: "receipt", element: <Receipt /> },
+      { path: "registration-fee-receipt", element: <RegistrationFeeReport /> },
       { path: "group-report", element: <GroupReport /> },
       { path: "all-group-report", element: <AllGroupReport /> },
+      { path: "auction-report", element: <AuctionReport /> },
       { path: "auction-report", element: <AuctionReport /> },
       { path: "lead-report", element: <LeadReport /> },
       { path: "user-report", element: <UserReport /> },

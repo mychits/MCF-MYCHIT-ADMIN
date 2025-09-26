@@ -87,6 +87,7 @@ import { GiMoneyStack } from "react-icons/gi";
 import { TbReportSearch } from "react-icons/tb";
 import { MdOutlinePayment } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
+import { RiReceiptLine } from "react-icons/ri";
 const subMenus = [
   { title: "Daybook", link: "/reports/daybook", Icon: FaCalendarDays },
   { title: "Group Report", link: "/reports/group-report", Icon: FaPeopleGroup },
@@ -115,15 +116,16 @@ const subMenus = [
     link: "/reports/employee-report",
     Icon: FaUserTie,
   },
-  // {
-  //   title: "Commission Report",
-  //   link: "/reports/commission-report",
-  //   Icon: RiMoneyRupeeCircleFill,
-  // },
+ 
   {
     title: "Receipt Report",
     link: "/reports/receipt",
     Icon: MdOutlineReceiptLong,
+  },
+  {
+    title: "Registration Receipt",
+    link: "/reports/registration-fee-receipt",
+    Icon: RiReceiptLine,
   },
   {
     title: "PayOut Report",
