@@ -9,6 +9,7 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { useSearchParams } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
+import { IoMdDownload } from "react-icons/io";
 import Fuse from "fuse.js";
 const UserReport = () => {
   const [searchParams] = useSearchParams();
@@ -938,9 +939,10 @@ const UserReport = () => {
                             TableEnrolls
                           )
                         }
-                        className="px-6 py-2 bg-blue-500 text-white rounded shadow"
+                        className="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded shadow"
                       >
-                        Download Full Report PDF
+                        <IoMdDownload size={20} />
+                        Download Full Report
                       </button>
                     </div>
 
