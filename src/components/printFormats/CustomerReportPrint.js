@@ -249,23 +249,70 @@ if (TableAuctions?.length > 0) {
   }
 
   // ====== Pigme/Disbursement Table ======
+  // if (filteredDisbursement?.length > 0) {
+  //   autoTable(doc, {
+  //     startY: yPos,
+  //     head: [["Date", "Amount Disbursed", "Status", "Remarks"]],
+  //     body: filteredDisbursement.map((d) => [
+  //       d.disbursement_date?.split("T")[0] || "-",
+  //       formatAmount(d.amount),
+  //       safe(d.status),
+  //       safe(d.remarks),
+  //     ]),
+  //     theme: "grid",
+  //     headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: "bold" },
+  //     alternateRowStyles: { fillColor: [245, 250, 255] },
+  //     styles: { font: "helvetica", fontSize: 9, cellPadding: 3 },
+  //   });
+  //   yPos = doc.lastAutoTable.finalY + 12;
+  // }
+
+
+
+
   if (filteredDisbursement?.length > 0) {
-    autoTable(doc, {
-      startY: yPos,
-      head: [["Date", "Amount Disbursed", "Status", "Remarks"]],
-      body: filteredDisbursement.map((d) => [
-        d.disbursement_date?.split("T")[0] || "-",
-        formatAmount(d.amount),
-        safe(d.status),
-        safe(d.remarks),
-      ]),
-      theme: "grid",
-      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: "bold" },
-      alternateRowStyles: { fillColor: [245, 250, 255] },
-      styles: { font: "helvetica", fontSize: 9, cellPadding: 3 },
-    });
-    yPos = doc.lastAutoTable.finalY + 12;
-  }
+  yPos += 10;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(15);
+  doc.setTextColor(80);
+  doc.text("PayOut / Disbursement", center, yPos, { align: "center" });
+  yPos += 4;
+
+  autoTable(doc, {
+    startY: yPos,
+    head: [[
+      "SL. NO",
+      "Disbursed Date",
+      "Transaction Date",
+      "Ticket",
+      "Amount",
+      "Receipt No",
+      "Payment Type",
+      "Disbursement Type",
+      "Disbursed By",
+      "Balance"
+    ]],
+    body: filteredDisbursement.map((d, index) => [
+      index + 1,
+      safe(d.pay_date),
+      safe(d.transaction_date),
+      safe(d.ticket),
+      formatAmount(d.amount),
+      safe(d.receipt_no),
+      safe(d.pay_type),
+      safe(d.disbursement_type),
+      safe(d.disbursed_by),
+      formatAmount(d.balance)
+    ]),
+    theme: "grid",
+    headStyles: { fillColor: [52, 73, 94], textColor: 255, fontStyle: "bold" },
+    bodyStyles: { textColor: 50 },
+    alternateRowStyles: { fillColor: [245, 250, 255] },
+    styles: { font: "helvetica", fontSize: 8, cellPadding: 3 },
+  });
+
+  yPos = doc.lastAutoTable.finalY + 12;
+}
 
 //     yPos += 10;
 //   doc.setFont("helvetica", "normal");
