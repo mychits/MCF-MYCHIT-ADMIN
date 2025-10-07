@@ -76,8 +76,7 @@ const AllUserReport = () => {
                   customerId: usrData.customer_id,
                   collectionArea: usrData.collection_area || "N/A",
                   collectionExecutive:
-                    usrData?.collection_executive
-                      ?.join(" | ") || "N/A",
+                    usrData?.collection_executive?.join(" | ") || "N/A",
                   amountPaid: totalPaidAmount,
                   paymentsTicket: data.payments.ticket,
                   groupValue: data?.enrollment?.group?.group_value,
@@ -190,11 +189,11 @@ const AllUserReport = () => {
     { key: "reffered_by", header: "Referred By" },
     { key: "relationshipManager", header: "Relationship Manager" },
     { key: "payment_type", header: "Payment Type" },
-    { key: "amountPaid", header: "Amount Paid" },
     {
       key: "firstInstallment",
       header: "First Installment",
     },
+    { key: "amountPaid", header: "Amount Paid" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
     { key: "balance", header: "Balance" },
     { key: "collectionArea", header: "Collection Area" },
@@ -214,17 +213,16 @@ const AllUserReport = () => {
     { key: "referred_type", header: "Referred Type" },
     { key: "reffered_by", header: "Referred By" },
     { key: "relationshipManager", header: "Relationship Manager" },
-    { key: "amountPaid", header: "Amount Paid" },
     { key: "payment_type", header: "Payment Type" },
-    { key: "totalToBePaid", header: "Amount to be Paid" },
-
     {
       key: "firstInstallment",
       header: "First Installment",
     },
-    { key: "collectionExecutive", header: "Collection Executive" },
-    { key: "collectionArea", header: "Collection Area" },
+    { key: "amountPaid", header: "Amount Paid" },
+    { key: "totalToBePaid", header: "Amount to be Paid" },
     { key: "balance", header: "Balance" },
+    { key: "collectionArea", header: "Collection Area" },
+    { key: "collectionExecutive", header: "Collection Executive" },
     { key: "status", header: "Status" },
   ];
   const filteredTableData = filterOption(
