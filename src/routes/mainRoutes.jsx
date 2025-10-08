@@ -102,6 +102,7 @@ import CustomerChitPlanWhatsappMessage from "../pages/CustomerChitPlanWhatsappMe
 import Insurance from "../pages/Insurance";
 
 import RegistrationFeeReport from "../pages/RegistrationFeeReport";
+import CollectionExecutiveReport from "../pages/CollectionExecutiveReport";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -526,6 +527,7 @@ const mainRoutes = createBrowserRouter([
       { path: "payout", element: <PayOutReport /> },
       { path: "sales-report", element: <SalesReport /> },
       { path: "receipt", element: <Receipt /> },
+      { path: "collection-executive", element: <CollectionExecutiveReport /> },
       { path: "registration-fee-receipt", element: <RegistrationFeeReport /> },
       { path: "group-report", element: <GroupReport /> },
       { path: "all-group-report", element: <AllGroupReport /> },

@@ -67,6 +67,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MdOutlinePending } from "react-icons/md";
+import { TbMoneybag } from "react-icons/tb";
 import {
   FaCalendarDays,
   FaPeopleGroup,
@@ -110,6 +111,11 @@ const subMenus = [
     title: "Holded Customers",
     link: "/reports/holded-customer-report",
     Icon: TbUserCancel,
+  },
+   {
+    title: "Collection Executive Report",
+    link: "/reports/collection-executive",
+    Icon: TbMoneybag ,
   },
   {
     title: "Employee Report",
