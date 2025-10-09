@@ -22,6 +22,7 @@ import { TbGraph } from "react-icons/tb";
 import { TbGraphFilled } from "react-icons/tb";
 import { MdAccountBalanceWallet } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
+import { FaGift } from "react-icons/fa6";
 const MenuSidebar = [
   { title: "Dashboard", icon: <RiDashboardFill />, link: "/dashboard" },
   {
@@ -65,6 +66,11 @@ const MenuSidebar = [
     icon: <IoPeopleOutline />,
     link : "/insurance"
 
+  },
+  {
+    title: "Reward",
+    icon: <FaGift />,
+    link : "/gift-received"
   },
 
   {

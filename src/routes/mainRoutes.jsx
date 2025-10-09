@@ -100,9 +100,11 @@ import LeadReferredByWhatsappMessage from "../pages/LeadReferredByWhatsappMessag
 import CustomerWelcomeWhatsappMessage from "../pages/CustomerWelcomeWhatsappMessage";
 import CustomerChitPlanWhatsappMessage from "../pages/CustomerChitPlanWhatsappMessage";
 import Insurance from "../pages/Insurance";
-
+import CustomerRewards from "../pages/CustomerRewards";
+import PayInOutMenu from "../pages/PayInOutMenu";
 import RegistrationFeeReport from "../pages/RegistrationFeeReport";
 import CollectionExecutiveReport from "../pages/CollectionExecutiveReport";
+import StaffMenu from "../pages/StaffMenu";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -148,15 +150,23 @@ const mainRoutes = createBrowserRouter([
   },
   
   {
-    path: "/pay-in-menu",
+    path: "/payment-in-out-menu/pay-in-menu",
     element: (
       <ProtectedRoute>
         <PayInMenu />
       </ProtectedRoute>
     ),
   },
+   {
+    path: "/payment-in-out-menu",
+    element: (
+      <ProtectedRoute>
+        <PayInOutMenu />
+      </ProtectedRoute>
+    ),
+  },
   {
-    path: "/pay-in-menu/payment",
+    path: "/payment-in-out-menu/pay-in-menu/payment",
     element: (
       <ProtectedRoute>
         <Payment />
@@ -164,7 +174,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/pay-in-menu/registration-fee",
+    path: "/payment-in-out-menu/pay-in-menu/registration-fee",
     element: (
       <ProtectedRoute>
         <RegistrationFee />
@@ -172,7 +182,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/pay-in-menu/payment-link-menu",
+    path: "/payment-in-out-menu/pay-in-menu/payment-link-menu",
     element: (
       <ProtectedRoute>
         <PaymentLinkMenu />
@@ -180,7 +190,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/pay-in-menu/payment-link-menu/chit-payment",
+    path: "/payment-in-out-menu/pay-in-menu/payment-link-menu/chit-payment",
     element: (
       <ProtectedRoute>
         <IndividualChitPaymentLink />
@@ -188,7 +198,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/pay-in-menu/payment-link-menu/registration-chit-payment",
+    path: "/payment-in-out-menu/pay-in-menu/payment-link-menu/registration-chit-payment",
     element: (
       <ProtectedRoute>
         <IndividualRegistrationChitPaymentLink />
@@ -196,7 +206,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/pay-in-menu/payment-link-menu/chit-bulk-payment",
+    path: "/payment-in-out-menu/pay-in-menu/payment-link-menu/chit-bulk-payment",
     element: (
       <ProtectedRoute>
         <ChitBulkPaymentLink />
@@ -280,15 +290,15 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/staff",
+    path: "/staff-menu",
     element: (
       <ProtectedRoute>
-        <Staff />
+        <StaffMenu />
       </ProtectedRoute>
     ),
   },
   {
-    path: "/employee",
+    path: "/staff-menu/employee",
     element: (
       <ProtectedRoute>
         <Employee />
@@ -352,7 +362,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/pay-out-menu",
+    path: "/payment-in-out-menu/pay-out-menu",
     element: (
       <ProtectedRoute>
         <PayOutMenu />
@@ -360,7 +370,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/general-payment-out/:paymentType",
+    path: "/payment-in-out-menu/general-payment-out/:paymentType",
     element: (
       <ProtectedRoute>
         <GeneralPaymentOut />
@@ -368,7 +378,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/payment-out/commission",
+    path: "/payment-in-out-menu/payment-out/commission",
     element: (
       <ProtectedRoute>
         <PayOutCommission />
@@ -376,7 +386,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/payment-out/salary",
+    path: "/payment-in-out-menu/payment-out/salary",
     element: (
       <ProtectedRoute>
         <PayOutSalary />
@@ -384,7 +394,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/payment-out/petty-Cash",
+    path: "/payment-in-out-menu/payment-out/petty-Cash",
     element: (
       <ProtectedRoute>
         <PayOutPettyCash />
@@ -392,7 +402,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/payment-out/others",
+    path: "/payment-in-out-menu/payment-out/others",
     element: (
       <ProtectedRoute>
         <PayOutOthers />
@@ -408,7 +418,7 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/agent",
+    path: "/staff-menu/agent",
     element: (
       <ProtectedRoute>
         <Agent />
@@ -517,6 +527,10 @@ const mainRoutes = createBrowserRouter([
         <Profile />
       </ProtectedRoute>
     ),
+  },
+    {
+    path: "/gift-received",
+    element: <CustomerRewards/>
   },
 
   {

@@ -58,7 +58,16 @@ const Employee = () => {
     leaving_date: "",
     emergency_contact_person: "",
     emergency_contact_number: [""],
-    total_allocated_leaves: "2", 
+    total_allocated_leaves: "2",
+
+    deductions: [
+      {
+        deduction_amount: "",
+        deduction_justification: "",
+        note: "",
+      },
+    ],
+
   });
   const [updateFormData, setUpdateFormData] = useState({
     name: "",
@@ -80,6 +89,15 @@ const Employee = () => {
     emergency_contact_person: "",
     emergency_contact_number: [""],
     total_allocated_leaves: "2",
+
+    deductions: [
+      {
+        deduction_amount: "",
+        deduction_justification: "",
+        note: "",
+      },
+    ],
+
   });
   useEffect(() => {
     const fetchEmployeeProfile = async () => {
@@ -99,7 +117,7 @@ const Employee = () => {
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
-               trigger={['click']}
+                trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -169,7 +187,7 @@ const Employee = () => {
       managerTitle: "",
     }));
   };
-    const handleAntDSelect = (field, value) => {
+  const handleAntDSelect = (field, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [field]: value,
@@ -179,7 +197,7 @@ const Employee = () => {
       [field]: "",
     }));
   };
-    const handleChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -286,7 +304,7 @@ const Employee = () => {
     if (!data.emergency_contact_person) {
       newErrors.emergency_contact_person = "Contact Person Name is Required";
     }
-       if (!data.total_allocated_leaves) {
+    if (!data.total_allocated_leaves) {
       newErrors.total_allocated_leaves = "Please Provide Total Allocated Leaves";
     }
     setErrors(newErrors);
@@ -310,7 +328,7 @@ const Employee = () => {
     const value = e.target.value;
     let phones =
       formState.emergency_contact_number &&
-      formState.emergency_contact_number.length > 0
+        formState.emergency_contact_number.length > 0
         ? [...formState.emergency_contact_number]
         : [""];
     while (phones.length <= index) {
@@ -374,7 +392,12 @@ const Employee = () => {
           leaving_date: "",
           emergency_contact_person: "",
           emergency_contact_number: [""],
-          total_allocated_leaves: "2", 
+          total_allocated_leaves: "2",
+
+          deduction_amount: "",
+          deduction_justification: "",
+          deduction_processed_on: "",
+          deduction_remarks: "",
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("");
@@ -464,7 +487,20 @@ const Employee = () => {
           ?.emergency_contact_number || [""],
         emergency_contact_person:
           response?.data?.employee?.emergency_contact_person,
-        total_allocated_leaves: response?.data?.employee?.total_allocated_leaves?.toString() || "2", 
+        total_allocated_leaves: response?.data?.employee?.total_allocated_leaves?.toString() || "2",
+
+        deductions:
+          response?.data?.employee?.deductions?.length > 0
+            ? response.data.employee.deductions
+            : [
+              {
+                deduction_amount: response?.data?.employee?.deduction_amount || "",
+                deduction_justification:
+                  response?.data?.employee?.deduction_justification || "",
+                note: response?.data?.employee?.deduction_remarks || "",
+              },
+            ],
+
       });
       setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
       setSelectedReportingManagerId(
@@ -558,6 +594,44 @@ const Employee = () => {
     const reportingId = event.target.value;
     setSelectedReportingManagerId(reportingId);
   };
+
+  const handleDeductionChange = (index, field, value, isUpdate = false) => {
+    if (isUpdate) {
+      const updatedDeductions = [...updateFormData.deductions];
+      updatedDeductions[index][field] = value;
+      setUpdateFormData({ ...updateFormData, deductions: updatedDeductions });
+    } else {
+      const updatedDeductions = [...formData.deductions];
+      updatedDeductions[index][field] = value;
+      setFormData({ ...formData, deductions: updatedDeductions });
+    }
+  };
+
+  const addDeductionField = (isUpdate = false) => {
+    const newDeduction = { deduction_amount: "", deduction_justification: "", note: "" };
+    if (isUpdate) {
+      setUpdateFormData({
+        ...updateFormData,
+        deductions: [...updateFormData.deductions, newDeduction],
+      });
+    } else {
+      setFormData({
+        ...formData,
+        deductions: [...formData.deductions, newDeduction],
+      });
+    }
+  };
+
+  const removeDeductionField = (index, isUpdate = false) => {
+    if (isUpdate) {
+      const updated = updateFormData.deductions.filter((_, i) => i !== index);
+      setUpdateFormData({ ...updateFormData, deductions: updated });
+    } else {
+      const updated = formData.deductions.filter((_, i) => i !== index);
+      setFormData({ ...formData, deductions: updated });
+    }
+  };
+
   return (
     <>
       <div>
@@ -976,7 +1050,7 @@ const Employee = () => {
                     value={formData?.gender || undefined}
                     onChange={(value) => handleAntDSelect("gender", value)}
                   >
-                    {["Male", "Female"].map((gender) => (
+                    {["Male", "Female", "Others"].map((gender) => (
                       <Select.Option key={gender} value={gender.toLowerCase()}>
                         {gender}
                       </Select.Option>
@@ -1034,8 +1108,6 @@ const Employee = () => {
                   )}
                 </div>
               </div>
-
-            
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label
@@ -1060,7 +1132,7 @@ const Employee = () => {
                     </p>
                   )}
                 </div>
-              <div className="w-1/2">
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="cp"
@@ -1085,16 +1157,14 @@ const Employee = () => {
                   )}
                 </div>
               </div>
-
               <div className="flex flex-row justify-between space-x-4">
-                
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="emergency"
                   >
                     Emergency Phone Number{" "}
-                    <span className="text-red-500">*</span>
+                   
                   </label>
                   <div className="flex items-center mb-2 gap-2">
                     <Input
@@ -1152,13 +1222,97 @@ const Employee = () => {
                   </button>
                 </div>
               </div>
+
+
+              <div className="border-t pt-6 mt-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                  Deduction Details
+                </h4>
+
+                {Array.isArray(formData?.deductions) &&
+                  formData.deductions.map((deduction, index) => (
+
+                    <div key={index} className="mb-8 p-4 ">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block mb-2 text-sm font-medium text-gray-900">
+                            Deduction Amount <span className="text-gray-500">(in ₹)</span>
+                          </label>
+                          <Input
+                            type="number"
+                            name={`deduction_amount_${index}`}
+                            value={deduction.deduction_amount}
+                            onChange={(e) =>
+                              handleDeductionChange(index, "deduction_amount", e.target.value)
+                            }
+                            placeholder="e.g., 2500"
+                            className="bg-gray-50 border border-gray-300 h-12 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block mb-2 text-sm font-medium text-gray-900">
+                            Justification
+                          </label>
+                          <Input
+                            type="text"
+                            name={`deduction_justification_${index}`}
+                            value={deduction.deduction_justification}
+                            onChange={(e) =>
+                              handleDeductionChange(index, "deduction_justification", e.target.value)
+                            }
+                            placeholder="e.g., Non-compliance with attendance policy"
+                            className="bg-gray-50 border border-gray-300 h-12 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="w-full mt-6">
+                        <label className="block mb-2 text-sm font-medium text-gray-900">
+                          Note
+                        </label>
+                        <textarea
+                          rows={2}
+                          name={`note_${index}`}
+                          value={deduction.note}
+                          onChange={(e) =>
+                            handleDeductionChange(index, "note", e.target.value)
+                          }
+                          placeholder="Note if any?"
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => removeDeductionField(index)}
+                          className="mt-4 text-red-600 text-sm underline"
+                        >
+                          Remove Deduction
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                <button
+                  type="button"
+                  onClick={() => addDeductionField()}
+                  className="text-blue-700 text-sm font-medium underline"
+                >
+                  + Add Another Deduction
+                </button>
+              </div>
+
+
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
                 >
-                  Save Employee 
+                  Save Employee
                 </button>
               </div>
             </form>
@@ -1483,8 +1637,8 @@ const Employee = () => {
                     value={
                       updateFormData?.leaving_date
                         ? new Date(updateFormData?.leaving_date || "")
-                            .toISOString()
-                            .split("T")[0]
+                          .toISOString()
+                          .split("T")[0]
                         : ""
                     }
                     onChange={handleInputChange}
@@ -1509,8 +1663,8 @@ const Employee = () => {
                     value={
                       updateFormData?.dob
                         ? new Date(updateFormData?.dob || "")
-                            .toISOString()
-                            .split("T")[0]
+                          .toISOString()
+                          .split("T")[0]
                         : ""
                     }
                     onChange={handleInputChange}
@@ -1539,7 +1693,7 @@ const Employee = () => {
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                   </select> */}
-                   <Select
+                  <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Gender"
                     popupMatchSelectWidth={false}
@@ -1553,7 +1707,7 @@ const Employee = () => {
                     value={updateFormData?.gender || undefined}
                     onChange={(value) => handleAntInputDSelect("gender", value)}
                   >
-                    {["Male", "Female"].map((gender) => (
+                    {["Male", "Female", "Others"].map((gender) => (
                       <Select.Option key={gender} value={gender.toLowerCase()}>
                         {gender}
                       </Select.Option>
@@ -1611,8 +1765,6 @@ const Employee = () => {
                   )}
                 </div>
               </div>
-
-            
               <div className="flex flex-row justify-between space-x-4">
                 <div className="w-1/2">
                   <label
@@ -1637,13 +1789,13 @@ const Employee = () => {
                     </p>
                   )}
                 </div>
-                 <div className="w-1/2">
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="cp"
                   >
                     Emergency Contact Person{" "}
-                    <span className="text-red-500">*</span>
+                    
                   </label>
                   <Input
                     type="text"
@@ -1662,16 +1814,14 @@ const Employee = () => {
                   )}
                 </div>
               </div>
-
               <div className="flex flex-row justify-between space-x-4">
-               
                 <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="emergency"
                   >
                     Emergency Phone Number{" "}
-                    <span className="text-red-500">*</span>
+                  
                   </label>
                   <div className="flex items-center mb-2 gap-2">
                     <Input
@@ -1741,6 +1891,88 @@ const Employee = () => {
                   </button>
                 </div>
               </div>
+
+
+              <div className="border-t pt-6 mt-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                  Deduction Details
+                </h4>
+
+                {Array.isArray(updateFormData?.deductions) &&
+                  updateFormData.deductions.map((deduction, index) => (
+
+                    <div key={index} className="mb-8  p-4 ">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block mb-2 text-sm font-medium text-gray-900">
+                            Deduction Amount <span className="text-gray-500">(in ₹)</span>
+                          </label>
+                          <Input
+                            type="number"
+                            name={`deduction_amount_${index}`}
+                            value={deduction.deduction_amount}
+                            onChange={(e) =>
+                              handleDeductionChange(index, "deduction_amount", e.target.value, true)
+                            }
+                            placeholder="e.g., 2500"
+                            className="bg-gray-50 border border-gray-300 h-12 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block mb-2 text-sm font-medium text-gray-900">
+                            Justification
+                          </label>
+                          <Input
+                            type="text"
+                            name={`deduction_justification_${index}`}
+                            value={deduction.deduction_justification}
+                            onChange={(e) =>
+                              handleDeductionChange(index, "deduction_justification", e.target.value, true)
+                            }
+                            placeholder="e.g., Non-compliance with attendance policy"
+                            className="bg-gray-50 border border-gray-300 h-12 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="w-full mt-6">
+                        <label className="block mb-2 text-sm font-medium text-gray-900">
+                          Note
+                        </label>
+                        <textarea
+                          rows={2}
+                          name={`note_${index}`}
+                          value={deduction.note}
+                          onChange={(e) =>
+                            handleDeductionChange(index, "note", e.target.value, true)
+                          }
+                          placeholder="Note if any?"
+                          className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => removeDeductionField(index, true)}
+                          className="mt-4 text-red-600 text-sm underline"
+                        >
+                          Remove Deduction
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                <button
+                  type="button"
+                  onClick={() => addDeductionField(true)}
+                  className="text-blue-700 text-sm font-medium underline"
+                >
+                  + Add Another Deduction
+                </button>
+              </div>
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"

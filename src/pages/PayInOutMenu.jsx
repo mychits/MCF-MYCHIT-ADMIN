@@ -4,27 +4,22 @@ import { HiCurrencyRupee } from "react-icons/hi2";
 import { Banknote, Briefcase, TicketCheck, MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CiLink } from "react-icons/ci";
-const PayInMenu = () => {
+const PayInOutMenu = () => {
   const payInMenuDivs = [
     {
       id: "#1",
-      title: "Registration Fee",
+      title: "Payment In",
       icon: <TicketCheck size={28} className="text-blue-600" />,
-      href:"/payment-in-out-menu/pay-in-menu/registration-fee"
+      href:"/payment-in-out-menu/pay-in-menu"
     },
     {
       id: "#2",
-      title: "Chit Payment",
+      title: "Payment Out",
       icon: <HiCurrencyRupee size={28} className="text-yellow-600" />,
-       href:"/payment-in-out-menu/pay-in-menu/payment"
+       href:"/payment-in-out-menu/pay-out-menu"
     },
      
-    {
-      id: "#3",
-      title: "Payment Links",
-      icon: <CiLink  size={28} className="text-green-600" />,
-       href:"/payment-in-out-menu/pay-in-menu/payment-link-menu"
-    },
+   
    
   ];
 
@@ -36,7 +31,7 @@ const PayInMenu = () => {
           <Navbar visibility={true} />
           <div className="p-6">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-              Pay In
+              Payment
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {payInMenuDivs.map((item, idx) => (
@@ -61,4 +56,4 @@ const PayInMenu = () => {
   );
 };
 
-export default PayInMenu;
+export default PayInOutMenu;

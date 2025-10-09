@@ -12,21 +12,21 @@ const PaymentLinkMenu = () => {
       title: "Chit Payment Link",
       subtitle: "Individual Mode",
       icon: <MdAddLink size={28} className="text-green-600" />,
-      href: "/pay-in-menu/payment-link-menu/chit-payment",
+      href: "/payment-in-out-menu/pay-in-menu/payment-link-menu/chit-payment",
     },
     {
       id: "#2",
       title: "Bulk Chit Payment Link",
       subtitle: "Bulk Mode",
       icon: <PiLinkSimpleBreakFill size={28} className="text-green-600" />,
-      href: "/pay-in-menu/payment-link-menu/chit-bulk-payment",
+      href: "/payment-in-out-menu/pay-in-menu/payment-link-menu/chit-bulk-payment",
     },
     {
       id: "#3",
       title: "Chit Registration Payment Link",
       subtitle: "Individual Mode",
       icon: <FaWpforms size={28} className="text-green-600" />,
-      href: "/pay-in-menu/payment-link-menu/registration-chit-payment",
+      href: "/payment-in-out-menu/pay-in-menu/payment-link-menu/registration-chit-payment",
     },
   ];
 

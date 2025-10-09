@@ -151,27 +151,28 @@ const MenuSidebar = [
     id: ids.seven,
     title: "Staff",
     icon: <GiRoundTable />,
-    submenu: true,
-    submenuItems: [
-      {
-        id: "$101",
-        title: "All",
-        icon: <HiOutlineUserGroup size={20} />,
-        link: "/staff",
-      },
-      {
-        id: "$102",
-        title: "Agent",
-        icon: <FaPersonMilitaryPointing size={20} />,
-        link: "/agent",
-      },
-      {
-        id: "$103",
-        title: "Employee",
-        icon: <FaUserTie size={18} />,
-        link: "/employee",
-      },
-    ],
+    link: "/staff-menu"
+    //submenu: true,
+    // submenuItems: [
+    //   {
+    //     id: "$101",
+    //     title: "All",
+    //     icon: <HiOutlineUserGroup size={20} />,
+    //     link: "/staff",
+    //   },
+    //   {
+    //     id: "$102",
+    //     title: "Agent",
+    //     icon: <FaPersonMilitaryPointing size={20} />,
+    //     link: "/agent",
+    //   },
+    //   {
+    //     id: "$103",
+    //     title: "Employee",
+    //     icon: <FaUserTie size={18} />,
+    //     link: "/employee",
+    //   },
+    // ],
   },
 
   {
@@ -217,21 +218,22 @@ const MenuSidebar = [
         id: "&^$1",
         title: "Payments ",
         icon: <BsCash size={20} />,
-        submenu: true,
-        submenuItems: [
-          {
-            id: "&^$2",
-            title: "Pay-In ",
-            icon: <TbReceiptRupee size={20} />,
-            link: "/pay-in-menu",
-          },
-          {
-            id: "&^$3",
-            title: "Pay-Out ",
-            icon: <RiMoneyRupeeCircleLine size={20} />,
-            link: "/pay-out-menu",
-          },
-        ],
+        link: "/payment-in-out-menu"
+        // submenu: true,
+        // submenuItems: [
+        //   {
+        //     id: "&^$2",
+        //     title: "Pay-In ",
+        //     icon: <TbReceiptRupee size={20} />,
+        //     link: "/pay-in-menu",
+        //   },
+        //   {
+        //     id: "&^$3",
+        //     title: "Pay-Out ",
+        //     icon: <RiMoneyRupeeCircleLine size={20} />,
+        //     link: "/pay-out-menu",
+        //   },
+        // ],
       },
     ],
   },

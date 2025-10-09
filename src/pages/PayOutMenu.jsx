@@ -10,33 +10,33 @@ const PayOutMenu = () => {
       id: "#1",
       title: "Chit",
       icon: <TicketCheck size={28} className="text-blue-600" />,
-      href:"/general-payment-out/chit"
+      href:"/payment-in-out-menu/general-payment-out/chit"
     },
     {
       id: "#2",
       title: "Commission / Incentive",
       icon: <HiCurrencyRupee size={28} className="text-yellow-600" />,
-       href:"/payment-out/commission"
+       href:"/payment-in-out-menu/payment-out/commission"
     },
     {
       id: "#3",
       title: "Salary",
       icon: <Briefcase size={28} className="text-purple-600" />,
-       href:"/payment-out/salary"
+       href:"/payment-in-out-menu/payment-out/salary"
 
     },
     {
       id: "#4",
       title: "Petty Cash",
       icon: <Banknote size={28} className="text-yellow-600" />,
-       href:"/payment-out/petty-cash"
+       href:"/payment-in-out-menu/payment-out/petty-cash"
 
     },
     {
       id: "#5",
       title: "Others",
       icon: <MoreHorizontal size={28} className="text-gray-600" />,
-       href:"/payment-out/others"
+       href:"/payment-in-out-menu/payment-out/others"
 
     },
   ];
