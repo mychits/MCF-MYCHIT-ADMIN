@@ -105,6 +105,9 @@ import PayInOutMenu from "../pages/PayInOutMenu";
 import RegistrationFeeReport from "../pages/RegistrationFeeReport";
 import CollectionExecutiveReport from "../pages/CollectionExecutiveReport";
 import StaffMenu from "../pages/StaffMenu";
+import EmployeeAttendance from "../pages/EmployeeAttendanceReport"
+import EmployeeMonthlyReport from "../pages/EmployeeMonthlyReport";
+import EmployeeMenu from "../pages/EmployeeMenu"
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -297,11 +300,27 @@ const mainRoutes = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+    {
+    path: "/staff-menu/employee-menu",
+    element: (
+      <ProtectedRoute>
+        <EmployeeMenu />
+      </ProtectedRoute>
+    ),
+  },
   {
-    path: "/staff-menu/employee",
+    path: "/staff-menu/employee-menu/employee",
     element: (
       <ProtectedRoute>
         <Employee />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/staff-menu/employee-menu/add-employee-attendance",
+    element: (
+      <ProtectedRoute>
+        <EmployeeAttendance />
       </ProtectedRoute>
     ),
   },
@@ -558,6 +577,7 @@ const mainRoutes = createBrowserRouter([
       { path: "payment-summary", element: <PaymentSummary /> },
        { path: "holded-customer-report", element: <HoldedCustomerReport /> },
       {path: "monthly-install-turnover", element:<MonthlyInstallmentTurnoverReport/>},
+      {path: "employee-monthly-report", element: <EmployeeMonthlyReport/>},
       {
         path: "due-report",
         element: <DueReport />,

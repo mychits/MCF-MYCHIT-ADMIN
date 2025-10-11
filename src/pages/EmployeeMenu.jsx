@@ -2,20 +2,11 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/layouts/Navbar";
 import Sidebar from "../components/layouts/Sidebar";
 import { Users, Briefcase, ChevronRight,Zap  } from "lucide-react";
+import { SlCalender } from "react-icons/sl";
 
 const StaffMenu = () => {
   const staffCategories = [
-    {
-      id: 1,
-      title: "Agents",
-      description: "Manage agent records, roles and assignments",
-      icon: <Users className="w-8 h-8" />,
-      color: "from-blue-600 to-blue-700",
-      lightColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      href: "/staff-menu/agent",
-      stats: "Active Agents",
-    },
+   
     {
       id: 2,
       title: "Employees",
@@ -24,8 +15,19 @@ const StaffMenu = () => {
       color: "from-amber-600 to-amber-700",
       lightColor: "bg-amber-50",
       borderColor: "border-amber-200",
-      href: "/staff-menu/employee-menu",
+      href: "/staff-menu/employee-menu/employee",
       stats: "Active Employees",
+    },
+     {
+      id: 1,
+      title: "Attendance",
+      description: "Manage Employee Attendance records",
+      icon: <SlCalender className="w-8 h-8" />,
+      color: "from-green-600 to-green-700",
+      lightColor: "bg-green-50",
+      borderColor: "border-green-200",
+      href: "/staff-menu/employee-menu/add-employee-attendance",
+      stats: "Attendance Information",
     },
   ];
 
@@ -38,10 +40,10 @@ const StaffMenu = () => {
           <div className="p-8">
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-gray-900">
-                Staff Management
+                Employee Management
               </h2>
               <p className="text-gray-600 mt-2">
-                Manage and organize your team members
+                Manage Attendance and organize your team members
               </p>
             </div>
 
@@ -97,7 +99,8 @@ const StaffMenu = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">Quick Tips</h3>
-                <p className="text-slate-700">Use the staff directory to manage personnel, update employee information and Provide Designation all in one place.</p>
+                <p className="text-slate-700">Use the Employee directory to manage personnel, update employee information and Provide Designation all in one place. </p>
+                <p className="text-slate-700">Use the Attendance directory to manage attendance, update and submit attendance information. </p>
               </div>
             </div>
           </div>
