@@ -724,6 +724,8 @@ const PayoutSalary = () => {
       empId: salaryForm.agent_id,
       from_date: salaryForm.from_date,
       to_date: salaryForm.to_date,
+      note:salaryForm.note,
+    pay_type:salaryForm.pay_type  
     };
 
     try {
