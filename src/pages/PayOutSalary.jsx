@@ -43,6 +43,8 @@ const PayoutSalary = () => {
   const [errors, setErrors] = useState({});
   const [reRender, setReRender] = useState(0);
 
+  const [salaryCalculationDetails, setSalaryCalculationDetails] = useState(null);
+
   const today = new Date();
   const currentMonth = `${today.getFullYear()}-${String(
     today.getMonth() + 1
@@ -92,126 +94,217 @@ const PayoutSalary = () => {
     setSelectedMonth(currentMonth);
   }, []);
 
-  const calculateProRatedSalary = async (
-    fromDateStr,
-    toDateStr,
-    monthlySalary,
-    empId
-  ) => {
-    if (!fromDateStr || !toDateStr || !monthlySalary || !empId) {
+  // const calculateProRatedSalary = async (
+  //   fromDateStr,
+  //   toDateStr,
+  //   monthlySalary,
+  //   empId
+  // ) => {
+  //   if (!fromDateStr || !toDateStr || !monthlySalary || !empId) {
+  //     setCalculatedSalary("");
+  //     setAlreadyPaid("0.00");
+  //     setRemainingSalary("0.00");
+  //     return;
+  //   }
+
+  //   const fromDate = new Date(formatDate(fromDateStr));
+  //   const toDate = new Date(formatDate(toDateStr));
+  //   const salary = parseFloat(monthlySalary);
+
+  //   if (toDate < fromDate || isNaN(salary)) {
+  //     setCalculatedSalary("");
+  //     setAlreadyPaid("0.00");
+  //     setRemainingSalary("0.00");
+  //     return;
+  //   }
+
+  //   let current = new Date(fromDate);
+  //   let totalSalary = 0;
+  //   let lossOfPay = 0;
+
+  //   // while (current <= toDate) {
+  //   //   const year = current.getFullYear();
+  //   //   const month = current.getMonth();
+  //   //   const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  //   //   const fromDay =
+  //   //     current.getFullYear() === fromDate.getFullYear() &&
+  //   //       current.getMonth() === fromDate.getMonth()
+  //   //       ? fromDate.getDate()
+  //   //       : 1;
+
+  //   //   const toDay =
+  //   //     current.getFullYear() === toDate.getFullYear() &&
+  //   //       current.getMonth() === toDate.getMonth()
+  //   //       ? toDate.getDate()
+  //   //       : daysInMonth;
+
+  //   //   const daysWorked = toDay - fromDay + 1;
+  //   //   const dailySalary = salary / daysInMonth;
+
+  //   //   totalSalary += daysWorked * dailySalary;
+  //   //   current = new Date(year, month + 1, 1);
+  //   //   lossOfPay = parseInt(absent) * dailySalary;
+  //   // }
+
+  //   // const proRatedSalary = totalSalary;
+
+  //   // const totalPayableWithIncentive = proRatedSalary - parseInt(lossOfPay);
+
+  //   // setCalculatedSalary(totalPayableWithIncentive.toFixed(2));
+  //   // setTotalWithIncentive(totalPayableWithIncentive.toFixed(2));
+
+  //   try {
+  //     const res = await API.get("/payment-out/get-salary-payments");
+  //     const paidToAgent = res?.data?.filter((p) => {
+  //       const pAgentId = p.agent_id?._id
+  //         ? String(p.agent_id._id)
+  //         : String(p.agent_id);
+  //       const matchesAgent = pAgentId === String(empId);
+  //       const payDate = new Date(formatDate(p.pay_date));
+  //       return matchesAgent && payDate >= fromDate && payDate <= toDate;
+  //     });
+
+  //     // const totalPaid = paidToAgent.reduce(
+  //     //   (sum, p) => sum + parseFloat(p.amount || 0),
+  //     //   0
+  //     // );
+
+  //     // const remaining = totalPayableWithIncentive - totalPaid;
+
+  //     setAlreadyPaid(totalPaid.toFixed(2));
+  //     setRemainingSalary(remaining.toFixed(2));
+  //   } catch (error) {
+  //     console.error("Error calculating already paid and remaining", error);
+  //     setAlreadyPaid("0.00");
+  //     setRemainingSalary(totalPayableWithIncentive.toFixed(2));
+  //   }
+  //  };
+
+  const calculateProRatedSalary = async (fromDateStr, toDateStr, monthlySalary, empId) => {
+    // We don't actually need monthlySalary here — backend calculates it
+    if (!empId || !fromDateStr || !toDateStr) {
       setCalculatedSalary("");
       setAlreadyPaid("0.00");
       setRemainingSalary("0.00");
+      setAlertConfig({
+        visibility: true,
+        message: "Please select valid dates and employee.",
+        type: "warning",
+        noReload: true,
+      });
       return;
     }
-
-    const fromDate = new Date(formatDate(fromDateStr));
-    const toDate = new Date(formatDate(toDateStr));
-    const salary = parseFloat(monthlySalary);
-
-    if (toDate < fromDate || isNaN(salary)) {
-      setCalculatedSalary("");
-      setAlreadyPaid("0.00");
-      setRemainingSalary("0.00");
-      return;
-    }
-
-    let current = new Date(fromDate);
-    let totalSalary = 0;
-    let lossOfPay = 0;
-
-    // while (current <= toDate) {
-    //   const year = current.getFullYear();
-    //   const month = current.getMonth();
-    //   const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    //   const fromDay =
-    //     current.getFullYear() === fromDate.getFullYear() &&
-    //       current.getMonth() === fromDate.getMonth()
-    //       ? fromDate.getDate()
-    //       : 1;
-
-    //   const toDay =
-    //     current.getFullYear() === toDate.getFullYear() &&
-    //       current.getMonth() === toDate.getMonth()
-    //       ? toDate.getDate()
-    //       : daysInMonth;
-
-    //   const daysWorked = toDay - fromDay + 1;
-    //   const dailySalary = salary / daysInMonth;
-
-    //   totalSalary += daysWorked * dailySalary;
-    //   current = new Date(year, month + 1, 1);
-    //   lossOfPay = parseInt(absent) * dailySalary;
-    // }
-
-    // const proRatedSalary = totalSalary;
-
-    // const totalPayableWithIncentive = proRatedSalary - parseInt(lossOfPay);
-
-    // setCalculatedSalary(totalPayableWithIncentive.toFixed(2));
-    // setTotalWithIncentive(totalPayableWithIncentive.toFixed(2));
 
     try {
-      const res = await API.get("/payment-out/get-salary-payments");
-      const paidToAgent = res?.data?.filter((p) => {
-        const pAgentId = p.agent_id?._id
-          ? String(p.agent_id._id)
-          : String(p.agent_id);
-        const matchesAgent = pAgentId === String(empId);
-        const payDate = new Date(formatDate(p.pay_date));
-        return matchesAgent && payDate >= fromDate && payDate <= toDate;
+      setIsLoading(true);
+
+
+      const res = await API.post("/salary/calculate", {
+        empId,
+        from_date: formatDate(fromDateStr),
+        to_date: formatDate(toDateStr),
       });
 
-      // const totalPaid = paidToAgent.reduce(
-      //   (sum, p) => sum + parseFloat(p.amount || 0),
-      //   0
-      // );
+      const { totalSalary } = res.data;
+      setSalaryCalculationDetails(res.data);
+      const payable = parseFloat(totalSalary).toFixed(2);
+      setCalculatedSalary(payable);
+      setTotalWithIncentive(payable);
 
-      // const remaining = totalPayableWithIncentive - totalPaid;
+      const paymentsRes = await API.get("/salary/get-salary-payments");
+      const fromDate = new Date(formatDate(fromDateStr));
+      const toDate = new Date(formatDate(toDateStr));
 
-      setAlreadyPaid(totalPaid.toFixed(2));
-      setRemainingSalary(remaining.toFixed(2));
+      // const paidInPeriod = paymentsRes.data
+      //   .filter(p => {
+      //     const pAgentId = p.agent_id?._id ? String(p.agent_id._id) : String(p.agent_id);
+      //     const payDate = new Date(formatDate(p.pay_date));
+      //     return pAgentId === String(empId) && payDate >= fromDate && payDate <= toDate;
+      //   })
+      //   .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+
+      const salaryArray = Array.isArray(paymentsRes.data)
+  ? paymentsRes.data
+  : paymentsRes.data.data || [];
+
+const paidInPeriod = salaryArray
+  .filter((p) => {
+    const pAgentId = p.employee_id?._id ? String(p.employee_id._id) : String(p.employee_id);
+    const payDate = new Date(formatDate(p.payout_metadata?.date_range?.from));
+    return pAgentId === String(empId) && payDate >= fromDate && payDate <= toDate;
+  })
+  .reduce((sum, p) => sum + parseFloat(p.payout_metadata?.total_salary || 0), 0);
+
+
+      const alreadyPaidAmt = paidInPeriod.toFixed(2);
+      const remaining = Math.max(0, parseFloat(payable) - paidInPeriod).toFixed(2);
+
+      setAlreadyPaid(alreadyPaidAmt);
+      setRemainingSalary(remaining);
+
+
+
+      setAlertConfig({
+        visibility: true,
+        message: "Salary calculated successfully!",
+        type: "success",
+        noReload: true,
+      });
     } catch (error) {
-      console.error("Error calculating already paid and remaining", error);
+      console.error("Calculate salary error:", error);
+      const message =
+        error.response?.data?.error ||
+        error.response?.data?.details ||
+        error.message ||
+        "Failed to calculate salary";
+
+      setAlertConfig({
+        visibility: true,
+        message: message,
+        type: "error",
+        noReload: true,
+      });
+
+      setCalculatedSalary("");
       setAlreadyPaid("0.00");
-      setRemainingSalary(totalPayableWithIncentive.toFixed(2));
+      setRemainingSalary("0.00");
+    } finally {
+      setIsLoading(false);
     }
-   };
-
-
+  };
 
   const fetchEmployeeDetails = async (empId) => {
-  try {
-    const res = await API.get(
-      `/agent/get-additional-employee-info-by-id/${empId}`
-    );
-    const emp = res?.data?.employee;
-    if (emp) {
-      const joining = emp.joining_date?.split("T")[0] || "";
-      const baseSalary = emp.salary || "";
-      setEmployeeDetails({ joining_date: joining, salary: baseSalary });
+    try {
+      const res = await API.get(
+        `/agent/get-additional-employee-info-by-id/${empId}`
+      );
+      const emp = res?.data?.employee;
+      if (emp) {
+        const joining = emp.joining_date?.split("T")[0] || "";
+        const baseSalary = emp.salary || "";
+        setEmployeeDetails({ joining_date: joining, salary: baseSalary });
 
-      const todayStr = new Date().toISOString().split("T")[0];
-      const newFromDate = joining || todayStr;
-      const newToDate = todayStr;
+        const todayStr = new Date().toISOString().split("T")[0];
+        const newFromDate = joining || todayStr;
+        const newToDate = todayStr;
 
-    
-      setSalaryForm((prev) => ({
-        ...prev,
-        from_date: newFromDate,
-        to_date: newToDate,
-      }));
 
-     
+        setSalaryForm((prev) => ({
+          ...prev,
+          from_date: newFromDate,
+          to_date: newToDate,
+        }));
+
+
+      }
+    } catch (err) {
+      console.error("Error fetching employee info", err);
+      setEmployeeDetails({ joining_date: "", salary: "" });
+      setCalculatedSalary("");
+
     }
-  } catch (err) {
-    console.error("Error fetching employee info", err);
-    setEmployeeDetails({ joining_date: "", salary: "" });
-    setCalculatedSalary("");
-   
-  }
-};
+  };
 
   const fetchAgents = async () => {
     try {
@@ -222,59 +315,66 @@ const PayoutSalary = () => {
     }
   };
 
-  const fetchSalaryPayments = async () => {
-    setIsLoading(true);
-    try {
-      const response = await API.get("/payment-out/get-salary-payments");
-      const responseData = response.data.map((payment, index) => ({
-        id: index + 1,
-        _id: payment._id,
-        agent_id: payment.agent_id,
-        agent_name: payment.agent_id?.name,
-        pay_date: payment.pay_date,
-        amount: payment.amount,
-        pay_type: payment.pay_type,
-        transaction_id: payment.transaction_id,
-        note: payment.note,
-        pay_for: payment.pay_for,
-        disbursed_by: payment.admin_type?.name,
-        receipt_no: payment.receipt_no,
-        action: (
-          <div className="flex justify-center gap-2">
-            <Dropdown
-              trigger={["click"]}
+//   const fetchSalaryPayments = async () => {
+//     setIsLoading(true);
+//     try {
+//       const response = await API.get("/salary/get-salary-payments");
+//     const salaryArray = Array.isArray(response.data)
+//   ? response.data
+//   : response.data.data || [];
 
-              menu={{
-                items: [
-                  {
-                    key: "1",
-                    label: (
-                      <div
-                        className="text-green-600"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        <SalarySlipPrint payment={payment} />
-                      </div>
-                    ),
-                  },
-                ],
-              }}
-            >
-              <IoMdMore className="text-bold" />
-            </Dropdown>
-          </div>
-        ),
-      }));
-      setSalaryPayments(responseData);
-    } catch (error) {
-      console.error("Failed to fetch Salary payments", error);
-      setSalaryPayments([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+// const responseData = salaryArray.map((payment, index) => ({
+
+//         id: index + 1,
+//         _id: payment._id,
+//         agent_id: payment.agent_id,
+//         agent_name: payment.agent_id?.name,
+//         pay_date: payment.pay_date,
+//         amount: payment.amount,
+//         pay_type: payment.pay_type,
+//         transaction_id: payment.transaction_id,
+//         note: payment.note,
+//         pay_for: payment.pay_for,
+//         disbursed_by: payment.admin_type?.name,
+//         receipt_no: payment.receipt_no,
+//         action: (
+//           <div className="flex justify-center gap-2">
+//             <Dropdown
+//               trigger={["click"]}
+
+//               menu={{
+//                 items: [
+//                   {
+//                     key: "1",
+//                     label: (
+//                       <div
+//                         className="text-green-600"
+//                         onClick={(e) => {
+//                           e.stopPropagation();
+//                         }}
+//                       >
+//                         <SalarySlipPrint payment={payment} />
+//                       </div>
+//                     ),
+//                   },
+//                 ],
+//               }}
+//             >
+//               <IoMdMore className="text-bold" />
+//             </Dropdown>
+//           </div>
+//         ),
+//       }));
+//       setSalaryPayments(responseData);
+//     } catch (error) {
+//       console.error("Failed to fetch Salary payments", error);
+//       setSalaryPayments([]);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+
 
   // const fetchTargetDetails = async (agentId, fromDate, toDate) => {
   //   if (!agentId || !fromDate || !toDate) {
@@ -321,6 +421,88 @@ const PayoutSalary = () => {
   // };
 
   // Load user info on mount
+  
+ // 🟢 Fetch Salary Payments
+
+
+const fetchSalaryPayments = async () => {
+  setIsLoading(true);
+  try {
+    const response = await API.get("/salary/get-salary-payments");
+
+    const salaryArray = Array.isArray(response.data)
+      ? response.data
+      : response.data.data || [];
+
+    console.log("Fetched Salary Payments:", salaryArray);
+
+    const responseData = salaryArray.map((payment, index) => ({
+      id: index + 1,
+      _id: payment._id,
+      pay_date:
+        payment.payout_metadata?.date_range?.from?.split("T")[0] ||
+        payment.pay_date?.split("T")[0] ||
+        "-",
+      agent_id: payment.employee_id?._id || "-",
+      agent_name:
+        payment.employee_id?.name ||
+        payment.employee_id?.full_name ||
+        payment.agent_name ||
+        "N/A",
+      amount: payment.payout_metadata?.total_salary || payment.amount || 0,
+      pay_type:
+        payment.payout_metadata?.pay_type ||
+        payment.pay_type ||
+        "N/A",
+      receipt_no:
+        payment.payout_metadata?.receipt_no ||
+        payment.receipt_no ||
+        "-",
+      note:
+        payment.payout_metadata?.note ||
+        payment.note ||
+        "-",
+      disbursed_by:
+        payment.payout_metadata?.disbursed_by ||
+        payment.disbursed_by ||
+        "Admin",
+      action: (
+        <div className="flex justify-center gap-2">
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: [
+                {
+                  key: "1",
+                  label: (
+                    <div
+                      className="text-green-600"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <SalarySlipPrint payment={payment} />
+                    </div>
+                  ),
+                },
+              ],
+            }}
+          >
+            <IoMdMore className="text-bold" />
+          </Dropdown>
+        </div>
+      ),
+    }));
+
+    setSalaryPayments(responseData);
+  } catch (error) {
+    console.error("Failed to fetch Salary payments", error);
+    setSalaryPayments([]);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+  
   useEffect(() => {
     const user = localStorage.getItem("user");
     const userObj = JSON.parse(user);
@@ -333,6 +515,16 @@ const PayoutSalary = () => {
       );
     }
   }, []);
+
+  useEffect(() => {
+    if (alertConfig.visibility && alertConfig.noReload) {
+      const timer = setTimeout(() => {
+        setAlertConfig(prev => ({ ...prev, visibility: false }));
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [alertConfig.visibility]);
+
 
   // Initial data load
   useEffect(() => {
@@ -462,38 +654,84 @@ const PayoutSalary = () => {
   //   }
   // };
 
+  // const handleSalarySubmit = async (e) => {
+  //   e.preventDefault();
+  //   const isValid = validateForm();
+  //   if (!isValid) return;
+
+  //   try {
+  //     setIsLoading(true);
+
+  //     const payload = {
+  //       ...salaryForm,
+  //       admin_type: adminId,
+  //       absent_days: String(absent),
+  //       paid_month: String(selectedMonth),
+  //     };
+
+  //     const res = await API.post("/payment-out/employee", payload);
+
+  //     if (res.data.alreadyPaid) {
+  //       api.open({
+  //         message: "Salary Already Paid",
+  //         description: res.data.message,
+  //         className: "bg-yellow-500 rounded-lg font-semibold text-white",
+  //         showProgress: true,
+  //         pauseOnHover: false,
+  //       });
+  //       setShowSalaryModal(false);
+  //       return;
+  //     }
+
+  //     api.open({
+  //       message: "Salary Payout Successful",
+  //       description: res.data.message,
+  //       className: "bg-green-500 rounded-lg font-semibold text-white",
+  //       showProgress: true,
+  //       pauseOnHover: false,
+  //     });
+
+  //     setShowSalaryModal(false);
+  //     resetForm();
+  //     setReRender((val) => val + 1);
+  //     fetchSalaryPayments();
+  //   } catch (error) {
+  //     const message =
+  //       error.response?.data?.message ||
+  //       error.message ||
+  //       "Something went wrong";
+  //     api.open({
+  //       message: "Salary Payout Failed",
+  //       description: message,
+  //       showProgress: true,
+  //       pauseOnHover: false,
+  //       className: "bg-red-500 rounded-lg font-semibold text-white",
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSalarySubmit = async (e) => {
     e.preventDefault();
     const isValid = validateForm();
     if (!isValid) return;
 
+
+    const payload = {
+      empId: salaryForm.agent_id,
+      from_date: salaryForm.from_date,
+      to_date: salaryForm.to_date,
+    };
+
     try {
       setIsLoading(true);
 
-      const payload = {
-        ...salaryForm,
-        admin_type: adminId,
-        absent_days: String(absent),
-        paid_month: String(selectedMonth),
-      };
-
-      const res = await API.post("/payment-out/add-salary-payment", payload);
-
-      if (res.data.alreadyPaid) {
-        api.open({
-          message: "Salary Already Paid",
-          description: res.data.message,
-          className: "bg-yellow-500 rounded-lg font-semibold text-white",
-          showProgress: true,
-          pauseOnHover: false,
-        });
-        setShowSalaryModal(false);
-        return;
-      }
+      const res = await API.post("/salary/save", payload);
 
       api.open({
-        message: "Salary Payout Successful",
-        description: res.data.message,
+        message: "Salary Processed Successfully",
+        description: res.data.message || "Salary calculated and payout record created.",
         className: "bg-green-500 rounded-lg font-semibold text-white",
         showProgress: true,
         pauseOnHover: false,
@@ -505,11 +743,13 @@ const PayoutSalary = () => {
       fetchSalaryPayments();
     } catch (error) {
       const message =
+        error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
-        "Something went wrong";
+        "Failed to process salary";
+
       api.open({
-        message: "Salary Payout Failed",
+        message: "Salary Processing Failed",
         description: message,
         showProgress: true,
         pauseOnHover: false,
@@ -537,6 +777,7 @@ const PayoutSalary = () => {
     setCalculatedSalary("");
     setAlreadyPaid("0.00");
     setRemainingSalary("0.00");
+    setSalaryCalculationDetails(null);
     // resetTargetData();
   };
 
@@ -610,31 +851,42 @@ const PayoutSalary = () => {
             </div>
           </div>
 
-          <Modal
+<Modal
             isVisible={showSalaryModal}
             onClose={() => {
               setShowSalaryModal(false);
               resetForm();
             }}
           >
-            <div className="py-6 px-5 lg:px-8 text-left">
-              <h3 className="mb-4 text-xl font-bold text-gray-900 border-b pb-2">
-                Add Salary Payment
-              </h3>
-              <form className="space-y-4" onSubmit={handleSalarySubmit}>
-                <div className="w-full">
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Employee <span className="text-red-500">*</span>
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-6 px-6 lg:px-8 text-left max-h-[90vh] my-2">
+              {/* Header */}
+              <div className="mb-6 pb-4 border-b border-slate-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Salary Payment</h3>
+                    <p className="text-sm text-gray-500">Process and manage employee salary disbursement</p>
+                  </div>
+                </div>
+              </div>
+
+              <form className="space-y-6" onSubmit={handleSalarySubmit}>
+                {/* Employee Selection */}
+                <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                  <label className="block mb-2 text-sm font-semibold text-gray-800">
+                    Select Employee <span className="text-red-500">*</span>
                   </label>
                   <Select
-                    className="w-full h-12"
-                    placeholder="Select Agent"
+                    className="w-full"
+                    placeholder="Search and select employee..."
                     showSearch
                     optionFilterProp="children"
                     filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
+                      option.children.toLowerCase().includes(input.toLowerCase())
                     }
                     value={salaryForm.agent_id || undefined}
                     onChange={(value) => {
@@ -642,15 +894,12 @@ const PayoutSalary = () => {
                       setSalaryForm((prev) => ({
                         ...prev,
                         agent_id: value,
-                        // from_date: "",
-                        // to_date: "",
                         amount: "",
                       }));
                       setEmployeeDetails({ joining_date: "", salary: "" });
                       setCalculatedSalary("");
                       setAlreadyPaid("0.00");
                       setRemainingSalary("0.00");
-                      // resetTargetData();
                       fetchEmployeeDetails(value);
                     }}
                   >
@@ -661,161 +910,70 @@ const PayoutSalary = () => {
                     ))}
                   </Select>
                   {errors.agent_id && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.agent_id}
+                    <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
+                      <span>⚠</span> {errors.agent_id}
                     </p>
                   )}
                 </div>
 
                 {employeeDetails.joining_date && (
                   <>
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-900">
-                        Joining Date
-                      </label>
-                      <input
-                        type="text"
-                        value={employeeDetails.joining_date}
-                        readOnly
-                        className="bg-gray-100 border border-gray-300 text-gray-700 text-sm rounded-lg w-full p-2.5"
-                      />
+                    {/* Employee Information Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Joining Date</p>
+                        <p className="text-lg font-bold text-gray-900">{employeeDetails.joining_date}</p>
+                      </div>
+                      <div className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Monthly Salary</p>
+                        <p className="text-lg font-bold text-green-700">₹{employeeDetails.salary}</p>
+                      </div>
                     </div>
 
-                    {/* <div className="grid grid-cols-2 gap-4">
-                      
-                      
-                      <div className="col-span-2">
-                        <button
-                          type="button"
-                          className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                          onClick={() => {
-                            if (
-                              salaryForm.agent_id &&
-                              salaryForm.from_date &&
-                              salaryForm.to_date &&
-                              employeeDetails.salary
-                            ) {
-                              const fd = formatDate(salaryForm.from_date);
-                              const td = formatDate(salaryForm.to_date);
-                              fetchTargetDetails(salaryForm.agent_id, fd, td);
-                              calculateProRatedSalary(
-                                fd,
-                                td,
-                                employeeDetails.salary,
-                                salaryForm.agent_id
-                              );
-                            }
-                          }}
-                        >
-                          Calculate
-                        </button>
-                      </div>
-                    </div> */}
-
-                    <div >
-                      {/* Select Month - Left Column */}
-                      {/* <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                          Select Month
-                        </label>
-                        <input
-                          type="month"
-                          value={selectedMonth || ""}
-                          max={currentMonth}
-                          onChange={(e) => {
-                            const selected = e.target.value;
-                            setSelectedMonth(selected);
-
-                            const startOfMonth = `${selected}-01`;
-                            const endOfMonth = new Date(
-                              new Date(selected + "-01").getFullYear(),
-                              new Date(selected + "-01").getMonth() + 1,
-                              0
-                            ).toLocaleDateString("en-CA");
-
-                            setSalaryForm((prev) => ({
-                              ...prev,
-                              from_date: startOfMonth,
-                              to_date: endOfMonth,
-                            }));
-                          }}
-                          className="w-full p-3 border border-gray-300 rounded-lg"
-                        />
-                      </div> */}
-
-
-                      {/* <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                          Number of Absent Days
-                        </label>
-                        <input
-                          type="number"
-                          name="absent"
-                          value={absent}
-                          onChange={(e) => setAbsent(e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-lg"
-                        />
-                      </div> */}
-
-                      <div className="w-full flex gap-4">
-                        <div className="w-1/2">
-                          <label className="block mb-2 text-sm font-medium text-gray-900">
-                            From Date
-                          </label>
+                    {/* Date Range Section */}
+                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                      <h4 className="text-sm font-semibold text-gray-800 mb-4">Salary Period</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">From Date</label>
                           <input
                             type="date"
                             name="from_date"
                             value={salaryForm.from_date}
                             max={new Date().toISOString().split("T")[0]}
                             onChange={handleSalaryChange}
-                            className={`w-full p-3 border rounded-lg focus:ring focus:ring-blue-200 `}
+                            className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                           />
                           {errors.from_date && (
-                            <p className="text-red-500 text-sm mt-1">{errors.from_date}</p>
+                            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                              <span>⚠</span> {errors.from_date}
+                            </p>
                           )}
                         </div>
-
-                        <div className="w-1/2">
-                          <label className="block mb-2 text-sm font-medium text-gray-900">
-                            To Date
-                          </label>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">To Date</label>
                           <input
                             type="date"
                             name="to_date"
                             value={salaryForm.to_date}
                             max={new Date().toISOString().split("T")[0]}
                             onChange={handleSalaryChange}
-                            className={`w-full p-3 border rounded-lg focus:ring focus:ring-blue-200 `}
+                            className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                           />
                           {errors.to_date && (
-                            <p className="text-red-500 text-sm mt-1">{errors.to_date}</p>
+                            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                              <span>⚠</span> {errors.to_date}
+                            </p>
                           )}
                         </div>
                       </div>
 
-
-
-                      {/* <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-900">
-                          The number of absent days{" "}
-                          <span className="text-red-500"></span>
-                        </label>
-                        <input
-                          type="number"
-                          name="absent"
-                          value={absent}
-                          onChange={(e) => setAbsent(e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-lg"
-                        />
-                      </div> */}
-
-
-                      {/* Calculate Button - Full Width */}
-                      <div className="col-span-2 flex justify-end">
-                        {salaryForm.from_date && salaryForm.to_date && (
+                      {/* Calculate Button */}
+                      {salaryForm.from_date && salaryForm.to_date && (
+                        <div className="text-right mt-4">
                           <button
                             type="button"
-                            className="mt-2 bg-green-600 hover:bg-green-700 text-white  px-4 py-2 rounded"
+                            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
                             onClick={() => {
                               if (
                                 salaryForm.agent_id &&
@@ -825,245 +983,264 @@ const PayoutSalary = () => {
                               ) {
                                 const fd = formatDate(salaryForm.from_date);
                                 const td = formatDate(salaryForm.to_date);
-                                // fetchTargetDetails(salaryForm.agent_id, fd, td);
-                                calculateProRatedSalary(
-                                  fd,
-                                  td,
-                                  employeeDetails.salary,
-                                  salaryForm.agent_id
-                                );
+                                calculateProRatedSalary(fd, td, employeeDetails.salary, salaryForm.agent_id);
                               }
                             }}
                           >
-                            Calculate
+                            Calculate Salary
                           </button>
-                        )}
-                      </div>
-
+                        </div>
+                      )}
                     </div>
 
+                    {/* Calculated Salary Highlight */}
+                    {calculatedSalary && (
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-300 shadow-sm">
+                        <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2">Total Payable Amount</p>
+                        <p className="text-3xl font-bold text-blue-900">₹{calculatedSalary}</p>
+                      </div>
+                    )}
 
-                    {/* <div className="grid grid-cols-2 gap-4 mt-6 p-3 rounded-lg bg-gray-50">
-                      <div>
-                        <label className="block text-sm font-medium">
-                          Target
-                        </label>
-                        <input
-                          value={`${targetData.target?.toLocaleString(
-                            "en-IN"
-                          )}`}
-                          readOnly
-                          className="w-full border rounded px-3 py-2 bg-white font-semibold"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium">
-                          Achieved
-                        </label>
-                        <input
-                          value={`${targetData.achieved?.toLocaleString(
-                            "en-IN"
-                          )}`}
-                          readOnly
-                          className="w-full border rounded px-3 py-2 bg-white font-semibold"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium">
-                          Difference
-                        </label>
-                        <input
-                          value={`${targetData.difference?.toLocaleString(
-                            "en-IN"
-                          )}`}
-                          readOnly
-                          className="w-full border rounded px-3 py-2 bg-white font-semibold"
-                        />
-                      </div>
-                    </div> */}
+                    {/* Salary Breakdown Section */}
+                    {salaryCalculationDetails && (
+                      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div className="bg-gradient-to-r from-slate-100 to-slate-50 px-5 py-3 border-b border-slate-200">
+                          <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                            <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3v3m-6-6v6m0-11V5a2 2 0 012-2h6a2 2 0 012 2v11m-6 0h6" />
+                            </svg>
+                            Salary Breakdown
+                          </h4>
+                        </div>
+                        <div className="p-5 space-y-5">
 
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-900">
-                        Monthly Salary (₹)
-                      </label>
-                      <input
-                        type="text"
-                        value={employeeDetails.salary}
-                        readOnly
-                        className="bg-gray-100 border border-gray-300 text-gray-700 text-sm rounded-lg w-full p-2.5"
+                          {/* Leave Summary */}
+                          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <p className="text-sm font-semibold text-gray-700 mb-3">Leave Summary</p>
+                            <div className="grid grid-cols-3 gap-3">
+                              <div className="bg-white p-3 rounded border border-slate-100">
+                                <p className="text-xs text-gray-500 font-medium">Leaves Used</p>
+                                <p className="text-xl font-bold text-gray-900 mt-1">{salaryCalculationDetails.leave_info.total_leaves_used}</p>
+                              </div>
+                              <div className="bg-white p-3 rounded border border-slate-100">
+                                <p className="text-xs text-gray-500 font-medium">Total Absences</p>
+                                <p className="text-xl font-bold text-gray-900 mt-1">{salaryCalculationDetails.leave_info.total_absences}</p>
+                              </div>
+                              <div className="bg-white p-3 rounded border border-slate-100">
+                                <p className="text-xs text-gray-500 font-medium">Leave Balance</p>
+                                <p className="text-xl font-bold text-gray-900 mt-1">{salaryCalculationDetails.leave_info.current_leave_balance}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Deductions */}
+                          {salaryCalculationDetails.deductions_info.details.length > 0 && (
+                            <div>
+                              <p className="text-sm font-semibold text-gray-700 mb-3">Deductions</p>
+                              <div className="space-y-2 bg-red-50 p-4 rounded-lg border border-red-200">
+                                {salaryCalculationDetails.deductions_info.details.map((d, i) => (
+                                  <div key={i} className="flex justify-between items-center py-2 border-b border-red-100 last:border-0">
+                                    <span className="text-sm text-gray-700">{d.justification}{d.note && ` (${d.note})`}</span>
+                                    <span className="font-semibold text-red-700">-₹{parseFloat(d.amount).toFixed(2)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Monthly Breakdown Table */}
+                          <div>
+                            <p className="text-sm font-semibold text-gray-700 mb-3">Monthly Details</p>
+                            <div className="overflow-x-auto rounded-lg border border-slate-200">
+                              <table className="w-full text-sm">
+                                <thead className="bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200">
+                                  <tr>
+                                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-700">Month</th>
+                                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-700">Absences</th>
+                                    <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-700">Leaves</th>
+                                    <th className="px-4 py-2.5 text-right text-xs font-semibold text-gray-700">Deductions</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="text-gray-800">
+                                  {salaryCalculationDetails.leave_info.monthly_breakdown.map((m, i) => (
+                                    <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                                      <td className="px-4 py-3 font-medium text-gray-900">{m.month}</td>
+                                      <td className="px-4 py-3">{m.total_absences}</td>
+                                      <td className="px-4 py-3">{m.leaves_used}</td>
+                                      <td className="px-4 py-3 text-right font-medium text-red-600">
+                                        ₹{m.deductions.reduce((sum, d) => sum + parseFloat(d.amount || 0), 0).toFixed(2)}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Payment Amount Section */}
+                    {calculatedSalary && (
+                      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                        <label className="block mb-3 text-sm font-semibold text-gray-800">
+                          Payable Amount <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          name="amount"
+                          min={1}
+                          value={salaryForm.amount}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value || 0);
+                            const rem = parseFloat(remainingSalary);
+                            if (val > rem) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                amount: `Cannot pay more than ₹${rem.toFixed(2)}`,
+                              }));
+                            } else {
+                              setSalaryForm((prev) => ({ ...prev, amount: e.target.value }));
+                              setErrors((prev) => ({ ...prev, amount: "" }));
+                            }
+                          }}
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg font-semibold text-gray-900"
+                          placeholder="Enter amount to pay"
+                        />
+                        {errors.amount && (
+                          <p className="text-red-500 text-xs mt-2 flex items-center gap-1">
+                            <span>⚠</span> {errors.amount}
+                          </p>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-4 mt-4">
+                          <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                            <p className="text-xs font-semibold text-green-700 uppercase tracking-wider mb-1">Already Paid</p>
+                            <p className="text-2xl font-bold text-green-900">₹{alreadyPaid}</p>
+                          </div>
+                          <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                            <p className="text-xs font-semibold text-orange-700 uppercase tracking-wider mb-1">Remaining</p>
+                            <p className="text-2xl font-bold text-orange-900">₹{remainingSalary}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Payment Details Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Payment Date */}
+                      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">Payment Date</label>
+                        <input
+                          type="date"
+                          name="pay_date"
+                          value={salaryForm.pay_date}
+                          onChange={handleSalaryChange}
+                          className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                          disabled={!modifyPayment}
+                        />
+                      </div>
+
+                      {/* Payment Mode */}
+                      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">Payment Mode</label>
+                        <select
+                          name="pay_type"
+                          value={salaryForm.pay_type}
+                          onChange={handleSalaryChange}
+                          className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
+                        >
+                          <option value="cash">Cash</option>
+                          <option value="online">Online Transfer</option>
+                          {modifyPayment && (
+                            <>
+                              <option value="cheque">Cheque</option>
+                              <option value="bank_transfer">Bank Transfer</option>
+                            </>
+                          )}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Transaction ID */}
+                    {salaryForm.pay_type === "online" && (
+                      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                        <label className="block text-sm font-semibold text-gray-800 mb-2">
+                          Transaction ID <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="transaction_id"
+                          value={salaryForm.transaction_id}
+                          onChange={handleSalaryChange}
+                          className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                          placeholder="Enter transaction ID"
+                        />
+                      </div>
+                    )}
+
+                    {/* Note */}
+                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                      <label className="block text-sm font-semibold text-gray-800 mb-2">Additional Notes</label>
+                      <textarea
+                        name="note"
+                        value={salaryForm.note}
+                        onChange={handleSalaryChange}
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 resize-none"
+                        rows="3"
+                        placeholder="Add any additional notes..."
                       />
                     </div>
 
-                    {calculatedSalary && (
-                      <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-900">
-                          Total Payable Salary (₹)
-                        </label>
-                        <input
-                          type="text"
-                          value={calculatedSalary}
-                          readOnly
-                          className="border border-gray-300 font-semibold text-sm rounded-lg w-full p-2.5 bg-gray-100 "
-                        />
-                      </div>
-                    )}
+                    {/* Disbursed By */}
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-300 shadow-sm">
+                      <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2">Disbursed By</p>
+                      <p className="text-lg font-bold text-blue-900 flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold">
+                          {adminName?.charAt(0).toUpperCase()}
+                        </div>
+                        {adminName}
+                      </p>
+                    </div>
 
+                    {/* Action Buttons */}
+                    <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                      <button
+                        type="button"
+                        onClick={() => setShowSalaryModal(false)}
+                        className="px-6 mb-10 py-2.5 text-gray-700 font-medium border border-slate-300 rounded-lg hover:bg-slate-50 transition-all"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="px-6 mb-10 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Save Payment
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </>
                 )}
-
-                <div className="w-full">
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Payment Date
-                  </label>
-                  <input
-                    type="date"
-                    name="pay_date"
-                    value={salaryForm.pay_date}
-                    onChange={handleSalaryChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg"
-                    disabled={!modifyPayment}
-                  />
-                </div>
-
-                {calculatedSalary && (
-                  <div className="mt-2">
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      Enter Payable Amount (₹){" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      name="amount"
-                      min={1}
-                      value={salaryForm.amount}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value || 0);
-                        const rem = parseFloat(remainingSalary);
-                        if (val > rem) {
-                          setErrors((prev) => ({
-                            ...prev,
-                            amount: `Cannot pay more than ₹${rem.toFixed(2)}`,
-                          }));
-                        } else {
-                          setSalaryForm((prev) => ({
-                            ...prev,
-                            amount: e.target.value,
-                          }));
-                          setErrors((prev) => ({ ...prev, amount: "" }));
-                        }
-                      }}
-                      className="w-full p-3 border border-gray-300 rounded-lg"
-                      placeholder="Enter amount to pay"
-                    />
-                    {errors.amount && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.amount}
-                      </p>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4 mt-3">
-                      <div>
-                        <label className="block mb-1 text-sm font-medium text-gray-900">
-                          Already Paid (₹)
-                        </label>
-                        <input
-                          type="text"
-                          value={alreadyPaid}
-                          readOnly
-                          className="bg-green-50 border border-green-300 text-green-700 text-sm rounded-lg w-full p-2.5"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block mb-1 text-sm font-medium text-gray-900">
-                          Remaining Salary (₹)
-                        </label>
-                        <input
-                          type="text"
-                          value={remainingSalary}
-                          readOnly
-                          className="bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg w-full p-2.5"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="w-full">
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Payment Mode
-                  </label>
-                  <select
-                    name="pay_type"
-                    value={salaryForm.pay_type}
-                    onChange={handleSalaryChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg"
-                  >
-                    <option value="cash">Cash</option>
-                    <option value="online">Online</option>
-                    {modifyPayment && (
-                      <>
-                        <option value="cheque">Cheque</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                      </>
-                    )}
-                  </select>
-                </div>
-
-                {salaryForm.pay_type === "online" && (
-                  <div className="w-full">
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      Transaction ID <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="transaction_id"
-                      value={salaryForm.transaction_id}
-                      onChange={handleSalaryChange}
-                      className="w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                )}
-
-                <div className="w-full">
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Note
-                  </label>
-                  <textarea
-                    name="note"
-                    value={salaryForm.note}
-                    onChange={handleSalaryChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg"
-                    rows="2"
-                  />
-                </div>
-
-                <div className="w-full bg-blue-50 p-3 rounded-lg">
-                  <label className="block mb-1 text-sm font-medium text-gray-900">
-                    Disbursed By
-                  </label>
-                  <div className="font-semibold">{adminName}</div>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowSalaryModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
-                  >
-                    {isLoading ? "Processing..." : "Save Payment"}
-                  </button>
-                </div>
               </form>
             </div>
           </Modal>
+
         </div>
       </div>
     </>
