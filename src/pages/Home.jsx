@@ -195,7 +195,7 @@ const Home = () => {
       bgGradient: "from-sky-500 to-sky-600",
       iconBg: "bg-sky-700",
       hoverBg: "hover:from-sky-600 hover:to-sky-700",
-      redirect: "/staff",
+      redirect: "/staff-menu",
     },
     {
       id: 4,
@@ -205,7 +205,7 @@ const Home = () => {
       bgGradient: "from-teal-500 to-teal-600",
       iconBg: "bg-teal-700",
       hoverBg: "hover:from-teal-600 hover:to-teal-700",
-      redirect: "/agent",
+      redirect: "/staff-menu/agent",
     },
     {
       id: 5,
@@ -215,7 +215,7 @@ const Home = () => {
       bgGradient: "from-lime-500 to-lime-600",
       iconBg: "bg-lime-700",
       hoverBg: "hover:from-lime-600 hover:to-lime-700",
-      redirect: "/employee",
+      redirect: "/staff-menu/employee-menu",
     },
   ];
 
@@ -229,7 +229,7 @@ const Home = () => {
           bgGradient: "from-red-500 to-red-600",
           iconBg: "bg-red-700",
           hoverBg: "hover:from-red-600 hover:to-red-700",
-          redirect: "/payment",
+          redirect: "/payment-in-out-menu/pay-in-menu/payment",
         },
         {
           id: 7,
@@ -244,7 +244,7 @@ const Home = () => {
           bgGradient: "from-purple-500 to-purple-600",
           iconBg: "bg-purple-700",
           hoverBg: "hover:from-purple-600 hover:to-purple-700",
-          redirect: "/payment",
+          redirect: "/payment-in-out-menu/pay-in-menu/payment",
         },
       ]
     : [];
