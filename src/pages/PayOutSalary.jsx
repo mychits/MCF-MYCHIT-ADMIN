@@ -10,7 +10,6 @@ import { Select, Tooltip, notification, Dropdown } from "antd";
 import SettingSidebar from "../components/layouts/SettingSidebar";
 import SalarySlipPrint from "../components/printFormats/SalarySlipPrint";
 import { IoMdMore } from "react-icons/io";
-
 const PayoutSalary = () => {
   const paymentFor = "salary";
   const [api, contextHolder] = notification.useNotification();
@@ -19,8 +18,7 @@ const PayoutSalary = () => {
   const [modifyPayment, setModifyPayment] = useState(false);
   const [adminId, setAdminId] = useState("");
   const [absent, setAbsent] = useState(0);
-  const [fromMonth, setFromMonth] = useState("");
-  const [toMonth, setToMonth] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -64,7 +62,6 @@ const PayoutSalary = () => {
   const [calculatedSalary, setCalculatedSalary] = useState("");
   const [alreadyPaid, setAlreadyPaid] = useState("0.00");
   const [remainingSalary, setRemainingSalary] = useState("0.00");
-
   const formatDate = (date) => {
     if (!date) return "";
     if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -77,31 +74,26 @@ const PayoutSalary = () => {
     const day = String(d.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
-
-  // Initialize fromMonth and toMonth
+  // Initialize selectedMonth
   useEffect(() => {
-    setFromMonth(currentMonth);
-    setToMonth(currentMonth);
+    setSelectedMonth(currentMonth);
   }, []);
-
-  // Auto-update from_date / to_date when month range changes
+  
+  // Auto-update from_date / to_date when month changes
   useEffect(() => {
-    if (dateMode === "month" && fromMonth && toMonth) {
-      const [fromYear, fromMon] = fromMonth.split("-").map(Number);
-      const fromDate = `${fromYear}-${String(fromMon).padStart(2, "0")}-01`;
-
-      const [toYear, toMon] = toMonth.split("-").map(Number);
-      const lastDay = new Date(toYear, toMon, 0).getDate();
-      const toDate = `${toYear}-${String(toMon).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-
+    if (dateMode === "month" && selectedMonth) {
+      const [year, month] = selectedMonth.split("-").map(Number);
+      const fromDate = `${year}-${String(month).padStart(2, "0")}-01`;
+      const lastDay = new Date(year, month, 0).getDate();
+      const toDate = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
       setSalaryForm((prev) => ({
         ...prev,
         from_date: fromDate,
         to_date: toDate,
       }));
     }
-  }, [fromMonth, toMonth, dateMode]);
-
+  }, [selectedMonth, dateMode]);
+  
   const calculateProRatedSalary = async (fromDateStr, toDateStr, monthlySalary, empId) => {
     if (!empId || !fromDateStr || !toDateStr) {
       setCalculatedSalary("");
@@ -171,7 +163,7 @@ const PayoutSalary = () => {
       setIsLoading(false);
     }
   };
-
+  
   const fetchEmployeeDetails = async (empId) => {
     try {
       const res = await API.get(`/agent/get-additional-employee-info-by-id/${empId}`);
@@ -188,12 +180,11 @@ const PayoutSalary = () => {
           from_date: newFromDate,
           to_date: newToDate,
         }));
-        // Also update month fields if in month mode
+        // Also update month field if in month mode
         if (dateMode === "month") {
           const joinDate = new Date(joining || todayStr);
-          const fm = `${joinDate.getFullYear()}-${String(joinDate.getMonth() + 1).padStart(2, "0")}`;
-          setFromMonth(fm);
-          setToMonth(currentMonth);
+          const sm = `${joinDate.getFullYear()}-${String(joinDate.getMonth() + 1).padStart(2, "0")}`;
+          setSelectedMonth(sm);
         }
       }
     } catch (err) {
@@ -202,7 +193,7 @@ const PayoutSalary = () => {
       setCalculatedSalary("");
     }
   };
-
+  
   const fetchAgents = async () => {
     try {
       const response = await API.get("/agent/get-employee");
@@ -211,7 +202,7 @@ const PayoutSalary = () => {
       console.error("Failed to fetch Agents");
     }
   };
-
+  
   const fetchSalaryPayments = async () => {
     setIsLoading(true);
     try {
@@ -268,7 +259,7 @@ const PayoutSalary = () => {
       setIsLoading(false);
     }
   };
-
+  
   useEffect(() => {
     const user = localStorage.getItem("user");
     const userObj = JSON.parse(user);
@@ -280,7 +271,7 @@ const PayoutSalary = () => {
       );
     }
   }, []);
-
+  
   useEffect(() => {
     if (alertConfig.visibility && alertConfig.noReload) {
       const timer = setTimeout(() => {
@@ -289,12 +280,12 @@ const PayoutSalary = () => {
       return () => clearTimeout(timer);
     }
   }, [alertConfig.visibility]);
-
+  
   useEffect(() => {
     fetchAgents();
     fetchSalaryPayments();
   }, [reRender]);
-
+  
   const handleSalaryChange = (e) => {
     const { name, value } = e.target;
     const todayStr = new Date().toISOString().split("T")[0];
@@ -328,7 +319,7 @@ const PayoutSalary = () => {
     });
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-
+  
   const validateForm = () => {
     const newErrors = {};
     if (!salaryForm.agent_id) newErrors.agent_id = "Please select an agent";
@@ -337,7 +328,7 @@ const PayoutSalary = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
   const handleSalarySubmit = async (e) => {
     e.preventDefault();
     const isValid = validateForm();
@@ -380,13 +371,12 @@ const PayoutSalary = () => {
       setIsLoading(false);
     }
   };
-
+  
   const resetForm = () => {
     setDateMode("month");
     const today = new Date();
     const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-    setFromMonth(currentMonth);
-    setToMonth(currentMonth);
+    setSelectedMonth(currentMonth);
     setSalaryForm({
       agent_id: "",
       pay_date: today.toISOString().split("T")[0],
@@ -405,7 +395,7 @@ const PayoutSalary = () => {
     setRemainingSalary("0.00");
     setSalaryCalculationDetails(null);
   };
-
+  
   const salaryColumns = [
     { key: "id", header: "SL. NO" },
     { key: "pay_date", header: "Pay Date" },
@@ -419,7 +409,7 @@ const PayoutSalary = () => {
     { key: "disbursed_by", header: "Disbursed by" },
     { key: "action", header: "Action" },
   ];
-
+  
   return (
     <>
       <div>
@@ -543,11 +533,9 @@ const PayoutSalary = () => {
                         <p className="text-lg font-bold text-green-700">₹{employeeDetails.salary}</p>
                       </div>
                     </div>
-
                     {/* Month Range Toggle & Inputs */}
                     <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                       <h4 className="text-sm font-semibold text-gray-800 mb-4">Salary Period</h4>
-
                       <div className="flex items-center space-x-6 mb-5">
                         <label className="inline-flex items-center cursor-pointer">
                           <input
@@ -556,7 +544,7 @@ const PayoutSalary = () => {
                             checked={dateMode === "month"}
                             onChange={() => setDateMode("month")}
                           />
-                          <span className="ml-2 text-sm font-medium text-gray-700">Month Range</span>
+                          <span className="ml-2 text-sm font-medium text-gray-700">Month</span>
                         </label>
                         <label className="inline-flex items-center cursor-pointer">
                           <input
@@ -568,32 +556,20 @@ const PayoutSalary = () => {
                           <span className="ml-2 text-sm font-medium text-gray-700">Custom Date Range</span>
                         </label>
                       </div>
-
-                      {/* Month Range Inputs */}
+                      
+                      {/* Single Month Input */}
                       {dateMode === "month" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">From Month</label>
-                            <input
-                              type="month"
-                              value={fromMonth}
-                              onChange={(e) => setFromMonth(e.target.value)}
-                              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">To Month</label>
-                            <input
-                              type="month"
-                              value={toMonth}
-                              min={fromMonth}
-                              onChange={(e) => setToMonth(e.target.value)}
-                              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Select Month</label>
+                          <input
+                            type="month"
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
                         </div>
                       )}
-
+                      
                       {/* Custom Date Inputs */}
                       {dateMode === "custom" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -631,7 +607,6 @@ const PayoutSalary = () => {
                           </div>
                         </div>
                       )}
-
                       {/* Calculate Button */}
                       {salaryForm.from_date && salaryForm.to_date && (
                         <div className="text-right mt-4">
@@ -656,7 +631,6 @@ const PayoutSalary = () => {
                         </div>
                       )}
                     </div>
-
                     {/* Calculated Salary Highlight */}
                     {calculatedSalary && (
                       <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-300 shadow-sm">
@@ -664,7 +638,6 @@ const PayoutSalary = () => {
                         <p className="text-3xl font-bold text-blue-900">₹{calculatedSalary}</p>
                       </div>
                     )}
-
                     {/* Salary Breakdown Section */}
                     {salaryCalculationDetails && (
                       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -743,7 +716,6 @@ const PayoutSalary = () => {
                         </div>
                       </div>
                     )}
-
                     <div className="grid grid-cols-2 gap-4 mt-4">
                       <div className="bg-green-50 rounded-lg p-4 border border-green-200">
                         <p className="text-xs font-semibold text-green-700 uppercase tracking-wider mb-1">Already Paid</p>
@@ -754,7 +726,6 @@ const PayoutSalary = () => {
                         <p className="text-2xl font-bold text-orange-900">₹{remainingSalary}</p>
                       </div>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                         <label className="block text-sm font-semibold text-gray-800 mb-2">Payment Date</label>
@@ -786,7 +757,6 @@ const PayoutSalary = () => {
                         </select>
                       </div>
                     </div>
-
                     {salaryForm.pay_type === "online" && (
                       <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                         <label className="block text-sm font-semibold text-gray-800 mb-2">
@@ -802,7 +772,6 @@ const PayoutSalary = () => {
                         />
                       </div>
                     )}
-
                     <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                       <label className="block text-sm font-semibold text-gray-800 mb-2">Additional Notes</label>
                       <textarea
@@ -814,7 +783,6 @@ const PayoutSalary = () => {
                         placeholder="Add any additional notes..."
                       />
                     </div>
-
                     <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-300 shadow-sm">
                       <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2">Disbursed By</p>
                       <p className="text-lg font-bold text-blue-900 flex items-center gap-2">
@@ -824,7 +792,6 @@ const PayoutSalary = () => {
                         {adminName}
                       </p>
                     </div>
-
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
                       <button
                         type="button"
@@ -866,5 +833,4 @@ const PayoutSalary = () => {
     </>
   );
 };
-
 export default PayoutSalary;
