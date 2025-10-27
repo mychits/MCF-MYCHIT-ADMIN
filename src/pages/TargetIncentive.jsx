@@ -1,26 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Select } from "antd";
+import { Select, Radio } from "antd";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Navbar from "../components/layouts/Navbar";
 import Modal from "../components/modals/Modal";
-import SettingSidebar from "../components/layouts/SettingSidebar";
-import Sidebar from "../components/layouts/Sidebar";
 import { GiPartyPopper } from "react-icons/gi";
 import { Collapse } from "antd";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 import {
   FileTextOutlined,
   DollarOutlined,
-
 } from "@ant-design/icons";
 import { FaMoneyBill } from "react-icons/fa";
 import { MdPayments } from "react-icons/md";
 const TargetIncentive = () => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null); // YYYY-MM format
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [dateSelectionMode, setDateSelectionMode] = useState("month");
   const [agentLoading, setAgentLoading] = useState(false);
   const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
   const [employeeCustomerData, setEmployeeCustomerData] = useState([]);
@@ -46,18 +44,33 @@ const TargetIncentive = () => {
     remaining: 0,
     startDate: "",
     endDate: "",
-    incentiveAmount: 0, // NEW: Store calculated incentive amount
+    incentiveAmount: 0,
   });
-
+  // Initialize fromDate and toDate with default values
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [tempSelectedMonth, setTempSelectedMonth] = useState(null);
+  const [tempFromDate, setTempFromDate] = useState(null);
+  const [tempToDate, setTempToDate] = useState(null);
   // Initialize with current month
   useEffect(() => {
     const today = new Date();
     const currentMonth = `${today.getFullYear()}-${String(
       today.getMonth() + 1
     ).padStart(2, "0")}`;
+    setTempSelectedMonth(currentMonth);
     setSelectedMonth(currentMonth);
+    // Set current month's date range
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
+    const lastDay = new Date(year, month, 0).toISOString().split("T")[0];
+    setTempFromDate(firstDay);
+    setTempToDate(lastDay);
+    setFromDate(firstDay);
+    setToDate(lastDay);
   }, []);
-
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
@@ -65,7 +78,6 @@ const TargetIncentive = () => {
       setAdminName(user.name || "");
     }
   }, []);
-
   const fetchEmployees = async () => {
     try {
       const res = await api.get("/agent/get-employee");
@@ -74,27 +86,31 @@ const TargetIncentive = () => {
       console.error("Error fetching employees:", err);
     }
   };
-
-  const fetchCommissionReport = async (employeeId) => {
-    if (!employeeId || !selectedMonth) return;
+  
+  // Modified to accept date parameters directly
+  const fetchCommissionReport = async (employeeId, startDate, endDate) => {
+    if (!employeeId || !startDate || !endDate) return;
     const abortController = new AbortController();
     setLoading(true);
     try {
-      // Calculate first and last day of selected month
-      const [year, month] = selectedMonth.split("-");
-      const firstDay = `${year}-${month}-01`;
-      const lastDay = new Date(year, month, 0).toISOString().split("T")[0];
-
-      const res = await api.get("/enroll/get-detailed-commission-per-month", {
-        params: {
-          agent_id: employeeId,
-          from_date: firstDay,
-          to_date: lastDay,
-        },
+      let params = {
+        start_date: startDate,
+        end_date: endDate,
+      };
+      
+      const res = await api.get(`/enroll/employee/${employeeId}/incentive`, {
+        params,
         signal: abortController.signal,
       });
-      setEmployeeCustomerData(res.data?.commission_data);
-      setCommissionTotalDetails(res.data?.summary);
+      setEmployeeCustomerData(res.data?.incentiveData);
+      setCommissionTotalDetails({
+        actual_business: res.data?.incentiveSummary?.total_group_value,
+        total_actual: res.data?.incentiveSummary?.total_incentive_value,
+        total_customers: res.data?.incentiveSummary?.total_enrollments,
+        total_groups: res.data?.incentiveSummary?.total_enrollments,
+        expected_business: res.data?.incentiveSummary?.total_group_value,
+        total_estimated: res.data?.incentiveSummary?.total_incentive_value
+      });
     } catch (err) {
       if (err.name !== "AbortController") {
         console.error("Error fetching employee report:", err);
@@ -107,142 +123,84 @@ const TargetIncentive = () => {
       }
     }
   };
+  
 
-  // NEW: Calculate incentive commission (0% till target, 1% after target)
-  const calculateIncentiveCommission = (achievedBusiness, targetAmount) => {
-    // Convert to numbers if they're strings
-    const achievedNum =
-      typeof achievedBusiness === "string"
-        ? Number(achievedBusiness.replace(/[^0-9.-]+/g, ""))
-        : achievedBusiness;
-    const targetNum =
-      typeof targetAmount === "string"
-        ? Number(targetAmount.replace(/[^0-9.-]+/g, ""))
-        : targetAmount;
-
-    if (achievedNum <= targetNum) {
-      // Up to target: 0% commission
-      return 0;
-    } else {
-      // Beyond target: 1% of the excess business
-      return (achievedNum - targetNum) * 0.01;
-    }
-  };
-
-  const fetchTargetData = async (employeeId) => {
+  
+  // Modified to accept date parameters directly
+  const fetchTargetData = async (employeeId, startDate, endDate) => {
+    if (!employeeId || !startDate || !endDate) return;
     try {
-      if (!employeeId || !selectedMonth) return;
-      const abortController = new AbortController();
-
-      const [year] = selectedMonth.split("-");
-
-      const targetRes = await api.get(`/target/agent/${employeeId}`, {
-        params: { year },
-        signal: abortController.signal,
+      const res = await api.get(`/target/employees/${employeeId}`, {
+        params: { start_date: startDate, end_date: endDate },
       });
-
-      const monthNames = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ];
-      const monthNumber = parseInt(selectedMonth.split("-")[1], 10);
-      const monthName = monthNames[monthNumber - 1];
-
-      let targetForMonth = 0;
-      if (targetRes.data && targetRes.data.length > 0) {
-        const monthData = targetRes.data[0].monthData || {};
-        targetForMonth = Number(monthData[monthName] || 0);
-      }
-
-      const [yearPart, monthPart] = selectedMonth.split("-");
-      const firstDay = `${yearPart}-${monthPart}-01`;
-      const lastDay = new Date(yearPart, monthPart, 0)
-        .toISOString()
-        .split("T")[0];
-
-      const { data: comm } = await api.get(
-        "/enroll/get-detailed-commission-per-month",
-        {
-          params: {
-            agent_id: employeeId,
-            from_date: firstDay,
-            to_date: lastDay,
-          },
-          signal: abortController.signal,
-        }
-      );
-
-      let achieved = comm?.summary?.actual_business || 0;
-      if (typeof achieved === "string") {
-        achieved = Number(achieved.replace(/[^0-9.-]+/g, ""));
-      }
-
-      const remaining = Math.max(targetForMonth - achieved, 0);
-      const difference = targetForMonth - achieved;
-
-      const incentiveAmount = calculateIncentiveCommission(
-        achieved,
-        targetForMonth
-      );
-
-      const startDateDisplay = firstDay;
-      const endDateDisplay = lastDay;
-
-      setTargetData({
-        target: Math.round(targetForMonth),
-        achieved,
-        remaining,
-        difference,
-        startDate: startDateDisplay,
-        endDate: endDateDisplay,
-        incentiveAmount,
-      });
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        console.error("Error fetching target data:", err);
-        setTargetData({
-          target: 0,
-          achieved: 0,
-          remaining: 0,
-          difference: 0,
-          startDate: "",
-          endDate: "",
-          incentiveAmount: 0,
+      if (res.data.status && res.data.total_target !== undefined) {
+        const totalTarget = Number(res.data.total_target);
+        // Now fetch achieved business from incentive report
+        let params = {
+          start_date: startDate,
+          end_date: endDate,
+        };
+        
+        const { data: comm } = await api.get(`/enroll/employee/${employeeId}/incentive`, {
+          params,
         });
+        let achieved = comm?.incentiveSummary?.total_group_value || 0;
+        if (typeof achieved === "string") {
+          achieved = Number(achieved.replace(/[^0-9.-]+/g, ""));
+        }
+        const remaining = Math.max(totalTarget - achieved, 0);
+        const difference = achieved - totalTarget;
+        const incentiveAmount = difference > 0 ? difference * 0.01 : 0;
+        setTargetData({
+          target: Math.round(totalTarget),
+          achieved: Math.round(achieved),
+          remaining: Math.round(remaining),
+          difference: Math.round(difference),
+          startDate: startDate,
+          endDate: endDate,
+          incentiveAmount: parseFloat(incentiveAmount.toFixed(2)),
+        });
+      } else {
+        throw new Error("Invalid target response");
       }
+    } catch (err) {
+      console.error("Error fetching target data:", err);
+      setTargetData({
+        target: 0,
+        achieved: 0,
+        remaining: 0,
+        difference: 0,
+        startDate: "",
+        endDate: "",
+        incentiveAmount: 0,
+      });
     }
   };
-
+  
   const fetchAllCommissionReport = async () => {
-    if (!selectedMonth) return;
-
+    if (!fromDate || !toDate) return;
     const abortController = new AbortController();
     setLoading(true);
     try {
-      // Calculate first and last day of selected month
-      const [year, month] = selectedMonth.split("-");
-      const firstDay = `${year}-${month}-01`;
-      const lastDay = new Date(year, month, 0).toISOString().split("T")[0];
-
-      const res = await api.get("enroll/get-detailed-commission-all", {
-        params: {
-          from_date: firstDay,
-          to_date: lastDay,
-        },
+      let params = {
+        start_date: fromDate,
+        end_date: toDate,
+      };
+      
+      const res = await api.get("/enroll/incentive", {
+        params,
         signal: abortController.signal,
       });
-      setEmployeeCustomerData(res.data?.commission_data);
-      setCommissionTotalDetails(res.data?.summary);
+      // The new API returns commissionData and commissionSummary
+      setEmployeeCustomerData(res.data?.commissionData);
+      setCommissionTotalDetails({
+        actual_business: res.data?.commissionSummary?.total_group_value,
+        total_actual: res.data?.commissionSummary?.total_commission_value,
+        total_customers: res.data?.commissionSummary?.total_enrollments,
+        total_groups: res.data?.commissionSummary?.total_enrollments,
+        expected_business: res.data?.commissionSummary?.total_group_value,
+        total_estimated: res.data?.commissionSummary?.total_commission_value
+      });
     } catch (err) {
       if (err.name !== "AbortError") {
         console.error("Error fetching all commission report:", err);
@@ -255,56 +213,106 @@ const TargetIncentive = () => {
       }
     }
   };
-
-  const handleEmployeeChange = async (value) => {
+  
+  const handleEmployeeChange = (value) => {
     setSelectedEmployeeId(value);
-    setAgentLoading(true);
-
-    if (value === "ALL") {
-      setSelectedEmployeeDetails(null);
-      setTargetData({
-        target: 0,
-        achieved: 0,
-        remaining: 0,
-        startDate: "",
-        endDate: "",
-        incentiveAmount: 0,
-      });
-      await fetchAllCommissionReport();
-    } else {
-      const selectedEmp = employees.find((emp) => emp._id === value);
-      setSelectedEmployeeDetails(selectedEmp || null);
-      await fetchCommissionReport(value);
-      await fetchTargetData(value);
-    }
-
-    setAgentLoading(false);
+    setSelectedEmployeeDetails(null);
+    setEmployeeCustomerData([]);
+    setCommissionTotalDetails({});
+    setTargetData({
+      target: 0,
+      achieved: 0,
+      remaining: 0,
+      startDate: "",
+      endDate: "",
+      incentiveAmount: 0,
+    });
   };
-
+  
+  const handleTempMonthChange = (e) => {
+    const selectedMonth = e.target.value;
+    setTempSelectedMonth(selectedMonth);
+    if (selectedMonth) {
+      const [year, month] = selectedMonth.split("-");
+      const firstDay = `${year}-${month}-01`;
+      const lastDay = new Date(year, month, 0).toISOString().split("T")[0];
+      setTempFromDate(firstDay);
+      setTempToDate(lastDay);
+    }
+  };
+  
+  // CORRECTED: We now calculate the date range first and pass it directly to API calls
+  const applyFilter = async () => {
+    if (!selectedEmployeeId) {
+      alert("Please select an employee.");
+      return;
+    }
+    if (dateSelectionMode === "month" && !tempSelectedMonth) {
+      alert("Please select a month.");
+      return;
+    }
+    if (dateSelectionMode === "date-range" && (!tempFromDate || !tempToDate)) {
+      alert("Please select both From and To dates.");
+      return;
+    }
+    
+    // 👇 CRITICAL: Enable summary UI
+    setIsFiltering(true);
+    
+    let startDate, endDate;
+    
+    // Calculate the date range we want to use
+    if (dateSelectionMode === "month") {
+      setSelectedMonth(tempSelectedMonth);
+      const [year, month] = tempSelectedMonth.split("-");
+      startDate = `${year}-${month}-01`;
+      endDate = new Date(year, month, 0).toISOString().split("T")[0];
+      setFromDate(startDate);
+      setToDate(endDate);
+    } else {
+      startDate = tempFromDate;
+      endDate = tempToDate;
+      setFromDate(startDate);
+      setToDate(endDate);
+    }
+    
+    setLoading(true);
+    setAgentLoading(true);
+    try {
+      if (selectedEmployeeId === "ALL") {
+        setSelectedEmployeeDetails(null);
+        setTargetData({
+          target: 0,
+          achieved: 0,
+          remaining: 0,
+          startDate: "",
+          endDate: "",
+          incentiveAmount: 0,
+        });
+        await fetchAllCommissionReport();
+      } else {
+        const emp = employees.find(e => e._id === selectedEmployeeId);
+        setSelectedEmployeeDetails(emp || null);
+        // Pass the calculated date range directly to the API calls
+        await fetchCommissionReport(selectedEmployeeId, startDate, endDate);
+        await fetchTargetData(selectedEmployeeId, startDate, endDate);
+      }
+    } finally {
+      setAgentLoading(false);
+      setLoading(false);
+    }
+  };
+  
   useEffect(() => {
     fetchEmployees();
   }, []);
-
-  useEffect(() => {
-    if (selectedEmployeeId === "ALL") {
-      fetchAllCommissionReport();
-    } else if (selectedEmployeeId && selectedMonth) {
-      fetchCommissionReport(selectedEmployeeId);
-    }
-  }, [selectedMonth]);
-
-  useEffect(() => {
-    if (selectedEmployeeId && selectedEmployeeId !== "ALL" && selectedMonth) {
-      fetchTargetData(selectedEmployeeId);
-    }
-  }, [employeeCustomerData, selectedMonth]);
-
+  
   const handleCommissionChange = (e) => {
     const { name, value } = e.target;
     setCommissionForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-
+  
   const validateForm = () => {
     const newErrors = {};
     if (!commissionForm.agent_id) newErrors.agent_id = "Please select an agent";
@@ -315,7 +323,7 @@ const TargetIncentive = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
   const handleCommissionSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -328,43 +336,59 @@ const TargetIncentive = () => {
       alert("Failed to add payment.");
     }
   };
-
+  
   const processedTableData = employeeCustomerData.map((item, index) => ({
     ...item,
+    // Format the numeric values for display
+    group_value_digits: item.group_id?.group_value,
+    group_ticket:item.ticket || "N/A",
+     
+    estimated_commission_digits: item?.estimated_commission || 0,
+     
+    net_incentive_digits: item?.incentive_value || 0,
+    incentive_percentage: item?.group_id?.incentives || 0,
+      
+    total_paid_digits: item?.total_paid_amount || 0,
+     
+    required_installment_digits: item?.group_id?.monthly_installment || 0,
+      
+    incentive_released: item.incentive_released ? "Yes" : "No",
+    user_name: item.user_id?.full_name || "N/A",
+    phone_number: item.user_id?.phone_number || "N/A",
+    group_name: item.group_id?.group_name || "N/A",
+    start_date: item.group_id?.start_date
+      ? new Date(item.group_id.start_date)?.toISOString()?.split("T")?.[0]
+      : "N/A",
   }));
-
+  
   const columns = [
-    ...(selectedEmployeeId === "ALL"
-      ? [{ key: "agent_name", header: "Agent Name" }]
-      : []),
     { key: "user_name", header: "Customer Name" },
     { key: "phone_number", header: "Phone Number" },
     { key: "group_name", header: "Group Name" },
+    { key: "group_ticket", header: "Ticket No" },
     { key: "group_value_digits", header: "Group Value" },
-    { key: "commission_rate", header: "Commission Rate" },
     { key: "start_date", header: "Start Date" },
-    { key: "estimated_commission_digits", header: "Estimated Commission" },
-    { key: "actual_commission_digits", header: "Actual Commission" },
+    { key: "incentive_percentage", header: "Net Incentive Percentage" },
+    { key: "net_incentive_digits", header: "Net  Incentive" },
     { key: "total_paid_digits", header: "Total Paid" },
-    { key: "required_installment_digits", header: "Required Installment" },
-    { key: "commission_released", header: "Commission Released" },
+    { key: "required_installment_digits", header: "First Installment Amount" },
+    { key: "incentive_released", header: "Incentive Released" },
   ];
-
+  
+  // Get current month for max attribute
   const today = new Date();
   const currentMonth = `${today.getFullYear()}-${String(
     today.getMonth() + 1
   ).padStart(2, "0")}`;
-
+  
   return (
     <div className="w-screen min-h-screen">
       <div className="flex mt-30">
-        
         <Navbar visibility={true} />
         <div className="flex-grow p-7">
           <h1 className="text-2xl font-bold text-center ">
             Reports - Incentive
           </h1>
-
           <div className="mt-11 mb-8">
             <div className="mb-2">
               <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-2 w-30 h-40 rounded-3xl border   space-x-2">
@@ -394,19 +418,71 @@ const TargetIncentive = () => {
                     ))}
                   </Select>
                 </div>
-
-                {/* Single month picker */}
+                {/* Date Selection Mode Toggle */}
                 <div className="mb-2">
                   <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
-                    Month
+                    Date Selection
                   </label>
-                  <input
-                    type="month"
-                    value={selectedMonth || ""}
-                    max={currentMonth}
-                    onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="border border-gray-300 rounded px-4 py-2 w-[200px] h-[50px]"
-                  />
+                  <Radio.Group
+                    value={dateSelectionMode}
+                    onChange={(e) => setDateSelectionMode(e.target.value)}
+                    className="flex space-x-4"
+                  >
+                    <Radio value="month">By Month</Radio>
+                    <Radio value="date-range">By Date Range</Radio>
+                  </Radio.Group>
+                </div>
+                {/* Show appropriate date picker based on selection mode */}
+                {dateSelectionMode === "month" ? (
+                  <div className="mb-2">
+                    <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
+                      Month
+                    </label>
+                    <input
+                      type="month"
+                      value={tempSelectedMonth || ""}
+                      max={currentMonth}
+                      onChange={handleTempMonthChange}
+                      className="border border-gray-300 rounded px-4 py-2 w-[200px] h-[50px]"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-2">
+                      <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
+                        From Date
+                      </label>
+                      <input
+                        type="date"
+                        value={tempFromDate || ""}
+                        max={tempToDate || currentMonth}
+                        onChange={(e) => setTempFromDate(e.target.value)}
+                        className="border border-gray-300 rounded px-4 py-2 w-[200px] h-[50px]"
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
+                        To Date
+                      </label>
+                      <input
+                        type="date"
+                        value={tempToDate || ""}
+                        min={tempFromDate || ""}
+                        max={currentMonth}
+                        onChange={(e) => setTempToDate(e.target.value)}
+                        className="border border-gray-300 rounded px-4 py-2 w-[200px] h-[50px]"
+                      />
+                    </div>
+                  </>
+                )}
+                {/* Filter button */}
+                <div className="mb-2 flex items-end">
+                  <button
+                    onClick={applyFilter}
+                    className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Filter
+                  </button>
                 </div>
               </div>
             </div>
@@ -439,7 +515,6 @@ const TargetIncentive = () => {
                             />
                             Commission Report
                           </Link>
-
                           <Link
                             to="/reports/target-incentive"
                             className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
@@ -450,7 +525,6 @@ const TargetIncentive = () => {
                             />
                             Incentive Report
                           </Link>
-
                           <Link
                             to="/target-commission-incentive"
                             className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
@@ -458,9 +532,8 @@ const TargetIncentive = () => {
                             <MdPayments className="text-blue-500" size={30} />
                             Commission or Incentive Payout
                           </Link>
-
                           <Link
-                            to="/target-payout-salary"
+                            to="/payment-menu/payment-in-out-menu/payment-out/salary"
                             className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
                           >
                             <FaMoneyBill className="text-blue-500" size={30} />
@@ -474,143 +547,134 @@ const TargetIncentive = () => {
                   className="rounded-lg border border-gray-200 bg-white shadow-sm"
                 />
               </div>
-              {(selectedEmployeeId === "ALL" || selectedEmployeeDetails) && (
-                <div className="mb-8 bg-gray-50 rounded-md shadow-md p-6 space-y-4">
-                  {selectedEmployeeId !== "ALL" && selectedEmployeeDetails && (
-                    <>
-                      <div className="flex gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium mb-1">
-                            Name
-                          </label>
+              {isFiltering && ((dateSelectionMode === "month" && selectedMonth) ||
+                (dateSelectionMode === "date-range" && fromDate && toDate)) &&
+                (selectedEmployeeId === "ALL" || selectedEmployeeDetails) && (
+                  <div className="mb-8 bg-gray-50 rounded-md shadow-md p-6 space-y-4">
+                    {selectedEmployeeId !== "ALL" && selectedEmployeeDetails && (
+                      <>
+                        <div className="flex gap-4">
+                          <div className="flex flex-col flex-1">
+                            <label className="text-sm font-medium mb-1">Name</label>
+                            <input
+                              value={selectedEmployeeDetails.name || "-"}
+                              readOnly
+                              className="border border-gray-300 rounded px-4 py-2 bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <label className="text-sm font-medium mb-1">Email</label>
+                            <input
+                              value={selectedEmployeeDetails.email || "-"}
+                              readOnly
+                              className="border border-gray-300 rounded px-4 py-2 bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <label className="text-sm font-medium mb-1">Phone Number</label>
+                            <input
+                              value={selectedEmployeeDetails.phone_number || "-"}
+                              readOnly
+                              className="border border-gray-300 rounded px-4 py-2 bg-white"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-4">
+                          <div className="flex flex-col flex-1">
+                            <label className="text-sm font-medium mb-1">Adhaar Number</label>
+                            <input
+                              value={selectedEmployeeDetails.adhaar_no || "-"}
+                              readOnly
+                              className="border border-gray-300 rounded px-4 py-2 bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <label className="text-sm font-medium mb-1">PAN Number</label>
+                            <input
+                              value={selectedEmployeeDetails.pan_no || "-"}
+                              readOnly
+                              className="border border-gray-300 rounded px-4 py-2 bg-white"
+                            />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                            <label className="text-sm font-medium mb-1">Pincode</label>
+                            <input
+                              value={selectedEmployeeDetails.pincode || "-"}
+                              readOnly
+                              className="border border-gray-300 rounded px-4 py-2 bg-white"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex flex-col">
+                          <label className="text-sm font-medium mb-1">Address</label>
                           <input
-                            value={selectedEmployeeDetails.name || "-"}
+                            value={selectedEmployeeDetails.address || "-"}
                             readOnly
                             className="border border-gray-300 rounded px-4 py-2 bg-white"
                           />
                         </div>
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium mb-1">
-                            Email
-                          </label>
-                          <input
-                            value={selectedEmployeeDetails.email || "-"}
-                            readOnly
-                            className="border border-gray-300 rounded px-4 py-2 bg-white"
-                          />
-                        </div>
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium mb-1">
-                            Phone Number
-                          </label>
-                          <input
-                            value={selectedEmployeeDetails.phone_number || "-"}
-                            readOnly
-                            className="border border-gray-300 rounded px-4 py-2 bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4">
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium mb-1">
-                            Adhaar Number
-                          </label>
-                          <input
-                            value={selectedEmployeeDetails.adhaar_no || "-"}
-                            readOnly
-                            className="border border-gray-300 rounded px-4 py-2 bg-white"
-                          />
-                        </div>
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium mb-1">
-                            PAN Number
-                          </label>
-                          <input
-                            value={selectedEmployeeDetails.pan_no || "-"}
-                            readOnly
-                            className="border border-gray-300 rounded px-4 py-2 bg-white"
-                          />
-                        </div>
-                        <div className="flex flex-col flex-1">
-                          <label className="text-sm font-medium mb-1">
-                            Pincode
-                          </label>
-                          <input
-                            value={selectedEmployeeDetails.pincode || "-"}
-                            readOnly
-                            className="border border-gray-300 rounded px-4 py-2 bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col">
-                        <label className="text-sm font-medium mb-1">
-                          Address
-                        </label>
+                      </>
+                    )}
+                    {/* ✅ CORRECTED SUMMARY: Two rows */}
+                    <div className="flex gap-4">
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-medium mb-1">Net Business</label>
                         <input
-                          value={selectedEmployeeDetails.address || "-"}
+                          value={commissionTotalDetails?.actual_business || "-"}
+                          readOnly
+                          className="border border-gray-300 rounded px-4 py-2 bg-white text-green-700 font-bold"
+                        />
+                      </div>
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-medium mb-1">Incentive (1% each)</label>
+                        <input
+                          value={commissionTotalDetails?.total_actual || "-"}
+                          readOnly
+                          className="border border-gray-300 rounded px-4 py-2 bg-white text-green-700 font-bold"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-medium mb-1">Net Customers</label>
+                        <input
+                          value={commissionTotalDetails?.total_customers || "-"}
                           readOnly
                           className="border border-gray-300 rounded px-4 py-2 bg-white"
                         />
                       </div>
-                    </>
-                  )}
-
-                  <div className="flex gap-4">
-                    <div className="flex flex-col flex-1">
-                      <label className="text-sm font-medium mb-1">
-                        Actual Business
-                      </label>
-                      <input
-                        value={commissionTotalDetails?.actual_business || "-"}
-                        readOnly
-                        className="border border-gray-300 rounded px-4 py-2 bg-white text-green-700 font-bold"
-                      />
+                      <div className="flex flex-col flex-1">
+                        <label className="text-sm font-medium mb-1">Total Groups</label>
+                        <input
+                          value={commissionTotalDetails?.total_groups || "-"}
+                          readOnly
+                          className="border border-gray-300 rounded px-4 py-2 bg-white"
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col flex-1">
-                    <label className="text-sm font-medium mb-1">
-                      Incentive (1% each)
-                    </label>
-                    <input
-                      value={commissionTotalDetails?.total_actual || "-"}
-                      readOnly
-                      className="border border-gray-300 rounded px-4 py-2 bg-white  text-green-700 font-bold"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {selectedEmployeeId &&
-                selectedEmployeeId !== "ALL" &&
-                selectedMonth && (
+                )}
+              {isFiltering && ((dateSelectionMode === "month" && selectedMonth) ||
+                (dateSelectionMode === "date-range" && fromDate && toDate)) &&
+                selectedEmployeeId &&
+                selectedEmployeeId !== "ALL" && (
                   <div className="bg-gray-100  p-4 rounded-lg shadow mb-6">
                     <h2 className="text-lg font-bold text-yellow-800 mb-2">
                       Target Details
                     </h2>
-
                     {targetData.achieved >= targetData.target && (
                       <div className="flex items-center gap-2 p-3 rounded-lg bg-green-100 border border-green-400 my-4">
                         <GiPartyPopper size={30} color="green" />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-
                         <span className="text-green-800 font-semibold">
                           Target Achieved
                         </span>
                       </div>
                     )}
-
                     <div className="grid md:grid-cols-3 gap-4 bg-gray-50 ">
                       <div>
                         <label className="block font-medium">Target Set</label>
                         <input
-                          value={`₹${targetData.target?.toLocaleString(
+                          value={`${targetData.target?.toLocaleString(
                             "en-IN"
                           )}`}
                           readOnly
@@ -620,7 +684,7 @@ const TargetIncentive = () => {
                       <div>
                         <label className="block font-medium">Achieved</label>
                         <input
-                          value={`₹${targetData.achieved?.toLocaleString(
+                          value={`${targetData.achieved?.toLocaleString(
                             "en-IN"
                           )}`}
                           readOnly
@@ -630,14 +694,13 @@ const TargetIncentive = () => {
                       <div>
                         <label className="block font-medium">Difference</label>
                         <input
-                          value={`₹${targetData.difference?.toLocaleString(
+                          value={`${targetData.difference?.toLocaleString(
                             "en-IN"
                           )}`}
                           readOnly
                           className="border px-3 py-2 rounded w-full bg-gray-50 font-semibold"
                         />
                       </div>
-
                       {/* MODIFIED: Total Payable now shows incentive amount */}
                       <div>
                         <label className="block font-medium">
@@ -645,7 +708,7 @@ const TargetIncentive = () => {
                         </label>
                         <input
                           readOnly
-                          value={`₹${targetData.incentiveAmount.toLocaleString(
+                          value={`${targetData.incentiveAmount.toLocaleString(
                             "en-IN",
                             {
                               minimumFractionDigits: 2,
@@ -655,7 +718,6 @@ const TargetIncentive = () => {
                           className="border px-3 py-2 rounded w-full bg-gray-50 text-green-700 font-bold"
                         />
                       </div>
-
                       {/* ADDED: Incentive breakdown for clarity */}
                       <div className="col-span-3">
                         <div className="bg-blue-50 p-3 rounded">
@@ -663,10 +725,10 @@ const TargetIncentive = () => {
                             Incentive Breakdown:
                           </p>
                           <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
-                            <li>Up to target (0%): ₹0.00</li>
+                            <li>Up to target (0%): 0.00</li>
                             {targetData.achieved > targetData.target && (
                               <li>
-                                Beyond target (1%): ₹
+                                Beyond target (1%): 
                                 {(
                                   (targetData.achieved - targetData.target) *
                                   0.01
@@ -682,7 +744,6 @@ const TargetIncentive = () => {
                     </div>
                   </div>
                 )}
-
               <Modal
                 isVisible={showCommissionModal}
                 onClose={() => setShowCommissionModal(false)}
@@ -708,7 +769,6 @@ const TargetIncentive = () => {
                         className="w-full border p-2 rounded bg-gray-100 font-semibold"
                       />
                     </div>
-
                     <div>
                       <label className="block text-sm font-medium">
                         Payment Date
@@ -729,11 +789,10 @@ const TargetIncentive = () => {
                       <input
                         type="text"
                         readOnly
-                        value={`₹${commissionForm.amount || "0.00"}`}
+                        value={`${commissionForm.amount || "0.00"}`}
                         className="w-full border p-2 rounded bg-gray-100 text-green-700 font-semibold"
                       />
                     </div>
-
                     <div>
                       <label className="block text-sm font-medium">
                         Payment Mode
@@ -750,7 +809,6 @@ const TargetIncentive = () => {
                         <option value="bank_transfer">Bank Transfer</option>
                       </select>
                     </div>
-
                     {commissionForm.pay_type === "online" && (
                       <div>
                         <label className="block text-sm font-medium">
@@ -770,7 +828,6 @@ const TargetIncentive = () => {
                         )}
                       </div>
                     )}
-
                     <div>
                       <label className="block text-sm font-medium">Note</label>
                       <textarea
@@ -780,7 +837,6 @@ const TargetIncentive = () => {
                         className="w-full border p-2 rounded"
                       />
                     </div>
-
                     <div className="flex justify-end gap-3 mt-4">
                       <button
                         type="button"
@@ -799,7 +855,6 @@ const TargetIncentive = () => {
                   </form>
                 </div>
               </Modal>
-
               {loading ? (
                 <CircularLoader isLoading={true} />
               ) : employeeCustomerData.length > 0 ? (
@@ -807,7 +862,7 @@ const TargetIncentive = () => {
                   <DataTable
                     data={processedTableData}
                     columns={columns}
-                    exportedPdfName={`Commission Report`}
+                    exportedPdfName={`Incentive Report`}
                     printHeaderKeys={[
                       "Name",
                       "Phone Number",
@@ -830,61 +885,59 @@ const TargetIncentive = () => {
                       selectedEmployeeId === "ALL"
                         ? "-"
                         : selectedEmployeeDetails?.phone_number || "-",
-                      selectedMonth
-                        ? new Date(`${selectedMonth}-01`).toLocaleString(
+                      ((dateSelectionMode === "month" && selectedMonth) ||
+                        (dateSelectionMode === "date-range" && fromDate && toDate)) ?
+                        dateSelectionMode === "month" ?
+                          new Date(`${selectedMonth}-01`).toLocaleString(
                             "default",
                             {
                               month: "long",
                               year: "numeric",
                             }
-                          )
+                          ) :
+                          `${new Date(fromDate).toLocaleDateString()} - ${new Date(toDate).toLocaleDateString()}`
                         : "-",
-                      `₹${targetData?.target?.toLocaleString("en-IN") || "0"}`,
-                      `₹${
-                        targetData?.achieved?.toLocaleString("en-IN") || "0"
+                      `${targetData?.target?.toLocaleString("en-IN") || "0"}`,
+                      `${targetData?.achieved?.toLocaleString("en-IN") || "0"
                       }`,
-                      `₹${
-                        targetData?.remaining?.toLocaleString("en-IN") || "0"
+                      `${targetData?.remaining?.toLocaleString("en-IN") || "0"
                       }`,
                       // MODIFIED: Using incentive amount
-                      `₹${
-                        targetData?.incentiveAmount?.toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }) || "0.00"
+                      `${targetData?.incentiveAmount?.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }) || "0.00"
                       }`,
-                      `₹${
-                        commissionTotalDetails?.actual_business?.toLocaleString(
-                          "en-IN"
-                        ) || "0"
+                      `${commissionTotalDetails?.actual_business?.toLocaleString(
+                        "en-IN"
+                      ) || "0"
                       }`,
-                      `₹${
-                        commissionTotalDetails?.total_actual?.toLocaleString(
-                          "en-IN"
-                        ) || "0"
+                      `${commissionTotalDetails?.total_actual?.toLocaleString(
+                        "en-IN"
+                      ) || "0"
                       }`,
-                      `₹${
-                        commissionTotalDetails?.expected_business?.toLocaleString(
-                          "en-IN"
-                        ) || "0"
+                      `${commissionTotalDetails?.expected_business?.toLocaleString(
+                        "en-IN"
+                      ) || "0"
                       }`,
-                      `₹${
-                        commissionTotalDetails?.total_estimated?.toLocaleString(
-                          "en-IN"
-                        ) || "0"
+                      `${commissionTotalDetails?.total_estimated?.toLocaleString(
+                        "en-IN"
+                      ) || "0"
                       }`,
                       commissionTotalDetails?.total_customers || "0",
                       commissionTotalDetails?.total_groups || "0",
                     ]}
-                    exportedFileName={`CommissionReport-${
-                      selectedEmployeeDetails?.name || "all"
-                    }-${selectedMonth}.csv`}
+                    exportedFileName={`IncentiveReport-${selectedEmployeeDetails?.name || "all"
+                      }-${dateSelectionMode === "month" ? selectedMonth : `${fromDate}_to_${toDate}`}.csv`}
                   />
                 </>
               ) : (
+                isFiltering &&
+                ((dateSelectionMode === "month" && selectedMonth) ||
+                  (dateSelectionMode === "date-range" && fromDate && toDate)) &&
                 selectedEmployeeDetails?.name && (
                   <p className="text-center font-bold text-lg">
-                    No Commission Data found.
+                    No Incentive Data found.
                   </p>
                 )
               )}
