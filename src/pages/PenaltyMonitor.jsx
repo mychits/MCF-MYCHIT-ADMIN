@@ -9,7 +9,7 @@ import {
   Calendar,
   Filter,
   Users,
-  DollarSign,
+
   TrendingUp,
   Clock,
   Info,
@@ -455,7 +455,7 @@ const PenaltyMonitor = () => {
                       </div>
                     </div>
                     <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-                      <DollarSign className="w-8 h-8 text-white" />
+                      <FaIndianRupeeSign className="w-8 h-8 text-white" />
                     </div>
                   </div>
                 </div>
