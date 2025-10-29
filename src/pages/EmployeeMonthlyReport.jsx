@@ -1,5 +1,5 @@
 import { div } from "framer-motion/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DataTable from "../components/layouts/Datatable"
 import api from "../instance/TokenInstance";
 import { Select, Table, Spin, Button, Tag } from "antd";
@@ -786,6 +786,36 @@ const EmployeeMonthlyReport = () => {
     return clean;
   });
 
+  const summaryStats = useMemo(() => {
+  const total = attendanceData.length;
+
+  // If All Employees → Present & Absent totals by employee
+  if (selectedEmployee === "all") {
+    const totalPresent = attendanceData.reduce((sum, e) => sum + (e.PresentDays || 0), 0);
+    const totalAbsent = attendanceData.reduce((sum, e) => sum + (e.AbsentDays || 0), 0);
+
+    return {
+      totalEmployees: total,
+      totalPresent,
+      totalAbsent,
+      presentPercent: total ? ((totalPresent / (totalPresent + totalAbsent)) * 100).toFixed(1) : 0,
+    };
+  }
+
+  // If Individual Employee → Count by records
+  const present = attendanceData.filter((r) => r.status === "Present").length;
+  const absent = attendanceData.filter((r) => r.status === "Absent").length;
+
+  return {
+    totalDays: total,
+    present,
+    absent,
+    presentPercent: total ? ((present / total) * 100).toFixed(1) : 0,
+  };
+}, [attendanceData, selectedEmployee]);
+
+
+
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Monthly Attendance Report</h2>
@@ -805,8 +835,8 @@ const EmployeeMonthlyReport = () => {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div >
+          <label className="block text-sm font-medium text-gray-700 mb-3 ">
             Employee
           </label>
           <Select
@@ -814,6 +844,7 @@ const EmployeeMonthlyReport = () => {
             style={{ width: 250 }}
             value={selectedEmployee}
             onChange={setSelectedEmployee}
+            
           >
             <Select.Option value="all">All Employees</Select.Option>
             {employees.map((emp) => (
@@ -828,6 +859,52 @@ const EmployeeMonthlyReport = () => {
           Filter
         </Button>
       </div>
+
+{/* ✅ Attendance Summary Cards */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+
+  {/* Total Employees / Total Days */}
+  <div className="p-4 bg-white rounded-lg shadow-md border border-slate-200 text-center">
+    <span className="text-sm font-semibold block">
+      {selectedEmployee === "all" ? "Total Employees" : "Total Days"}
+    </span>
+    <span className="text-xl font-bold text-slate-900">
+      {selectedEmployee === "all"
+        ? summaryStats.totalEmployees
+        : summaryStats.totalDays}
+    </span>
+  </div>
+
+  {/* ✅ Show Present only when employee selected */}
+  {selectedEmployee !== "all" && (
+    <div className="p-4 bg-green-50 rounded-lg shadow-md border border-slate-200 text-center">
+      <span className="text-sm font-semibold block text-green-700">Present</span>
+      <span className="text-xl font-bold text-green-700">
+        {summaryStats.present}
+      </span>
+    </div>
+  )}
+
+  {/* ✅ Show Absent only when employee selected */}
+  {selectedEmployee !== "all" && (
+    <div className="p-4 bg-red-50 rounded-lg shadow-md border border-slate-200 text-center">
+      <span className="text-sm font-semibold block text-red-700">Absent</span>
+      <span className="text-xl font-bold text-red-700">
+        {summaryStats.absent}
+      </span>
+    </div>
+  )}
+
+  {/* Always show Present % */}
+  <div className="p-4 bg-emerald-50 rounded-lg shadow-md border border-slate-200 text-center">
+    <span className="text-sm font-semibold block text-emerald-700">Present %</span>
+    <span className="text-xl font-bold text-emerald-700">
+      {summaryStats.presentPercent}%
+    </span>
+  </div>
+
+</div>
+
 
      
       {loading ? (

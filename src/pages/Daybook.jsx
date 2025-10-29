@@ -67,6 +67,7 @@ const [showAllPaymentModes,setShowAllPaymentModes] = useState(false);
     amount: "",
     pay_type: "cash",
     transaction_id: "",
+    collection_time: "",
   });
  useEffect(() => {
     const user = localStorage.getItem("user");
@@ -305,6 +306,7 @@ const [showAllPaymentModes,setShowAllPaymentModes] = useState(false);
             transaction_date:group?.createdAt?.split("T")?.[0],
             mode: group?.pay_type,
             account_type: group?.account_type,
+            collection_time: group?.collection_time,
             collected_by:
               group?.collected_by?.name ||
               group?.admin_type?.admin_name ||
@@ -371,6 +373,7 @@ const [showAllPaymentModes,setShowAllPaymentModes] = useState(false);
      ...(hideAccountType
     ? [{ key: "account_type", header: "Account Type" }]: []),
     { key: "collected_by", header: "Collected By" },
+    {key: "collection_time", header: "Collection Time"},
     { key: "action", header: "Action" },
   ];
 

@@ -1819,6 +1819,16 @@ const EmployeeAttendanceReport = () => {
     );
   };
 
+  const summaryStats = useMemo(() => {
+  const total = tableAttendanceData.length;
+  const present = tableAttendanceData.filter(r => r.Status === "Present").length;
+  const absent = tableAttendanceData.filter(r => r.Status === "Absent").length;
+  const approved = tableAttendanceData.filter(r => r.ApprovalStatus === "Approved").length;
+  const pending = tableAttendanceData.filter(r => r.ApprovalStatus === "Pending").length;
+
+  return { total, present, absent, approved, pending };
+}, [tableAttendanceData]);
+
 
   const fetchAttendanceReport = async (date) => {
   setScreenLoading(true);
@@ -1914,64 +1924,6 @@ useEffect(() => {
     );
   };
 
-  // const filteredAttendance = useMemo(() => {
-  //   return filterOption(tableAttendanceData, searchText).map((item, index) => {
-  //     // Determine if the checkbox should be disabled
-  //     const isPermanentlyApproved = item.InitialApproved === true;
-
-  //     return {
-  //       ...item,
-  //       id: index + 1,
-  //       ApprovalStatus: (
-  //         <div className="flex justify-center">
-  //           {item.ApprovalStatus === "Approved" ? (
-  //             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-  //               <CheckCircle2 size={14} />
-  //               Approved
-  //             </span>
-  //           ) : (
-  //             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-  //               <Clock size={14} />
-  //               Pending
-  //             </span>
-  //           )}
-  //         </div>
-  //       ),
-  //       checkBox: (
-  //         <div className="flex items-center justify-center gap-3">
-  //           <button
-  //             onClick={() => handleStatusToggle(item._id)}
-  //             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-  //               item.Status === "Present"
-  //                 ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-  //                 : "bg-red-100 text-red-700 hover:bg-red-200"
-  //             }`}
-  //           >
-  //             {item.Status === "Present" ? (
-  //               <CheckCircle2 size={16} />
-  //             ) : (
-  //               <XCircle size={16} />
-  //             )}
-  //             {item.Status}
-  //           </button>
-
-  //           {/* Checkbox: Disabled if InitialApproved (from database) is true */}
-  //           <input
-  //             type="checkbox"
-  //             checked={item.Approved}
-  //             disabled={isPermanentlyApproved}
-  //             onChange={(e) => handleCheckboxChange(item._id, e.target.checked)}
-  //             className={`w-5 h-5 rounded accent-emerald-600 transition-all ${
-  //               isPermanentlyApproved
-  //                 ? "cursor-not-allowed opacity-40"
-  //                 : "cursor-pointer hover:accent-emerald-700"
-  //             }`}
-  //           />
-  //         </div>
-  //       ),
-  //     };
-  //   });
-  // }, [tableAttendanceData, activeUserData, searchText]);
 
 const filteredAttendance = useMemo(() => {
   return filterOption(tableAttendanceData, searchText).map((item, index) => {
@@ -2080,80 +2032,6 @@ const filteredAttendance = useMemo(() => {
     );
   };
 
-  // const handleSubmit = async () => {
-  //   setIsSubmitting(true);
-  //   try {
-  //     const currentUser = JSON.parse(localStorage.getItem("user")) || {};
-  //     const approvedBy = currentUser?._id;
-  //     const formattedDate = formatDateForBackend(selectedDate || new Date());
-
-  //     // 1️⃣ Filter records that are being newly approved OR modified
-  //     const recordsToUpdate = tableAttendanceData.filter(
-  //       (row) =>
-  //         row.Approved !== row.InitialApproved || // State changed (Pending -> Approved)
-  //         (row.Approved && row.Status !== row.InitialStatus) // Approved but status was toggled
-  //     );
-
-  //     // Separate into existing records (update) and new absentees (create)
-  //     const existingUpdates = recordsToUpdate.filter(
-  //       (row) => row.attendanceId && row.Approved
-  //     );
-  //     const newAbsentees = recordsToUpdate.filter(
-  //       (row) => !row.attendanceId && row.Approved
-  //     );
-
-  //     // The requirement is that once approved, it cannot be changed back to Pending.
-  //     // Therefore, we only submit Approved status. Un-approved records are ignored by this submit.
-
-  //     // 2️⃣ Update existing attendance records
-  //     if (existingUpdates.length > 0) {
-  //       const updatedData = existingUpdates.map((row) => ({
-  //         employee_id: row._id,
-  //         attendance_id: row.attendanceId,
-  //         status: row.Status,
-  //         approval_status: "Approved", // Only submit as Approved
-  //         approved_by: approvedBy,
-  //       }));
-
-  //       await api.put("/employee-attendance/update-approvals", {
-  //         updates: updatedData,
-  //       });
-  //     }
-
-  //     // 3️⃣ Save new absent employees (must be Approved to be saved)
-  //     if (newAbsentees.length > 0) {
-  //       await api.post("/employee-attendance/save-selected-absent", {
-  //         absentees: newAbsentees.map((row) => ({
-  //           employee_id: row._id,
-  //           status: row.Status || "Absent",
-  //           approval_status: "Approved",
-  //           approved_by: approvedBy,
-  //           date: formattedDate,
-  //         })),
-  //       });
-  //     }
-
-  //     // 4️⃣ Final message and Refresh
-  //     await fetchAttendanceReport(selectedDate);
-  //     setAlertConfig({
-  //       visibility: true,
-  //       message: "Attendance updates submitted successfully.",
-  //       type: "success",
-  //     });
-
-  //     // Refresh table by re-fetching data to apply the new 'InitialApproved' lock status
-  //     setSelectedDate(selectedDate);
-  //   } catch (error) {
-  //     console.error("Something went wrong while submitting attendance:", error);
-  //     setAlertConfig({
-  //       visibility: true,
-  //       message: "Error updating selected employees!",
-  //       type: "error",
-  //     });
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
 
    const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -2324,6 +2202,33 @@ const filteredAttendance = useMemo(() => {
                
               </div>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+  <div className="p-4 bg-white rounded-lg shadow-md border border-slate-200 text-center">
+    <span className="text-sm font-semibold block">Total Employees</span>
+    <span className="text-xl font-bold text-slate-900">{summaryStats.total}</span>
+  </div>
+
+  <div className="p-4 bg-green-50 rounded-lg shadow-md border border-slate-200 text-center">
+    <span className="text-sm font-semibold block">Present</span>
+    <span className="text-xl font-bold text-green-700">{summaryStats.present}</span>
+  </div>
+
+  <div className="p-4 bg-red-50 rounded-lg shadow-md border border-slate-200 text-center">
+    <span className="text-sm font-semibold block">Absent</span>
+    <span className="text-xl font-bold text-red-700">{summaryStats.absent}</span>
+  </div>
+
+  <div className="p-4 bg-emerald-50 rounded-lg shadow-md border border-slate-200 text-center">
+    <span className="text-sm font-semibold block">Approved</span>
+    <span className="text-xl font-bold text-emerald-700">{summaryStats.approved}</span>
+  </div>
+
+  <div className="p-4 bg-amber-50 rounded-lg shadow-md border border-slate-200 text-center">
+    <span className="text-sm font-semibold block">Pending</span>
+    <span className="text-xl font-bold text-amber-700">{summaryStats.pending}</span>
+  </div>
+</div>
 
             {/* Table Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-4 min-h-[300px] flex justify-center items-center">

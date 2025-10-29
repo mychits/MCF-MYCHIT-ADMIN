@@ -73,6 +73,7 @@ const Receipt = () => {
     transaction_id: "",
     collected_by: collectionAgent,
     admin_type: collectionAdmin,
+    collection_time: "",
   });
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -330,6 +331,7 @@ const Receipt = () => {
             transaction_date: group?.createdAt?.split("T")?.[0],
             mode: group?.pay_type,
             account_type: group?.account_type,
+            collection_time: group?.collection_time,
             collected_by:
               group?.collected_by?.name ||
               group?.admin_type?.admin_name ||
@@ -406,6 +408,7 @@ const Receipt = () => {
     ...(hideAccountType
       ? [{ key: "account_type", header: "Account Type" }]
       : []),
+    {key: "collection_time", header: "Collection Time"},
     { key: "collected_by", header: "Collected By" },
     { key: "action", header: "Action" },
   ];

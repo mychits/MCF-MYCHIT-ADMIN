@@ -556,9 +556,9 @@ const TargetIncentive = () => {
             <div className="flex justify-end">
               <button
                 onClick={applyFilter}
-                className="px-8 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm"
+                className="px-8 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold shadow-sm"
               >
-                Generate Report
+                Continue
               </button>
             </div>
           </div>
@@ -591,7 +591,7 @@ const TargetIncentive = () => {
                     className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
                   >
                     <MdPayments className="text-blue-600 group-hover:scale-110 transition-transform" size={24} />
-                    <span className="font-medium text-gray-700 group-hover:text-blue-600">Payout</span>
+                    <span className="font-medium text-gray-700 group-hover:text-blue-600">Incentive / Commission Payout</span> 
                   </Link>
                   <Link
                     to="/payment-menu/payment-in-out-menu/payment-out/salary"

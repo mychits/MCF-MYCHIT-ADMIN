@@ -141,6 +141,7 @@ const Payment = () => {
     cheque_date: "",
     cheque_bank_name: "",
     cheque_bank_branch: "",
+    collection_time: "",
   });
   const [updateFormData, setUpdateFormData] = useState({
     amount: "",
@@ -228,6 +229,7 @@ const Payment = () => {
               amount: group.amount,
               date: formatPayDate(group.pay_date),
               transaction_date: formatPayDate(group.createdAt),
+              collection_time: group?.collection_time,
               collected_by:
                 group?.collected_by?.name ||
                 group?.admin_type?.admin_name ||
@@ -465,6 +467,7 @@ const Payment = () => {
     { key: "receipt", header: "Receipt" },
     { key: "amount", header: "Amount" },
     {key: "pay_type", header: "Payment Type"},
+    {key: "collection_time", header: "Collection Time"},
     { key: "collected_by", header: "Collected By" },
     { key: "action", header: "Action" }
   );
