@@ -31,6 +31,8 @@ import { TbList } from "react-icons/tb";
 import { BsCalendarDate } from "react-icons/bs";
 import { TbGraph } from "react-icons/tb";
 import { TbGraphFilled } from "react-icons/tb";
+import { IoSearchOutline } from "react-icons/io5";
+import { IoCloseCircle } from "react-icons/io5";
 
 const subMenus = [
   {
@@ -202,13 +204,6 @@ const subMenus = [
     category: "Employee",
     color: "from-blue-500 to-blue-600",
   },
-  // {
-  //   title: "Employee Attendance Report",
-  //   link: "/reports/employee-attendance-report",
-  //   Icon: SlCalender,
-  //   category: "Employee",
-  //   color: "from-indigo-500 to-indigo-600"
-  // },
   {
     id:"23",
     title: "Monthly Attendance Report",
@@ -243,8 +238,6 @@ const subMenus = [
   }
 ];
 
-
-
 const categories = ["All", "Reports", "Customer", "Agent" ,"Employee",  "Finance",];
 
 const Reports = () => {
@@ -252,39 +245,24 @@ const Reports = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [viewType, setViewType] = useState("grid");
-  const filteredMenus =
-    activeCategory === "All"
-      ? subMenus
-      : subMenus.filter((menu) => menu.category === activeCategory);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter by category first, then by search query
+  const filteredMenus = subMenus
+    .filter((menu) => activeCategory === "All" || menu.category === activeCategory)
+    .filter((menu) => 
+      menu.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+  };
 
   return (
     <div>
       <div className="min-w-screen min-h-screen flex mt-20">
         {<Navbar />}
         <Sidebar />
-
-        {/* <div className="w-[300px] bg-gray-50 min-h-screen p-4">
-          {filteredMenus.map(({ title, link, Icon, red }) => (
-            <NavLink
-              key={link}
-              to={link}
-              className={({ isActive }) =>
-                `whitespace-nowrap my-2 flex items-center gap-2 font-medium rounded-3xl hover:bg-gray-300 p-3 right-border ${
-                  red ? "text-red-800" : "text-gray-900"
-                } ${isActive ? "bg-gray-200 border-l-8 border-blue-300" : ""}`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <Icon
-                    className={`${isActive ? "animate-bounce" : "text-black"}`}
-                  />
-                  <span className="text-black">{title}</span>
-                </>
-              )}
-            </NavLink>
-          ))}
-        </div> */}
 
         <div className="w-[300px] bg-gray-50 min-h-screen p-4 border-r border-gray-200">
           {filteredMenus.map(({ title, link, Icon, red }) => (
@@ -312,6 +290,30 @@ const Reports = () => {
         <div className="flex-grow p-6 bg-gradient-to-br from-gray-50 to-gray-100">
           {location.pathname === "/reports" ? (
             <>
+              {/* Search Bar */}
+              <div className="mb-8">
+                <div className="relative max-w-3xl mx-auto">
+                  <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                    <IoSearchOutline className="text-gray-400 text-2xl transition-all duration-300" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search reports..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-16 pr-16 py-4 text-lg bg-white border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 shadow-md hover:shadow-lg focus:shadow-xl transition-all duration-300 placeholder:text-gray-400"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={handleClearSearch}
+                      className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-gray-600 transition-all duration-200 hover:scale-110 active:scale-95"
+                    >
+                      <IoCloseCircle className="text-3xl" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Category Chips */}
               <div className="flex flex-wrap gap-2 mb-6">
                 {categories.map((category) => (
@@ -355,8 +357,19 @@ const Reports = () => {
                 </button>
               </div>
 
+              {/* No Results Message */}
+              {filteredMenus.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                    <IoSearchOutline className="text-3xl text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">No reports found</h3>
+                  <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+                </div>
+              )}
+
               {/* Grid View */}
-              {viewType === "grid" ? (
+              {viewType === "grid" && filteredMenus.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredMenus.map(({ title, Icon, link, color }) => (
                     <div
@@ -404,49 +417,50 @@ const Reports = () => {
                 </div>
               ) : (
                 /* List View */
-                <div className="space-y-3">
-                  {filteredMenus.map(({ title, Icon, link, color,id }) => (
-                    <div
-
-                      key={id}
-                      onClick={() => navigate(link)}
-                      className="group cursor-pointer"
-                    >
-                      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:-translate-x-1 overflow-hidden">
-                        <div className="flex items-center p-5 hover:bg-gray-50 transition-colors">
-                          <div
-                            className={`bg-gradient-to-br ${color} rounded-lg p-4 mr-5 flex-shrink-0`}
-                          >
-                            <Icon className="text-2xl text-white" />
-                          </div>
-                          <div className="flex-grow">
-                            <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                              {title}
-                            </h3>
-                            <p className="text-sm text-gray-500 mt-1">
-                              Click to view detailed report
-                            </p>
-                          </div>
-                          <div className="text-gray-400 group-hover:text-blue-600 transition-colors">
-                            <svg
-                              className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                filteredMenus.length > 0 && (
+                  <div className="space-y-3">
+                    {filteredMenus.map(({ title, Icon, link, color, id }) => (
+                      <div
+                        key={id}
+                        onClick={() => navigate(link)}
+                        className="group cursor-pointer"
+                      >
+                        <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:-translate-x-1 overflow-hidden">
+                          <div className="flex items-center p-5 hover:bg-gray-50 transition-colors">
+                            <div
+                              className={`bg-gradient-to-br ${color} rounded-lg p-4 mr-5 flex-shrink-0`}
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                              />
-                            </svg>
+                              <Icon className="text-2xl text-white" />
+                            </div>
+                            <div className="flex-grow">
+                              <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                                {title}
+                              </h3>
+                              <p className="text-sm text-gray-500 mt-1">
+                                Click to view detailed report
+                              </p>
+                            </div>
+                            <div className="text-gray-400 group-hover:text-blue-600 transition-colors">
+                              <svg
+                                className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </svg>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )
               )}
             </>
           ) : (
