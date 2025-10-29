@@ -1724,7 +1724,7 @@ const PayoutSalary = () => {
       const updated = { ...prev, [name]: value };
       const from = updated.from_date ? new Date(updated.from_date) : null;
       const to = updated.to_date ? new Date(updated.to_date) : null;
-      const today = new Date(todayStr); z``
+      const today = new Date(todayStr); 
 
       let fromError = "";
       let toError = "";
