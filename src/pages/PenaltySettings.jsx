@@ -49,6 +49,7 @@ const PenaltySettings = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalForm] = Form.useForm();
   const [useMultiple, setUseMultiple] = useState(false);
+  const isGroupSelected = !!selectedGroup;
   const [installments, setInstallments] = useState([
     {
       id: 1,
@@ -59,6 +60,17 @@ const PenaltySettings = () => {
       no_of_installments: 1
     }
   ]);
+
+  // Auto-calculate single-mode penalty amount when rate or group changes
+  useEffect(() => {
+    if (selectedGroup && penaltyRate >= 0) {
+      const installment = getInstallmentAmount(selectedGroup);
+      const penalty = parseFloat(((installment * penaltyRate) / 100).toFixed(2));
+      setPenaltyAmount(penalty);
+    } else {
+      setPenaltyAmount(0);
+    }
+  }, [penaltyRate, selectedGroup]);
 
   useEffect(() => {
     fetchGroups();
@@ -147,31 +159,21 @@ const PenaltySettings = () => {
   };
 
   const updateInstallment = (id, field, value) => {
-    setInstallments(installments.map(inst =>
-      inst.id === id ? { ...inst, [field]: value } : inst
-    ));
+    setInstallments(installments.map(inst => {
+      if (inst.id === id) {
+        const updated = { ...inst, [field]: value };
+        // Auto-calculate penaltyAmount if penaltyRate changes
+        if (field === 'penaltyRate' && selectedGroup) {
+          const amount = getInstallmentAmount(selectedGroup);
+          updated.penaltyAmount = parseFloat(((amount * value) / 100).toFixed(2));
+        }
+        return updated;
+      }
+      return inst;
+    }));
   };
 
-  const calculateInstallment = (id) => {
-    const inst = installments.find(i => i.id === id);
-    if (!inst || inst.penaltyRate <= 0) {
-      message.warning(`Enter valid penalty rate for Installment ${inst?.installmentNumber}`);
-      return;
-    }
-    const amount = getInstallmentAmount(selectedGroup);
-    const penalty = parseFloat(((amount * inst.penaltyRate) / 100).toFixed(2));
-    updateInstallment(id, 'penaltyAmount', penalty);
-    message.success(`Penalty calculated: ₹${penalty}`);
-  };
 
-  const handleCalculate = () => {
-    if (!selectedGroup) return message.warning("Select a group first");
-    if (penaltyRate <= 0) return message.warning("Enter valid penalty percentage");
-    const installment = getInstallmentAmount(selectedGroup);
-    const penalty = parseFloat(((installment * penaltyRate) / 100).toFixed(2));
-    setPenaltyAmount(penalty);
-    message.success(`Calculated penalty: ₹${penalty}`);
-  };
 
   const handleSave = async () => {
     if (!selectedGroup) return message.warning("Select a group");
@@ -258,7 +260,7 @@ const PenaltySettings = () => {
     const values = modalForm.getFieldsValue();
     const penalty = parseFloat(((values.installment_amount * values.penalty_rate) / 100).toFixed(2));
     modalForm.setFieldsValue({ penalty_amount: penalty });
-    message.success(`Calculated penalty: ₹${penalty}`);
+    // message.success(`Calculated penalty: ₹${penalty}`);
   };
 
   const columns = [
@@ -458,7 +460,7 @@ const PenaltySettings = () => {
           </Row>
 
           {/* Configuration Card */}
-          <Card
+          {/* <Card
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <CalculatorOutlined style={{ fontSize: '20px', color: '#475569' }} />
@@ -574,26 +576,39 @@ const PenaltySettings = () => {
                       max={100}
                       value={penaltyRate}
                       onChange={(val) => {
-                        setPenaltyRate(val);
-                        setPenaltyAmount(0);
+                        setPenaltyRate(val || 0);
+                        if (selectedGroup) {
+                          const amount = getInstallmentAmount(selectedGroup);
+                          const penalty = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
+                          setPenaltyAmount(penalty);
+                        }
                       }}
                       size="large"
                       placeholder="Enter rate"
                     />
                   </Col>
 
-
                   <Col xs={24} sm={12} lg={4}>
                     <div style={{ marginBottom: '8px' }}>
                       <Text strong style={{ color: '#475569', fontSize: '13px' }}>Penalty Amount</Text>
+                      <Text type="danger"> *</Text>
                     </div>
                     <InputNumber
                       style={{ width: "100%" }}
+                      min={0}
                       value={penaltyAmount}
-                      disabled
+                      onChange={(val) => {
+                        setPenaltyAmount(val || 0);
+                        if (selectedGroup) {
+                          const amount = getInstallmentAmount(selectedGroup);
+                          const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
+                          setPenaltyRate(parseFloat(rate));
+                        }
+                      }}
                       size="large"
                       formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       parser={value => value.replace(/\₹\s?|(,*)/g, '')}
+                      placeholder="Enter amount"
                     />
                   </Col>
                 </>
@@ -621,7 +636,7 @@ const PenaltySettings = () => {
                         Installment Rules
                       </Text>
                       <Button
-                        
+
                         size="small"
                         icon={<PlusOutlined />}
                         onClick={addInstallment}
@@ -697,44 +712,50 @@ const PenaltySettings = () => {
                               min={0}
                               max={100}
                               value={inst.penaltyRate}
-                              onChange={(v) => updateInstallment(inst.id, 'penaltyRate', v)}
+                              onChange={(val) => {
+                                const rate = val || 0;
+                                updateInstallment(inst.id, 'penaltyRate', rate);
+                                if (selectedGroup) {
+                                  const amount = getInstallmentAmount(selectedGroup);
+                                  const penalty = amount > 0 ? parseFloat(((amount * rate) / 100).toFixed(2)) : 0;
+                                  updateInstallment(inst.id, 'penaltyAmount', penalty);
+                                }
+                              }}
                               placeholder="Rate %"
                               style={{ width: '100%' }}
                             />
                           </Col>
-
 
                           <Col xs={24} sm={5}>
                             <Text style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
                               Penalty Amount
                             </Text>
                             <InputNumber
+                              min={0}
                               value={inst.penaltyAmount}
-                              disabled
+                              onChange={(val) => {
+                                const penalty = val || 0;
+                                updateInstallment(inst.id, 'penaltyAmount', penalty);
+                                if (selectedGroup) {
+                                  const amount = getInstallmentAmount(selectedGroup);
+                                  const rate = amount > 0 ? parseFloat(((penalty / amount) * 100).toFixed(2)) : 0;
+                                  updateInstallment(inst.id, 'penaltyRate', rate);
+                                }
+                              }}
                               formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                               style={{ width: '100%' }}
+                              placeholder="Amount"
                             />
                           </Col>
                           <Col xs={24} sm={4}>
-                            <Space>
+                            {installments.length > 1 && (
                               <Button
-                               type="primary"
+                                danger
                                 size="small"
-                                icon={<CalculatorOutlined />}
-                                onClick={() => calculateInstallment(inst.id)}
-                            
-                              >
-                                Calc
-                              </Button>
-                              {installments.length > 1 && (
-                                <Button
-                                  danger
-                                  size="small"
-                                  icon={<DeleteOutlined />}
-                                  onClick={() => removeInstallment(inst.id)}
-                                />
-                              )}
-                            </Space>
+                                icon={<DeleteOutlined />}
+                                onClick={() => removeInstallment(inst.id)}
+                              />
+                            )}
                           </Col>
                         </Row>
                       </div>
@@ -745,16 +766,7 @@ const PenaltySettings = () => {
 
               <Col xs={24} style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
                 <Space size="middle">
-                  {!useMultiple && (
-                    <Button
-                      icon={<CalculatorOutlined />}
-                      onClick={handleCalculate}
-                      size="large"
-                      style={{ fontWeight: '500' }}
-                    >
-                      Calculate
-                    </Button>
-                  )}
+
                   <Button
                     type="primary"
                     icon={<IoMdSave />}
@@ -768,7 +780,341 @@ const PenaltySettings = () => {
                 </Space>
               </Col>
             </Row>
-          </Card>
+          </Card> */}
+
+{/* Configuration Card */}
+<Card
+  title={
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <CalculatorOutlined style={{ fontSize: '20px', color: '#475569' }} />
+      <span style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>Configure Penalty</span>
+    </div>
+  }
+  style={{
+    marginBottom: '32px',
+    borderRadius: '12px',
+    border: '1px solid #e2e8f0',
+  }}
+  headStyle={{
+    borderBottom: '1px solid #e2e8f0',
+    fontWeight: 600,
+    padding: '20px 24px'
+  }}
+  bodyStyle={{ padding: '24px' }}
+>
+  <Row gutter={[16, 16]}>
+    <Col xs={24} sm={12} lg={6}>
+      <div style={{ marginBottom: '8px' }}>
+        <Text strong style={{ color: '#475569', fontSize: '13px' }}>Group Name</Text>
+        <Text type="danger"> *</Text>
+      </div>
+      <Select
+        style={{ width: "100%" }}
+        placeholder="Select a group"
+        loading={!groups.length}
+        onChange={handleGroupChange}
+        value={selectedGroup?._id}
+        size="large"
+        showSearch
+        optionFilterProp="children"
+        disabled={false} // Group selection itself is always enabled
+      >
+        {groups.map((g) => (
+          <Select.Option key={g._id} value={g._id}>
+            {g.group_name}
+          </Select.Option>
+        ))}
+      </Select>
+    </Col>
+
+    <Col xs={24} sm={12} lg={6}>
+      <div style={{ marginBottom: '8px' }}>
+        <Text strong style={{ color: '#475569', fontSize: '13px' }}>Installment Amount</Text>
+      </div>
+      <InputNumber
+        style={{ width: "100%" }}
+        value={getInstallmentAmount(selectedGroup)}
+        disabled
+        size="large"
+        formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+        parser={value => value.replace(/\₹\s?|(,*)/g, '')}
+      />
+    </Col>
+
+    <Col xs={24} sm={12} lg={4}>
+      <div style={{ marginBottom: '8px' }}>
+        <Text strong style={{ color: '#475569', fontSize: '13px' }}>Mode</Text>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', height: '40px' }}>
+        <Switch
+          checked={useMultiple}
+          onChange={setUseMultiple}
+          checkedChildren="Multiple"
+          unCheckedChildren="Single"
+          disabled={!isGroupSelected}
+        />
+      </div>
+    </Col>
+
+    {!useMultiple && (
+      <>
+        <Col xs={24} sm={12} lg={4}>
+          <div style={{ marginBottom: '8px' }}>
+            <Text strong style={{ color: '#475569', fontSize: '13px' }}>No. of Installments</Text>
+            <Text type="danger"> *</Text>
+          </div>
+          <InputNumber
+            style={{ width: "100%" }}
+            min={1}
+            max={100}
+            value={noOfInstallments}
+            onChange={setNoOfInstallments}
+            size="large"
+            placeholder="e.g. 12"
+            disabled={!isGroupSelected}
+          />
+        </Col>
+
+        <Col xs={24} sm={12} lg={4}>
+          <div style={{ marginBottom: '8px' }}>
+            <Text strong style={{ color: '#475569', fontSize: '13px' }}>Grace Days</Text>
+            <Text type="danger"> *</Text>
+          </div>
+          <InputNumber
+            style={{ width: "100%" }}
+            min={0}
+            value={graceDays}
+            onChange={setGraceDays}
+            size="large"
+            placeholder="Enter days"
+            disabled={!isGroupSelected}
+          />
+        </Col>
+
+        <Col xs={24} sm={12} lg={4}>
+          <div style={{ marginBottom: '8px' }}>
+            <Text strong style={{ color: '#475569', fontSize: '13px' }}>Penalty Rate (%)</Text>
+            <Text type="danger"> *</Text>
+          </div>
+          <InputNumber
+            style={{ width: "100%" }}
+            min={0}
+            max={100}
+            value={penaltyRate}
+            onChange={(val) => {
+              setPenaltyRate(val || 0);
+              if (selectedGroup) {
+                const amount = getInstallmentAmount(selectedGroup);
+                const penalty = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
+                setPenaltyAmount(penalty);
+              }
+            }}
+            size="large"
+            placeholder="Enter rate"
+            disabled={!isGroupSelected}
+          />
+        </Col>
+
+        <Col xs={24} sm={12} lg={4}>
+          <div style={{ marginBottom: '8px' }}>
+            <Text strong style={{ color: '#475569', fontSize: '13px' }}>Penalty Amount</Text>
+            <Text type="danger"> *</Text>
+          </div>
+          <InputNumber
+            style={{ width: "100%" }}
+            min={0}
+            value={penaltyAmount}
+            onChange={(val) => {
+              setPenaltyAmount(val || 0);
+              if (selectedGroup) {
+                const amount = getInstallmentAmount(selectedGroup);
+                const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
+                setPenaltyRate(parseFloat(rate));
+              }
+            }}
+            size="large"
+            formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={value => value.replace(/\₹\s?|(,*)/g, '')}
+            placeholder="Enter amount"
+            disabled={!isGroupSelected}
+          />
+        </Col>
+      </>
+    )}
+
+    {useMultiple && (
+      <Col xs={24}>
+        <div
+          style={{
+            marginTop: '16px',
+            background: '#f8fafc',
+            borderRadius: '8px',
+            padding: '20px',
+            border: '1px dashed #cbd5e0'
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '16px',
+            }}
+          >
+            <Text strong style={{ fontSize: '14px', color: '#1e293b' }}>
+              Installment Rules
+            </Text>
+            <Button
+              size="small"
+              icon={<PlusOutlined />}
+              onClick={addInstallment}
+              disabled={!isGroupSelected}
+              className="!bg-green-600 hover:!bg-green-500 !border-green-600 text-white"
+            >
+              Add Rule
+            </Button>
+          </div>
+
+          {installments.map((inst, idx) => (
+            <div
+              key={inst.id}
+              style={{
+                background: 'white',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '12px',
+                border: '1px solid #e2e8f0',
+              }}
+            >
+              <Row gutter={[12, 12]} align="middle">
+                <Col span={1}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '6px',
+                    background: '#f1f5f9',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#475569',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                  }}>
+                    {idx + 1}
+                  </div>
+                </Col>
+
+                <Col xs={24} sm={5}>
+                  <Text style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
+                    No. of Installments
+                  </Text>
+                  <InputNumber
+                    min={1}
+                    max={100}
+                    value={inst.no_of_installments}
+                    onChange={(v) => updateInstallment(inst.id, 'no_of_installments', v)}
+                    placeholder="e.g. 12"
+                    style={{ width: '100%' }}
+                    disabled={!isGroupSelected}
+                  />
+                </Col>
+
+                <Col xs={24} sm={4}>
+                  <Text style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
+                    Grace Days
+                  </Text>
+                  <InputNumber
+                    min={0}
+                    value={inst.graceDays}
+                    onChange={(v) => updateInstallment(inst.id, 'graceDays', v)}
+                    placeholder="Days"
+                    style={{ width: '100%' }}
+                    disabled={!isGroupSelected}
+                  />
+                </Col>
+
+                <Col xs={24} sm={5}>
+                  <Text style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
+                    Penalty Rate (%)
+                  </Text>
+                  <InputNumber
+                    min={0}
+                    max={100}
+                    value={inst.penaltyRate}
+                    onChange={(val) => {
+                      const rate = val || 0;
+                      updateInstallment(inst.id, 'penaltyRate', rate);
+                      if (selectedGroup) {
+                        const amount = getInstallmentAmount(selectedGroup);
+                        const penalty = amount > 0 ? parseFloat(((amount * rate) / 100).toFixed(2)) : 0;
+                        updateInstallment(inst.id, 'penaltyAmount', penalty);
+                      }
+                    }}
+                    placeholder="Rate %"
+                    style={{ width: '100%' }}
+                    disabled={!isGroupSelected}
+                  />
+                </Col>
+
+                <Col xs={24} sm={5}>
+                  <Text style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
+                    Penalty Amount
+                  </Text>
+                  <InputNumber
+                    min={0}
+                    value={inst.penaltyAmount}
+                    onChange={(val) => {
+                      const penalty = val || 0;
+                      updateInstallment(inst.id, 'penaltyAmount', penalty);
+                      if (selectedGroup) {
+                        const amount = getInstallmentAmount(selectedGroup);
+                        const rate = amount > 0 ? parseFloat(((penalty / amount) * 100).toFixed(2)) : 0;
+                        updateInstallment(inst.id, 'penaltyRate', rate);
+                      }
+                    }}
+                    formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    style={{ width: '100%' }}
+                    placeholder="Amount"
+                    disabled={!isGroupSelected}
+                  />
+                </Col>
+
+                <Col xs={24} sm={4}>
+                  {installments.length > 1 && (
+                    <Button
+                      danger
+                      size="small"
+                      icon={<DeleteOutlined />}
+                      onClick={() => removeInstallment(inst.id)}
+                      disabled={!isGroupSelected}
+                    />
+                  )}
+                </Col>
+              </Row>
+            </div>
+          ))}
+        </div>
+      </Col>
+    )}
+
+    <Col xs={24} style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+      <Space size="middle">
+        <Button
+          type="primary"
+          icon={<IoMdSave />}
+          loading={saving}
+          onClick={handleSave}
+          size="large"
+          style={{ fontWeight: '600' }}
+          disabled={!isGroupSelected}
+        >
+          Save Settings
+        </Button>
+      </Space>
+    </Col>
+  </Row>
+</Card>
 
           {/* Records Table */}
           <Card

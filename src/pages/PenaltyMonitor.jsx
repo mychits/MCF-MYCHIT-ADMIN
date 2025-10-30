@@ -40,6 +40,9 @@ const PenaltyMonitor = () => {
   const [dateRange, setDateRange] = useState([]);
   const [searchText, setSearchText] = useState("");
 
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+
   const fetchPenaltySettings = async () => {
     try {
       const res = await api.get("/penalty/penalty-settings");
@@ -50,7 +53,7 @@ const PenaltyMonitor = () => {
     }
   };
 
-  const fetchDueReportAndProcess = async (from, to) => {
+  const fetchDueReportAndProcess = async (from, to, groupId = null) => {
     setIsLoading(true);
     try {
       let penaltySettingsData = penalties;
@@ -90,12 +93,18 @@ const PenaltyMonitor = () => {
           if (!enroll?.group) continue;
 
           const group = enroll.group;
+
+          // 👇 GROUP FILTER: Skip if a group is selected and this doesn't match
+          if (groupId && group._id !== groupId) {
+            continue;
+          }
+
           const enrollmentDate = dayjs(enroll.createdAt);
 
           const groupInstallment = Number(
-            group.group_install || 
-            group.monthly_installment || 
-            group.weekly_installment || 
+            group.group_install ||
+            group.monthly_installment ||
+            group.weekly_installment ||
             0
           );
           const groupType = group.group_type;
@@ -223,6 +232,24 @@ const PenaltyMonitor = () => {
   };
 
   useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const res = await api.get("/group/get-group");
+        const groupList = (res.data || []).map(g => ({
+          value: g._id,
+          label: g.group_name || `Group ${g._id}`,
+        }));
+        setGroups(groupList);
+      } catch (err) {
+        console.error("Failed to fetch groups:", err);
+        message.error("Failed to load groups");
+      }
+    };
+
+    fetchGroups();
+  }, []);
+
+  useEffect(() => {
     (async () => {
       const ps = await fetchPenaltySettings();
       setPenalties(ps);
@@ -234,7 +261,7 @@ const PenaltyMonitor = () => {
     const from = dayjs(val).startOf("month").format("YYYY-MM-DD");
     const to = dayjs(val).endOf("month").format("YYYY-MM-DD");
     setDateRange([from, to]);
-    fetchDueReportAndProcess(from, to);
+    fetchDueReportAndProcess(from, to, selectedGroup);
   };
 
   const handleRangeChange = (dates) => {
@@ -242,7 +269,7 @@ const PenaltyMonitor = () => {
     const from = dates[0].format("YYYY-MM-DD");
     const to = dates[1].format("YYYY-MM-DD");
     setDateRange([from, to]);
-    fetchDueReportAndProcess(from, to);
+    fetchDueReportAndProcess(from, to, selectedGroup);
   };
 
   const totalExpected = useMemo(() => data.reduce((sum, d) => sum + (Number(d.expected) || 0), 0), [data]);
@@ -267,9 +294,9 @@ const PenaltyMonitor = () => {
   }, [searchText, data]);
 
   const columns = [
-    { 
-      key: "customer", 
-      header: "CUSTOMER", 
+    {
+      key: "customer",
+      header: "CUSTOMER",
       render: (row) => (
         <div className="flex items-center">
           <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-bold mr-4">
@@ -280,16 +307,16 @@ const PenaltyMonitor = () => {
             <div className="text-gray-600 text-sm">{row.phone}</div>
           </div>
         </div>
-      ) 
+      )
     },
-    { 
-      key: "group", 
-      header: "GROUP", 
+    {
+      key: "group",
+      header: "GROUP",
       render: (row) => (
         <div className="px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg font-semibold text-base">
           {row.group}
         </div>
-      ) 
+      )
     },
     {
       key: "enrollmentDate",
@@ -300,44 +327,44 @@ const PenaltyMonitor = () => {
         </div>
       ),
     },
-    { 
-      key: "ticket", 
-      header: "TICKET", 
+    {
+      key: "ticket",
+      header: "TICKET",
       render: (row) => (
         <div className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg font-mono font-bold text-base">
           {row.ticket}
         </div>
-      ) 
+      )
     },
-    { 
-      key: "expected", 
-      header: "EXPECTED", 
+    {
+      key: "expected",
+      header: "EXPECTED",
       render: (row) => (
         <div className="font-bold text-gray-900 text-lg">
           <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
           {Number(row.expected || 0).toLocaleString("en-IN")}
         </div>
-      ) 
+      )
     },
-    { 
-      key: "paid", 
-      header: "PAID", 
+    {
+      key: "paid",
+      header: "PAID",
       render: (row) => (
         <div className="font-bold text-green-700 text-lg">
           <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
           {Number(row.paid || 0).toLocaleString("en-IN")}
         </div>
-      ) 
+      )
     },
-    { 
-      key: "balance", 
-      header: "BALANCE", 
+    {
+      key: "balance",
+      header: "BALANCE",
       render: (row) => (
         <div className="font-bold text-red-600 text-lg">
           <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
           {Number(row.balance || 0).toLocaleString("en-IN")}
         </div>
-      ) 
+      )
     },
     {
       key: "skippedInstallments",
@@ -442,8 +469,100 @@ const PenaltyMonitor = () => {
             </div>
           </div>
 
+          {/* Filters Section */}
+          <Card
+            className="mb-10 shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl"
+            title={
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                  <Filter className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="text-xl font-bold text-gray-900">Filter Options</span>
+              </div>
+            }
+          >
+            <Row gutter={[24, 24]} align="bottom">
+
+              <Col xs={24} sm={12} md={8}>
+                <div className="mb-2">
+                  <label className="block text-base font-semibold text-gray-700 mb-3">
+                    Select Group
+                  </label>
+                  <Select
+                    placeholder="All Groups"
+                    allowClear
+                    value={selectedGroup}
+                    onChange={(value) => {
+                      setSelectedGroup(value);
+                      if (dateRange?.[0] && dateRange?.[1]) {
+                        fetchDueReportAndProcess(dateRange[0], dateRange[1], value);
+                      } else {
+
+                        fetchDueReportAndProcess(null, null, value);
+                      }
+                    }}
+                    className="w-full"
+                    size="large"
+                    options={groups}
+                  />
+                </div>
+              </Col>
+
+              <Col xs={24} sm={12} md={8}>
+                <div className="mb-2">
+                  <label className="block text-base font-semibold text-gray-700 mb-3">
+                    Filter Mode
+                  </label>
+                  <Select
+                    value={mode}
+                    onChange={setMode}
+                    className="w-full"
+                    size="large"
+                    options={[
+                      { value: "month", label: "By Month" },
+                      { value: "range", label: "Custom Range" },
+                    ]}
+                  />
+                </div>
+              </Col>
+
+              {mode === "month" ? (
+                <Col xs={24} sm={12} md={8}>
+                  <div className="mb-2">
+                    <label className="block text-base font-semibold text-gray-700 mb-3">
+                      Select Month
+                    </label>
+                    <DatePicker
+                      picker="month"
+                      onChange={handleMonthChange}
+                      className="w-full"
+                      size="large"
+                      placeholder="Choose month"
+                    />
+                  </div>
+                </Col>
+              ) : (
+                <Col xs={24} sm={12} md={8}>
+                  <div className="mb-2">
+                    <label className="block text-base font-semibold text-gray-700 mb-3">
+                      Select Date Range
+                    </label>
+                    <RangePicker
+                      onChange={handleRangeChange}
+                      className="w-full"
+                      size="large"
+                      format="YYYY-MM-DD"
+                      placeholder={["Start date", "End date"]}
+                    />
+                  </div>
+                </Col>
+              )}
+            </Row>
+          </Card>
+
           {/* Main Summary Cards */}
           <Row gutter={[24, 24]} className="mb-10">
+          
             <Col xs={24} sm={12} lg={6}>
               <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
@@ -460,11 +579,11 @@ const PenaltyMonitor = () => {
                   </div>
                 </div>
                 <div className="p-4">
-                  <Progress 
-                    percent={paymentProgress} 
-                    showInfo={false} 
-                    strokeColor="#3B82F6" 
-                    size="small" 
+                  <Progress
+                    percent={paymentProgress}
+                    showInfo={false}
+                    strokeColor="#3B82F6"
+                    size="small"
                     className="mb-2"
                   />
                   <div className="text-sm text-gray-600 font-medium">{paymentProgress}% Collected</div>
@@ -588,74 +707,11 @@ const PenaltyMonitor = () => {
             </Col>
           </Row>
 
-          {/* Filters Section */}
-          <Card 
-            className="mb-10 shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl" 
-            title={
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
-                  <Filter className="w-6 h-6 text-blue-600" />
-                </div>
-                <span className="text-xl font-bold text-gray-900">Filter Options</span>
-              </div>
-            }
-          >
-            <Row gutter={[24, 24]} align="bottom">
-              <Col xs={24} sm={12} md={8}>
-                <div className="mb-2">
-                  <label className="block text-base font-semibold text-gray-700 mb-3">
-                    Filter Mode
-                  </label>
-                  <Select
-                    value={mode}
-                    onChange={setMode}
-                    className="w-full"
-                    size="large"
-                    options={[
-                      { value: "month", label: "By Month" },
-                      { value: "range", label: "Custom Range" },
-                    ]}
-                  />
-                </div>
-              </Col>
 
-              {mode === "month" ? (
-                <Col xs={24} sm={12} md={8}>
-                  <div className="mb-2">
-                    <label className="block text-base font-semibold text-gray-700 mb-3">
-                      Select Month
-                    </label>
-                    <DatePicker
-                      picker="month"
-                      onChange={handleMonthChange}
-                      className="w-full"
-                      size="large"
-                      placeholder="Choose month"
-                    />
-                  </div>
-                </Col>
-              ) : (
-                <Col xs={24} sm={12} md={8}>
-                  <div className="mb-2">
-                    <label className="block text-base font-semibold text-gray-700 mb-3">
-                      Select Date Range
-                    </label>
-                    <RangePicker
-                      onChange={handleRangeChange}
-                      className="w-full"
-                      size="large"
-                      format="YYYY-MM-DD"
-                      placeholder={["Start date", "End date"]}
-                    />
-                  </div>
-                </Col>
-              )}
-            </Row>
-          </Card>
 
           {/* Table Section */}
-          <Card 
-            className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl" 
+          <Card
+            className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl"
             title={
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
