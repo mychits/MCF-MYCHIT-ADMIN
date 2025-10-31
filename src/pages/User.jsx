@@ -49,7 +49,6 @@ const User = () => {
     pan_no: "",
     track_source: "admin_panel",
     collection_area: "",
-   
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -88,7 +87,6 @@ const User = () => {
     bank_account_number: "",
     bank_IFSC_code: "",
     selected_plan: "",
-   
   });
   const [searchText, setSearchText] = useState("");
   const GlobalSearchChangeHandler = (e) => {
@@ -110,7 +108,6 @@ const User = () => {
     };
     fetchCollectionArea();
   }, [reloadTrigger]);
-
 
   useEffect(() => {
     const fetchDistricts = async () => {
@@ -142,19 +139,11 @@ const User = () => {
           customer_id: group.customer_id,
           collection_area: group.collection_area?.route_name,
           approval_status:
-            group.approval_status === "true" ? (
-              <div className="inline-block px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full shadow-sm">
-                Approved
-              </div>
-            ) : group.approval_status === "false" ? (
-              <div className="inline-block px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full shadow-sm">
-                Pending
-              </div>
-            ) : (
-              <div className="inline-block px-3 py-1 text-sm font-medium text-green-800 bg-green-100  rounded-full shadow-sm">
-                Approved
-              </div>
-            ),
+            group.approval_status === "true"
+              ? "Approved"
+              : group.approval_status === "false"
+              ? "Pending"
+              : "Approved",
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
@@ -353,9 +342,9 @@ const User = () => {
     if (data.pan_no && !regex.pan.test(data.pan_no.toUpperCase())) {
       newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
     }
-if (!data.collection_area) {
+    if (!data.collection_area) {
       newErrors.collection_area = "Collection Area is required";
-    } 
+    }
     if (!data.address.trim()) {
       newErrors.address = "Address is required";
     } else if (data.address.trim().length < 3) {
@@ -528,7 +517,7 @@ if (!data.collection_area) {
         district: response?.data?.district,
         state: response?.data?.state,
         collection_area: response?.data?.collection_area?._id || "",
-        
+
         alternate_number: response?.data?.alternate_number,
         referral_name: response?.data?.referral_name,
         nominee_name: response?.data?.nominee_name,
@@ -956,12 +945,12 @@ if (!data.collection_area) {
                       </Select.Option>
                     ))}
                   </Select>
-                   {errors.collection_area && (
-                  <p className="mt-2 text-sm text-red-600">{errors.collection_area}</p>
-                )}
+                  {errors.collection_area && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.collection_area}
+                    </p>
+                  )}
                 </div>
-
-              
               </div>
               <div className="w-full flex justify-end">
                 <button
@@ -985,7 +974,6 @@ if (!data.collection_area) {
             </h3>
 
             <div className="mt-6 flex justify-end gap-3 mb-4">
-             
               <button
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-green-100 border border-green-300 rounded-md hover:bg-green-200 transition"
                 onClick={() => setIsEditing(true)}
@@ -994,7 +982,6 @@ if (!data.collection_area) {
                 Edit
               </button>
 
-             
               <button
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 border border-blue-300 rounded-md hover:bg-sky-200 transition"
                 onClick={() =>
@@ -1306,7 +1293,6 @@ if (!data.collection_area) {
                     ))}
                   </Select>
                 </div>
-               
               </div>
 
               <div className="flex flex-row justify-between space-x-4">
