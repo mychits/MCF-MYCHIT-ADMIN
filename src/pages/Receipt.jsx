@@ -540,17 +540,7 @@ const Receipt = () => {
                 <div className="flex justify-start items-center w-full gap-4">
                   <div className="mb-2">
                     <label>Filter Option</label>
-                    {/* <select
-                      onChange={handleSelectFilter}
-                      className="border border-gray-300 rounded px-6 shadow-sm outline-none w-full max-w-md"
-                    >
-                      <option value="Today">Today</option>
-                      <option value="Yesterday">Yesterday</option>
-                      <option value="ThisMonth">This Month</option>
-                      <option value="LastMonth">Last Month</option>
-                      <option value="ThisYear">This Year</option>
-                      <option value="Custom">Custom</option>
-                    </select> */}
+                
                     <Select
                       showSearch
                       popupMatchSelectWidth={false}

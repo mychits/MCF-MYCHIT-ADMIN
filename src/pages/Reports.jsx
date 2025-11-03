@@ -33,6 +33,7 @@ import { TbGraph } from "react-icons/tb";
 import { TbGraphFilled } from "react-icons/tb";
 import { IoSearchOutline } from "react-icons/io5";
 import { IoCloseCircle } from "react-icons/io5";
+import { MdCancel } from "react-icons/md";
 
 const subMenus = [
   {
@@ -235,6 +236,14 @@ const subMenus = [
     category: "Employee",
    Icon: TbGraphFilled,
    color: "from-indigo-500 to-indigo-600",
+  },
+    {
+    id:"27",
+    title: "Unverified Customer Report",
+    link: "/reports/unverified-customer-report",
+    category: "Customer",
+   Icon: MdCancel,
+   color: "from-blue-500 to-blue-600",
   }
 ];
 

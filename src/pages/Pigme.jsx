@@ -402,7 +402,7 @@ const Pigme = () => {
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Pigme</h1>
+                <h1 className="text-2xl font-semibold">Pigmy</h1>
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -410,7 +410,7 @@ const Pigme = () => {
                   }}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
-                  + Add Pigme
+                  + Add Pigmy
                 </button>
               </div>
             </div>
@@ -422,7 +422,7 @@ const Pigme = () => {
                 data={filterOption(tableBorrowers, searchText)}
                 columns={columns}
                 exportedPdfName="Pigme"
-                exportedFileName={`Pigme.csv`}
+                exportedFileName={`Pigmy.csv`}
               />
             ) : (
               <CircularLoader
@@ -435,7 +435,7 @@ const Pigme = () => {
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
-            <h3 className="mb-4 text-xl font-bold text-gray-900">Add Pigme</h3>
+            <h3 className="mb-4 text-xl font-bold text-gray-900">Add Pigmy</h3>
 
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               <div>
@@ -760,7 +760,7 @@ const Pigme = () => {
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
                 >
-                  Save Pigme
+                  Save Pigmy
                 </button>
               </div>
             </form>
@@ -772,7 +772,7 @@ const Pigme = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Update Pigme
+              Update Pigmy
             </h3>
             <form className="space-y-6" onSubmit={handleUpdate} noValidate>
               <div>
@@ -1098,7 +1098,7 @@ const Pigme = () => {
                   className="w-1/4 text-white bg-blue-700 hover:bg-blue-800
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center border-2 border-black"
                 >
-                  Update Pigme
+                  Update Pigmy
                 </button>
               </div>
             </form>
@@ -1114,7 +1114,7 @@ const Pigme = () => {
         >
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
-              Delete Pigme Customer
+              Delete Pigmy Customer
             </h3>
             {currentCustomer && (
               <form
@@ -1139,7 +1139,7 @@ const Pigme = () => {
                   <input
                     type="text"
                     id="borrowerName"
-                    placeholder="Enter the Pigme Customer Name"
+                    placeholder="Enter the Pigmy Customer Name"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />

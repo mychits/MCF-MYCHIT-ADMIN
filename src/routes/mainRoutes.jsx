@@ -121,6 +121,7 @@ import PenaltyMonitor from "../pages/PenaltyMonitor";
 import UserMenu from "../pages/UserMenu"
 import OtherServicesMenu from "../pages/OtherServicesMenu";
 import LegalsMenu from "../pages/LegalsMenu";
+import UnApprovedCustomerReport from "../pages/UnApprovedCustomerReport";
 
 const mainRoutes = createBrowserRouter([
   {
@@ -655,6 +656,7 @@ const mainRoutes = createBrowserRouter([
       {path: "monthly-install-turnover", element:<MonthlyInstallmentTurnoverReport/>},
       {path: "employee-monthly-report", element: <EmployeeMonthlyReport/>},
       {path: "customer-loan-report", element: <CustomerLoanReport/>},
+      {path: "unverified-customer-report", element: <UnApprovedCustomerReport/>},
       {
         path: "outstanding-report",
         element: <OutstandingReport />,
