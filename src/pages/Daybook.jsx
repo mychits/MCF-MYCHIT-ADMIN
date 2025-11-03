@@ -1347,7 +1347,8 @@ const [showAllPaymentModes,setShowAllPaymentModes] = useState(false);
             userId: selectedCustomers,
             pay_type: selectedPaymentMode,
             account_type: selectedAccountType,
-            collected_by: selectedCollectedBy,
+            collected_by: collectionAgent,
+            admin_type: collectionAdmin,
           },
         });
         if (response.data && response.data.length > 0) {
