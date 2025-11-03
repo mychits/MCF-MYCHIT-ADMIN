@@ -22,14 +22,14 @@ const OtherServicesMenu = () => {
     },
     {
       id: 2,
-      title: "Pigme",
-      description: "Manage Customers Pigme records ",
+      title: "Pigmy",
+      description: "Manage Customers Pigmy records ",
       icon: <PiCalculatorBold className="w-8 h-8" />,
       color: "from-amber-600 to-amber-700",
       lightColor: "bg-amber-50",
       borderColor: "border-amber-200",
       href: "/other-service-menu/pigme",
-      stats: "Active Pigme Customers",
+      stats: "Active Pigmy Customers",
     },
   ];
 
@@ -45,7 +45,7 @@ const OtherServicesMenu = () => {
                  Other Services
               </h2>
               <p className="text-gray-600 mt-2">
-                Manage and Organize Loan/Pigme Customer 
+                Manage and Organize Loan/Pigmy Customer 
               </p>
             </div>
 
@@ -102,7 +102,7 @@ const OtherServicesMenu = () => {
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">Quick Tips</h3>
                 <p className="text-slate-700">Use the Loan directory to manage Loan Information, update Loan information all in one place.</p>
-                <p className="text-slate-700">Use the Pigme directory to manage Pigme Information, update pigme information all in one place.</p>
+                <p className="text-slate-700">Use the Pigmy directory to manage Pigmy Information, update pigmy information all in one place.</p>
               </div>
             </div>
           </div>
