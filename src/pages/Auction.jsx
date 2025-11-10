@@ -209,6 +209,12 @@ const Auction = () => {
 
     return date.toISOString()?.split("T")[0];
   };
+  const nextDate = (dateString) => {
+    const date = new Date(dateString);
+
+
+    return date.toISOString()?.split("T")[0];
+  };
   const handleGroupAuctionChange = async (groupId) => {
     setSelectedAuctionGroup(groupId);
     if (groupId) {
@@ -222,6 +228,7 @@ const Auction = () => {
             {
               id: 1,
               auction_date: prevDate(response?.data[0]?.auction_date),
+              next_date:nextDate(response?.data[0]?.auction_date),
               name: "Commencement",
               phone_number: "Commencement",
               ticket: "Commencement",
