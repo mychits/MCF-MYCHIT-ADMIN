@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import imageInput from "../../assets/images/Agent.png";
 import CircularLoader from "../loaders/CircularLoader";
-import { Select } from "antd";
+import { Modal, Select } from "antd";
 import logo from "../../assets/images/mychits.png";
 
 const DataTable = ({
@@ -42,11 +42,11 @@ const DataTable = ({
   const [filters, setFilters] = useState({});
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [pageSize, setPageSize] = useState(100);
-  
+
   // New states for export modal
   const [showExportModal, setShowExportModal] = useState(false);
   const [selectedExportColumns, setSelectedExportColumns] = useState(
-    exportColumns.map(col => col.key)
+    exportColumns.map((col) => col.key)
   );
 
   useEffect(() => {
@@ -56,7 +56,15 @@ const DataTable = ({
     });
     setActive(tempData);
   }, [data]);
+  useEffect(() => {
+    if (showExportModal) {
+      document.body.style.overflow = "hidden";
 
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [showExportModal]);
   useEffect(() => {
     const user = localStorage.getItem("user");
     if (user) {
@@ -131,18 +139,20 @@ const DataTable = ({
 
   const exportToExcel = () => {
     const date = new Date().toISOString().split("T")[0];
-    
+
     // Filter columns based on selection
-    const selectedCols = exportColumns.filter(col => 
-      selectedExportColumns.includes(col.key) && col.header.toLowerCase() !== "action"
+    const selectedCols = exportColumns.filter(
+      (col) =>
+        selectedExportColumns.includes(col.key) &&
+        col.header.toLowerCase() !== "action"
     );
-    
+
     const headers = selectedCols.map((col) => col.header).join(",");
-    
+
     const rows = processedData
       .map((item) => selectedCols.map((col) => item[col.key]).join(","))
       .join("\n");
-    
+
     const csv = `${headers}\n${rows}`;
     const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -152,7 +162,7 @@ const DataTable = ({
     a.download = `${fileBaseName}_${date}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
-    
+
     // Close modal after export
     setShowExportModal(false);
   };
@@ -161,13 +171,15 @@ const DataTable = ({
     if (isChecked) {
       setSelectedExportColumns([...selectedExportColumns, columnKey]);
     } else {
-      setSelectedExportColumns(selectedExportColumns.filter(key => key !== columnKey));
+      setSelectedExportColumns(
+        selectedExportColumns.filter((key) => key !== columnKey)
+      );
     }
   };
 
   const handleSelectAll = (isChecked) => {
     if (isChecked) {
-      setSelectedExportColumns(exportColumns.map(col => col.key));
+      setSelectedExportColumns(exportColumns.map((col) => col.key));
     } else {
       setSelectedExportColumns([]);
     }
@@ -184,7 +196,7 @@ const DataTable = ({
     const date = new Date().toISOString().split("T")[0];
     const reportType = String(exportedPdfName || "").trim();
     const fileName = `${reportType}_${date}`;
-    
+
     // Customize visibility based on report type
     switch (reportType) {
       case "Groups":
@@ -308,57 +320,91 @@ const DataTable = ({
       <div class="printable">
         <div class="a4-border">
           <div class="header-wrapper">
-            ${imageInput ? `<img src="${imageInput}" class="logo-image" alt="Logo" />` : ""}
+            ${
+              imageInput
+                ? `<img src="${imageInput}" class="logo-image" alt="Logo" />`
+                : ""
+            }
             <div class="title-block">
               <div class="title">MyChits Pvt Ltd</div>
               <div class="sub-title">#123, Main Road, Bengaluru, Karnataka – 560001</div>
             </div>
           </div>
 
-          <div class="report-heading">${reportType || "Transaction Summary Report"}</div>
+          <div class="report-heading">${
+            reportType || "Transaction Summary Report"
+          }</div>
           <div class="report-date">${dateTimeString}</div>
 
           <div class="info-grid">
-            ${printHeaderKeys.map((key, i) => `
+            ${printHeaderKeys
+              .map(
+                (key, i) => `
               <div class="card">
                 <div class="card-title">${key}</div>
                 <div class="card-value">${printHeaderValues[i]}</div>
               </div>
-            `).join("")}
+            `
+              )
+              .join("")}
           </div>
 
-          ${showSummaryCards ? `
+          ${
+            showSummaryCards
+              ? `
           <div class="summary-cards">
-            <div class="card"><div class="card-title">Total Cash</div><div class="card-value">₹ ${totalCash.toLocaleString("en-IN")}</div></div>
-            <div class="card"><div class="card-title">Total Online</div><div class="card-value">₹ ${totalOnline.toLocaleString("en-IN")}</div></div>
-            <div class="card"><div class="card-title">Total Amount</div><div class="card-value">₹ ${totalAmount.toLocaleString("en-IN")}</div></div>
-          </div>` : ""}
+            <div class="card"><div class="card-title">Total Cash</div><div class="card-value">₹ ${totalCash.toLocaleString(
+              "en-IN"
+            )}</div></div>
+            <div class="card"><div class="card-title">Total Online</div><div class="card-value">₹ ${totalOnline.toLocaleString(
+              "en-IN"
+            )}</div></div>
+            <div class="card"><div class="card-title">Total Amount</div><div class="card-value">₹ ${totalAmount.toLocaleString(
+              "en-IN"
+            )}</div></div>
+          </div>`
+              : ""
+          }
 
-          ${showCountCards ? `
+          ${
+            showCountCards
+              ? `
           <div class="count-summary-cards">
             <div class="count-card customer">Total Customers<br /><span>${totalCustomers}</span></div>
             <div class="count-card cash">Cash Payments<br /><span>${totalCashCount}</span></div>
             <div class="count-card online">Online Payments<br /><span>${totalOnlineCount}</span></div>
-          </div>` : ""}
+          </div>`
+              : ""
+          }
 
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
               <tr>
                 ${safeColumns
-                  .filter(col => col.key.toLowerCase() !== "action")
-                  .map(col => `<th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left;">${col.header}</th>`)
+                  .filter((col) => col.key.toLowerCase() !== "action")
+                  .map(
+                    (col) =>
+                      `<th style="border: 1px solid #e2e8f0; padding: 6px; text-align: left;">${col.header}</th>`
+                  )
                   .join("")}
               </tr>
             </thead>
             <tbody>
               ${processedData
-                .map(row => `
+                .map(
+                  (row) => `
                   <tr>
                     ${safeColumns
-                      .filter(col => col.key.toLowerCase() !== "action")
-                      .map(col => `<td style="border: 1px solid #e2e8f0; padding: 6px;">${row[col.key] || "-"}</td>`)
+                      .filter((col) => col.key.toLowerCase() !== "action")
+                      .map(
+                        (col) =>
+                          `<td style="border: 1px solid #e2e8f0; padding: 6px;">${
+                            row[col.key] || "-"
+                          }</td>`
+                      )
                       .join("")}
-                  </tr>`)
+                  </tr>`
+                )
                 .join("")}
             </tbody>
           </table>
@@ -444,65 +490,58 @@ const DataTable = ({
         )}
       </div>
 
-      {/* Export Modal */}
-      {showExportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Select Columns to Export</h3>
-              <button
-                onClick={() => setShowExportModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={selectedExportColumns.length === exportColumns.length}
-                  onChange={(e) => handleSelectAll(e.target.checked)}
-                  className="rounded"
-                />
-                <span>Select All</span>
-              </label>
-            </div>
-            
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {exportColumns.map((column) => (
-                <label key={column.key} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedExportColumns.includes(column.key)}
-                    onChange={(e) => handleColumnSelection(column.key, e.target.checked)}
-                    className="rounded"
-                  />
-                  <span>{column.header}</span>
-                </label>
-              ))}
-            </div>
-            
-            <div className="flex justify-end space-x-2 mt-6">
-              <button
-                onClick={() => setShowExportModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={exportToExcel}
-                disabled={selectedExportColumns.length === 0}
-                className="px-4 py-2 bg-[#217346] text-white rounded-md hover:bg-[#1a5c38] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Export
-              </button>
-            </div>
-          </div>
+      <Modal
+        title="Select Columns to Export"
+        open={showExportModal}
+          maskStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
+        onCancel={() => setShowExportModal(false)}
+        footer={[
+          <button
+            key="cancel"
+            onClick={() => setShowExportModal(false)}
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 m-2"
+          >
+            Cancel
+          </button>,
+          <button
+            key="export"
+            onClick={exportToExcel}
+            disabled={selectedExportColumns.length === 0}
+            className="px-4 py-2 bg-[#217346] text-white rounded-md hover:bg-[#1a5c38] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Export
+          </button>,
+        ]}
+        width={600}
+      >
+        <div className="mb-4">
+          <label className="flex items-center space-x-2 p-2">
+            <input
+              type="checkbox"
+              checked={selectedExportColumns.length === exportColumns.length}
+              onChange={(e) => handleSelectAll(e.target.checked)}
+              className="rounded"
+            />
+            <span>Select All</span>
+          </label>
         </div>
-      )}
 
+        <div className="space-y-2 max-h-60 overflow-y-auto">
+          {exportColumns.map((column) => (
+            <label key={column.key} className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={selectedExportColumns.includes(column.key)}
+                onChange={(e) =>
+                  handleColumnSelection(column.key, e.target.checked)
+                }
+                className="rounded"
+              />
+              <span>{column.header}</span>
+            </label>
+          ))}
+        </div>
+      </Modal>
       <div className="border rounded-lg overflow-hidden whitespace-normal">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
