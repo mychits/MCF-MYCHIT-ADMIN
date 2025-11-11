@@ -1,16 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
+import { Search, PiggyBank, Users, Calendar, TrendingUp, Clock } from "lucide-react";
 
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-
 import { Select } from "antd";
-
 import CircularLoader from "../components/loaders/CircularLoader";
 
 const PigmySummaryReport = () => {
   const [pigmyReportTable, setPigmyReportTable] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [selectedPigmyId, setSelectedPigmyId] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState("");
 
@@ -86,6 +84,25 @@ const PigmySummaryReport = () => {
     });
   }, [pigmyReportTable, selectedPigmyId, selectedCustomer]);
 
+  // Calculate summary statistics
+  const summaryStats = useMemo(() => {
+    const filtered = filteredPigmyReport;
+    const totalAmount = filtered.reduce((sum, pigmy) => sum + pigmy.totalpigmyAmount, 0);
+    const avgDuration = filtered.length > 0 
+      ? filtered.reduce((sum, pigmy) => {
+          const dur = pigmy.Duration !== "N/A" ? Number(pigmy.Duration) : 0;
+          return sum + dur;
+        }, 0) / filtered.length
+      : 0;
+    
+    return {
+      totalPigmy: filtered.length,
+      totalAmount: totalAmount,
+      avgDuration: avgDuration.toFixed(1),
+      uniqueCustomers: new Set(filtered.map(p => p.customerId)).size,
+    };
+  }, [filteredPigmyReport]);
+
   const PigmyReportColumns = [
     { key: "slNo", header: "Sl No" },
     { key: "customerId", header: "Customer Id" },
@@ -99,78 +116,171 @@ const PigmySummaryReport = () => {
     { key: "totalpigmyAmount", header: "Total Paid Amount" },
   ];
 
-  return (
-    <div className="p-4">
-      <h1 className="font-bold text-2xl mb-5">Pigmy Summary Report</h1>
-
-      <div className="flex gap-4 mb-4">
-        <div className="w-full max-w-xs">
-          <label className="block mb-1">Pigmy ID & Amount</label>
-          <Select
-            showSearch
-            placeholder="Search or Select Pigmy"
-            value={selectedPigmyId}
-            onChange={setSelectedPigmyId}
-            allowClear
-            filterOption={(input, option) =>
-              option.label.toLowerCase().includes(input.toLowerCase())
-            }
-            optionLabelProp="label"
-            className="w-full"
-          >
-            <Select.Option value="" label="All">
-              All
-            </Select.Option>
-            {uniquePigmyCombos.map((pigmy) => (
-              <Select.Option key={pigmy?.id} value={pigmy?.id} label={pigmy?.label}>
-                {pigmy?.label}
-              </Select.Option>
-            ))}
-          </Select>
+  const StatCard = ({ icon: Icon, label, value, color, suffix = "" }) => (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-300">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {value}
+            {suffix && <span className="text-lg font-normal text-gray-500 ml-1">{suffix}</span>}
+          </p>
         </div>
-
-        {/* Customer Filter */}
-        <div className="w-full max-w-xs">
-          <label className="block mb-1">Customer</label>
-          <Select
-            showSearch
-            placeholder="Search or Select Customer"
-            value={selectedCustomer}
-            onChange={setSelectedCustomer}
-            allowClear
-            optionLabelProp="label"
-            className="w-full"
-            filterOption={(input, option) =>
-              option.label.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Select.Option value="" label="All">
-              All
-            </Select.Option>
-            {uniqueCustomers.map((cust) => (
-              <Select.Option
-                key={cust?.id}
-                value={cust?.id}
-                label={`${cust?.custid} | ${cust?.name} | ${cust?.phone}`}
-              >
-                {cust?.custid} | {cust?.name} | {cust?.phone}
-              </Select.Option>
-            ))}
-          </Select>
+        <div className={`p-3 rounded-lg ${color}`}>
+          <Icon className="w-6 h-6 text-white" />
         </div>
       </div>
+    </div>
+  );
 
-      {loading ? (
-        <div className="flex w-screen justify-center items-center">
-          <CircularLoader />
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-pink-600 rounded-lg">
+              <PiggyBank className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Pigmy Summary Report
+            </h1>
+          </div>
+          <p className="text-gray-600 ml-14">
+            Comprehensive overview of pigmy savings accounts and customer contributions
+          </p>
         </div>
-      ) : (
-        <DataTable
-          columns={PigmyReportColumns}
-          data={filteredPigmyReport}
-          exportedPdfName="Pigmy Summary Report"
-        />
-      )}
+
+        {loading ? (
+          <div className="flex justify-center items-center h-96">
+            <CircularLoader />
+          </div>
+        ) : (
+          <>
+            {/* Summary Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <StatCard
+                icon={PiggyBank}
+                label="Total Pigmy Accounts"
+                value={summaryStats.totalPigmy}
+                color="bg-gradient-to-br from-pink-500 to-pink-600"
+              />
+              <StatCard
+                icon={TrendingUp}
+                label="Total Amount Collected"
+                value={`₹${summaryStats.totalAmount.toLocaleString('en-IN')}`}
+                color="bg-gradient-to-br from-green-500 to-green-600"
+              />
+              <StatCard
+                icon={Clock}
+                label="Average Duration"
+                value={summaryStats.avgDuration}
+                suffix="months"
+                color="bg-gradient-to-br from-blue-500 to-blue-600"
+              />
+              <StatCard
+                icon={Users}
+                label="Unique Customers"
+                value={summaryStats.uniqueCustomers}
+                color="bg-gradient-to-br from-purple-500 to-purple-600"
+              />
+            </div>
+
+            {/* Filters Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <Search className="w-5 h-5 text-gray-600" />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Filter Options
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Pigmy ID Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="flex items-center gap-2">
+                      <PiggyBank className="w-4 h-4" />
+                      Pigmy ID
+                    </div>
+                  </label>
+                  <Select
+                    showSearch
+                    placeholder="Search or select pigmy account"
+                    value={selectedPigmyId}
+                    onChange={setSelectedPigmyId}
+                    allowClear
+                    filterOption={(input, option) =>
+                      option.label.toLowerCase().includes(input.toLowerCase())
+                    }
+                    optionLabelProp="label"
+                    className="w-full"
+                    size="large"
+                  >
+                    <Select.Option value="" label="All Pigmy Accounts">
+                      All Pigmy Accounts
+                    </Select.Option>
+                    {uniquePigmyCombos.map((pigmy) => (
+                      <Select.Option
+                        key={pigmy?.id}
+                        value={pigmy?.id}
+                        label={pigmy?.label}
+                      >
+                        {pigmy?.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+
+                {/* Customer Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      Customer
+                    </div>
+                  </label>
+                  <Select
+                    showSearch
+                    placeholder="Search or select customer"
+                    value={selectedCustomer}
+                    onChange={setSelectedCustomer}
+                    allowClear
+                    optionLabelProp="label"
+                    className="w-full"
+                    size="large"
+                    filterOption={(input, option) =>
+                      option.label.toLowerCase().includes(input.toLowerCase())
+                    }
+                  >
+                    <Select.Option value="" label="All Customers">
+                      All Customers
+                    </Select.Option>
+                    {uniqueCustomers.map((cust) => (
+                      <Select.Option
+                        key={cust?.id}
+                        value={cust?.id}
+                        label={`${cust?.custid} | ${cust?.name} | ${cust?.phone}`}
+                      >
+                        {cust?.custid} | {cust?.name} | {cust?.phone}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+           
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-2">
+              <DataTable
+                columns={PigmyReportColumns}
+                data={filteredPigmyReport}
+                exportedPdfName="Pigmy Summary Report"
+              />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

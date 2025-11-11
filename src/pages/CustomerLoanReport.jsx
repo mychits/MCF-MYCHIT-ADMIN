@@ -1,246 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
-import Sidebar from "../components/layouts/Sidebar";
-import Modal from "../components/modals/Modal";
+import { Search, FileText, Users, Calendar, IndianRupee, TrendingUp } from "lucide-react";
+
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import CustomAlert from "../components/alerts/CustomAlert";
-import { Dropdown, Select, Input } from "antd";
-import { IoMdMore } from "react-icons/io";
-import Navbar from "../components/layouts/Navbar";
-import filterOption from "../helpers/filterOption";
-import { FaCalculator } from "react-icons/fa";
+import { Select } from "antd";
 import CircularLoader from "../components/loaders/CircularLoader";
-import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
-import { fieldSize } from "../data/fieldSize";
-import { header } from "framer-motion/client";
-
-
-// const CustomerLoanReport = () => {
-
-//   const [loanReportTable, setLoanReportTable] = useState("");
-//   const [loading, setLoading] = useState(true);
-
-
-//    useEffect(() => {
-//     const fetchLoanReport = async () => {
-//       try {
-//         const response = await api.get(`/payment/customers/loan-report`);
-
-//         const formattedData = response.data.loanReports.map((loan, index) => ({
-//           id: loan?._id,
-//           slNo: index + 1,
-//           loanIds: loan?.loan_id || "N/A",
-//           customerName: loan?.borrower?.full_name || "N/A",
-//           customerPhone: loan?.borrower?.phone_number || "N/A",
-//           loanStartDate: loan?.start_date
-//             ? new Date(loan.start_date).toLocaleDateString("en-GB") // dd/mm/yyyy
-//             : "N/A",
-//           loanServiceCharges: loan?.service_charges ?? 0,
-//           loanAmount: loan?.double_loan_amount ?? 0,
-//           totalLoanAmount: loan?.total_paid_amount ?? 0,
-//           loanBalance: loan?.balance ?? 0,
-//         }));
-
-//         setLoanReportTable(formattedData);
-//       } catch (error) {
-//         console.error("Error fetching loan report:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchLoanReport();
-//   }, []);
-
-//   const loanReportColumns = [
-//     {key: "slNo", header: "Sl No"},
-//     {key: "loanIds", header: "loan ID"},
-//     {key: "customerName", header: "Customer Name"},
-//     {key: "customerPhone", header: "Phone Number"},
-//     {key: "loanStartDate", header: "Loan Start Date"},
-//     {key: "loanServiceCharges", header: "Service Charges"},
-//     {key: "loanAmount", header: "Loan Amount"},
-//     {key: "totalLoanAmount", header: "Total Paid Loan Amount"},
-//     {key: "loanBalance", header: "Balance"}
-//   ]
-//   return (
-//     <div className="p-4">
-//       <h1 className="font-bold text-2xl mb-5">Loan Report</h1>
-
-//       {loading ? (
-//               <div className="flex w-screen justify-center items-center">
-//                 <CircularLoader />;
-//               </div>
-//             ) : (
-//         <DataTable columns={loanReportColumns} data={loanReportTable} 
-//         exportedPdfName="Loan Report"
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// const CustomerLoanReport = () => {
-//   const [loanReportTable, setLoanReportTable] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   const [selectedLoanId, setSelectedLoanId] = useState("");
-//   const [selectedCustomer, setSelectedCustomer] = useState("");
-
-//   useEffect(() => {
-//     const fetchLoanReport = async () => {
-//       try {
-//         const response = await api.get(`/payment/customers/loan-report`);
-
-//         const formattedData = response.data.loanReports.map((loan, index) => ({
-//           id: loan?._id,
-//           slNo: index + 1,
-//           loanIds: loan?.loan_id || "N/A",
-//           customerId: loan?.borrower?.customer_id || "N/A",
-//           customerName: loan?.borrower?.full_name || "N/A",
-//           customerPhone: loan?.borrower?.phone_number || "N/A",
-//           loanStartDate: loan?.start_date
-//             ? new Date(loan.start_date).toLocaleDateString("en-GB")
-//             : "N/A",
-//           loanServiceCharges: loan?.service_charges ?? 0,
-//           loanAmount: loan?.double_loan_amount ?? 0,
-//           totalLoanAmount: loan?.total_paid_amount ?? 0,
-//           loanBalance: loan?.balance ?? 0,
-//         }));
-
-//         setLoanReportTable(formattedData);
-//       } catch (error) {
-//         console.error("Error fetching loan report:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchLoanReport();
-//   }, []);
-
-//   // Get unique loan IDs and customers for filter dropdowns
-//   const uniqueLoanIds = useMemo(
-//     () => [...new Set(loanReportTable.map((loan) => loan.loanIds))],
-//     [loanReportTable]
-//   );
-
-//   const uniqueCustomers = useMemo(
-//     () =>
-//       loanReportTable.map((loan) => ({
-//         id: loan.id,
-//         name: loan.customerName,
-//         phone: loan.customerPhone,
-//         custid: loan.customerId,
-//       })),
-//     [loanReportTable]
-//   );
-
-//   // Filtered data based on selected filters
-//   const filteredLoanReport = useMemo(() => {
-//     return loanReportTable.filter((loan) => {
-//       const matchLoanId = selectedLoanId
-//         ? loan.loanIds === selectedLoanId
-//         : true;
-//       const matchCustomer = selectedCustomer
-//         ? loan.id === selectedCustomer
-//         : true;
-//       return matchLoanId && matchCustomer;
-//     });
-//   }, [loanReportTable, selectedLoanId, selectedCustomer]);
-
-//   const loanReportColumns = [
-//     { key: "slNo", header: "Sl No" },
-//     { key: "loanIds", header: "Loan ID" },
-//     { key: "customerName", header: "Customer Name" },
-//     { key: "customerPhone", header: "Phone Number" },
-//     { key: "loanStartDate", header: "Loan Start Date" },
-//     { key: "loanServiceCharges", header: "Service Charges" },
-//     { key: "loanAmount", header: "Loan Amount" },
-//     { key: "totalLoanAmount", header: "Total Paid Loan Amount" },
-//     { key: "loanBalance", header: "Balance" },
-//   ];
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="font-bold text-2xl mb-5">Customer Loan Report</h1>
-
-//       {/* Filters */}
-//       <div className="flex gap-4 mb-4">
-//         {/* Loan ID Filter */}
-//         <div className="w-full max-w-xs">
-//           <label className="block mb-1">Loan ID</label>
-//           <Select
-//             showSearch
-//             placeholder="Search or Select Loan ID"
-//             value={selectedLoanId}
-//             onChange={setSelectedLoanId}
-//             allowClear
-//             filterOption={(input, option) =>
-//               option.children.toLowerCase().includes(input.toLowerCase())
-//             }
-//             className="w-full"
-//           >
-//             <Select.Option value="">All</Select.Option>
-//             {uniqueLoanIds.map((loanId) => (
-//               <Select.Option key={loanId} value={loanId}>
-//                 {loanId} | 
-//               </Select.Option>
-//             ))}
-//           </Select>
-//         </div>
-
-//         {/* Customer Filter */}
-//         <div className="w-full max-w-xs">
-//   <label className="block mb-1">Customer</label>
-//   <Select
-//     showSearch
-//     placeholder="Search or Select Customer"
-//     value={selectedCustomer}
-//     onChange={setSelectedCustomer}
-//     allowClear
-//     optionLabelProp="label" // important for search
-//     className="w-full"
-//     filterOption={(input, option) =>
-//       option.label.toLowerCase().includes(input.toLowerCase())
-//     }
-//   >
-//     <Select.Option value="" label="All">
-//       All
-//     </Select.Option>
-//     {uniqueCustomers.map((cust) => (
-//       <Select.Option
-//         key={cust.id}
-//         value={cust.id}
-//         label={`${cust.custid}|${cust.name} | ${cust.phone}`} // <-- used for search
-//       >
-//        {cust.custid} | {cust.name} | {cust.phone} 
-//       </Select.Option>
-//     ))}
-//   </Select>
-// </div>
-//       </div>
-
-//       {loading ? (
-//         <div className="flex w-screen justify-center items-center">
-//           <CircularLoader />
-//         </div>
-//       ) : (
-//         <DataTable
-//           columns={loanReportColumns}
-//           data={filteredLoanReport}
-//           exportedPdfName="Customer Loan Report"
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
 
 const CustomerLoanReport = () => {
   const [loanReportTable, setLoanReportTable] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [selectedLoanId, setSelectedLoanId] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState("");
 
@@ -253,7 +21,7 @@ const CustomerLoanReport = () => {
           id: loan?._id,
           slNo: index + 1,
           loanIds: loan?.loan_id || "N/A",
-          loanAmountValue: loan?.loan_amount || 0, // added raw amount
+          loanAmountValue: loan?.loan_amount || 0,
           customerId: loan?.borrower?.customer_id || "N/A",
           customerName: loan?.borrower?.full_name || "N/A",
           customerPhone: loan?.borrower?.phone_number || "N/A",
@@ -277,7 +45,6 @@ const CustomerLoanReport = () => {
     fetchLoanReport();
   }, []);
 
-  // 🟢 Combine loan_id + loan_amount for filter display
   const uniqueLoanCombos = useMemo(() => {
     const map = new Map();
     loanReportTable.forEach((loan) => {
@@ -300,7 +67,6 @@ const CustomerLoanReport = () => {
     [loanReportTable]
   );
 
-  // 🧮 Filtered data
   const filteredLoanReport = useMemo(() => {
     return loanReportTable.filter((loan) => {
       const matchLoanId = selectedLoanId
@@ -312,6 +78,17 @@ const CustomerLoanReport = () => {
       return matchLoanId && matchCustomer;
     });
   }, [loanReportTable, selectedLoanId, selectedCustomer]);
+
+  // Calculate summary statistics
+  const summaryStats = useMemo(() => {
+    const filtered = filteredLoanReport;
+    return {
+      totalLoans: filtered.length,
+      totalAmount: filtered.reduce((sum, loan) => sum + loan.loanAmount, 0),
+      totalPaid: filtered.reduce((sum, loan) => sum + loan.totalLoanAmount, 0),
+      totalBalance: filtered.reduce((sum, loan) => sum + loan.loanBalance, 0),
+    };
+  }, [filteredLoanReport]);
 
   const loanReportColumns = [
     { key: "slNo", header: "Sl No" },
@@ -325,87 +102,169 @@ const CustomerLoanReport = () => {
     { key: "loanBalance", header: "Balance" },
   ];
 
-  return (
-    <div className="p-4">
-      <h1 className="font-bold text-2xl mb-5">Customer Loan Report</h1>
-
-      {/* Filters */}
-      <div className="flex gap-4 mb-4">
-        {/* Loan ID + Amount Filter */}
-        <div className="w-full max-w-xs">
-          <label className="block mb-1">Loan ID & Amount</label>
-          <Select
-            showSearch
-            placeholder="Search or Select Loan"
-            value={selectedLoanId}
-            onChange={setSelectedLoanId}
-            allowClear
-            filterOption={(input, option) =>
-              option.label.toLowerCase().includes(input.toLowerCase())
-            }
-            optionLabelProp="label"
-            className="w-full"
-          >
-            <Select.Option value="" label="All">
-              All
-            </Select.Option>
-            {uniqueLoanCombos.map((loan) => (
-              <Select.Option
-                key={loan.id}
-                value={loan.id}
-                label={loan.label}
-              >
-                {loan.label}
-              </Select.Option>
-            ))}
-          </Select>
+  const StatCard = ({ icon: Icon, label, value, color }) => (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-300">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600 mb-1">{label}</p>
+          <p className="text-2xl font-bold text-gray-900">{value}</p>
         </div>
-
-        {/* Customer Filter */}
-        <div className="w-full max-w-xs">
-          <label className="block mb-1">Customer</label>
-          <Select
-            showSearch
-            placeholder="Search or Select Customer"
-            value={selectedCustomer}
-            onChange={setSelectedCustomer}
-            allowClear
-            optionLabelProp="label"
-            className="w-full"
-            filterOption={(input, option) =>
-              option.label.toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            <Select.Option value="" label="All">
-              All
-            </Select.Option>
-            {uniqueCustomers.map((cust) => (
-              <Select.Option
-                key={cust.id}
-                value={cust.id}
-                label={`${cust.custid} | ${cust.name} | ${cust.phone}`}
-              >
-                {cust.custid} | {cust.name} | {cust.phone}
-              </Select.Option>
-            ))}
-          </Select>
+        <div className={`p-3 rounded-lg ${color}`}>
+          <Icon className="w-6 h-6 text-white" />
         </div>
       </div>
+    </div>
+  );
 
-      {loading ? (
-        <div className="flex w-screen justify-center items-center">
-          <CircularLoader />
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-600 rounded-lg">
+              <FileText className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Customer Loan Report
+            </h1>
+          </div>
+          <p className="text-gray-600 ml-14">
+            Comprehensive overview of all customer loans and payments
+          </p>
         </div>
-      ) : (
-        <DataTable
-          columns={loanReportColumns}
-          data={filteredLoanReport}
-          exportedPdfName="Customer Loan Report"
-        />
-      )}
+
+        {loading ? (
+          <div className="flex justify-center items-center h-96">
+            <CircularLoader />
+          </div>
+        ) : (
+          <>
+            {/* Summary Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <StatCard
+                icon={FileText}
+                label="Total Loans"
+                value={summaryStats.totalLoans}
+                color="bg-gradient-to-br from-blue-500 to-blue-600"
+              />
+              <StatCard
+                icon={IndianRupee}
+                label="Total Loan Amount"
+                value={`₹${summaryStats.totalAmount.toLocaleString('en-IN')}`}
+                color="bg-gradient-to-br from-purple-500 to-purple-600"
+              />
+              <StatCard
+                icon={TrendingUp}
+                label="Total Paid"
+                value={`₹${summaryStats.totalPaid.toLocaleString('en-IN')}`}
+                color="bg-gradient-to-br from-green-500 to-green-600"
+              />
+              <StatCard
+                icon={Calendar}
+                label="Total Balance"
+                value={`₹${summaryStats.totalBalance.toLocaleString('en-IN')}`}
+                color="bg-gradient-to-br from-orange-500 to-orange-600"
+              />
+            </div>
+
+            {/* Filters Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <Search className="w-5 h-5 text-gray-600" />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Filter Options
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Loan ID & Amount Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      Loan ID & Amount
+                    </div>
+                  </label>
+                  <Select
+                    showSearch
+                    placeholder="Search or select loan"
+                    value={selectedLoanId}
+                    onChange={setSelectedLoanId}
+                    allowClear
+                    filterOption={(input, option) =>
+                      option.label.toLowerCase().includes(input.toLowerCase())
+                    }
+                    optionLabelProp="label"
+                    className="w-full"
+                    size="large"
+                  >
+                    <Select.Option value="" label="All Loans">
+                      All Loans
+                    </Select.Option>
+                    {uniqueLoanCombos.map((loan) => (
+                      <Select.Option
+                        key={loan.id}
+                        value={loan.id}
+                        label={loan.label}
+                      >
+                        {loan.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+
+                {/* Customer Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      Customer
+                    </div>
+                  </label>
+                  <Select
+                    showSearch
+                    placeholder="Search or select customer"
+                    value={selectedCustomer}
+                    onChange={setSelectedCustomer}
+                    allowClear
+                    optionLabelProp="label"
+                    className="w-full"
+                    size="large"
+                    filterOption={(input, option) =>
+                      option.label.toLowerCase().includes(input.toLowerCase())
+                    }
+                  >
+                    <Select.Option value="" label="All Customers">
+                      All Customers
+                    </Select.Option>
+                    {uniqueCustomers.map((cust) => (
+                      <Select.Option
+                        key={cust.id}
+                        value={cust.id}
+                        label={`${cust.custid} | ${cust.name} | ${cust.phone}`}
+                      >
+                        {cust.custid} | {cust.name} | {cust.phone}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Table Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-2">
+              <DataTable
+                columns={loanReportColumns}
+                data={filteredLoanReport}
+                exportedPdfName="Customer Loan Report"
+              />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };
-
 
 export default CustomerLoanReport;
