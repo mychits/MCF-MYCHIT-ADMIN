@@ -405,15 +405,17 @@ const toDate = payoutMeta.date_range?.to?.split("T")[0] || null;
     const adjustedAbsences = absences > 2 ? absences - 2 : 0;
     const monthlySalary = parseFloat(agent?.salary || 0);
     const monthPayment = parseFloat(payment?.payout_metadata?.total_paid_amount || 0);
-    const deductionDetails = payoutMeta.deductions_details?.[0] || {};
+    const deductionDetails = payoutMeta?.deductions_details?.[0] || {};
   
 // Assign values to variables if deductionDetails exists
-const deductionPFAmount = deductionDetails.amount || 0;
-const deductionPFJustification = deductionDetails.justification || "N/A";
+const deductionPFAmount = deductionDetails?.amount || 0;
+const deductionPFJustification = deductionDetails?.justification || "N/A";
+console.info(deductionPFJustification, "printcheck");
     const month = payment?.payout_metadata;
     const salaryMonth = month?.months_included?.[0] || null;
     
-    const totalDeductions = payoutMeta.total_deductions || 0;
+    const totalDeductions = payoutMeta?.total_deductions || 0;
+    const lop = Number(monthlySalary) - Number(monthPayment) - Number(deductionPFAmount) || 0;
   
 
     // ❗ Validate critical data
@@ -494,7 +496,7 @@ const deductionPFJustification = deductionDetails.justification || "N/A";
               <div class="emp-item"><strong>Department:</strong> ${agent?.department || "N/A"}</div>
               <div class="emp-item"><strong>Pay Period:</strong> ${formatDate(fromDate)} to ${formatDate(toDate)}</div>
             
-              <div class="emp-item"><strong>LOP Days:</strong> ${adjustedAbsences}</div>
+             
               <div class="emp-item"><strong>Payment Date:</strong> ${formatDate(payDate)}</div>
             </div>
           </div>
@@ -502,8 +504,8 @@ const deductionPFJustification = deductionDetails.justification || "N/A";
           <table class="salary-table">
             <thead><tr><th>EARNINGS</th><th>AMOUNT (₹)</th><th>DEDUCTIONS</th><th>AMOUNT (₹)</th></tr></thead>
             <tbody>
-              <tr><td>Basic Salary</td><td>₹${monthlySalary}</td><td>${deductionPFJustification} </td><td>₹${deductionPFAmount}</td></tr>
-              <tr><td>House Rent Allowance</td><td>₹${0}</td><td>TDS</td><td>₹0.00</td></tr>
+              <tr><td>Basic Salary</td><td>₹${monthlySalary}</td><td>${deductionPFJustification}</td><td>₹${deductionPFAmount}</td></tr>
+              <tr><td>House Rent Allowance</td><td>₹${0}</td><td>LOP</td><td>₹${lop.toFixed(2)}</td></tr>
               <tr><td>Special Allowance</td><td>₹${0}</td></tr>
               <tr><td>Conveyance Allowance</td><td>₹0.00</td></tr>
               <tr class="total-row">
@@ -756,8 +758,8 @@ body {
       <div class="card deductions-card">
         <div class="card-header" style="color: #f56565;">Deductions</div>
         <div class="card-body">
-          <div class="item-row"><div class="item-name">Loss of Pay</div><div class="item-amount">₹${totalDeductions}</div></div>
-          <div class="item-row"><div class="item-name">${deductionPFJustification}</div><div class="item-amount">₹${deductionPFAmount}</div></div>
+          <div class="item-row"><div class="item-name">Loss of Pay</div><div class="item-amount">₹${lop.toFixed(2)}</div></div>
+          <div class="item-row"><div class="item-name">PF/ESI</div><div class="item-amount">₹${deductionPFAmount}</div></div>
           
           <div class="item-row"><div class="item-name">TDS</div><div class="item-amount">₹0.00</div></div>
           <div class="total-amount">Total: ₹${(parseFloat(totalDeductions)).toFixed(2)}</div>

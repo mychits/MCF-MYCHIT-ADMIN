@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -100,6 +101,10 @@ const UserReport = () => {
   const [searchText, setSearchText] = useState("");
   const [groupDetails, setGroupDetails] = useState(" ");
   const [loanCustomers, setLoanCustomers] = useState([]);
+  const [pigmeCustomers, setPigmeCustomers] = useState([]);
+  const [pigmeCustomerData, setPigmeCustomerData] = useState([]);
+  const [pigmeId, setPigmeId] = useState("No");
+  const [filteredPigmeData, setFilteredPigmeData] = useState([]);
   const [borrowersData, setBorrowersData] = useState([]);
   const [borrowerId, setBorrowerId] = useState("No");
   const [filteredBorrowerData, setFilteredBorrowerData] = useState([]);
@@ -134,6 +139,14 @@ const UserReport = () => {
     { key: "pay_type", header: "Payment Type" },
     { key: "balance", header: "Balance" },
   ];
+  const BasicPigmeColumns = [
+    { key: "id", header: "SL. NO" },
+    { key: "pay_date", header: "Payment Date" },
+    { key: "receipt_no", header: "Receipt No" },
+    { key: "amount", header: "Amount" },
+    { key: "pay_type", header: "Payment Type" },
+    { key: "balance", header: "Balance" },
+  ];
   const DisbursementColumns = [
     { key: "id", header: "SL. NO" },
     { key: "pay_date", header: "Disbursed Date" },
@@ -155,7 +168,8 @@ const UserReport = () => {
         selectedGroup &&
         EnrollGroupId.groupId &&
         EnrollGroupId.ticket &&
-        EnrollGroupId.groupId !== "Loan"
+        EnrollGroupId.groupId !== "Loan" &&
+        EnrollGroupId !== "Pigme"
       ) {
         try {
           setTableEnrolls([]);
@@ -265,17 +279,72 @@ const UserReport = () => {
     fetchRegistrationFee();
   }, [activeTab, selectedGroup, EnrollGroupId.groupId, EnrollGroupId.ticket]);
 
+  // useEffect(() => {
+  //   const fetchAllLoanPaymentsbyId = async () => {
+  //     setBorrowersData([]);
+  //     setBasicLoading(true);
+
+  //     try {
+  //       const response = await api.get(
+  //         `/loan-payment/get-all-loan-payments/${EnrollGroupId.ticket}`
+  //       );
+
+  //       if (response.data && response.data.length > 0) {
+  //         let balance = 0;
+  //         const formattedData = response.data.map((loanPayment, index) => {
+  //           balance += Number(loanPayment.amount);
+  //           return {
+  //             _id: loanPayment._id,
+  //             id: index + 1,
+  //             pay_date: formatPayDate(loanPayment?.pay_date),
+  //             amount: loanPayment.amount,
+  //             receipt_no: loanPayment.receipt_no,
+  //             pay_type: loanPayment.pay_type,
+  //             balance,
+  //           };
+  //         });
+  //         formattedData.push({
+  //           _id: "",
+  //           id: "",
+  //           pay_date: "",
+  //           receipt_no: "",
+  //           amount: "",
+  //           pay_type: "",
+  //           balance,
+  //         });
+  //         setBorrowersData(formattedData);
+  //       } else {
+  //         setBorrowersData([]);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching loan payment data:", error);
+  //       setBorrowersData([]);
+  //     } finally {
+  //       setBasicLoading(false);
+  //     }
+  //   };
+
+  //   if (EnrollGroupId.groupId === "Loan") fetchAllLoanPaymentsbyId();
+  // }, [EnrollGroupId.ticket]);
+
   useEffect(() => {
     const fetchAllLoanPaymentsbyId = async () => {
       setBorrowersData([]);
       setBasicLoading(true);
 
       try {
+        // Find actual loan_id from selected loan
+        const selectedLoan = loanCustomers?.overall_loan?.find(
+          (loan) => loan?.loan_details?.loan?._id === EnrollGroupId.ticket
+        );
+        const loanId =
+          selectedLoan?.loan_details?.loan?._id || EnrollGroupId.ticket;
+
         const response = await api.get(
-          `/loan-payment/get-all-loan-payments/${EnrollGroupId.ticket}`
+          `/loan-payment/get-all-loan-payments/${loanId}`
         );
 
-        if (response.data && response.data.length > 0) {
+        if (response.data?.length > 0) {
           let balance = 0;
           const formattedData = response.data.map((loanPayment, index) => {
             balance += Number(loanPayment.amount);
@@ -310,7 +379,56 @@ const UserReport = () => {
       }
     };
 
-    if (EnrollGroupId.groupId === "Loan") fetchAllLoanPaymentsbyId();
+    if (EnrollGroupId.groupId === "Loan" && EnrollGroupId.ticket)
+      fetchAllLoanPaymentsbyId();
+  }, [EnrollGroupId.ticket]);
+
+  useEffect(() => {
+    const fetchAllPigmePaymentsbyId = async () => {
+      setPigmeCustomerData([]);
+      setBasicLoading(true);
+
+      try {
+        const response = await api.get(
+          `/pigme-payment/get-all-pigme-payments-by-id/${EnrollGroupId.ticket}`
+        );
+
+        if (response.data && response.data.length > 0) {
+          let balance = 0;
+          const formattedData = response.data.map((pigmePayment, index) => {
+            balance += Number(pigmePayment.amount);
+            return {
+              _id: pigmePayment._id,
+              id: index + 1,
+              pay_date: formatPayDate(pigmePayment?.pay_date),
+              amount: pigmePayment.amount,
+              receipt_no: pigmePayment.receipt_no,
+              pay_type: pigmePayment.pay_type,
+              balance,
+            };
+          });
+          formattedData.push({
+            _id: "",
+            id: "",
+            pay_date: "",
+            receipt_no: "",
+            amount: "",
+            pay_type: "",
+            balance,
+          });
+          setPigmeCustomerData(formattedData);
+        } else {
+          setPigmeCustomerData([]);
+        }
+      } catch (error) {
+        console.error("Error fetching pigme payment data:", error);
+        setPigmeCustomerData([]);
+      } finally {
+        setBasicLoading(false);
+      }
+    };
+
+    if (EnrollGroupId.groupId === "Pigme") fetchAllPigmePaymentsbyId();
   }, [EnrollGroupId.ticket]);
 
   useEffect(() => {
@@ -325,7 +443,8 @@ const UserReport = () => {
         console.log("Failed to fetch group details by ID:", err.message);
       }
     };
-    if (EnrollGroupId.groupId !== "Loan") fetchGroupById();
+    if (EnrollGroupId.groupId !== "Loan" && EnrollGroupId.groupId !== "Pigme")
+      fetchGroupById();
   }, [EnrollGroupId?.ticket]);
 
   useEffect(() => {
@@ -380,6 +499,39 @@ const UserReport = () => {
   }, [selectedGroup]);
 
   useEffect(() => {
+    const fetchPigme = async () => {
+      try {
+        setPigmeCustomers([]);
+        const response = await api.get(`/payment/pigme/user/${selectedGroup}`);
+        console.info(response.data, "pigme");
+        if (response.data) {
+          const filteredPigmeData = response.data?.overall_pigme?.map(
+            (pigme, index) => ({
+              sl_no: index + 1,
+              pigme: pigme?.pigme_details?.pigme?.pigme_id,
+              start_date:
+                pigme?.pigme_details?.pigme?.start_date?.split("T")[0],
+              duration: pigme?.pigme_details?.pigme?.duration,
+              maturity_interest: pigme?.pigme_details?.pigme?.maturity_interest,
+              total_deposited_amount: pigme?.total_deposited_amount,
+            })
+          );
+          setFilteredPigmeData(filteredPigmeData);
+        }
+        setPigmeCustomers(response.data);
+
+        if (response.status >= 400) throw new Error("Failed to send message");
+      } catch (err) {
+        console.log("failed to fetch Pigme customers", err.message);
+        setFilteredPigmeData([]);
+      }
+    };
+    setPigmeCustomerData([]);
+    setPigmeId("No");
+    fetchPigme();
+  }, [selectedGroup]);
+
+  useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await api.get(`/user/get-user-by-id/${selectedGroup}`);
@@ -426,7 +578,7 @@ const UserReport = () => {
               _id: payment._id,
               id: index + 1,
               disbursement_type: payment.disbursement_type,
-              group_name:payment?.group_id?.group_name,
+              group_name: payment?.group_id?.group_name,
               pay_date: formatPayDate(payment?.pay_date),
               ticket: payment.ticket,
               transaction_date: formatPayDate(payment.createdAt),
@@ -465,29 +617,33 @@ const UserReport = () => {
   const handleEnrollGroup = (event) => {
     const value = event.target.value;
 
+    
     if (value) {
       const [groupId, ticket] = value.split("|");
       setEnrollGroupId({ groupId, ticket });
     } else {
       setEnrollGroupId({ groupId: "", ticket: "" });
     }
+    console.info(borrowersData, " information borroswers ADATA");
+    console.info(EnrollGroupId.groupId, " information EnrollGroupId.groupId");
   };
 
-useEffect(() => {
-  const fetchCustomerTransaction = async () => {
-    try {
-      if (!selectedAuctionGroupId) return;
+  useEffect(() => {
+    const fetchCustomerTransaction = async () => {
+      try {
+        if (!selectedAuctionGroupId) return;
 
-      const response = await api.get(`/payment/users/${selectedAuctionGroupId}`);
-      console.info(response.data.payments, "Fetched user transactions");
-      setCustomerTransactions(response.data.payments); // <-- store in state
-    } catch (error) {
-      console.error("Unable to fetch customer transaction details", error);
-    }
-  };
-  fetchCustomerTransaction();
-}, [selectedAuctionGroupId]);
-
+        const response = await api.get(
+          `/payment/users/${selectedAuctionGroupId}`
+        );
+        console.info(response.data.payments, "Fetched user transactions");
+        setCustomerTransactions(response.data.payments); // <-- store in state
+      } catch (error) {
+        console.error("Unable to fetch customer transaction details", error);
+      }
+    };
+    fetchCustomerTransaction();
+  }, [selectedAuctionGroupId]);
 
   useEffect(() => {
     const fetchPayments = async () => {
@@ -544,6 +700,15 @@ useEffect(() => {
     { key: "tenure", header: "Tenure" },
     { key: "total_paid_amount", header: "Total Paid Amount" },
     { key: "balance", header: "Balance" },
+  ];
+
+  const pigmeColumns = [
+    { key: "sl_no", header: "SL. No" },
+    { key: "pigme", header: "Pigme ID" },
+    { key: "start_date", header: "Start Date" },
+    { key: "duration", header: "duration" },
+    { key: "maturity_interest", header: "Intrest" },
+    { key: "total_deposited_amount", header: "Total Deposited Amount" },
   ];
 
   const handleGroupAuctionChange = async (groupId) => {
@@ -608,10 +773,14 @@ useEffect(() => {
                 referrer_name: group?.enrollment?.referrer_name || "N/A",
                 customer_status: group?.enrollment?.customer_status || "N/A",
                 removal_reason: group?.enrollment?.removal_reason || "N/A",
-                isPrized: group?.enrollment?.isPrized===true ? "Prized" :"Un Prized" || "N/A",
+                isPrized:
+                  group?.enrollment?.isPrized === true
+                    ? "Prized"
+                    : "Un Prized" || "N/A",
               };
             })
-            .filter((item) => item !== null).filter((item) => item.customer_status === "Active");
+            .filter((item) => item !== null)
+            .filter((item) => item.customer_status === "Active");
 
           setTableAuctions(formattedData);
           setCommission(0);
@@ -666,7 +835,7 @@ useEffect(() => {
     { key: "ticket", header: "Ticket" },
     { key: "referred_type", header: "Referrer Type" },
     { key: "referrer_name", header: "Referred By" },
-    {key:"isPrized",header:"Is Prized"},
+    { key: "isPrized", header: "Is Prized" },
     { key: "totalBePaid", header: "Amount to be Paid" },
     { key: "profit", header: "Profit" },
     { key: "toBePaidAmount", header: "Net To be Paid" },
@@ -737,7 +906,8 @@ useEffect(() => {
         setIsLoading(false);
       }
     };
-    if (EnrollGroupId.groupId !== "Loan") fetchEnroll();
+    if (EnrollGroupId.groupId !== "Loan" && EnrollGroupId.groupId !== "Pigme")
+      fetchEnroll();
   }, [selectedGroup, EnrollGroupId.groupId, EnrollGroupId.ticket]);
 
   const Basiccolumns = [
@@ -958,7 +1128,7 @@ useEffect(() => {
                               Totalpaid,
                             },
                             TableEnrolls,
-                            customerTransactions 
+                            customerTransactions
                           )
                         }
                         className="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded shadow"
@@ -1352,10 +1522,24 @@ useEffect(() => {
                                       />
                                     </div>
                                   )}
+
+                                  {filteredPigmeData.length > 0 && (
+                                    <div className="mt-10">
+                                      <h3 className="text-lg font-medium mb-4">
+                                        Pigme Details
+                                      </h3>
+                                      <DataTable
+                                        data={filteredPigmeData}
+                                        columns={pigmeColumns}
+                                        exportedFileName={`PigmeCustomerReport.csv`}
+                                      />
+                                    </div>
+                                  )}
                                 </div>
                               ) : (
                                 <CircularLoader isLoading={isLoading} />
                               )}
+
                               {/* Display "No Data" if not loading and TableAuctions is empty */}
                               {!isLoading && TableAuctions.length === 0 && (
                                 <div className="p-40 w-full flex justify-center items-center">
@@ -1434,7 +1618,7 @@ useEffect(() => {
                       </>
                     )}
 
-                    {activeTab === "basicReport" && (
+                    {/* {activeTab === "basicReport" && (
                       <>
                         <div>
                           <div className="flex gap-4">
@@ -1493,6 +1677,34 @@ useEffect(() => {
                                             loan?.loan_details?.loan?.loan_id ||
                                             "N/A"
                                           } | ₹${loan?.loan_value || 0}`}
+                                        </option>
+                                      )
+                                    )
+                                  : null}
+                                  {Array.isArray(pigmeCustomers)
+                                  ? pigmeCustomers.map((pigme) => (
+                                      <option
+                                        key={loan._id}
+                                        value={`Pigme|${pigme._id}`}
+                                      >
+                                        {`${pigme.pigme_id || "N/A"} 
+                                        }`}
+                                      </option>
+                                    ))
+                                  : Array.isArray(pigmeCustomers?.overall_pigme)
+                                  ? pigmeCustomers.overall_pigme.map(
+                                      (pigme, index) => (
+                                        <option
+                                          key={index}
+                                          value={`Pigme|${
+                                            pigme?.pigme_details?.pigme?._id ||
+                                            index
+                                          }`}
+                                        >
+                                          {`${
+                                            pigme?.pigme_details?.pigme?.pigme_id ||
+                                            "N/A"
+                                          } | ₹${pigme?.total_deposited_amount || 0}`}
                                         </option>
                                       )
                                     )
@@ -1593,7 +1805,154 @@ useEffect(() => {
                           )}
                         </div>
                       </>
+                    )} */}
+                    {activeTab === "basicReport" && (
+                      <>
+                        <div>
+                          <div className="flex gap-4">
+                            <div className="flex flex-col flex-1">
+                              <label className="mb-1 text-sm font-medium text-gray-700">
+                                Groups and Tickets
+                              </label>
+                              <select
+                                value={
+                                  EnrollGroupId.groupId
+                                    ? `${EnrollGroupId.groupId}|${EnrollGroupId.ticket}`
+                                    : ""
+                                }
+                                onChange={handleEnrollGroup}
+                                className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                              >
+                                <option value="">Select Group | Ticket</option>
+
+                                {/* ✅ CHIT Groups */}
+                                {filteredAuction.map((group) => {
+                                  if (group?.enrollment?.group) {
+                                    return (
+                                      <option
+                                        key={group.enrollment.group._id}
+                                        value={`${group.enrollment.group._id}|${group.enrollment.tickets}`}
+                                      >
+                                        {group.enrollment.group.group_name} |{" "}
+                                        {group.enrollment.tickets}
+                                      </option>
+                                    );
+                                  }
+                                  return null;
+                                })}
+
+                                {Array.isArray(loanCustomers?.overall_loan) &&
+                                  loanCustomers.overall_loan.map(
+                                    (loan, index) => (
+                                      <option
+                                        key={
+                                          loan?.loan_details?.loan?._id || index
+                                        }
+                                        value={`Loan|${
+                                          loan?.loan_details?.loan?._id || index
+                                        }`}
+                                      >
+                                        {loan?.loan_details?.loan?.loan_id ||
+                                          "N/A"}{" "}
+                                        | ₹{loan?.loan_value || 0}
+                                      </option>
+                                    )
+                                  )}
+
+                                {Array.isArray(pigmeCustomers?.overall_pigme) &&
+                                  pigmeCustomers.overall_pigme.map(
+                                    (pigme, index) => (
+                                      <option
+                                        key={
+                                          pigme?.pigme_details?.pigme?._id ||
+                                          index
+                                        }
+                                        value={`Pigme|${
+                                          pigme?.pigme_details?.pigme?._id ||
+                                          index
+                                        }`}
+                                      >
+                                        {pigme?.pigme_details?.pigme
+                                          ?.pigme_id || "N/A"}{" "}
+                                        | ₹{pigme?.total_deposited_amount || 0}
+                                      </option>
+                                    )
+                                  )}
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="mt-6 flex justify-center gap-8 flex-wrap">
+                            <input
+                              type="text"
+                              value={`Registration Fee: ₹${
+                                registrationAmount || 0
+                              }`}
+                              readOnly
+                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-green-100 text-green-800 border-green-400"
+                            />
+                            <input
+                              type="text"
+                              value={`Payment Balance: ₹${finalPaymentBalance}`}
+                              readOnly
+                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-blue-100 text-blue-800 border-blue-400"
+                            />
+                            <input
+                              type="text"
+                              value={`Total: ₹${
+                                Number(finalPaymentBalance) +
+                                Number(registrationAmount || 0)
+                              }`}
+                              readOnly
+                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-purple-100 text-purple-800 border-purple-400"
+                            />
+                          </div>
+
+                          {/* ✅ Corrected Data Display */}
+                          {(TableEnrolls?.length > 0 ||
+                            borrowersData?.length > 0 ||
+                            pigmeCustomerData?.length > 0) &&
+                          !basicLoading ? (
+                            <div className="mt-10">
+                              <DataTable
+                                exportedPdfName="Customer Ledger Report"
+                                printHeaderKeys={[
+                                  "Customer Name",
+                                  "Customer Id",
+                                  "Phone Number",
+                                  "Ticket Number",
+                                  "Group Name",
+                                ]}
+                                printHeaderValues={[
+                                  group.full_name,
+                                  group.customer_id,
+                                  group.phone_number,
+                                  EnrollGroupId.ticket,
+                                  groupDetails.group_name,
+                                ]}
+                                data={
+                                  EnrollGroupId.groupId === "Loan"
+                                    ? borrowersData
+                                    : EnrollGroupId.groupId === "Pigme"
+                                    ? pigmeCustomerData
+                                    : TableEnrolls
+                                }
+                                columns={
+                                  EnrollGroupId.groupId === "Loan"
+                                    ? BasicLoanColumns
+                                    : EnrollGroupId.groupId === "Pigme"
+                                    ? BasicPigmeColumns
+                                    : Basiccolumns
+                                }
+                              />
+                            </div>
+                          ) : (
+                            <CircularLoader isLoading={basicLoading} />
+                          )}
+                        </div>
+                      </>
                     )}
+
                     {activeTab === "disbursement" && (
                       <div className="flex flex-col flex-1">
                         <label className="mb-1 text-sm  text-gray-700 font-bold">
