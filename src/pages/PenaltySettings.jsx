@@ -293,23 +293,23 @@ const PenaltySettings = () => {
         <Text strong style={{ fontSize: '14px', color: '#1e293b' }}>{text}</Text>
       ),
     },
-    {
-      title: "Total Installments",
-      dataIndex: "no_of_installments",
-      align: 'center',
-      render: (v) => (
-        <span style={{
-          background: '#f1f5f9',
-          color: '#475569',
-          padding: '4px 12px',
-          borderRadius: '6px',
-          fontSize: '13px',
-          fontWeight: '600',
-        }}>
-          {v || 1}
-        </span>
-      ),
-    },
+    // {
+    //   title: "Total Installments",
+    //   dataIndex: "no_of_installments",
+    //   align: 'center',
+    //   render: (v) => (
+    //     <span style={{
+    //       background: '#f1f5f9',
+    //       color: '#475569',
+    //       padding: '4px 12px',
+    //       borderRadius: '6px',
+    //       fontSize: '13px',
+    //       fontWeight: '600',
+    //     }}>
+    //       {v || 1}
+    //     </span>
+    //   ),
+    // },
     {
       title: "Installment Amount",
       dataIndex: "installment_amount",
@@ -841,7 +841,7 @@ const PenaltySettings = () => {
       />
     </Col>
 
-    <Col xs={24} sm={12} lg={4}>
+    {/* <Col xs={24} sm={12} lg={4}>
       <div style={{ marginBottom: '8px' }}>
         <Text strong style={{ color: '#475569', fontSize: '13px' }}>Mode</Text>
       </div>
@@ -854,11 +854,11 @@ const PenaltySettings = () => {
           disabled={!isGroupSelected}
         />
       </div>
-    </Col>
+    </Col> */}
 
     {!useMultiple && (
       <>
-        <Col xs={24} sm={12} lg={4}>
+        {/* <Col xs={24} sm={12} lg={4}>
           <div style={{ marginBottom: '8px' }}>
             <Text strong style={{ color: '#475569', fontSize: '13px' }}>No. of Installments</Text>
             <Text type="danger"> *</Text>
@@ -873,7 +873,7 @@ const PenaltySettings = () => {
             placeholder="e.g. 12"
             disabled={!isGroupSelected}
           />
-        </Col>
+        </Col> */}
 
         <Col xs={24} sm={12} lg={4}>
           <div style={{ marginBottom: '8px' }}>
@@ -942,7 +942,7 @@ const PenaltySettings = () => {
       </>
     )}
 
-    {useMultiple && (
+    {/* {useMultiple && (
       <Col xs={24}>
         <div
           style={{
@@ -1005,7 +1005,7 @@ const PenaltySettings = () => {
                   </div>
                 </Col>
 
-                <Col xs={24} sm={5}>
+                 <Col xs={24} sm={5}>
                   <Text style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
                     No. of Installments
                   </Text>
@@ -1018,7 +1018,7 @@ const PenaltySettings = () => {
                     style={{ width: '100%' }}
                     disabled={!isGroupSelected}
                   />
-                </Col>
+                </Col> 
 
                 <Col xs={24} sm={4}>
                   <Text style={{ fontSize: '12px', color: '#64748b', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
@@ -1096,7 +1096,7 @@ const PenaltySettings = () => {
           ))}
         </div>
       </Col>
-    )}
+    )} */}
 
     <Col xs={24} style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
       <Space size="middle">
@@ -1240,7 +1240,7 @@ const PenaltySettings = () => {
                 />
               </Form.Item>
 
-              <Form.Item
+              {/* <Form.Item
                 label={<Text strong style={{ fontSize: '13px', color: '#475569' }}>No. of Installments</Text>}
                 name="no_of_installments"
                 rules={[{ required: true, message: 'Required' }]}
@@ -1250,7 +1250,7 @@ const PenaltySettings = () => {
                   min={1}
                   max={100}
                 />
-              </Form.Item>
+              </Form.Item> */}
 
               <Form.Item
                 label={<Text strong style={{ fontSize: '13px', color: '#475569' }}>Grace Period (Days)</Text>}

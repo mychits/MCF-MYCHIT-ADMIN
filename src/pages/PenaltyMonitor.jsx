@@ -1,764 +1,630 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState, useMemo } from "react";
-import { DatePicker, Select, message, Card, Row, Col, Statistic, Progress, Tag, Tooltip, Badge } from "antd";
-import dayjs from "dayjs";
-import isBetween from "dayjs/plugin/isBetween";
-import {
-  AlertTriangle,
-  CheckCircle,
-  AlertCircle,
-  Calendar,
-  Filter,
-  Users,
-
-  TrendingUp,
-  Clock,
-  Info,
-  CreditCard,
-  FileText,
-  UserCheck,
-  UserX,
-  ArrowUpRight,
-  ArrowDownRight,
-} from "lucide-react";
-dayjs.extend(isBetween);
-
-import { FaIndianRupeeSign } from "react-icons/fa6";
-
 import api from "../instance/TokenInstance";
-import Navbar from "../components/layouts/Navbar";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
+import { Select, Modal, Table, message, Card, Statistic, Row, Col, Button, DatePicker, Input, Tag } from "antd";
+import Navbar from "../components/layouts/Navbar";
+import filterOption from "../helpers/filterOption";
+import moment from "moment";
+import { SearchOutlined, EyeOutlined, FilterOutlined, DollarCircleOutlined, UsergroupAddOutlined, PhoneOutlined, CalendarOutlined, CloseCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import SettingSidebar from "../components/layouts/SettingSidebar";
-
 const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const PenaltyMonitor = () => {
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [penalties, setPenalties] = useState([]);
-  const [mode, setMode] = useState("month");
-  const [dateRange, setDateRange] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [screenLoading, setScreenLoading] = useState(true);
+  const [usersData, setUsersData] = useState([]);
+  const [groupFilter, setGroupFilter] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
-  const [groups, setGroups] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [totals, setTotals] = useState({
+    totalCustomers: 0,
+    totalGroups: 0,
+    totalToBePaid: 0,
+    totalPaid: 0,
+    totalBalance: 0,
+    totalPenalty: 0,
+  });
 
-  const fetchPenaltySettings = async () => {
-    try {
-      const res = await api.get("/penalty/penalty-settings");
-      return res.data || [];
-    } catch (err) {
-      message.error("Failed to fetch penalty settings");
-      return [];
-    }
-  };
+  // 🔹 Modal for breakdown
+  const [breakdownModal, setBreakdownModal] = useState(false);
+  const [breakdownData, setBreakdownData] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [loadingBreakdown, setLoadingBreakdown] = useState(false);
 
-  const fetchDueReportAndProcess = async (from, to, groupId = null) => {
-    setIsLoading(true);
-    try {
-      let penaltySettingsData = penalties;
-      if (!penaltySettingsData || penaltySettingsData.length === 0) {
-        penaltySettingsData = await fetchPenaltySettings();
-        setPenalties(penaltySettingsData);
-      }
+  const groupOptions = [...new Set(usersData.map((u) => u.groupName))];
 
-      const financialRes = await api.get("/user/all-customers-report");
-      const financialData = financialRes.data || [];
+  const filteredUsers = useMemo(() => {
+    return filterOption(
+      usersData.filter((u) => {
+        const matchGroup = groupFilter ? u.groupName === groupFilter : true;
+        const enrollmentDate = new Date(u.enrollmentDate);
+        const matchFromDate = fromDate ? enrollmentDate >= new Date(fromDate) : true;
+        const matchToDate = toDate ? enrollmentDate <= new Date(toDate) : true;
+        return matchGroup && matchFromDate && matchToDate;
+      }),
+      searchText
+    );
+  }, [usersData, groupFilter, fromDate, toDate, searchText]);
 
-      const dueDateRes = await api.get("/user/all-customers-auction-report");
-      const dueDateData = dueDateRes.data || [];
-
-      const dueDateMap = new Map();
-      dueDateData.forEach((usr) => {
-        if (!usr?._id || !usr.data) return;
-        usr.data.forEach((item) => {
-          const enroll = item?.enrollment;
-          if (!enroll?.group?._id || !enroll.tickets) return;
-          const key = `${usr._id}-${enroll.group._id}-${enroll.tickets}`;
-          if (item.due_date) {
-            dueDateMap.set(key, item.due_date);
-          }
-        });
-      });
-
-      const processed = [];
-      const fromDate = from ? dayjs(from).startOf("day") : null;
-      const toDate = to ? dayjs(to).endOf("day") : null;
-
-      for (const usr of financialData) {
-        if (!usr?.data) continue;
-
-        for (const item of usr.data) {
-          const enroll = item.enrollment;
-          if (!enroll?.group) continue;
-
-          const group = enroll.group;
-
-          // 👇 GROUP FILTER: Skip if a group is selected and this doesn't match
-          if (groupId && group._id !== groupId) {
-            continue;
-          }
-
-          const enrollmentDate = dayjs(enroll.createdAt);
-
-          const groupInstallment = Number(
-            group.group_install ||
-            group.monthly_installment ||
-            group.weekly_installment ||
-            0
-          );
-          const groupType = group.group_type;
-          const auctionCount = Number(item?.auction?.auctionCount || 0);
-          const totalPaidAmount = Number(item?.payments?.totalPaidAmount || 0);
-          const totalPayable = Number(item?.payable?.totalPayable || 0);
-          const totalProfit = Number(item?.profit?.totalProfit || 0);
-          const firstDividentHead = Number(item?.firstAuction?.firstDividentHead || 0);
-
-          const totalToBePaid =
-            groupType === "double"
-              ? groupInstallment * auctionCount + groupInstallment
-              : totalPayable + groupInstallment + totalProfit;
-
-          const balance =
-            groupType === "double"
-              ? groupInstallment * auctionCount + groupInstallment - totalPaidAmount
-              : totalPayable + groupInstallment + firstDividentHead - totalPaidAmount;
-
-          if (balance <= 0) continue;
-
-          const key = `${usr._id}-${group._id}-${enroll.tickets}`;
-          const dueDateStr = dueDateMap.get(key) || enroll.createdAt;
-          const dueDate = dayjs(dueDateStr);
-
-          if (fromDate && toDate && !dueDate.isBetween(fromDate, toDate, null, "[]")) {
-            continue;
-          }
-
-          const groupRules = penaltySettingsData.filter((p) => p.group_id === group._id);
-          let graceDays = 0;
-          let penaltyRate = 0;
-          let activeRule = null;
-
-          const totalExpectedInstallments = dayjs().diff(enrollmentDate, "month");
-          const paidInstallments = groupInstallment > 0 ? Math.floor(totalPaidAmount / groupInstallment) : 0;
-          const skippedInstallments = Math.max(0, totalExpectedInstallments - paidInstallments);
-
-          if (groupRules.length > 0) {
-            const sorted = [...groupRules].sort((a, b) => (a.no_of_installments || 0) - (b.no_of_installments || 0));
-            for (const rule of sorted) {
-              if (skippedInstallments >= (rule.no_of_installments || 0)) {
-                activeRule = rule;
-              }
-            }
-            if (activeRule) {
-              graceDays = Number(activeRule.grace_days || 0);
-              penaltyRate = Number(activeRule.penalty_rate || 0);
-            }
-          }
-
-          if (!activeRule && groupRules.length === 1) {
-            const rule = groupRules[0];
-            graceDays = Number(rule.grace_days || 0);
-            penaltyRate = Number(rule.penalty_rate || 0);
-          }
-
-          const graceEndDate = dueDate.add(graceDays, "day");
-          const today = dayjs();
-
-          let status = "Paid";
-          let penaltyValue = 0;
-
-          if (balance > 0) {
-            if (today.isAfter(graceEndDate)) {
-              status = "Late";
-              penaltyValue = penaltyRate > 0
-                ? Number(((balance * penaltyRate) / 100).toFixed(2))
-                : 0;
-            } else {
-              status = "Within Grace";
-            }
-          }
-
-          const totalPayableWithPenalty = Number((balance + penaltyValue).toFixed(2));
-
-          let firstPaymentDateFormatted = "—";
-          try {
-            if (usr._id && group._id && enroll.tickets) {
-              const firstPayRes = await api.post("/penalty/total-amount", {
-                user_id: usr._id,
-                group_id: group._id,
-                ticket: enroll.tickets,
-              });
-              if (firstPayRes.data?.firstPayment?.pay_date) {
-                const fpDate = dayjs(firstPayRes.data.firstPayment.pay_date);
-                if (fpDate.isValid()) {
-                  firstPaymentDateFormatted = fpDate.format("DD MMM YYYY");
-                }
-              }
-            }
-          } catch (err) {
-            console.warn("Failed to fetch first payment date:", usr._id);
-          }
-
-          processed.push({
-            customer: usr.userName || "—",
-            phone: usr.phone_number || "—",
-            group: group.group_name || "—",
-            ticket: enroll.tickets || "—",
-            expected: totalToBePaid || 0,
-            paid: totalPaidAmount || 0,
-            balance: Number(balance || 0),
-            penalty: penaltyValue,
-            penaltyRate,
-            totalPayable: totalPayableWithPenalty,
-            status,
-            graceDays,
-            due_date: dueDate.format("DD MMM YYYY"),
-            graceEndDate: graceEndDate.format("DD MMM YYYY"),
-            enrollmentDate: enrollmentDate.format("YYYY-MM-DD"),
-            firstPaymentDate: firstPaymentDateFormatted,
-            skippedInstallments,
-          });
-        }
-      }
-
-      setData(processed);
-    } catch (err) {
-      console.error("Error fetching/processing due report:", err);
-      message.error("Failed to fetch due report");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // 🔹 Fetch all users and penalty summaries
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get("/group/get-group");
-        const groupList = (res.data || []).map(g => ({
-          value: g._id,
-          label: g.group_name || `Group ${g._id}`,
-        }));
-        setGroups(groupList);
-      } catch (err) {
-        console.error("Failed to fetch groups:", err);
-        message.error("Failed to load groups");
+        setScreenLoading(true);
+        const reportResponse = await api.get("/user/all-customers-report");
+        const usersList = [];
+        let count = 1;
+
+        for (const usrData of reportResponse.data || []) {
+          if (usrData?.data) {
+            for (const data of usrData.data) {
+              if (data?.enrollment?.group) {
+                const groupId = data.enrollment.group._id;
+                const userId = usrData._id;
+
+                // ✅ Fetch penalty summary
+                let penaltyData = {};
+                try {
+                  const penaltyRes = await api.get("/penalty/get-penalty-report", {
+                    params: { user_id: userId, group_id: groupId },
+                  });
+                  penaltyData = penaltyRes.data || {};
+                } catch (err) {
+                  console.warn(`Penalty API error for user ${userId}`, err);
+                  penaltyData = {
+                    summary: { total_penalty: 0, grand_total_due_with_penalty: 0 },
+                  };
+                }
+
+                const balanceWithPenalty =
+                  penaltyData.summary?.grand_total_due_with_penalty || 0;
+                const totalPenalty = penaltyData.summary?.total_penalty || 0;
+
+                usersList.push({
+                  _id: data.enrollment._id,
+                  userId,
+                  groupId,
+                  sl_no: count,
+                  userName: usrData.userName,
+                  userPhone: usrData.phone_number,
+                  customerId: usrData.customer_id,
+                  amountPaid: data.payments.totalPaidAmount,
+                  paymentsTicket: data.payments.ticket,
+                  amountToBePaid:
+                    data.payable.totalPayable + data.profit.totalProfit,
+                  groupName: data.enrollment.group.group_name,
+                  enrollmentDate: data.enrollment.createdAt
+                    ? data.enrollment.createdAt.split("T")[0]
+                    : "",
+                  totalToBePaid:
+                    data.payable.totalPayable + data.profit.totalProfit,
+                  balance: balanceWithPenalty,
+                  totalPenalty: totalPenalty,
+
+                  // ✅ Action button like PenaltySettings
+                  actions: (
+                    <Button
+                      type="primary"
+                      icon={<EyeOutlined />}
+                      size="small"
+                      onClick={() =>
+                        handleShowBreakdown(
+                          userId,
+                          groupId,
+                          usrData.userName,
+                          data.enrollment.group.group_name
+                        )
+                      }
+                    >
+                      View
+                    </Button>
+                  ),
+
+                  statusDiv: data.isPrized === "true" ? (
+                    <Tag color="success" icon={<CheckCircleOutlined />}>
+                      Prized
+                    </Tag>
+                  ) : (
+                    <Tag color="error" icon={<CloseCircleOutlined />}>
+                      Un Prized
+                    </Tag>
+                  ),
+                });
+
+                count++;
+              }
+            }
+          }
+        }
+
+        const validUsers = usersList.filter(
+          (u) => Number(u.totalToBePaid || 0) > 0
+        );
+
+        setUsersData(validUsers);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("Failed to load penalty monitor data");
+      } finally {
+        setScreenLoading(false);
       }
     };
 
-    fetchGroups();
+    fetchData();
   }, []);
 
+  // 🔹 Calculate totals
   useEffect(() => {
-    (async () => {
-      const ps = await fetchPenaltySettings();
-      setPenalties(ps);
-    })();
-  }, []);
+    const totalCustomers = filteredUsers.length;
+    const groupSet = new Set(filteredUsers.map((user) => user.groupName));
+    const totalGroups = groupFilter ? 1 : groupSet.size;
 
-  const handleMonthChange = (val) => {
-    if (!val) return;
-    const from = dayjs(val).startOf("month").format("YYYY-MM-DD");
-    const to = dayjs(val).endOf("month").format("YYYY-MM-DD");
-    setDateRange([from, to]);
-    fetchDueReportAndProcess(from, to, selectedGroup);
-  };
+    const totalToBePaid = filteredUsers.reduce(
+      (sum, u) => sum + (u.totalToBePaid || 0),
+      0
+    );
+    const totalPaid = filteredUsers.reduce(
+      (sum, u) => sum + (u.amountPaid || 0),
+      0
+    );
+    const totalBalance = filteredUsers.reduce(
+      (sum, u) => sum + (u.balance || 0),
+      0
+    );
+    const totalPenalty = filteredUsers.reduce(
+      (sum, u) => sum + (u.totalPenalty || 0),
+      0
+    );
 
-  const handleRangeChange = (dates) => {
-    if (!dates || dates.length !== 2) return;
-    const from = dates[0].format("YYYY-MM-DD");
-    const to = dates[1].format("YYYY-MM-DD");
-    setDateRange([from, to]);
-    fetchDueReportAndProcess(from, to, selectedGroup);
-  };
-
-  const totalExpected = useMemo(() => data.reduce((sum, d) => sum + (Number(d.expected) || 0), 0), [data]);
-  const totalPaid = useMemo(() => data.reduce((sum, d) => sum + (Number(d.paid) || 0), 0), [data]);
-  const totalPenalty = useMemo(() => data.reduce((sum, d) => sum + (Number(d.penalty) || 0), 0), [data]);
-  const totalBalance = useMemo(() => data.reduce((sum, d) => sum + (Number(d.balance) || 0), 0), [data]);
-  const paymentProgress = useMemo(() => totalExpected > 0 ? Math.round((totalPaid / totalExpected) * 100) : 0, [totalPaid, totalExpected]);
-  const latePaymentsCount = useMemo(() => data.filter(d => d.status === "Late").length, [data]);
-  const withinGraceCount = useMemo(() => data.filter(d => d.status === "Within Grace").length, [data]);
-
-  const filteredData = useMemo(() => {
-    if (!searchText) return data;
-    const s = searchText.trim().toLowerCase();
-    return data.filter((r) => {
-      return (
-        String(r.customer || "").toLowerCase().includes(s) ||
-        String(r.phone || "").toLowerCase().includes(s) ||
-        String(r.group || "").toLowerCase().includes(s) ||
-        String(r.ticket || "").toLowerCase().includes(s)
-      );
+    setTotals({
+      totalCustomers,
+      totalGroups,
+      totalToBePaid,
+      totalPaid,
+      totalBalance,
+      totalPenalty,
     });
-  }, [searchText, data]);
+  }, [filteredUsers, groupFilter]);
+
+  // 🔹 Show penalty breakdown
+  const handleShowBreakdown = async (userId, groupId, userName, groupName) => {
+    try {
+      setLoadingBreakdown(true);
+      setSelectedCustomer({ userName, groupName });
+      setBreakdownModal(true);
+
+      const res = await api.get("/penalty/get-penalty-report", {
+        params: { user_id: userId, group_id: groupId },
+      });
+
+      const data = res.data;
+      setBreakdownData(data.cycles || []);
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to load penalty breakdown");
+    } finally {
+      setLoadingBreakdown(false);
+    }
+  };
 
   const columns = [
-    {
-      key: "customer",
-      header: "CUSTOMER",
-      render: (row) => (
+    { 
+      key: "sl_no", 
+      header: "SL. NO", 
+      render: (text, record, index) => (
+        <span className="font-medium text-gray-700">{index + 1}</span>
+      )
+    },
+    { 
+      key: "userName", 
+      header: "Customer Name",
+      render: (text) => (
+        <div className="font-medium text-gray-900">{text}</div>
+      )
+    },
+    { 
+      key: "userPhone", 
+      header: "Phone Number",
+      render: (text) => (
         <div className="flex items-center">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-bold mr-4">
-            {row.customer.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <div className="font-bold text-gray-900 text-base">{row.customer}</div>
-            <div className="text-gray-600 text-sm">{row.phone}</div>
-          </div>
+          <PhoneOutlined className="mr-2 text-blue-500" />
+          {text}
         </div>
       )
     },
-    {
-      key: "group",
-      header: "GROUP",
-      render: (row) => (
-        <div className="px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg font-semibold text-base">
-          {row.group}
-        </div>
+    { 
+      key: "customerId", 
+      header: "Customer ID",
+      render: (text) => (
+        <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">{text}</span>
       )
     },
-    {
-      key: "enrollmentDate",
-      header: "JOINING DATE",
-      render: (row) => (
-        <div className="text-gray-700 font-medium text-base">
-          {row.enrollmentDate ? dayjs(row.enrollmentDate).format("DD MMM YYYY") : "—"}
-        </div>
-      ),
-    },
-    {
-      key: "ticket",
-      header: "TICKET",
-      render: (row) => (
-        <div className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg font-mono font-bold text-base">
-          {row.ticket}
-        </div>
+    { 
+      key: "groupName", 
+      header: "Group Name",
+      render: (text) => (
+        <Tag color="blue" className="font-medium">
+          {text}
+        </Tag>
       )
     },
-    {
-      key: "expected",
-      header: "EXPECTED",
-      render: (row) => (
-        <div className="font-bold text-gray-900 text-lg">
-          <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
-          {Number(row.expected || 0).toLocaleString("en-IN")}
-        </div>
+    { 
+      key: "enrollmentDate", 
+      header: "Enrollment Date",
+      render: (text) => moment(text).format("DD/MM/YYYY")
+    },
+    { 
+      key: "paymentsTicket", 
+      header: "Ticket" 
+    },
+    { 
+      key: "totalToBePaid", 
+      header: "Amount to be Paid",
+      render: (text) => (
+        <span className="font-semibold text-green-600">₹{text?.toLocaleString('en-IN')}</span>
       )
     },
-    {
-      key: "paid",
-      header: "PAID",
-      render: (row) => (
-        <div className="font-bold text-green-700 text-lg">
-          <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
-          {Number(row.paid || 0).toLocaleString("en-IN")}
-        </div>
+   
+    { 
+      key: "amountPaid", 
+      header: "Amount Paid",
+      render: (text) => (
+        <span className="font-semibold text-indigo-600">₹{text?.toLocaleString('en-IN')}</span>
       )
     },
-    {
-      key: "balance",
-      header: "BALANCE",
-      render: (row) => (
-        <div className="font-bold text-red-600 text-lg">
-          <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
-          {Number(row.balance || 0).toLocaleString("en-IN")}
-        </div>
+     { 
+      key: "totalPenalty", 
+      header: "Penalty Amount",
+      render: (text) => (
+        <span className="font-semibold text-red-600">₹{text?.toLocaleString('en-IN')}</span>
       )
     },
-    {
-      key: "skippedInstallments",
-      header: "SKIPPED MONTHS",
-      render: (row) => (
-        <div className={`font-bold text-lg ${row.skippedInstallments > 0 ? "text-red-600" : "text-gray-500"}`}>
-          {row.skippedInstallments || 0}
-        </div>
-      ),
+    { 
+      key: "balance", 
+      header: "Outstanding with Penalty",
+      render: (text) => (
+        <span className={`font-semibold ${text > 0 ? 'text-red-600' : 'text-green-600'}`}>
+          ₹{text?.toLocaleString('en-IN')}
+        </span>
+      )
     },
-    {
-      key: "due_date",
-      header: "DUE DATE",
-      render: (row) => (
-        <div className="flex items-center text-gray-700 font-medium text-base">
-          <Calendar className="w-5 h-5 mr-2 text-gray-500" />
-          {row.due_date ? dayjs(row.due_date).format("DD MMM YYYY") : "—"}
-        </div>
-      ),
+    { 
+      key: "actions", 
+      header: "Actions",
+      render: (text, record) => record.actions
     },
-    {
-      key: "penalty",
-      header: "PENALTY",
-      render: (row) =>
-        row.penalty > 0 ? (
-          <div className="text-red-600 font-bold text-lg flex items-center">
-            <AlertTriangle className="w-5 h-5 mr-2" />
-            <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
-            {Number(row.penalty).toLocaleString("en-IN")}
-          </div>
-        ) : (
-          <div className="text-gray-400 font-bold text-lg">
-            <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
-            0
-          </div>
-        ),
+    { 
+      key: "statusDiv", 
+      header: "Status",
+      render: (text) => text
     },
-    {
-      key: "penaltyRate",
-      header: "PENALTY %",
-      render: (row) => (
-        row.penaltyRate > 0 ? (
-          <div className="px-3 py-2 bg-red-50 text-red-600 rounded-lg font-bold text-base">
-            {row.penaltyRate}%
-          </div>
-        ) : (
-          <div className="text-gray-400 font-bold text-lg">—</div>
-        )
-      ),
-    },
-    {
-      key: "totalPayable",
-      header: "TOTAL PAYABLE",
-      render: (row) => (
-        <div className="font-bold text-gray-900 text-lg">
-          <FaIndianRupeeSign className="inline w-4 h-4 mr-1" />
-          {Number(row.totalPayable || 0).toLocaleString("en-IN")}
-        </div>
-      ),
-    },
-    {
-      key: "status",
-      header: "STATUS",
-      render: (row) => {
-        let color = "green";
-        let icon = <CheckCircle className="w-5 h-5" />;
-        if (row.status === "Late") {
-          color = "red";
-          icon = <AlertTriangle className="w-5 h-5" />;
-        } else if (row.status === "Within Grace") {
-          color = "orange";
-          icon = <Clock className="w-5 h-5" />;
-        }
-        return (
-          <Tag color={color} icon={icon} className="font-bold text-base px-3 py-1">
-            {row.status}
-          </Tag>
-        );
-      },
-    }
   ];
 
+  const breakdownColumns = [
+    { 
+      title: "Auction", 
+      dataIndex: "cycle_no", 
+      align: "center", 
+      width: 80,
+      render: (text) => <span className="font-medium">{text}</span>
+    },
+    // {
+    //   title: "From Date",
+    //   dataIndex: "from_date",
+    //   render: (v) => moment(v).format("DD/MM/YYYY"),
+    // },
+    {
+      title: "Due Date",
+      dataIndex: "to_date",
+      render: (v) => moment(v).format("DD/MM/YYYY"),
+    },
+    { 
+      title: "Expected", 
+      dataIndex: "expected", 
+      align: "right",
+      render: (v) => <span className="font-medium">₹{v?.toFixed(2)}</span>
+    },
+    { 
+      title: "Paid", 
+      dataIndex: "paid", 
+      align: "right",
+      render: (v) => <span className="text-green-600 font-medium">₹{v?.toFixed(2)}</span>
+    },
+    { 
+      title: "Balance", 
+      dataIndex: "balance", 
+      align: "right",
+      render: (v) => <span className="text-red-600 font-medium">₹{v?.toFixed(2)}</span>
+    },
+    {
+      title: "Penalty",
+      dataIndex: "penalty",
+      align: "right",
+      render: (v) => (
+        <span style={{ color: v > 0 ? "red" : "gray", fontWeight: 500 }}>
+          ₹{v?.toFixed(2)}
+        </span>
+      ),
+    },
+    { 
+      title: " Penalty Rate", 
+      dataIndex: "penalty_rate_percent", 
+      align: "center",
+      render: (v) => <span className="text-blue-600">{v}%</span>
+    },
+  ];
+
+  const filteredTableData = filterOption(
+    usersData.filter((u) => {
+      const matchGroup = groupFilter ? u.groupName === groupFilter : true;
+      const enrollmentDate = new Date(u.enrollmentDate);
+      const matchFromDate = fromDate ? enrollmentDate >= new Date(fromDate) : true;
+      const matchToDate = toDate ? enrollmentDate <= new Date(toDate) : true;
+      return matchGroup && matchFromDate && matchToDate;
+    }),
+    searchText
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="flex mt-20">
+    <div className="min-h-screen mt-20 bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex">
         <SettingSidebar />
         <Navbar
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}
         />
-        <div className="flex-grow p-8">
-          {/* Header Section */}
-          <div className="mb-10">
-            <div className="flex items-center mb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
-                <AlertTriangle className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900">Penalty Monitor</h1>
-                <p className="text-lg text-gray-600 mt-1">Track outstanding payments and manage penalties efficiently</p>
-              </div>
-            </div>
+        {screenLoading ? (
+          <div className="flex-grow flex items-center justify-center h-screen">
+            <CircularLoader color="text-green-600" />
           </div>
+        ) : (
+          <div className="flex-grow p-6">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Penalty & Outstanding Report
+              </h1>
+              <p className="text-gray-600">Monitor and manage customer penalties and outstanding amounts</p>
+            </div>
 
-          {/* Filters Section */}
-          <Card
-            className="mb-10 shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl"
-            title={
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
-                  <Filter className="w-6 h-6 text-blue-600" />
-                </div>
-                <span className="text-xl font-bold text-gray-900">Filter Options</span>
-              </div>
-            }
-          >
-            <Row gutter={[24, 24]} align="bottom">
-
-              <Col xs={24} sm={12} md={8}>
-                <div className="mb-2">
-                  <label className="block text-base font-semibold text-gray-700 mb-3">
-                    Select Group
-                  </label>
-                  <Select
-                    placeholder="All Groups"
-                    allowClear
-                    value={selectedGroup}
-                    onChange={(value) => {
-                      setSelectedGroup(value);
-                      if (dateRange?.[0] && dateRange?.[1]) {
-                        fetchDueReportAndProcess(dateRange[0], dateRange[1], value);
-                      } else {
-
-                        fetchDueReportAndProcess(null, null, value);
-                      }
-                    }}
-                    className="w-full"
-                    size="large"
-                    options={groups}
-                  />
-                </div>
-              </Col>
-
-              <Col xs={24} sm={12} md={8}>
-                <div className="mb-2">
-                  <label className="block text-base font-semibold text-gray-700 mb-3">
-                    Filter Mode
-                  </label>
-                  <Select
-                    value={mode}
-                    onChange={setMode}
-                    className="w-full"
-                    size="large"
-                    options={[
-                      { value: "month", label: "By Month" },
-                      { value: "range", label: "Custom Range" },
-                    ]}
-                  />
-                </div>
-              </Col>
-
-              {mode === "month" ? (
-                <Col xs={24} sm={12} md={8}>
-                  <div className="mb-2">
-                    <label className="block text-base font-semibold text-gray-700 mb-3">
-                      Select Month
-                    </label>
-                    <DatePicker
-                      picker="month"
-                      onChange={handleMonthChange}
-                      className="w-full"
-                      size="large"
-                      placeholder="Choose month"
-                    />
+            {/* Filters */}
+            <div className="mb-8">
+              <Card 
+                className="shadow-sm rounded-lg border border-gray-200"
+                title={
+                  <div className="flex items-center">
+                    <FilterOutlined className="mr-2 text-blue-600" />
+                    <span className="font-semibold text-lg">Filters</span>
                   </div>
-                </Col>
-              ) : (
-                <Col xs={24} sm={12} md={8}>
-                  <div className="mb-2">
-                    <label className="block text-base font-semibold text-gray-700 mb-3">
-                      Select Date Range
+                }
+              >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Group Filter
+                    </label>
+                    <Select
+                      className="w-full"
+                      allowClear
+                      placeholder="Select a group"
+                      onChange={(value) => setGroupFilter(value)}
+                      value={groupFilter || undefined}
+                      suffixIcon={<UsergroupAddOutlined />}
+                    >
+                      {groupOptions.map((group) => (
+                        <Option key={group} value={group}>
+                          {group}
+                        </Option>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Enrollment Date Range
                     </label>
                     <RangePicker
-                      onChange={handleRangeChange}
                       className="w-full"
-                      size="large"
-                      format="YYYY-MM-DD"
-                      placeholder={["Start date", "End date"]}
+                      onChange={(dates) => {
+                        if (dates) {
+                          setFromDate(moment(dates[0]).format('YYYY-MM-DD'));
+                          setToDate(moment(dates[1]).format('YYYY-MM-DD'));
+                        } else {
+                          setFromDate("");
+                          setToDate("");
+                        }
+                      }}
+                      format="DD/MM/YYYY"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Search Customer
+                    </label>
+                    <Input
+                      placeholder="Search by name, phone, or ID"
+                      prefix={<SearchOutlined className="text-gray-400" />}
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="mb-8">
+              <Row gutter={[16, 16]}>
+                <Col xs={24} sm={12} md={4}>
+                  <Card className="shadow-sm border border-gray-200">
+                    <Statistic
+                      title="Total Customers"
+                      value={totals.totalCustomers}
+                      prefix={<UsergroupAddOutlined className="text-blue-500" />}
+                      valueStyle={{ color: '#1890ff', fontSize: '1.5rem' }}
+                    />
+                  </Card>
                 </Col>
-              )}
-            </Row>
-          </Card>
+                <Col xs={24} sm={12} md={4}>
+                  <Card className="shadow-sm border border-gray-200">
+                    <Statistic
+                      title="Total Groups"
+                      value={totals.totalGroups}
+                      prefix={<UsergroupAddOutlined className="text-green-500" />}
+                      valueStyle={{ color: '#52c41a', fontSize: '1.5rem' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={4}>
+                  <Card className="shadow-sm border border-gray-200">
+                    <Statistic
+                      title="Amount to be Paid"
+                      value={totals.totalToBePaid}
+                      precision={2}
+                    
+                      valueStyle={{ color: '#1890ff', fontSize: '1.5rem' }}
+                      formatter={(value) => `₹${value?.toLocaleString('en-IN')}`}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={4}>
+                  <Card className="shadow-sm border border-gray-200">
+                    <Statistic
+                      title="Total Penalty"
+                      value={totals.totalPenalty}
+                      precision={2}
+                     
+                      valueStyle={{ color: '#ff4d4f', fontSize: '1.5rem' }}
+                      formatter={(value) => `₹${value?.toLocaleString('en-IN')}`}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={4}>
+                  <Card className="shadow-sm border border-gray-200">
+                    <Statistic
+                      title="Total Paid"
+                      value={totals.totalPaid}
+                      precision={2}
+                 
+                      valueStyle={{ color: '#722ed1', fontSize: '1.5rem' }}
+                      formatter={(value) => `₹${value?.toLocaleString('en-IN')}`}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={4}>
+                  <Card className="shadow-sm border border-gray-200">
+                    <Statistic
+                      title="Total Balance"
+                      value={totals.totalBalance}
+                      precision={2}
+                     
+                      valueStyle={{ color: '#ff4d4f', fontSize: '1.5rem' }}
+                      formatter={(value) => `₹${value?.toLocaleString('en-IN')}`}
+                    />
+                  </Card>
+                </Col>
+              </Row>
+            </div>
 
-          {/* Main Summary Cards */}
-          <Row gutter={[24, 24]} className="mb-10">
-          
-            <Col xs={24} sm={12} lg={6}>
-              <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
-                  <div className="flex items-center justify-between text-white">
-                    <div>
-                      <div className="text-blue-100 text-sm font-medium mb-1">TOTAL EXPECTED</div>
-                      <div className="text-3xl font-bold">
-                        ₹{Number(totalExpected || 0).toLocaleString("en-IN")}
-                      </div>
-                    </div>
-                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-                      <FaIndianRupeeSign className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
+            {/* Data Table */}
+            <Card 
+              className="shadow-sm rounded-lg border border-gray-200"
+              title={
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-lg">Customer Details</span>
+                  <span className="text-gray-500 text-sm">
+                    Showing {filteredTableData.length} of {usersData.length} customers
+                  </span>
                 </div>
-                <div className="p-4">
-                  <Progress
-                    percent={paymentProgress}
-                    showInfo={false}
-                    strokeColor="#3B82F6"
-                    size="small"
-                    className="mb-2"
-                  />
-                  <div className="text-sm text-gray-600 font-medium">{paymentProgress}% Collected</div>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl overflow-hidden">
-                <div className="bg-gradient-to-r from-green-500 to-green-600 p-4">
-                  <div className="flex items-center justify-between text-white">
-                    <div>
-                      <div className="text-green-100 text-sm font-medium mb-1">TOTAL PAID</div>
-                      <div className="text-3xl font-bold">
-                        ₹{Number(totalPaid || 0).toLocaleString("en-IN")}
-                      </div>
-                    </div>
-                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-                      <CheckCircle className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center text-green-600">
-                    <ArrowUpRight className="w-5 h-5 mr-1" />
-                    <span className="font-semibold">Payments Received</span>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl overflow-hidden">
-                <div className="bg-gradient-to-r from-red-500 to-red-600 p-4">
-                  <div className="flex items-center justify-between text-white">
-                    <div>
-                      <div className="text-red-100 text-sm font-medium mb-1">OUTSTANDING</div>
-                      <div className="text-3xl font-bold">
-                        ₹{Number(totalBalance || 0).toLocaleString("en-IN")}
-                      </div>
-                    </div>
-                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-                      <CreditCard className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center text-red-600">
-                    <ArrowDownRight className="w-5 h-5 mr-1" />
-                    <span className="font-semibold">Pending Amount</span>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl overflow-hidden">
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-4">
-                  <div className="flex items-center justify-between text-white">
-                    <div>
-                      <div className="text-orange-100 text-sm font-medium mb-1">TOTAL PENALTY</div>
-                      <div className="text-3xl font-bold">
-                        ₹{Number(totalPenalty || 0).toLocaleString("en-IN")}
-                      </div>
-                    </div>
-                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-                      <AlertTriangle className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center text-orange-600">
-                    <AlertTriangle className="w-5 h-5 mr-1" />
-                    <span className="font-semibold">Penalty Charges</span>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-
-          {/* Status Overview Cards */}
-          <Row gutter={[24, 24]} className="mb-10">
-            <Col xs={24} sm={8}>
-              <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl">
-                <div className="flex items-center justify-between p-2">
-                  <div>
-                    <div className="text-gray-500 text-base font-medium mb-2">Late Payments</div>
-                    <div className="text-4xl font-bold text-red-600">{latePaymentsCount}</div>
-                    <div className="text-sm text-gray-600 mt-2">Requires immediate attention</div>
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-                    <UserX className="w-8 h-8 text-red-600" />
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl">
-                <div className="flex items-center justify-between p-2">
-                  <div>
-                    <div className="text-gray-500 text-base font-medium mb-2">Within Grace Period</div>
-                    <div className="text-4xl font-bold text-orange-500">{withinGraceCount}</div>
-                    <div className="text-sm text-gray-600 mt-2">Grace period active</div>
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center">
-                    <Clock className="w-8 h-8 text-orange-500" />
-                  </div>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={24} sm={8}>
-              <Card className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl">
-                <div className="flex items-center justify-between p-2">
-                  <div>
-                    <div className="text-gray-500 text-base font-medium mb-2">Total Customers</div>
-                    <div className="text-4xl font-bold text-blue-600">{data.length}</div>
-                    <div className="text-sm text-gray-600 mt-2">Active accounts</div>
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                    <Users className="w-8 h-8 text-blue-600" />
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-
-
-
-          {/* Table Section */}
-          <Card
-            className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 rounded-2xl"
-            title={
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-3">
-                    <FileText className="w-6 h-6 text-green-600" />
-                  </div>
-                  <span className="text-xl font-bold text-gray-900">Payment Details</span>
-                </div>
-                {dateRange.length === 2 && (
-                  <div className="text-base text-gray-600 font-medium bg-gray-100 px-4 py-2 rounded-lg">
-                    {dayjs(dateRange[0]).format("DD MMM YYYY")} - {dayjs(dateRange[1]).format("DD MMM YYYY")}
-                  </div>
-                )}
-              </div>
-            }
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center py-32">
-                <CircularLoader color="text-blue-600" />
-              </div>
-            ) : filteredData.length === 0 ? (
-              <div className="text-center py-32">
-                <AlertCircle className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-700 mb-3">
-                  No Data Available
-                </h3>
-                <p className="text-lg text-gray-500">
-                  Select a date range to view due reports with penalties
-                </p>
-              </div>
-            ) : (
+              }
+            >
               <DataTable
-                data={filteredData}
+                data={filteredTableData}
                 columns={columns}
-                exportedFileName={`PenaltyMonitor_${dayjs().format("YYYYMMDD_HHmm")}.csv`}
-                printHeaderKeys={["Total Expected", "Total Paid", "Total Balance", "Total Penalty"]}
-                printHeaderValues={[
-                  `₹${totalExpected.toLocaleString("en-IN")}`,
-                  `₹${totalPaid.toLocaleString("en-IN")}`,
-                  `₹${totalBalance.toLocaleString("en-IN")}`,
-                  `₹${totalPenalty.toLocaleString("en-IN")}`,
-                ]}
+                exportedPdfName="Penalty Report"
+                exportedFileName="PenaltyReport.csv"
               />
-            )}
-          </Card>
-        </div>
+            </Card>
+          </div>
+        )}
       </div>
+
+      {/* 🔹 Breakdown Modal */}
+      <Modal
+        title={
+          <div>
+            <div className="flex items-center">
+              <EyeOutlined className="mr-2 text-blue-600" />
+              <span className="text-lg font-semibold">Penalty Breakdown</span>
+            </div>
+            {selectedCustomer && (
+              <div className="text-sm text-gray-600 mt-1">
+                {selectedCustomer.userName} - {selectedCustomer.groupName}
+              </div>
+            )}
+          </div>
+        }
+        open={breakdownModal}
+        onCancel={() => setBreakdownModal(false)}
+        footer={null}
+        width={1000}
+        bodyStyle={{ padding: '20px' }}
+      >
+        {loadingBreakdown ? (
+          <div className="flex justify-center items-center h-64">
+            <CircularLoader />
+          </div>
+        ) : (
+          <>
+            <Table
+              dataSource={breakdownData.map((d, i) => ({ ...d, key: i }))}
+              columns={breakdownColumns}
+              pagination={false}
+              bordered
+              scroll={{ y: 400 }}
+              className="breakdown-table"
+            />
+
+            {/* ✅ Summary Totals */}
+            {breakdownData.length > 0 && (
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className="text-center">
+                    <div className="text-gray-500 text-sm">Expected</div>
+                    <div className="text-lg font-semibold">
+                      ₹{breakdownData
+                        .reduce((sum, d) => sum + (d.expected || 0), 0)
+                        .toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-500 text-sm">Paid</div>
+                    <div className="text-lg font-semibold text-green-600">
+                      ₹{breakdownData
+                        .reduce((sum, d) => sum + (d.paid || 0), 0)
+                        .toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                 
+                  <div className="text-center">
+                    <div className="text-gray-500 text-sm">Penalty</div>
+                    <div className="text-lg font-semibold text-red-600">
+                      ₹{breakdownData
+                        .reduce((sum, d) => sum + (d.penalty || 0), 0)
+                        .toLocaleString('en-IN')}
+                    </div>
+                  </div>
+               
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 };
