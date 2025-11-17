@@ -32,10 +32,7 @@ const HardTransfer = () => {
   const [destinationEnrollment, setDestinationEnrollment] = useState([]);
   //known enollments
   const [deletedEnrollments, setDeletedEnrollments] = useState([]);
-  const getGroupNameById = (groupId) => {
-    const group = allGroups.find((g) => g._id === groupId);
-    return group?.group_name || "Unknown Group";
-  };
+  const [notDeletedEnrollments, setNotDeletedEnrollments] = useState([]);
 
   const fetchTransfers = async () => {
     try {
@@ -52,6 +49,7 @@ const HardTransfer = () => {
         return {
           _id: transfer._id,
           id: index + 1,
+          voucher_id: transfer.voucher_id,
           from_group: fromGroupName,
           to_group: toGroupName,
           from_customer: fromUser.full_name || "-",
@@ -79,7 +77,7 @@ const HardTransfer = () => {
 
       const formattedData = (res.data?.data || []).map((enrollment, index) => {
         return {
-          enroll_id:enrollment?._id,
+          enroll_id: enrollment?._id,
           customer_name: enrollment?.user_id?.full_name,
           customer_phone: enrollment?.user_id?.phone_number,
           customer_id: enrollment?.user_id?.customer_id,
@@ -94,11 +92,35 @@ const HardTransfer = () => {
     } finally {
     }
   };
+  const fetchNotDeletedEnrollments = async () => {
+    try {
+      const res = await api.get("/enroll/not-deleted");
+
+      const formattedData = (res.data?.data || []).map((enrollment, index) => {
+        return {
+          enroll_id: enrollment?._id,
+          customer_name: enrollment?.user_id?.full_name,
+          customer_phone: enrollment?.user_id?.phone_number,
+          customer_id: enrollment?.user_id?.customer_id,
+          group_name: enrollment.group_id?.group_name,
+          ticket: enrollment.tickets,
+        };
+      });
+      setNotDeletedEnrollments(formattedData);
+    } catch (err) {
+      console.error("Failed to fetch transfers", err);
+      setNotDeletedEnrollments([]);
+    } finally {
+    }
+  };
 
   useEffect(() => {
     fetchDeletedEnrollments();
   }, []);
 
+  useEffect(() => {
+    fetchNotDeletedEnrollments();
+  }, []);
   useEffect(() => {
     fetchTransfers();
   }, []);
@@ -122,12 +144,9 @@ const HardTransfer = () => {
       return;
     }
     try {
-      const res = await api.get("/enroll/get-exact-amount-paid", {
-        params: {
-          enroll_id: sourceEnrollment,
-          ticket: sourceTicket,
-        },
-      });
+      const res = await api.get(
+        `/enroll/get-exact-amount-paid/${sourceEnrollment}`
+      );
       setAmountPaid(res.data.amountPaid || 0);
       setTransferAmount(res.data.amountPaid || 0);
     } catch (error) {
@@ -140,6 +159,7 @@ const HardTransfer = () => {
   const handleTransfer = async () => {
     if (
       !sourceEnrollment ||
+      !destinationEnrollment ||
       !transferAmount ||
       parseFloat(transferAmount) <= 0
     ) {
@@ -166,9 +186,8 @@ const HardTransfer = () => {
         const formatted = {
           _id: transfer._id,
           id: transferData.length + 1,
-          transfer_id: `TRAN-${transferData.length + 1}`,
-          from_enrollment:sourceEnrollment,
-          to_enrollment:destinationEnrollment,
+          from_enrollment: sourceEnrollment,
+          to_enrollment: destinationEnrollment,
           transfer_amount: parseFloat(transferAmount),
           amount_paid: amountPaid,
           transfer_type: "Hard",
@@ -188,19 +207,15 @@ const HardTransfer = () => {
   };
 
   const resetForm = () => {
-    setSourceGroup("");
-    setSourceCustomer("");
-    setSourceTicket("");
-    setDestinationGroup("");
-    setDestinationCustomer("");
-    setDestinationTicket("");
+    setSourceEnrollment("");
+    setDestinationEnrollment("");
     setTransferAmount("");
     setAmountPaid(0);
   };
 
   const columns = [
     { key: "id", header: "Sl No" },
-    { key: "transfer_id", header: "Transfer ID" },
+    { key: "voucher_id", header: "Voucher ID" },
     { key: "from_group", header: "From Group" },
     { key: "from_customer", header: "From Customer" },
     { key: "from_ticket", header: "From Ticket" },
@@ -277,7 +292,9 @@ const HardTransfer = () => {
             <Col span={24}>
               <Form.Item
                 label={
-                  <span className="font-medium">From Customer | Group </span>
+                  <span className="font-medium">
+                    From Customer | Group |Ticket{" "}
+                  </span>
                 }
               >
                 <Select
@@ -329,7 +346,7 @@ const HardTransfer = () => {
                   }
                   style={{ fontSize: "16px", height: "52px" }}
                 >
-                  {deletedEnrollments
+                  {notDeletedEnrollments
                     .filter((e) => e.customer_phone && e.group_name)
                     .map((e) => (
                       <Select.Option
@@ -361,23 +378,6 @@ const HardTransfer = () => {
               >
                 Check Total Amount Paid
               </Button>
-            </Col>
-
-            <Col span={24}>
-              <Form.Item
-                label={<span className="font-medium">Amount Paid</span>}
-              >
-                <Input
-                  disabled
-                  size="large"
-                  value={amountPaid}
-                  style={{
-                    fontSize: "16px",
-                    height: "52px",
-                    fontWeight: "500",
-                  }}
-                />
-              </Form.Item>
             </Col>
 
             <Col span={24}>
