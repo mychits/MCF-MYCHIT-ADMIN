@@ -41,9 +41,9 @@ const Pigme = () => {
     customer: "",
     maturity_period: "",
     maturity_interest: "6",
-   // payable_amount: "",
+    payable_amount: "",
     start_date: "",
-   // end_date: "",
+    // end_date: "",
     note: "",
     referred_customer: "",
     referred_employee: "",
@@ -57,9 +57,9 @@ const Pigme = () => {
     customer: "",
     maturity_period: "",
     maturity_interest: "6",
-   // payable_amount: "",
+    payable_amount: "",
     start_date: "",
-  //  end_date: "",
+    //  end_date: "",
     note: "",
     referred_customer: "",
     referred_employee: "",
@@ -119,10 +119,10 @@ const Pigme = () => {
           date: pigmeCustomer?.createdAt,
           maturity_period: pigmeCustomer?.maturity_period,
           maturity_interest: pigmeCustomer?.maturity_interest,
-       //   payable_amount: pigmeCustomer?.payable_amount,
+          payable_amount: pigmeCustomer?.payable_amount,
           start_date: pigmeCustomer?.start_date?.split("T")[0],
           duration: pigmeCustomer?.duration,
-       //   end_date: pigmeCustomer?.end_date?.split("T")[0],
+          //   end_date: pigmeCustomer?.end_date?.split("T")[0],
           note: pigmeCustomer?.note,
           referred_type: pigmeCustomer?.referred_type,
           referred_by:
@@ -206,15 +206,15 @@ const Pigme = () => {
       newErrors.maturity_period = "Maturity Period is Required";
     }
 
-    // if (!data.payable_amount) {
-    //   newErrors.payable_amount = "Payable Amount is required";
-    // } else if (
-    //   !data.payable_amount ||
-    //   isNaN(data.payable_amount) ||
-    //   data.payable_amount <= 0
-    // ) {
-    //   newErrors.payable_amount = "Payable Amount must be a positive number";
-    // }
+    if (!data.payable_amount) {
+      newErrors.payable_amount = "Payable Amount is required";
+    } else if (
+      !data.payable_amount ||
+      isNaN(data.payable_amount) ||
+      data.payable_amount <= 0
+    ) {
+      newErrors.payable_amount = "Payable Amount must be a positive number";
+    }
 
     if (!data.start_date) {
       newErrors.start_date = "Start Date is required";
@@ -250,9 +250,9 @@ const Pigme = () => {
           customer: "",
           maturity_period: "",
           maturity_interest: "6",
-        //  payable_amount: "",
+          payable_amount: "",
           start_date: "",
-        //  end_date: "",
+          //  end_date: "",
           note: "",
           referred_customer: "",
           referred_employee: "",
@@ -287,9 +287,9 @@ const Pigme = () => {
         customer: response?.data?.customer._id,
         maturity_period: response?.data?.maturity_period,
         maturity_interest: response?.data?.maturity_interest,
-      //  payable_amount: response?.data?.payable_amount,
+        payable_amount: response?.data?.payable_amount,
         start_date: formattedStartDate,
-      //  end_date: formattedEndDate,
+        //  end_date: formattedEndDate,
         note: response?.data?.note,
         referred_employee: response?.data?.referred_employee?._id || "",
         referred_customer: response?.data?.referred_customer?._id || "",
@@ -376,13 +376,14 @@ const Pigme = () => {
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "customer_name", header: "Customer Name" },
-    {key: "pigme_id", header: "Pigme ID"},
+    { key: "pigme_id", header: "Pigme ID" },
     { key: "maturity_period", header: "Maturity Period" },
+    { key: "payable_amount", header: "Amount" },
     { key: "maturity_interest", header: "Maturity Interest" },
     { key: "referred_type", header: "Referred Type" },
     { key: "referred_by", header: "Referred By" },
     { key: "start_date", header: "Start Date" },
-    {key: "duration", header: "Duration"},
+    { key: "duration", header: "Duration" },
     // { key: "end_date", header: "Due Date" },
     { key: "note", header: "Note" },
     { key: "action", header: "Action" },
@@ -484,7 +485,8 @@ const Pigme = () => {
                 >
                   {users.map((user) => (
                     <Select.Option key={user._id} value={user._id}>
-                     {user.customer_id} | {user.full_name} | {user.phone_number} 
+                      {user.customer_id} | {user.full_name} |{" "}
+                      {user.phone_number}
                     </Select.Option>
                   ))}
                 </Select>
@@ -497,8 +499,7 @@ const Pigme = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="maturity_period"
                 >
-                  Select Payment Type{" "}
-                  <span className="text-red-500 ">*</span>
+                  Select Payment Type <span className="text-red-500 ">*</span>
                 </label>
                 {/* <select
                   name="maturity_period"
@@ -532,7 +533,6 @@ const Pigme = () => {
                     handleAntDSelect("maturity_period", value)
                   }
                 >
-                  
                   {["Daily", "Weekly", "Monthly"].map((maturity) => (
                     <Select.Option
                       key={maturity}
@@ -695,7 +695,7 @@ const Pigme = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="maturity_interest"
                   >
-                     Interest %
+                    Interest %
                   </label>
                   <input
                     type="text"
@@ -731,7 +731,51 @@ const Pigme = () => {
                     </p>
                   )}
                 </div>
-                {/* <div className="w-1/2">
+              </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="duration"
+                  >
+                    Duration <span className="text-red-500 ">*</span>
+                  </label>
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Duration"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="duration"
+                    filterOption={(input, option) =>
+                      option?.children
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={formData?.duration || "6 months"}
+                    onChange={(value) =>
+                      handleAntDSelect("duration", value)
+                    }
+                  >
+                    {[
+                      "6 months",
+                      "12 months",
+                      "18 months",
+                      "24 months",
+                      "30 months",
+                      "36 months",
+                      "42 months",
+                      "48 months",
+                      "54 months",
+                      "60 months",
+                    ].map((cDuration) => (
+                      <Select.Option key={cDuration} value={cDuration}>
+                        {cDuration}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="payable_amount"
@@ -746,56 +790,13 @@ const Pigme = () => {
                     id="tenure"
                     placeholder="Enter Payable Amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-4"
                   />
                   {errors.payable_amount && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.payable_amount}
                     </p>
                   )}
-                </div> */}
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                
-                <div className="w-full">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="end_date"
-                  >
-                    Duration <span className="text-red-500 ">*</span>
-                  </label>
-                  <Select
-  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-  placeholder="Select Duration"
-  popupMatchSelectWidth={false}
-  showSearch
-  name="duration"
-  filterOption={(input, option) =>
-    option?.children?.toLowerCase().includes(input.toLowerCase())
-  }
-  value={updateFormData?.duration  || "6 months"}
-  onChange={(value) => handleAntInputDSelect("duration", value)}
->
-  
-  {[
-    "6 months",
-    "12 months",
-    "18 months",
-    "24 months",
-    "30 months",
-    "36 months",
-    "42 months",
-    "48 months",
-    "54 months",
-    "60 months",
-  ].map((cDuration) => (
-    <Select.Option key={cDuration} value={cDuration}>
-      {cDuration}
-    </Select.Option>
-  ))}
-</Select>
-                
                 </div>
               </div>
               <div>
@@ -900,8 +901,7 @@ const Pigme = () => {
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="maturity_period"
                 >
-                  Select Payment Type{" "}
-                  <span className="text-red-500 ">*</span>
+                  Select Payment Type <span className="text-red-500 ">*</span>
                 </label>
                 <Select
                   className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
@@ -920,7 +920,6 @@ const Pigme = () => {
                     handleAntInputDSelect("maturity_period", value)
                   }
                 >
-                 
                   {["Daily", "Weekly", "Monthly"].map((maturity) => (
                     <Select.Option
                       key={maturity}
@@ -1119,7 +1118,51 @@ const Pigme = () => {
                     </p>
                   )}
                 </div>
-                {/* <div className="w-1/2">
+              </div>
+
+              <div className="flex flex-row justify-between space-x-4">
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="duration"
+                  >
+                    Duration <span className="text-red-500 ">*</span>
+                  </label>
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select Duration"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="duration"
+                    filterOption={(input, option) =>
+                      option?.children
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData?.duration || "6 months"}
+                    onChange={(value) =>
+                      handleAntInputDSelect("duration", value)
+                    }
+                  >
+                    {[
+                      "6 months",
+                      "12 months",
+                      "18 months",
+                      "24 months",
+                      "30 months",
+                      "36 months",
+                      "42 months",
+                      "48 months",
+                      "54 months",
+                      "60 months",
+                    ].map((cDuration) => (
+                      <Select.Option key={cDuration} value={cDuration}>
+                        {cDuration}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="payable_amount"
@@ -1134,36 +1177,13 @@ const Pigme = () => {
                     id="tenure"
                     placeholder="Enter Payable Amount"
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-4"
                   />
                   {errors.payable_amount && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.payable_amount}
                     </p>
                   )}
-                </div> */}
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="end_date"
-                  >
-                    Duration <span className="text-red-500 ">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="duration"
-                    value={updateFormData.duration}
-                    onChange={handleInputChange}
-                    id="duration"
-                    placeholder="Enter Duration in months"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                  />
-                  
                 </div>
               </div>
               <div>
