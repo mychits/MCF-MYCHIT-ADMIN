@@ -35,7 +35,7 @@ const PenaltyMonitor = () => {
     totalPaid: 0,
     totalBalance: 0,
     totalPenalty: 0,
-    totalLateFee: 0, // 👈 NEW
+    totalLateFee: 0,
   });
 
   // 🔹 Modal for breakdown
@@ -59,12 +59,26 @@ const PenaltyMonitor = () => {
     );
   }, [usersData, groupFilter, fromDate, toDate, searchText]);
 
-  // 🔹 Fetch all users and penalty summaries
+  // 🔹 Fetch all users and penalty summaries - OPTIMIZED
   useEffect(() => {
     const fetchData = async () => {
       try {
         setScreenLoading(true);
+        
+        // Get user data
         const reportResponse = await api.get("/user/all-customers-report");
+        
+        // Get ALL penalty data in ONE call
+        const penaltyResponse = await api.get("/penalty/get-penalty-report"); // This now returns all data
+        const allPenaltyData = penaltyResponse.data?.data || [];
+        
+        // Create a map for fast lookup: "userId_groupId" -> penalty data
+        const penaltyMap = new Map();
+        allPenaltyData.forEach(penalty => {
+          const key = `${penalty.user_id}_${penalty.group_id}`;
+          penaltyMap.set(key, penalty);
+        });
+
         const usersList = [];
         let count = 1;
 
@@ -74,28 +88,20 @@ const PenaltyMonitor = () => {
               if (data?.enrollment?.group) {
                 const groupId = data.enrollment.group._id;
                 const userId = usrData._id;
-
-                // ✅ Fetch penalty summary
-                let penaltyData = {};
-                try {
-                  const penaltyRes = await api.get("/penalty/get-penalty-report", {
-                    params: { user_id: userId, group_id: groupId },
-                  });
-                  penaltyData = penaltyRes.data || {};
-                } catch (err) {
-                  console.warn(`Penalty API error for user ${userId}`, err);
-                  penaltyData = {
-                    summary: {
-                      total_penalty: 0,
-                      total_late_payment_charges: 0,
-                      grand_total_due_with_penalty: 0,
-                    },
-                  };
-                }
+                
+                // 🔥 Get penalty data from the single call (no API call here!)
+                const penaltyKey = `${userId}_${groupId}`;
+                const penaltyData = penaltyMap.get(penaltyKey) || {
+                  summary: {
+                    total_penalty: 0,
+                    total_late_payment_charges: 0,
+                    grand_total_due_with_penalty: 0,
+                  }
+                };
 
                 const summary = penaltyData.summary || {};
                 const totalPenalty = summary.total_penalty || 0;
-                const totalLateFee = summary.total_late_payment_charges || 0; // 👈 NEW
+                const totalLateFee = summary.total_late_payment_charges || 0;
                 const balanceWithPenalty = summary.grand_total_due_with_penalty || 0;
 
                 usersList.push({
@@ -116,9 +122,9 @@ const PenaltyMonitor = () => {
                   totalToBePaid: data.payable.totalPayable + data.profit.totalProfit,
                   balance: balanceWithPenalty,
                   totalPenalty: totalPenalty,
-                  totalLateFee: totalLateFee, // 👈 NEW
-
-                  // ✅ Action button
+                  totalLateFee: totalLateFee,
+                  
+                  // ✅ Action button - will now use cached data
                   actions: (
                     <Button
                       type="primary"
@@ -129,7 +135,8 @@ const PenaltyMonitor = () => {
                           userId,
                           groupId,
                           usrData.userName,
-                          data.enrollment.group.group_name
+                          data.enrollment.group.group_name,
+                          penaltyData // Pass the penalty data directly
                         )
                       }
                     >
@@ -177,7 +184,7 @@ const PenaltyMonitor = () => {
     const totalPaid = filteredUsers.reduce((sum, u) => sum + (u.amountPaid || 0), 0);
     const totalBalance = filteredUsers.reduce((sum, u) => sum + (u.balance || 0), 0);
     const totalPenalty = filteredUsers.reduce((sum, u) => sum + (u.totalPenalty || 0), 0);
-    const totalLateFee = filteredUsers.reduce((sum, u) => sum + (u.totalLateFee || 0), 0); // 👈 NEW
+    const totalLateFee = filteredUsers.reduce((sum, u) => sum + (u.totalLateFee || 0), 0);
 
     setTotals({
       totalCustomers,
@@ -186,23 +193,28 @@ const PenaltyMonitor = () => {
       totalPaid,
       totalBalance,
       totalPenalty,
-      totalLateFee, // 👈 NEW
+      totalLateFee,
     });
   }, [filteredUsers, groupFilter]);
 
-  // 🔹 Show penalty breakdown
-  const handleShowBreakdown = async (userId, groupId, userName, groupName) => {
+  // 🔹 Show penalty breakdown - OPTIMIZED
+  const handleShowBreakdown = async (userId, groupId, userName, groupName, cachedPenaltyData = null) => {
     try {
       setLoadingBreakdown(true);
       setSelectedCustomer({ userName, groupName });
       setBreakdownModal(true);
 
-      const res = await api.get("/penalty/get-penalty-report", {
-        params: { user_id: userId, group_id: groupId },
-      });
+      let penaltyData = cachedPenaltyData;
 
-      const data = res.data;
-      setBreakdownData(data.cycles || []);
+      // Only fetch if not cached (for edge cases)
+      if (!penaltyData) {
+        const res = await api.get("/penalty/get-penalty-report", {
+          params: { user_id: userId, group_id: groupId },
+        });
+        penaltyData = res.data;
+      }
+
+      setBreakdownData(penaltyData.cycles || []);
     } catch (err) {
       console.error(err);
       message.error("Failed to load penalty breakdown");
@@ -281,7 +293,7 @@ const PenaltyMonitor = () => {
       ),
     },
     {
-      key: "totalLateFee", // 👈 NEW COLUMN
+      key: "totalLateFee",
       header: "Late Fee",
       render: (text) => (
         <span className="font-semibold text-orange-600">₹{text?.toLocaleString("en-IN")}</span>
@@ -350,7 +362,7 @@ const PenaltyMonitor = () => {
       ),
     },
     {
-      title: "Late Fee", // 👈 NEW
+      title: "Late Fee",
       dataIndex: "late_payment_charges",
       align: "right",
       render: (v) => (
@@ -512,7 +524,6 @@ const PenaltyMonitor = () => {
                     />
                   </Card>
                 </Col>
-                {/* 👇 NEW LATE FEE CARD */}
                 <Col xs={24} sm={12} md={4}>
                   <Card className="shadow-sm border border-gray-200">
                     <Statistic
@@ -636,7 +647,6 @@ const PenaltyMonitor = () => {
                         .toLocaleString("en-IN")}
                     </div>
                   </div>
-                  {/* 👇 NEW LATE FEE SUMMARY */}
                   <div className="text-center">
                     <div className="text-gray-500 text-sm">Late Fees</div>
                     <div className="text-lg font-semibold text-orange-600">
