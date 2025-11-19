@@ -78,6 +78,7 @@ const AllUserReport = () => {
                   collectionExecutive:
                     usrData?.collection_executive?.join(" | ") || "N/A",
                   amountPaid: totalPaidAmount,
+                  firstInstallmentStatus:(Number(totalPaidAmount) - Number(firstInstallment))>0 ? "Paid":"Not Paid",
                   paymentsTicket: data.payments.ticket,
                   groupValue: data?.enrollment?.group?.group_value,
                   groupName: data.enrollment.group.group_name,
@@ -194,6 +195,10 @@ const AllUserReport = () => {
     {
       key: "firstInstallment",
       header: "First Installment",
+    },
+    {
+      key:"firstInstallmentStatus",
+      header:"First Installment Status"
     },
     { key: "amountPaid", header: "Amount Paid" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
