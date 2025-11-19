@@ -94,7 +94,7 @@ const Lead = () => {
     const fetchLeads = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/lead/not-converted");
+        const response = await api.get("/lead/non-converted");
         setLeads(response.data);
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
