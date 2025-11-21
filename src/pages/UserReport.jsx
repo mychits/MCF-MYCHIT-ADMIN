@@ -1829,7 +1829,7 @@ const UserReport = () => {
 
                                 {/* ✅ CHIT Groups */}
                                 {filteredAuction.map((group) => {
-                                  if (group?.enrollment?.group && !(group?.enrollment?.deleted)) {
+                                  if (group?.enrollment?.group && group?.enrollment?.customer_status === "Active") {
                                     return (
                                       <option
                                         key={group.enrollment.group._id}

@@ -4,6 +4,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MdOutlinePending } from "react-icons/md";
 import { TbMoneybag } from "react-icons/tb";
 import { HiOutlineBanknotes } from "react-icons/hi2";
+import { MdOutlinePersonAddDisabled } from "react-icons/md";
 import {
   FaCalendarDays,
   FaPeopleGroup,
@@ -91,6 +92,14 @@ const subMenus = [
     title: "Customer Report",
     link: "/reports/user-report",
     Icon: MdOutlineEmojiPeople,
+    category: "Customer",
+    color: "from-cyan-500 to-cyan-600",
+  },
+   {
+    id:"6",
+    title: "In Active Customer Report",
+    link: "/reports/inactive-user-report",
+    Icon: MdOutlinePersonAddDisabled ,
     category: "Customer",
     color: "from-cyan-500 to-cyan-600",
   },

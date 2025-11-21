@@ -37,10 +37,12 @@ const Payment = () => {
   const [userName, setUserName] = useState("");
   const [viewLoader, setViewLoader] = useState(false);
   const [filteredAuction, setFilteredAuction] = useState([]);
+
   const [showModal, setShowModal] = useState(false);
   const [enrollmentLoading, setEnrollmentLoading] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [currentUpdateAmount, setCurrentUpdateAmount] = useState(false);
+  //const [showModalView, setShowModelView] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [showModalView, setShowModalView] = useState(false);
   const [currentViewGroup, setCurrentViewGroup] = useState(null);
@@ -154,7 +156,9 @@ const Payment = () => {
     .split("T")[0];
 
 
-
+  const handleUploadModalClose = () => {
+    setShowUploadModal(false);
+  };
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -177,7 +181,6 @@ const Payment = () => {
       }
     }
   }, []);
-  
   useEffect(() => {
     const usr = localStorage.getItem("user");
     let admin_type = null;

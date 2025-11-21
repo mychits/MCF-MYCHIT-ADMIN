@@ -5,7 +5,7 @@ import { BiPrinter } from "react-icons/bi";
 import { useParams } from "react-router-dom";
 import api from "../instance/TokenInstance";
 import mychitsLogo from "../assets/images/mychits.png";
-import "./mycss.css"
+import "../css/BasicPrintReceipt.css"
 
 // const ReceiptComponent = () => {
 //   const { id } = useParams();

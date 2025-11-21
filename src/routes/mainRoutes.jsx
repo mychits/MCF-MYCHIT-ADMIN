@@ -128,6 +128,8 @@ import PigmySummaryReport from "../pages/PigmySummaryReport";
 import ChitAskingMonthReport from "../pages/ChitAskingMonthReport";
 import  SalaryRemainingReport from "../pages/SalaryRemainingReport";
 import AdminApprovalMenu from "../pages/AdminApprovalsMenu";
+import SuspensePayments from "../pages/SuspensePayments";
+import InActiveUserReport from "../pages/InActiveUserReport";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -193,6 +195,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Payment />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/payment-menu/payment-in-out-menu/pay-in-menu/suspense-payments",
+    element: (
+      <ProtectedRoute>
+        <SuspensePayments />
       </ProtectedRoute>
     ),
   },
@@ -676,6 +686,7 @@ const mainRoutes = createBrowserRouter([
       { path: "auction-report", element: <AuctionReport /> },
       { path: "lead-report", element: <LeadReport /> },
       { path: "user-report", element: <UserReport /> },
+      { path: "inactive-user-report", element: <InActiveUserReport /> },
       { path: "all-user-report", element: <AllUserReport /> },
       { path: "loan-report", element: <LoanReport /> },
       { path: "pigme-report", element: <PigmeReport /> },

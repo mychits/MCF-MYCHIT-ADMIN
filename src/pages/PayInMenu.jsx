@@ -28,9 +28,19 @@ const PayInMenu = () => {
        href:"/payment-menu/payment-in-out-menu/pay-in-menu/payment",
        stats: "Chit Payment Information"
     },
-     
-    {
+      {
       id: "#3",
+      title: "Suspense Payments",
+      description: "Manage customer Suspense chit payment transaction.",
+      icon: <HiCurrencyRupee size={28} className="text-red-600" />,
+       color: "from-red-600 to-red-700",
+      lightColor: "bg-red-50",
+      borderColor: "border-red-200",
+       href:"/payment-menu/payment-in-out-menu/pay-in-menu/suspense-payments",
+       stats: "Chit Payment Information"
+    },
+    {
+      id: "#4",
       title: "Payment Links",
       description: "Manage customer chit payment link transaction information.",
       icon: <CiLink  size={28} className="text-green-600" />,
