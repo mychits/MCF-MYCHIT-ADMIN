@@ -37,12 +37,10 @@ const Payment = () => {
   const [userName, setUserName] = useState("");
   const [viewLoader, setViewLoader] = useState(false);
   const [filteredAuction, setFilteredAuction] = useState([]);
-
   const [showModal, setShowModal] = useState(false);
   const [enrollmentLoading, setEnrollmentLoading] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [currentUpdateAmount, setCurrentUpdateAmount] = useState(false);
-  //const [showModalView, setShowModelView] = useState(false);
   const [currentGroup, setCurrentGroup] = useState(null);
   const [showModalView, setShowModalView] = useState(false);
   const [currentViewGroup, setCurrentViewGroup] = useState(null);
@@ -147,50 +145,39 @@ const Payment = () => {
     amount: "",
     pay_date: "",
   });
-  // const [showPrintModal, setShowPrintModal] = useState(false);
+  
   const [modifyPayment, setModifyPayment] = useState(false);
   const [modifyMinMaxPaymentDate, setModifyMinMaxPaymentDate] = useState(false);
   const now = new Date();
   const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
     .toISOString()
     .split("T")[0];
-  // const [printDetails, setPrintDetails] = useState({
-  //   customerName: "",
-  //   groupName: "",
-  //   ticketNumber: "",
-  //   receiptNumber: "",
-  //   paymentDate: "",
-  //   paymentMode: "",
-  //   amount: "",
-  //   transactionId: "",
-  // });
-  // const printModalOnCloseHandler = () => setShowPrintModal(false);
 
-  const handleUploadModalClose = () => {
-    setShowUploadModal(false);
-  };
+
+
 
   useEffect(() => {
     const user = localStorage.getItem("user");
     const userObj = JSON.parse(user);
 
     if (userObj) {
-      // Check for admin access rights
+      
       const adminAccessPermissions =
         userObj.admin_access_right_id?.access_permissions;
 
-      // Set modifyPayment for admin users with the edit_payment permission
+ 
       if (adminAccessPermissions?.edit_payment === "true") {
-        setModifyPayment(true); // Admin can modify payment date
+        setModifyPayment(true); 
       }
 
-      // Set modifyPayment and modifyMinMaxPaymentDate for users with limited access
+     
       if (adminAccessPermissions?.edit_limited_payment === "true") {
-        setModifyPayment(true); // Limited users can modify payment date
-        setModifyMinMaxPaymentDate(true); // Limited users have min/max date restrictions
+        setModifyPayment(true); 
+        setModifyMinMaxPaymentDate(true); 
       }
     }
   }, []);
+  
   useEffect(() => {
     const usr = localStorage.getItem("user");
     let admin_type = null;
@@ -1506,251 +1493,6 @@ const Payment = () => {
               </div>
             </Modal>
 
-            {/* <PrintModal
-            isVisible={showPrintModal}
-            onClose={printModalOnCloseHandler}
-          >
-            <PaymentPrint printDetails={printDetails} />
-          </PrintModal> */}
-
-            {/* <PaymentModal
-              isVisible={showModalView}
-              onClose={() => setShowModalView(false)}
-              onReload={() => handleViewModalOpen(currentGroupId)}
-              loading={loading}
-            >
-              <div className="py-6 px-5 lg:px-8 text-left">
-                <form className="space-y-6" onSubmit={() => {}} noValidate>
-                  <div>
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="email"
-                    >
-                      Group
-                    </label>
-                    <input
-                      type="text"
-                      name="group_id"
-                      value={currentViewGroup?.group_id?.group_name}
-                      onChange={() => {}}
-                      id="name"
-                      placeholder="Enter the Group Name"
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-                  <div className="flex flex-row justify-between space-x-4">
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="group_value"
-                      >
-                        Group Value
-                      </label>
-                      <input
-                        type="text"
-                        name="group_value"
-                        value={currentViewGroup?.group_id?.group_value}
-                        id="group_value"
-                        placeholder="select group to check"
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="group_install"
-                      >
-                        Group Installment
-                      </label>
-                      <input
-                        type="text"
-                        name="group_install"
-                        value={currentViewGroup?.group_id?.group_install}
-                        id="group_install"
-                        placeholder="select group to check"
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="email"
-                    >
-                      User
-                    </label>
-                    <input
-                      type="text"
-                      name="group_id"
-                      value={`${currentViewGroup?.user_id?.full_name} | ${currentViewGroup?.ticket}`}
-                      onChange={() => {}}
-                      id="name"
-                      placeholder="Enter the User Name"
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                      htmlFor="email"
-                    >
-                      Bid Amount
-                    </label>
-                    <input
-                      type="number"
-                      name="bid_amount"
-                      value={
-                        currentViewGroup?.group_id?.group_value -
-                        currentViewGroup?.win_amount
-                      }
-                      onChange={() => {}}
-                      id="name"
-                      placeholder="Enter the Bid Amount"
-                      readOnly
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    />
-                  </div>
-                  <div className="flex flex-row justify-between space-x-4">
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="group_value"
-                      >
-                        Commission
-                      </label>
-                      <input
-                        type="text"
-                        name="commission"
-                        value={currentViewGroup?.commission}
-                        id="commission"
-                        placeholder=""
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="group_install"
-                      >
-                        Winning Amount
-                      </label>
-                      <input
-                        type="text"
-                        name="win_amount"
-                        value={currentViewGroup?.win_amount}
-                        id="win_amount"
-                        placeholder=""
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-row justify-between space-x-4">
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="group_value"
-                      >
-                        Divident
-                      </label>
-                      <input
-                        type="text"
-                        name="divident"
-                        value={currentViewGroup?.divident}
-                        id="divident"
-                        placeholder=""
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="group_install"
-                      >
-                        Divident per Head
-                      </label>
-                      <input
-                        type="text"
-                        name="divident_head"
-                        value={currentViewGroup?.divident_head}
-                        id="divident_head"
-                        placeholder=""
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="group_install"
-                      >
-                        Next Payable
-                      </label>
-                      <input
-                        type="text"
-                        name="payable"
-                        value={currentViewGroup?.payable}
-                        id="payable"
-                        placeholder=""
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-row justify-between space-x-4">
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="date"
-                      >
-                        Auction Date
-                      </label>
-                      <input
-                        type="date"
-                        name="auction_date"
-                        value={currentViewGroup?.auction_date}
-                        onChange={() => {}}
-                        id="date"
-                        placeholder="Enter the Date"
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                    <div className="w-1/2">
-                      <label
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                        htmlFor="date"
-                      >
-                        Next Date
-                      </label>
-                      <input
-                        type="date"
-                        name="next_date"
-                        value={currentViewGroup?.next_date}
-                        onChange={() => {}}
-                        id="date"
-                        placeholder="Enter the Date"
-                        readOnly
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                      />
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </PaymentModal> */}
-            {/* <PaymentModal
-  isVisible={showModalView}
-  onClose={() => setShowModalView(false)}
-  onReload={() => handleViewModalOpen(currentGroupId)}
-  loading={loading}
-> */}
             <AntModal
               open={showModalView}
               onCancel={() => setShowModalView(false)}
@@ -1878,54 +1620,3 @@ const Payment = () => {
 };
 
 export default Payment;
-
-// function ReceiptButton() {
-//   return (
-//     <div>
-//       {/* Receipt Content */}
-//       <div
-//         id="receipt"
-//         style={{
-//           width: "210mm",
-//           height: "297mm",
-//           padding: "20mm",
-//           display: "flex",
-//           flexDirection: "column",
-//           justifyContent: "space-between",
-//         }}
-//       >
-//         {/* Top Half */}
-//         <div style={{ borderBottom: "1px solid black", height: "50%" }}>
-//           <h2>Receipt - Part 1</h2>
-//           <p>Details for the first part...</p>
-//           <p>
-//             <strong>Amount:</strong> $123.45
-//           </p>
-//           <p>
-//             <strong>Date:</strong> 01/22/2025
-//           </p>
-//         </div>
-
-//         {/* Bottom Half */}
-//         <div style={{ height: "50%" }}>
-//           <h2>Receipt - Part 2</h2>
-//           <p>Details for the second part...</p>
-//           <p>
-//             <strong>Amount:</strong> $123.45
-//           </p>
-//           <p>
-//             <strong>Date:</strong> 01/22/2025
-//           </p>
-//         </div>
-//       </div>
-
-//       {/* Button to Generate PDF */}
-//       <button
-//         onClick={() => handleUpdateModalOpen("example-id")}
-//         className="border border-blue-400 text-white px-4 py-2 rounded-md shadow hover:border-blue-700 transition duration-200"
-//       >
-//         <BiPrinter color="blue" />
-//       </button>
-//     </div>
-//   );
-// }

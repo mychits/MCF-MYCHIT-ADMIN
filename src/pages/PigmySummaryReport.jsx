@@ -7,11 +7,15 @@ import {
   TrendingUp,
   Clock,
 } from "lucide-react";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
 
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import { Select } from "antd";
 import CircularLoader from "../components/loaders/CircularLoader";
+
+const { RangePicker } = DatePicker;
 
 const PigmySummaryReport = () => {
   const [pigmyReportTable, setPigmyReportTable] = useState([]);
@@ -19,6 +23,7 @@ const PigmySummaryReport = () => {
   const [selectedPigmyId, setSelectedPigmyId] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [selectedReferredBy, setSelectedReferredBy] = useState("");
+  const [dateRange, setDateRange] = useState(null);
 
   const uniqueReferredBy = useMemo(() => {
     const setRef = new Set();
@@ -57,6 +62,8 @@ const PigmySummaryReport = () => {
           pigmyStartDate: pigmy?.start_date
             ? new Date(pigmy.start_date).toLocaleDateString("en-GB")
             : "N/A",
+          // Store the original date for filtering
+          pigmyStartDateObj: pigmy?.start_date ? new Date(pigmy.start_date) : null,
           totalpigmyAmount: pigmy?.total_paid_amount ?? 0,
         }));
 
@@ -93,18 +100,6 @@ const PigmySummaryReport = () => {
     [pigmyReportTable]
   );
 
-  // const filteredPigmyReport = useMemo(() => {
-  //   return pigmyReportTable.filter((pigmy) => {
-  //     const matchPigmyId = selectedPigmyId
-  //       ? pigmy.pigmyIds === selectedPigmyId
-  //       : true;
-  //     const matchCustomer = selectedCustomer
-  //       ? pigmy.id === selectedCustomer
-  //       : true;
-  //     return matchPigmyId && matchCustomer;
-  //   });
-  // }, [pigmyReportTable, selectedPigmyId, selectedCustomer]);
-
   const filteredPigmyReport = useMemo(() => {
     return pigmyReportTable.filter((pigmy) => {
       const matchPigmyId = selectedPigmyId
@@ -119,9 +114,17 @@ const PigmySummaryReport = () => {
         ? pigmy.referredBy === selectedReferredBy
         : true;
 
-      return matchPigmyId && matchCustomer && matchReferredBy;
+      let matchDateRange = true;
+      if (dateRange && dateRange.length === 2 && pigmy.pigmyStartDateObj) {
+        const startDate = dayjs(dateRange[0]).startOf('day');
+        const endDate = dayjs(dateRange[1]).endOf('day');
+        const pigmyDate = dayjs(pigmy.pigmyStartDateObj);
+        matchDateRange = pigmyDate.isAfter(startDate) && pigmyDate.isBefore(endDate);
+      }
+
+      return matchPigmyId && matchCustomer && matchReferredBy && matchDateRange;
     });
-  }, [pigmyReportTable, selectedPigmyId, selectedCustomer, selectedReferredBy]);
+  }, [pigmyReportTable, selectedPigmyId, selectedCustomer, selectedReferredBy, dateRange]);
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
@@ -243,7 +246,7 @@ const PigmySummaryReport = () => {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Pigmy ID Filter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -315,6 +318,8 @@ const PigmySummaryReport = () => {
                     ))}
                   </Select>
                 </div>
+
+                {/* Referred By Filter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <div className="flex items-center gap-2">
@@ -350,6 +355,23 @@ const PigmySummaryReport = () => {
                       </Select.Option>
                     ))}
                   </Select>
+                </div>
+
+                {/* Date Range Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      Start Date Range
+                    </div>
+                  </label>
+                  <RangePicker
+                    value={dateRange}
+                    onChange={setDateRange}
+                    className="w-full"
+                    size="large"
+                    format="DD/MM/YYYY"
+                  />
                 </div>
               </div>
             </div>
