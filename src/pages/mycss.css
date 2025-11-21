@@ -136,6 +136,32 @@
   height: 148mm;
 }
 
+/* Cut line between receipts */
+.cut-line {
+  height: 10mm;
+  width: 100%;
+  background-image: repeating-linear-gradient(
+    45deg,
+    #ccc,
+    #ccc 2px,
+    transparent 2px,
+    transparent 5px
+  );
+  position: relative;
+}
+
+.cut-line::before {
+  content: "CUT HERE";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 0 5px;
+  font-size: 10px;
+  color: #888;
+}
+
 /* RECEIPT BOX - COMMON STYLES */
 .pro-receipt {
   padding: 10px 16px;
@@ -208,11 +234,9 @@
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  margin-top: 10px;
 }
 
 .horizontal-format .pro-type-box {
- 
   color: black;
   padding: 8px 14px;
   margin-top: 0;
@@ -318,30 +342,64 @@
   color: #2e7d32;
 }
 
+/* Amount in Words */
+.pro-amount-words {
+  display: flex;
+  justify-content: space-between;
+  background: #f3f4f6;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin: 10px 0;
+  font-size: 13px;
+}
+
+.pro-amount-words .lbl {
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.pro-amount-words .val {
+  color: #1f2937;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Footer Container - for horizontal format */
+.pro-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 15px;
+}
+.pro-footer-container-vertical {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 50px;
+}
+
 /* SIGNATURE */
 .pro-footer {
-  margin-top: 30px;
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .horizontal-format .pro-footer {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
+  margin-top: 0;
 }
 
 .sign {
   width: 140px;
   border-top: 1px solid #aaa;
   margin-left: auto;
-  margin-top: 30px;
   padding-top: 4px;
   font-size: 12px;
+  text-align: center;
 }
 
 .horizontal-format .sign {
   margin-left: 0;
-  text-align: center;
 }
 
 /* PRINT MODE */
@@ -360,5 +418,12 @@
   }
   .horizontal-format::after {
     display: none !important;
+  }
+  .cut-line {
+    background: none;
+    height: 5mm;
+  }
+  .cut-line::before {
+    display: none;
   }
 }
