@@ -19,14 +19,14 @@ const PayInMenu = () => {
     },
     {
       id: "#2",
-      title: "Chit Payment",
-      description: "Manage customer chit payment transaction information.",
+      title: "Payment Receipt",
+      description: "Customer Receipt Management.",
       icon: <HiCurrencyRupee size={28} className="text-yellow-600" />,
        color: "from-blue-600 to-blue-700",
       lightColor: "bg-blue-50",
       borderColor: "border-blue-200",
        href:"/payment-menu/payment-in-out-menu/pay-in-menu/payment",
-       stats: "Chit Payment Information"
+       stats: "Payment Receipt Information"
     },
       {
       id: "#3",
