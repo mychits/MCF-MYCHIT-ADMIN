@@ -130,6 +130,8 @@ import  SalaryRemainingReport from "../pages/SalaryRemainingReport";
 import AdminApprovalMenu from "../pages/AdminApprovalsMenu";
 import SuspensePayments from "../pages/SuspensePayments";
 import InActiveUserReport from "../pages/InActiveUserReport";
+import NonConvertedLead from "../pages/NonConvertedLead";
+import ConvertedLead from "../pages/ConvertedLead";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -715,6 +717,8 @@ const mainRoutes = createBrowserRouter([
     element: <TargetCommission />,
   },
    {path: "salary-remaining", element: <SalaryRemainingReport/>},
+    {path: "non-converted-lead-report", element: <NonConvertedLead/>},
+   {path: "converted-lead-report", element: <ConvertedLead/>},
 
     ],
   },

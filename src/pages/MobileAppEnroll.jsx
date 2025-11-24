@@ -74,7 +74,7 @@ const MobileAppEnroll = () => {
     };
   };
   
-    const [selectedDate, setSelectedDate] = useState(currentYearMonth);
+    const [selectedDate, setSelectedDate] = useState("");
   
     const monthNames = [
       "January",
@@ -201,7 +201,7 @@ const MobileAppEnroll = () => {
                           className="text-blue-600"
                           onClick={() => handleEnrollClick(item)}
                         >
-                          Enroll
+                          Approve
                         </div>
                       ),
                     },
@@ -433,8 +433,7 @@ const MobileAppEnroll = () => {
               : response.data?.referred_lead
               ? "Leads"
               : ""),
-          chit_asking_month:
-            response?.data?.chit_asking_month ?? prev.chit_asking_month,
+         
         }));
 
         let selectedBy = "Unknown";

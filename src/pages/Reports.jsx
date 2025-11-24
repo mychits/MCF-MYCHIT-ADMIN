@@ -4,7 +4,6 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MdOutlinePending } from "react-icons/md";
 import { TbMoneybag } from "react-icons/tb";
 import { HiOutlineBanknotes } from "react-icons/hi2";
-import { MdOutlinePersonAddDisabled } from "react-icons/md";
 import {
   FaCalendarDays,
   FaPeopleGroup,
@@ -92,14 +91,6 @@ const subMenus = [
     title: "Customer Report",
     link: "/reports/user-report",
     Icon: MdOutlineEmojiPeople,
-    category: "Customer",
-    color: "from-cyan-500 to-cyan-600",
-  },
-   {
-    id:"6",
-    title: "In Active Customer Report",
-    link: "/reports/inactive-user-report",
-    Icon: MdOutlinePersonAddDisabled ,
     category: "Customer",
     color: "from-cyan-500 to-cyan-600",
   },
@@ -289,6 +280,22 @@ const subMenus = [
    Icon: MdCalendarMonth,
    color: "from-blue-500 to-blue-600",
   },
+     {
+    id:"30",
+    title: "Non Converted Lead Report",
+    link: "/reports/non-converted-lead-report",
+    category: "Customer",
+   Icon: MdCalendarMonth,
+   color: "from-blue-500 to-blue-600",
+  },
+    {
+    id:"30",
+    title: "Converted Lead Report",
+    link: "/reports/converted-lead-report",
+    category: "Customer",
+   Icon: MdCalendarMonth,
+   color: "from-blue-500 to-blue-600",
+  },
 ];
 
 const categories = ["All", "Reports", "Customer", "Agent" ,"Employee",  "Finance",];
@@ -300,7 +307,7 @@ const Reports = () => {
   const [viewType, setViewType] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter by category first, then by search query
+
   const filteredMenus = subMenus
     .filter((menu) => activeCategory === "All" || menu.category === activeCategory)
     .filter((menu) => 

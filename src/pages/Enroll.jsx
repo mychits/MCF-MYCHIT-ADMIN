@@ -96,7 +96,7 @@ const Enroll = () => {
     return `${year}-${month}-${day}`;
   }
 
-  const [selectedDate, setSelectedDate] = useState(currentYearMonth);
+  const [selectedDate, setSelectedDate] = useState("");
 
   const monthNames = [
     "January",
@@ -838,8 +838,7 @@ const Enroll = () => {
               : response.data?.referred_lead
               ? "Leads"
               : ""),
-          chit_asking_month:
-            response?.data?.chit_asking_month ?? prev.chit_asking_month,
+          
         }));
 
         let selectedBy = "Unknown";
