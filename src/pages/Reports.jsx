@@ -37,6 +37,8 @@ import { IoSearchOutline } from "react-icons/io5";
 import { IoCloseCircle } from "react-icons/io5";
 import { MdCancel } from "react-icons/md";
 import { BsCalculator } from "react-icons/bs";
+import { LiaPeopleCarrySolid } from "react-icons/lia";
+import { MdPersonOff } from "react-icons/md";
 const subMenus = [
   {
     id:"1",
@@ -178,11 +180,27 @@ const subMenus = [
  
   {
      id:"17",
-    title: "Lead Report",
+    title: "All Lead Report",
     link: "/reports/lead-report",
     Icon: MdMan,
     category: "Reports",
     color: "from-purple-500 to-purple-600",
+  },
+     {
+    id:"30",
+    title: "Non Converted Lead Report",
+    link: "/reports/non-converted-lead-report",
+    category: "Customer",
+   Icon: MdPersonOff,
+   color: "from-blue-500 to-blue-600",
+  },
+    {
+    id:"30",
+    title: "Converted Lead Report",
+    link: "/reports/converted-lead-report",
+    category: "Customer",
+   Icon: LiaPeopleCarrySolid,
+   color: "from-blue-500 to-blue-600",
   },
   {
      id:"18",
@@ -264,14 +282,14 @@ const subMenus = [
    Icon: MdCancel,
    color: "from-blue-500 to-blue-600",
   },
-      {
-    id:"28",
-    title: "Remaining Salary Report",
-    link: "/reports/salary-remaining",
-    category: "Employee",
-   Icon: MdCancel,
-   color: "from-blue-500 to-blue-600",
-  },
+  //     {
+  //   id:"28",
+  //   title: "Remaining Salary Report",
+  //   link: "/reports/salary-remaining",
+  //   category: "Employee",
+  //  Icon: MdCancel,
+  //  color: "from-blue-500 to-blue-600",
+  // },
      {
     id:"29",
     title: "Chit Asking Month Report",
@@ -280,22 +298,7 @@ const subMenus = [
    Icon: MdCalendarMonth,
    color: "from-blue-500 to-blue-600",
   },
-     {
-    id:"30",
-    title: "Non Converted Lead Report",
-    link: "/reports/non-converted-lead-report",
-    category: "Customer",
-   Icon: MdCalendarMonth,
-   color: "from-blue-500 to-blue-600",
-  },
-    {
-    id:"30",
-    title: "Converted Lead Report",
-    link: "/reports/converted-lead-report",
-    category: "Customer",
-   Icon: MdCalendarMonth,
-   color: "from-blue-500 to-blue-600",
-  },
+  
 ];
 
 const categories = ["All", "Reports", "Customer", "Agent" ,"Employee",  "Finance",];

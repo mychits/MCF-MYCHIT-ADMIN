@@ -188,7 +188,7 @@ while (loop <= end) {
 
         return {
           id: idx + 1,
-          name: item.name,
+          name: item.agentName,
           phone: item.phone,
           leads: item.leads || 0,
           customers,

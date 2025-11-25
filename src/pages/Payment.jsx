@@ -191,8 +191,8 @@ const Payment = () => {
   useEffect(() => {
     const fetchAllCustomers = async () => {
       try {
-        const response = await api.get("user/get-user");
-        setUsers(response?.data);
+        const response = await api.get("user/verified");
+        setUsers(response?.data?.data);
       } catch (error) {
         setUsers([]);
         console.error("Error fetching group data:", error);
