@@ -236,12 +236,14 @@ const ChitAskingMonthReport = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    String(now.getMonth() + 1).padStart(2, "0")
+  const [selectedMonth, setSelectedMonth] = useState(""
+  
   );
-  const [selectedYear, setSelectedYear] = useState(
-    now.getFullYear().toString()
+    // String(now.getMonth() + 1).padStart(2, "0")
+  const [selectedYear, setSelectedYear] = useState(""
+   
   );
+   // now.getFullYear().toString()
 
   // Month list
   const months = [
@@ -289,7 +291,7 @@ const ChitAskingMonthReport = () => {
     try {
       setLoading(true);
 
-      const finalMonth = `${selectedYear}-${selectedMonth}`;
+      const finalMonth = (!selectedYear && !selectedMonth  )? "":`${selectedYear}-${selectedMonth}`;
 
       const res = await api.get("/enroll/get-customers-by-chit-asking-month", {
         params: {
@@ -350,8 +352,9 @@ const ChitAskingMonthReport = () => {
                 <label className="mb-1 font-semibold text-gray-700">Year Filter</label>
                 <Select
                   style={{ width: 150 }}
-                  value={selectedYear}
+                  value={selectedYear || null}
                   options={years}
+                  placeholder="Select Year"
                   onChange={setSelectedYear}
                   className="h-12"
                 />
@@ -362,8 +365,10 @@ const ChitAskingMonthReport = () => {
                 <label className="mb-1 font-semibold text-gray-700">Month Filter</label>
                 <Select
                   style={{ width: 150 }}
-                  value={selectedMonth}
+                  value={selectedMonth || null}
                   options={months}
+                  placeholder="Select Month"
+
                   onChange={setSelectedMonth}
                   className="h-12"
                 />
