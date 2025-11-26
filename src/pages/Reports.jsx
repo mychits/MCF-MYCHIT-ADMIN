@@ -39,6 +39,7 @@ import { MdCancel } from "react-icons/md";
 import { BsCalculator } from "react-icons/bs";
 import { LiaPeopleCarrySolid } from "react-icons/lia";
 import { MdPersonOff } from "react-icons/md";
+import { FaMobileAlt } from "react-icons/fa";
 const subMenus = [
   {
     id:"1",
@@ -296,6 +297,14 @@ const subMenus = [
     link: "/reports/chit-asking-month-report",
     category: "Customer",
    Icon: MdCalendarMonth,
+   color: "from-blue-500 to-blue-600",
+  },
+       {
+    id:"32",
+    title: "user Installed source report",
+    link: "/reports/user-registration-source-summary-report",
+    category: "Customer",
+   Icon: FaMobileAlt,
    color: "from-blue-500 to-blue-600",
   },
   
