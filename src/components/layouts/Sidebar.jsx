@@ -171,7 +171,7 @@ const MenuSidebar = [
     //     id: "$103",
     //     title: "Employee",
     //     icon: <FaUserTie size={18} />,
-    //     link: "/employee",
+    //     link: "/agent/get-employee",
     //   },
     // ],
   },
@@ -314,19 +314,20 @@ const MenuSidebar = [
       // },
       {
         id: "#3",
-        title: "Employee",
+        title: "HR",
         hider: true,
         icon: <FaUserTie size={18} />,
-        newTab: true,
-        submenu: true,
-        submenuItems: [
-          {
-            id: "#206",
-            title: "Employee Profile",
-            icon: <GrUserSettings size={18} />,
-            link: "/employee-profile",
-          },
-        ],
+        //newTab: true,
+        link: "/hr-menu"
+        // submenu: true,
+        // submenuItems: [
+        //   {
+        //     id: "#206",
+        //     title: "Employee Profile",
+        //     icon: <GrUserSettings size={18} />,
+        //     link: "/agent/get-employee-profile",
+        //   },
+        // ],
       },
        {
         id: "#3",

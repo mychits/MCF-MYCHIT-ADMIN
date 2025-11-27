@@ -1697,14 +1697,14 @@ const TargetCommission = () => {
                             className="w-full bg-transparent text-2xl font-bold text-purple-700 mt-2 border-0"
                           />
                         </div>
-                        <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4">
+                        {/* <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4">
                           <label className="text-xs font-semibold text-gray-600 uppercase">Net Groups</label>
                           <input
                             value={commissionTotalDetails?.total_groups || "-"}
                             readOnly
                             className="w-full bg-transparent text-2xl font-bold text-orange-700 mt-2 border-0"
                           />
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   )}

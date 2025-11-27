@@ -9,7 +9,7 @@ import Task from "../pages/Task";
 import Target from "../pages/Target";
 import EnrollmentRequestForm from "../pages/EnrollmentRequestForm";
 import FilterGroups from "../pages/FilterGroups";
-import EmployeeProfile from "../pages/EmployeeProfile";
+import Payroll from "../pages/Payroll";
 import Staff from "../pages/Staff";
 import Employee from "../pages/Employee";
 import WeekGroup from "../pages/WeekGroup";
@@ -133,6 +133,7 @@ import InActiveUserReport from "../pages/InActiveUserReport";
 import NonConvertedLead from "../pages/NonConvertedLead";
 import ConvertedLead from "../pages/ConvertedLead";
 import UserRegistrationSourceSummaryReport from "../pages/UserRegistrationSourceSummaryReport";
+import HRMenu from "../pages/HRMenu"
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -354,11 +355,19 @@ const mainRoutes = createBrowserRouter([
       ),
 
   },
-  {
-    path: "/employee-profile",
+     {
+    path: "/hr-menu",
     element: (
       <ProtectedRoute>
-        <EmployeeProfile />
+        <HRMenu />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/hr-menu/payroll",
+    element: (
+      <ProtectedRoute>
+        <Payroll />
       </ProtectedRoute>
     ),
   },
