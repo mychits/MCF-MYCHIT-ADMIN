@@ -1588,7 +1588,7 @@ const TargetCommission = () => {
                     <span className="font-medium text-gray-700 group-hover:text-blue-600">Incentive / Commission Payout</span>
                   </Link>
                   <Link
-                    to="/payment-menu/payment-in-out-menu/payment-out/salary"
+                    to="/payment-menu/payment-in-out-menu/payment-out/salary-payment"
                     className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
                   >
                     <FaMoneyBill className="text-blue-600 group-hover:scale-110 transition-transform" size={24} />

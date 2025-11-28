@@ -36,7 +36,7 @@ const PayOutMenu = () => {
        color: "from-blue-600 to-blue-700",
           lightColor: "bg-blue-50",
           borderColor: "border-blue-200",
-       href:"/payment-menu/payment-in-out-menu/payment-out/salary",
+       href:"/payment-menu/payment-in-out-menu/payment-out/salary-payment",
        stats: "Employee Salary Out Information"
 
     },

@@ -133,7 +133,8 @@ import InActiveUserReport from "../pages/InActiveUserReport";
 import NonConvertedLead from "../pages/NonConvertedLead";
 import ConvertedLead from "../pages/ConvertedLead";
 import UserRegistrationSourceSummaryReport from "../pages/UserRegistrationSourceSummaryReport";
-import HRMenu from "../pages/HRMenu"
+import HRMenu from "../pages/HRMenu";
+import SalaryPayment from "../pages/SalaryPayment";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -522,10 +523,10 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/payment-menu/payment-in-out-menu/payment-out/salary",
+    path: "/payment-menu/payment-in-out-menu/payment-out/salary-payment",
     element: (
       <ProtectedRoute>
-        <PayOutSalary />
+        <SalaryPayment />
       </ProtectedRoute>
     ),
   },
