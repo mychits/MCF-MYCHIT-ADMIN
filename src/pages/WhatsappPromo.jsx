@@ -160,7 +160,7 @@ const WhatsappPromo = () => {
           const filtered = allAgents.filter((a) => a.agent_type === "agent");
           setAgentList(filtered);
         } else if (selectedReferrerType === "employee") {
-          const res = await api.get("/agent/get-employee");
+          const res = await api.get("/employee");
           const employees = Array.isArray(res.data.employee)
             ? res.data.employee
             : [];
@@ -186,7 +186,7 @@ const WhatsappPromo = () => {
             );
 
             //  Fetch Employees
-            const empRes = await api.get("/agent/get-employee");
+            const empRes = await api.get("/employee");
             const employees = Array.isArray(empRes.data.employee)
               ? empRes.data.employee
               : [];

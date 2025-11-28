@@ -224,7 +224,7 @@ const Lead = () => {
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
-        const response = await api.get("/agent/get-employee");
+        const response = await api.get("/employee");
         setEmployees(response?.data?.employee);
       } catch (error) {
         console.error("Error fetching Employee data:", error);

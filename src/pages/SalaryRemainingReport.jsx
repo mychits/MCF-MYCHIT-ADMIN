@@ -70,7 +70,7 @@ const { RangePicker } = DatePicker;
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const res = await api.get("/agent/get-employee"); // adjust your endpoint
+//         const res = await api.get("/employee"); // adjust your endpoint
 //         setEmployees(res.data.employee);
 //       } catch (err) {
 //         message.error("Failed to fetch employees");
@@ -261,7 +261,7 @@ const { RangePicker } = DatePicker;
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const res = await api.get("/agent/get-employee");
+//         const res = await api.get("/employee");
 //         setEmployees(res.data.employee);
 //       } catch (err) {
 //         message.error("Failed to fetch employees");
@@ -467,7 +467,7 @@ const { RangePicker } = DatePicker;
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const res = await api.get("/agent/get-employee");
+//         const res = await api.get("/employee");
 //         setEmployees(res.data.employee);
 //       } catch (err) {
 //         console.error("Error fetching employees:", err);
@@ -612,7 +612,7 @@ const { RangePicker } = DatePicker;
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const res = await api.get("/agent/get-employee");
+//         const res = await api.get("/employee");
 //         setEmployees(res.data.employee);
 //       } catch (err) {
 //         console.error("Error fetching employees:", err);
@@ -768,7 +768,7 @@ const { RangePicker } = DatePicker;
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const res = await api.get("/agent/get-employee");
+//         const res = await api.get("/employee");
 //         setEmployees(res.data.employee);
 //       } catch (err) {
 //         console.error("Error fetching employees:", err);
@@ -932,7 +932,7 @@ const { RangePicker } = DatePicker;
 
 //   const fetchEmployees = async () => {
 //     try {
-//       const res = await api.get("/agent/get-employee"); // 🔹 Adjust this API endpoint
+//       const res = await api.get("/employee"); // 🔹 Adjust this API endpoint
 //       setEmployees(res.data.employee || []);
 //     } catch (err) {
 //       console.error("Error fetching employees:", err);
@@ -1115,7 +1115,7 @@ const { RangePicker } = DatePicker;
 
 //   const fetchEmployees = async () => {
 //     try {
-//       const res = await api.get("/agent/get-employee");
+//       const res = await api.get("/employee");
 //       setEmployees(res.data.employee || []);
 //     } catch (err) {
 //       console.error("Error fetching employees:", err);
@@ -1330,7 +1330,7 @@ const { RangePicker } = DatePicker;
 
 //   const fetchEmployees = async () => {
 //     try {
-//       const res = await api.get("/agent/get-employee");
+//       const res = await api.get("/employee");
 //       setEmployees(res.data.employee || []);
 //     } catch (err) {
 //       message.error("Failed to fetch employees");
@@ -1481,7 +1481,7 @@ const { RangePicker } = DatePicker;
 
 //   const fetchEmployees = async () => {
 //     try {
-//       const res = await api.get("/agent/get-employee");
+//       const res = await api.get("/employee");
 //       setEmployees(res.data.employee || []);
 //     } catch (err) {
 //       message.error("Failed to fetch employees");
@@ -1687,7 +1687,7 @@ const SalaryRemainingReport = () => {
   // 🔹 Fetch all employees
   const fetchEmployees = async () => {
     try {
-      const res = await api.get("/agent/get-employee");
+      const res = await api.get("/employee");
       setEmployees(res.data.employee || []);
     } catch (err) {
       message.error("Failed to fetch employees");
@@ -1904,7 +1904,7 @@ const SalaryRemainingReport = () => {
 //   const fetchEmployees = async () => {
 //     try {
 //       // Replace with your actual API call
-//       // const res = await api.get("/agent/get-employee");
+//       // const res = await api.get("/employee");
 //       // Mocking data for demonstration
 //       const res = {
 //         data: {

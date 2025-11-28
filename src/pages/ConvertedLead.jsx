@@ -86,7 +86,7 @@ const ConvertedLead = () => {
   useEffect(() => {
     const p1 = api.get("/user/get-user").catch(() => ({ data: [] }));
     const p2 = api.get("/agent/get").catch(() => ({ data: { agent: [] } }));
-    const p3 = api.get("/agent/get-employee").catch(() => ({ data: { employee: [] } }));
+    const p3 = api.get("/employee").catch(() => ({ data: { employee: [] } }));
     const p4 = api.get("/user/get-user").catch(() => ({ data: { customer: [] } }));
 
     Promise.all([p1, p2, p3, p4])
@@ -447,7 +447,7 @@ const ConvertedLead = () => {
 //   useEffect(() => {
 //     const p1 = api.get("/user/get-user").catch(() => ({ data: [] }));
 //     const p2 = api.get("/agent/get").catch(() => ({ data: { agent: [] } }));
-//     const p3 = api.get("/agent/get-employee").catch(() => ({ data: { employee: [] } }));
+//     const p3 = api.get("/employee").catch(() => ({ data: { employee: [] } }));
 //     const p4 = api.get("/user/get-user").catch(() => ({ data: { customer: [] } }));
 
 //     Promise.all([p1, p2, p3, p4])

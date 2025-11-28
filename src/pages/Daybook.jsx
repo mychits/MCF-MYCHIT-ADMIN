@@ -379,7 +379,7 @@ const Daybook = () => {
     (async () => {
       try {
         const [employees, admins] = await Promise.all([
-          api.get("/agent/get-employee"),
+          api.get("/employee"),
           api.get("/admin/get-sub-admins"),
         ]);
         const emps = employees?.data?.employee.map((emp) => ({

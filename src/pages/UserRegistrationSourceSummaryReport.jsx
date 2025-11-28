@@ -26,7 +26,7 @@
 //   useEffect(() => {
 //     const fetchEmployee = async () => {
 //       try {
-//         const response = await api.get("/agent/get-employee");
+//         const response = await api.get("/employee");
 //         console.info(response, "employeefdadfaf");
 //         setEmployees(response?.data?.employee || []);
 //       } catch (error) {
@@ -221,7 +221,7 @@
 //   useEffect(() => {
 //     const fetchEmployee = async () => {
 //       try {
-//         const response = await api.get("/agent/get-employee");
+//         const response = await api.get("/employee");
 //         setEmployees(response?.data?.employee || []);
 //       } catch (error) {
 //         console.error("unable to fetch employee", error);

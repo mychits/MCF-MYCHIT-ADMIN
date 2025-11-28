@@ -15,7 +15,7 @@ const CollectionArea = () => {
   useEffect(() => {
     (async () => {
       try {
-        const response = await api.get("/agent/get-employee");
+        const response = await api.get("/employee");
         const employees = response.data?.employee;
         const filteredEmp = employees.map((emp) => ({
           value: emp._id,

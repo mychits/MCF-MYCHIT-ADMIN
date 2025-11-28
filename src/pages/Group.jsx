@@ -85,7 +85,7 @@ const Group = () => {
   useEffect(() => {
     async function getEmployees() {
       try {
-        const response = await api.get("/agent/get-employee");
+        const response = await api.get("/employee");
         const responseData = response.data?.employee;
         setEmployees(responseData ? responseData : []);
       } catch (error) {

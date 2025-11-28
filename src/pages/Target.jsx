@@ -111,7 +111,7 @@ const Target = () => {
       try {
         const [agentRes, employeeRes] = await Promise.all([
           api.get("/agent/get-agent"),
-          api.get("/agent/get-employee"),
+          api.get("/employee"),
         ]);
 
         const allAgents = agentRes.data || [];

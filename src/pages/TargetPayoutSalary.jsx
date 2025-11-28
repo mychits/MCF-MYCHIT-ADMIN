@@ -188,7 +188,7 @@ const TargetPayOutSalary = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await API.get("/agent/get-employee");
+      const response = await API.get("/employee");
       setAgents(response.data?.employee || []);
     } catch (error) {
       console.error("Failed to fetch Agents");

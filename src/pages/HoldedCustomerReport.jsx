@@ -73,7 +73,7 @@ const HoldedCustomerReport = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await api.get("/agent/get-employee");
+        const res = await api.get("/employee");
         if (Array.isArray(res.data?.employee)) {
           setEmployees(
             res.data.employee.map((e) => ({

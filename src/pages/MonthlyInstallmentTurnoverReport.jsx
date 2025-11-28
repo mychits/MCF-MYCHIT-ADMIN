@@ -46,7 +46,7 @@ const MonthlyInstallmentTurnoverReport = () => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await api.get(`/agent/get-employee/`);
+        const response = await api.get(`/employee/`);
         setAgents(response.data?.employee);
       } catch (error) {
         console.error("Unable to fetch Employee", error);

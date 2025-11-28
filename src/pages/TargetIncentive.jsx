@@ -87,7 +87,7 @@ const TargetIncentive = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await api.get("/agent/get-employee");
+      const res = await api.get("/employee");
       setEmployees(res?.data?.employee);
     } catch (err) {
       console.error("Error fetching employees:", err);

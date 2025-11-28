@@ -48,7 +48,7 @@ const { Option } = Select;
 //   // ✅ Fetch employee list
 //   const fetchAgents = async () => {
 //     try {
-//       const response = await API.get("/agent/get-employee");
+//       const response = await API.get("/employee");
 //       setAgents(response.data?.employee || []);
 //     } catch (error) {
 //       console.error("Failed to fetch Agents", error);
@@ -342,7 +342,7 @@ const { Option } = Select;
 //   // ✅ Fetch employee list
 //   const fetchAgents = async () => {
 //     try {
-//       const response = await API.get("/agent/get-employee");
+//       const response = await API.get("/employee");
 //       setAgents(response.data?.employee || []);
 //     } catch (error) {
 //       console.error("Failed to fetch Agents", error);
@@ -614,7 +614,7 @@ const { Option } = Select;
 
 //   const fetchAgents = async () => {
 //     try {
-//       const response = await API.get("/agent/get-employee");
+//       const response = await API.get("/employee");
 //       setAgents(response.data?.employee || []);
 //     } catch (error) {
 //       console.error("Failed to fetch Agents", error);
@@ -877,7 +877,7 @@ const PayoutSalaryReport = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await API.get("/agent/get-employee");
+      const response = await API.get("/employee");
       setAgents(response.data?.employee || []);
     } catch (error) {
       console.error("Failed to fetch Agents", error);

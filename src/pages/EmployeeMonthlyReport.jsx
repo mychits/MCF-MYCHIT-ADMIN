@@ -20,7 +20,7 @@ import { Select, Table, Spin, Button, Tag } from "antd";
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const response = await api.get(`/agent/get-employee`);
+//         const response = await api.get(`/employee`);
 //         setEmployees(response.data.employee || []);
 //       } catch (error) {
 //         console.error("Unable to fetch employees:", error);
@@ -164,7 +164,7 @@ import { Select, Table, Spin, Button, Tag } from "antd";
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const res = await api.get("/agent/get-employee");
+//         const res = await api.get("/employee");
 //         setEmployees(res.data.employee || []);
 //       } catch (err) {
 //         console.error("Error fetching employees:", err);
@@ -322,7 +322,7 @@ import { Select, Table, Spin, Button, Tag } from "antd";
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const res = await api.get("/agent/get-employee");
+//         const res = await api.get("/employee");
 //         setEmployees(res.data.employee || []);
 //       } catch (err) {
 //         console.error("Error fetching employees:", err);
@@ -481,7 +481,7 @@ import { Select, Table, Spin, Button, Tag } from "antd";
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
-//         const res = await api.get("/agent/get-employee");
+//         const res = await api.get("/employee");
 //         setEmployees(res.data.employee || []);
 //       } catch (err) {
 //         console.error("Error fetching employees:", err);
@@ -679,7 +679,7 @@ const EmployeeMonthlyReport = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const res = await api.get("/agent/get-employee");
+        const res = await api.get("/employee");
         setEmployees(res.data.employee || []);
       } catch (err) {
         console.error("Error fetching employees:", err);
