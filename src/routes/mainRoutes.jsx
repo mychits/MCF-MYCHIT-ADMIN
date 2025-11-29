@@ -135,6 +135,8 @@ import ConvertedLead from "../pages/ConvertedLead";
 import UserRegistrationSourceSummaryReport from "../pages/UserRegistrationSourceSummaryReport";
 import HRMenu from "../pages/HRMenu";
 import SalaryPayment from "../pages/SalaryPayment";
+import TransferMenu from "../pages/TransferMenu";
+import CollectionMenu from "../pages/CollectionMenu";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -546,8 +548,16 @@ const mainRoutes = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+     {
+    path: "/collection-menu",
+    element: (
+      <ProtectedRoute>
+        <CollectionMenu />
+      </ProtectedRoute>
+    ),
+  },
   {
-    path: "/collection-area-request",
+    path: "/collection-menu/collection-area-request",
     element: (
       <ProtectedRoute>
         <CollectionArea />
@@ -611,9 +621,16 @@ const mainRoutes = createBrowserRouter([
     ),
   },
 
-  ,
+      {
+    path: "/transfer-menu",
+    element: (
+      <ProtectedRoute>
+        <TransferMenu />
+      </ProtectedRoute>
+    ),
+  },
   {
-    path: "soft-transfer",
+    path: "/transfer-menu/soft-transfer",
     element: (
       <ProtectedRoute>
         <SoftTransferCustomer />
@@ -622,7 +639,7 @@ const mainRoutes = createBrowserRouter([
   },
   ,
   {
-    path: "hard-transfer",
+    path: "/transfer-menu/hard-transfer",
     element: (
       <ProtectedRoute>
         <HardTransferCustomer />

@@ -283,18 +283,19 @@ const MenuSidebar = [
         id: "#1",
         title: "Collection",
         icon: <HiCurrencyRupee size="20" />,
+        link: "/collection-menu",
         hider: true,
-        newTab: true,
-        submenu: true,
-        submenuItems: [
-          {
-            id: ids.fourteen,
-            title: "Collection Area",
-            icon: <FaMapLocationDot />,
-            link: "/collection-area-request",
-          },
+        // newTab: true,
+        // submenu: true,
+        // submenuItems: [
+        //   {
+        //     id: ids.fourteen,
+        //     title: "Collection Area",
+        //     icon: <FaMapLocationDot />,
+        //     link: "/collection-area-request",
+        //   },
         
-        ],
+        // ],
       },
       // {
       //   id: "#2",
@@ -334,24 +335,25 @@ const MenuSidebar = [
         title: "Transfer",
         hider: true,
         icon: <BiTransfer  size={18} />,
-        newTab: true,
-        submenu: true,
-        submenuItems: [
-          {
-            id: "#206",
-            title: "Soft Transfer",
-            icon: <GrUserSettings size={18} />,
-            link: "/soft-transfer",
+        link: "/transfer-menu"
+        // newTab: true,
+        // submenu: true,
+        // submenuItems: [
+        //   {
+        //     id: "#206",
+        //     title: "Soft Transfer",
+        //     icon: <GrUserSettings size={18} />,
+        //     link: "/soft-transfer",
             
-          },
-            {
-            id: "#206",
-            title: "Hard Transfer",
-            icon: <GrUserSettings size={18} />,
-            link: "/hard-transfer",
+        //   },
+        //     {
+        //     id: "#206",
+        //     title: "Hard Transfer",
+        //     icon: <GrUserSettings size={18} />,
+        //     link: "/hard-transfer",
             
-          },
-        ],
+        //   },
+        // ],
       },
     ],
   },
