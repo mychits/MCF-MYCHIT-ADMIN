@@ -60,13 +60,7 @@ const Employee = () => {
     emergency_contact_number: [""],
     total_allocated_leaves: "2",
 
-    deductions: [
-      {
-        deduction_amount: "",
-        deduction_justification: "",
-        note: "",
-      },
-    ],
+
 
   });
   const [updateFormData, setUpdateFormData] = useState({
@@ -90,13 +84,6 @@ const Employee = () => {
     emergency_contact_number: [""],
     total_allocated_leaves: "2",
 
-    deductions: [
-      {
-        deduction_amount: "",
-        deduction_justification: "",
-        note: "",
-      },
-    ],
 
   });
   useEffect(() => {
@@ -311,14 +298,7 @@ const Employee = () => {
       newErrors.designation_id = "Please Enter Designation";  
     }
 
-    if (data.deductions && data.deductions.length > 0) {
-      for (let i = 0; i < data.deductions.length; i++) {
-        const amount = parseFloat(data.deductions[i].deduction_amount);
-        if (isNaN(amount) ) {
-          newErrors[`deduction_amount_${i}`] = "Deduction amount must be digit";
-        }
-      }
-    }
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -406,10 +386,7 @@ const Employee = () => {
           emergency_contact_number: [""],
           total_allocated_leaves: "2",
 
-          deduction_amount: "",
-          deduction_justification: "",
-          deduction_processed_on: "",
-          deduction_remarks: "",
+          
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("");
@@ -501,17 +478,7 @@ const Employee = () => {
           response?.data?.employee?.emergency_contact_person,
         total_allocated_leaves: response?.data?.employee?.total_allocated_leaves?.toString() || "2",
 
-        deductions:
-          response?.data?.employee?.deductions?.length > 0
-            ? response.data.employee.deductions
-            : [
-              {
-                deduction_amount: response?.data?.employee?.deduction_amount || "",
-                deduction_justification:
-                  response?.data?.employee?.deduction_justification || "",
-                note: response?.data?.employee?.deduction_remarks || "",
-              },
-            ],
+     
 
       });
       setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
@@ -607,42 +574,8 @@ const Employee = () => {
     setSelectedReportingManagerId(reportingId);
   };
 
-  const handleDeductionChange = (index, field, value, isUpdate = false) => {
-    if (isUpdate) {
-      const updatedDeductions = [...updateFormData.deductions];
-      updatedDeductions[index][field] = value;
-      setUpdateFormData({ ...updateFormData, deductions: updatedDeductions });
-    } else {
-      const updatedDeductions = [...formData.deductions];
-      updatedDeductions[index][field] = value;
-      setFormData({ ...formData, deductions: updatedDeductions });
-    }
-  };
 
-  const addDeductionField = (isUpdate = false) => {
-    const newDeduction = { deduction_amount: "", deduction_justification: "", note: "" };
-    if (isUpdate) {
-      setUpdateFormData({
-        ...updateFormData,
-        deductions: [...updateFormData.deductions, newDeduction],
-      });
-    } else {
-      setFormData({
-        ...formData,
-        deductions: [...formData.deductions, newDeduction],
-      });
-    }
-  };
 
-  const removeDeductionField = (index, isUpdate = false) => {
-    if (isUpdate) {
-      const updated = updateFormData.deductions.filter((_, i) => i !== index);
-      setUpdateFormData({ ...updateFormData, deductions: updated });
-    } else {
-      const updated = formData.deductions.filter((_, i) => i !== index);
-      setFormData({ ...formData, deductions: updated });
-    }
-  };
 
   return (
     <>
@@ -1225,91 +1158,7 @@ const Employee = () => {
               </div>
 
 
-              <div className="border-t pt-6 mt-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                  Deduction Details
-                </h4>
-
-                {Array.isArray(formData?.deductions) &&
-                  formData.deductions.map((deduction, index) => (
-
-                    <div key={index} className="mb-8 p-4 ">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block mb-2 text-sm font-medium text-gray-900">
-                            Deduction Amount <span className="text-gray-500">(in ₹)</span>
-                          </label>
-                          <Input
-                            type="number"
-                            name={`deduction_amount_${index}`}
-                            value={deduction.deduction_amount}
-                            onChange={(e) => {
-                              const val = e.target.value;
-
-                              if (val < 0) return;
-                              handleDeductionChange(index, "deduction_amount", val);
-                            }}
-                            placeholder="e.g., 2500"
-                            className="bg-gray-50 border border-gray-300 h-12 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                          />
-                          {errors[`deduction_amount_${index}`] && (
-                            <p className="mt-1 text-sm text-red-600">{errors[`deduction_amount_${index}`]}</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block mb-2 text-sm font-medium text-gray-900">
-                            Justification
-                          </label>
-                          <Input
-                            type="text"
-                            name={`deduction_justification_${index}`}
-                            value={deduction.deduction_justification}
-                            onChange={(e) =>
-                              handleDeductionChange(index, "deduction_justification", e.target.value)
-                            }
-                            placeholder="e.g., Non-compliance with attendance policy"
-                            className="bg-gray-50 border border-gray-300 h-12 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="w-full mt-6">
-                        <label className="block mb-2 text-sm font-medium text-gray-900">
-                          Note
-                        </label>
-                        <textarea
-                          rows={2}
-                          name={`note_${index}`}
-                          value={deduction.note}
-                          onChange={(e) =>
-                            handleDeductionChange(index, "note", e.target.value)
-                          }
-                          placeholder="Note if any?"
-                          className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-
-                      {index > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => removeDeductionField(index)}
-                          className="mt-4 text-red-600 text-sm underline"
-                        >
-                          Remove Deduction
-                        </button>
-                      )}
-                    </div>
-                  ))}
-
-                <button
-                  type="button"
-                  onClick={() => addDeductionField()}
-                  className="text-blue-700 text-sm font-medium underline"
-                >
-                  + Add Another Deduction
-                </button>
-              </div>
+            
 
 
 
@@ -1887,90 +1736,7 @@ const Employee = () => {
               </div>
 
 
-              <div className="border-t pt-6 mt-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                  Deduction Details
-                </h4>
-
-                {Array.isArray(updateFormData?.deductions) &&
-                  updateFormData.deductions.map((deduction, index) => (
-
-                    <div key={index} className="mb-8  p-4 ">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block mb-2 text-sm font-medium text-gray-900">
-                            Deduction Amount <span className="text-gray-500">(in ₹)</span>
-                          </label>
-                          <Input
-                            type="number"
-                            name={`deduction_amount_${index}`}
-                            value={deduction.deduction_amount}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val < 0) return;
-                              handleDeductionChange(index, "deduction_amount", val, true);
-                            }}
-                            placeholder="e.g., 2500"
-                            className="bg-gray-50 border border-gray-300 h-12 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                          />
-                          {errors[`deduction_amount_${index}`] && (
-                            <p className="mt-1 text-sm text-red-600">{errors[`deduction_amount_${index}`]}</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block mb-2 text-sm font-medium text-gray-900">
-                            Justification
-                          </label>
-                          <Input
-                            type="text"
-                            name={`deduction_justification_${index}`}
-                            value={deduction.deduction_justification}
-                            onChange={(e) =>
-                              handleDeductionChange(index, "deduction_justification", e.target.value, true)
-                            }
-                            placeholder="e.g., Non-compliance with attendance policy"
-                            className="bg-gray-50 border border-gray-300 h-12 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="w-full mt-6">
-                        <label className="block mb-2 text-sm font-medium text-gray-900">
-                          Note
-                        </label>
-                        <textarea
-                          rows={2}
-                          name={`note_${index}`}
-                          value={deduction.note}
-                          onChange={(e) =>
-                            handleDeductionChange(index, "note", e.target.value, true)
-                          }
-                          placeholder="Note if any?"
-                          className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-
-                      {index > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => removeDeductionField(index, true)}
-                          className="mt-4 text-red-600 text-sm underline"
-                        >
-                          Remove Deduction
-                        </button>
-                      )}
-                    </div>
-                  ))}
-
-                <button
-                  type="button"
-                  onClick={() => addDeductionField(true)}
-                  className="text-blue-700 text-sm font-medium underline"
-                >
-                  + Add Another Deduction
-                </button>
-              </div>
+            
 
               <div className="w-full flex justify-end">
                 <button
