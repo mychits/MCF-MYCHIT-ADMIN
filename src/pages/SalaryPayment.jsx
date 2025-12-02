@@ -165,6 +165,56 @@ const SalaryPayment = () => {
     }
   }
 
+  // Helper: Get valid months for a given year, based on joining date and today
+  const getValidMonths = (joiningDateStr, selectedYear) => {
+    if (!joiningDateStr || !selectedYear) {
+      return months.map((m) => ({ ...m, disabled: true }));
+    }
+
+    const joining = dayjs(joiningDateStr);
+    const today = dayjs();
+    const joinYear = joining.year();
+    const currentYear = today.year();
+    const selectedYearNum = Number(selectedYear);
+
+    return months.map((month, index) => {
+      // month index: Jan=0, Dec=11
+      const isBeforeJoining =
+        selectedYearNum === joinYear && index < joining.month(); // joining.month() is 0-based
+
+      const isAfterToday =
+        selectedYearNum === currentYear && index > today.month(); // today.month() is 0-based
+
+      const disabled =
+        selectedYearNum < joinYear || // Year before joining
+        selectedYearNum > currentYear || // Year after current
+        isBeforeJoining ||
+        isAfterToday;
+
+      return { ...month, disabled };
+    });
+  };
+
+
+useEffect(() => {
+  if (formData.employee_id && formData.year && employeeDetails?.joining_date) {
+    const validMonths = getValidMonths(employeeDetails.joining_date, formData.year);
+    const currentMonthValid = validMonths.some(
+      (m) => m.value === formData.month && !m.disabled
+    );
+
+    if (!currentMonthValid) {
+      const firstValid = validMonths.find((m) => !m.disabled);
+      if (firstValid) {
+        setFormData((prev) => ({
+          ...prev,
+          month: firstValid.value,
+        }));
+      }
+    }
+  }
+}, [formData.year, formData.employee_id, employeeDetails?.joining_date]);
+
   const handleEdit = async (id) => {
     try {
       setUpdateLoading(true);
@@ -173,13 +223,13 @@ const SalaryPayment = () => {
       if (salaryData) {
         setCurrentSalaryId(id);
 
-        // Convert year string to dayjs object for the DatePicker
+    
         const yearAsDayjs = dayjs(salaryData.salary_year, "YYYY");
 
         const formData = {
           employee_id: salaryData.employee_id._id,
           month: salaryData.salary_month,
-          year: yearAsDayjs, // Use dayjs object here
+          year: yearAsDayjs, 
           earnings: salaryData.earnings,
           deductions: salaryData.deductions,
           additional_payments: salaryData.additional_payments || [],
@@ -212,11 +262,11 @@ const SalaryPayment = () => {
   };
 
   const handleUpdateChange = (changedValues, allValues) => {
-    // Handle the year field specifically
+
     if (changedValues.year && dayjs.isDayjs(changedValues.year)) {
       changedValues.year = changedValues.year.format("YYYY");
     }
-    
+
     setUpdateFormData({
       ...updateFormData,
       ...changedValues,
@@ -228,7 +278,7 @@ const SalaryPayment = () => {
     try {
       setUpdateLoading(true);
 
-      // Calculate total earnings and deductions
+ 
       const totalEarnings = Object.values(updateFormData.earnings).reduce(
         (sum, value) => sum + Number(value),
         0
@@ -336,9 +386,17 @@ const SalaryPayment = () => {
     }
   }, [formData?.employee_id]);
 
+
   const handleChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (["employee_id", "month", "year"].includes(name)) {
+      setCalculatedSalary(null);
+      setShowAdditionalPayments(false);
+    }
   };
+
+
 
   const handleDeductionsChange = (name, value) => {
     setFormData((prev) => ({
@@ -382,7 +440,7 @@ const SalaryPayment = () => {
   async function handleCalculateSalary() {
     try {
       setCalculateLoading(true);
-      
+
       // Send earnings and deductions as objects, not JSON strings
       const response = await API.get("/salary-payment/calculate", {
         params: {
@@ -393,16 +451,16 @@ const SalaryPayment = () => {
           deductions: formData.deductions,
         },
       });
-      
+
       setCalculatedSalary(response.data.data);
       setShowAdditionalPayments(true);
-      
+
       // Set the total salary payable to the calculated salary
       setFormData((prev) => ({
         ...prev,
         total_salary_payable: response.data.data.calculated_salary,
       }));
-      
+
       message.success("Salary calculated successfully");
     } catch (error) {
       console.error("Error calculating salary:", error);
@@ -594,14 +652,17 @@ const SalaryPayment = () => {
                         Select Year <span className="text-red-600">*</span>
                       </label>
                       <DatePicker
-                        value={
-                          formData.year ? dayjs(formData.year, "YYYY") : null
-                        }
-                        onChange={(date, dateString) =>
-                          handleChange("year", dateString)
-                        }
+                        value={formData.year ? dayjs(formData.year, "YYYY") : null}
+                        onChange={(date, dateString) => handleChange("year", dateString)}
                         picker="year"
                         style={{ width: "100%" }}
+                        disabledDate={(current) => {
+                          if (!employeeDetails?.joining_date) return false;
+                          const joinYear = dayjs(employeeDetails.joining_date).year();
+                          const currentYear = dayjs().year();
+                          const year = current ? current.year() : null;
+                          return year < joinYear || year > currentYear;
+                        }}
                       />
                     </div>
                     <div className="form-group">
@@ -611,7 +672,7 @@ const SalaryPayment = () => {
                       <Segmented
                         className="[&_.ant-segmented-item-selected]:!bg-green-600 [&_.ant-segmented-item-selected]:!text-white"
                         value={formData.month}
-                        options={months}
+                        options={getValidMonths(employeeDetails?.joining_date, formData.year)}
                         onChange={(value) => handleChange("month", value)}
                         style={{ width: "100%" }}
                       />
@@ -1004,7 +1065,7 @@ const SalaryPayment = () => {
                           />
                         </div>
                       </div>
-                      
+
                       {/* Payment Details */}
                       <div className="bg-blue-50 p-4 rounded-lg mt-4">
                         <h3 className="text-lg font-semibold text-blue-800 mb-4">
@@ -1158,8 +1219,10 @@ const SalaryPayment = () => {
               name="employee_id"
               label="Employee ID"
               rules={[{ required: true, message: "Please select an employee" }]}
+
             >
               <Select
+                disabled
                 showSearch
                 optionFilterProp="label"
                 filterOption={(input, option) =>
@@ -1182,7 +1245,7 @@ const SalaryPayment = () => {
               label="Month"
               rules={[{ required: true, message: "Please select a month" }]}
             >
-              <Select placeholder="Select Month">
+              <Select disabled placeholder="Select Month">
                 {months.map((month) => (
                   <Select.Option key={month.value} value={month.value}>
                     {month.label}
@@ -1197,7 +1260,7 @@ const SalaryPayment = () => {
               rules={[{ required: true, message: "Please select a year" }]}
               getValueFromEvent={(value) => (value ? value.format("YYYY") : "")}
             >
-              <DatePicker picker="year" style={{ width: "100%" }} />
+              <DatePicker disabled picker="year" style={{ width: "100%" }} />
             </Form.Item>
 
             <div className="bg-green-50 p-4 rounded-lg mb-4">
