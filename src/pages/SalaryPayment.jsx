@@ -20,6 +20,7 @@ import { Select as AntSelect, Segmented, Button as AntButton } from "antd";
 import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import moment from "moment";
 
 const SalaryPayment = () => {
   const [isOpenAddModal, setIsOpenAddModal] = useState(false);
@@ -38,6 +39,9 @@ const SalaryPayment = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [form] = Form.useForm();
   const [updateForm] = Form.useForm();
+
+  const [alreadyPaidModalOpen, setAlreadyPaidModalOpen] = useState(false);
+const [existingSalaryRecord, setExistingSalaryRecord] = useState(null);
 
   const [updateFormData, setUpdateFormData] = useState({
     employee_id: "",
@@ -437,38 +441,76 @@ useEffect(() => {
     setFormData((prev) => ({ ...prev, additional_payments: updatedPayments }));
   };
 
-  async function handleCalculateSalary() {
-    try {
-      setCalculateLoading(true);
+  // async function handleCalculateSalary() {
+  //   try {
+  //     setCalculateLoading(true);
 
-      // Send earnings and deductions as objects, not JSON strings
-      const response = await API.get("/salary-payment/calculate", {
-        params: {
-          employee_id: formData.employee_id,
-          month: formData.month,
-          year: formData.year,
-          earnings: formData.earnings,
-          deductions: formData.deductions,
-        },
-      });
+  //     // Send earnings and deductions as objects, not JSON strings
+  //     const response = await API.get("/salary-payment/calculate", {
+  //       params: {
+  //         employee_id: formData.employee_id,
+  //         month: formData.month,
+  //         year: formData.year,
+  //         earnings: formData.earnings,
+  //         deductions: formData.deductions,
+  //       },
+  //     });
 
-      setCalculatedSalary(response.data.data);
-      setShowAdditionalPayments(true);
+  //     setCalculatedSalary(response.data.data);
+  //     setShowAdditionalPayments(true);
 
-      // Set the total salary payable to the calculated salary
-      setFormData((prev) => ({
-        ...prev,
-        total_salary_payable: response.data.data.calculated_salary,
-      }));
+  //     // Set the total salary payable to the calculated salary
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       total_salary_payable: response.data.data.calculated_salary,
+  //     }));
 
-      message.success("Salary calculated successfully");
-    } catch (error) {
+  //     message.success("Salary calculated successfully");
+  //   } catch (error) {
+  //     console.error("Error calculating salary:", error);
+  //     message.error("Failed to calculate salary");
+  //   } finally {
+  //     setCalculateLoading(false);
+  //   }
+  // }
+
+async function handleCalculateSalary() {
+  try {
+    setCalculateLoading(true);
+
+    const response = await API.get("/salary-payment/calculate", {
+      params: {
+        employee_id: formData.employee_id,
+        month: formData.month,
+        year: formData.year,
+        earnings: formData.earnings,
+        deductions: formData.deductions,
+      },
+    });
+
+    setCalculatedSalary(response.data.data);
+    setShowAdditionalPayments(true);
+    setFormData((prev) => ({
+      ...prev,
+      total_salary_payable: response.data.data.calculated_salary,
+    }));
+    message.success("Salary calculated successfully");
+  } catch (error) {
+    const status = error?.response?.status;
+    const errorMsg = error?.response?.data?.message;
+    const existingData = error?.response?.data?.existing_salary;
+
+    if (status === 406 && errorMsg?.includes("already generated")) {
+      setExistingSalaryRecord(existingData);
+      setAlreadyPaidModalOpen(true);
+    } else {
       console.error("Error calculating salary:", error);
-      message.error("Failed to calculate salary");
-    } finally {
-      setCalculateLoading(false);
+      message.error(errorMsg || "Failed to calculate salary");
     }
+  } finally {
+    setCalculateLoading(false);
   }
+}
 
   async function handleAddSalary() {
     try {
@@ -975,6 +1017,7 @@ useEffect(() => {
                       size="large"
                       className="px-8"
                       loading={calculateLoading}
+                       disabled={!formData.employee_id || !formData.month || !formData.year}
                     >
                       Calculate Salary
                     </Button>
@@ -1441,7 +1484,142 @@ useEffect(() => {
             cannot be undone.
           </p>
         </Modal>
+
+{/* Already Paid – Full Details Modal */}
+<Modal
+  title={
+    <div className="flex items-center gap-3">
+      <span className="text-amber-600 text-lg font-bold">⚠️ Salary Already Processed</span>
+    </div>
+  }
+  open={alreadyPaidModalOpen}
+  onCancel={() => setAlreadyPaidModalOpen(false)}
+  width={920}
+  footer={[
+    <Button key="close" onClick={() => setAlreadyPaidModalOpen(false)}>
+      Close
+    </Button>,
+    existingSalaryRecord?.status === "Pending" && (
+      <Button
+        key="edit"
+        type="primary"
+        style={{ backgroundColor: '#D4AF37', borderColor: '#B8860B' }}
+        onClick={() => {
+          handleEdit(existingSalaryRecord._id);
+          setAlreadyPaidModalOpen(false);
+        }}
+      >
+        Edit Record
+      </Button>
+    ),
+  ]}
+  bodyStyle={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto' }}
+>
+  {existingSalaryRecord ? (
+    <div className="space-y-6 text-sm">
+      {/* Salary Period */}
+      <section className="border-l-4 border-amber-600 bg-white p-4 rounded shadow-sm">
+        <h4 className="font-bold text-gray-800 mb-2 text-base">📅 Salary Period</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-gray-700">
+          <div><strong>Month:</strong> {existingSalaryRecord.salary_month} {existingSalaryRecord.salary_year}</div>
+          <div><strong>From:</strong> {moment(existingSalaryRecord.salary_from_date).format("DD MMM YYYY")}</div>
+          <div><strong>To:</strong> {moment(existingSalaryRecord.salary_to_date).format("DD MMM YYYY")}</div>
+        </div>
+      </section>
+
+      {/* Attendance Summary */}
+      <section className="border-l-4 border-emerald-600 bg-white p-4 rounded shadow-sm">
+        <h4 className="font-bold text-gray-800 mb-2 text-base">✅ Attendance Summary</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-gray-700">
+          <div><strong>Total Days:</strong> {existingSalaryRecord.total_days}</div>
+          <div><strong>Paid Days:</strong> {existingSalaryRecord.paid_days}</div>
+          <div><strong>LOP Days:</strong> {existingSalaryRecord.lop_days}</div>
+          <div><strong>Present:</strong> {existingSalaryRecord.present_days}</div>
+          <div><strong>Absent:</strong> {existingSalaryRecord.absent_days}</div>
+          <div><strong>On Leave:</strong> {existingSalaryRecord.leave_days}</div>
+          <div><strong>Half Days:</strong> {existingSalaryRecord.half_days}</div>
+        </div>
+      </section>
+
+      {/* Earnings */}
+      <section className="border-l-4 border-emerald-600 bg-white p-4 rounded shadow-sm">
+        <h4 className="font-bold text-gray-800 mb-2 text-base">💰 Earnings</h4>
+        <ul className="space-y-1.5 text-gray-700">
+          {Object.entries(existingSalaryRecord.earnings || {}).map(([key, val]) => (
+            <li key={key} className="flex justify-between">
+              <span className="capitalize">{key.replace(/_/g, " ")}:</span>
+              <span className="font-medium">₹{Number(val).toFixed(2)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Deductions */}
+      <section className="border-l-4 border-red-600 bg-white p-4 rounded shadow-sm">
+        <h4 className="font-bold text-gray-800 mb-2 text-base">💸 Deductions</h4>
+        <ul className="space-y-1.5 text-gray-700">
+          {Object.entries(existingSalaryRecord.deductions || {}).map(([key, val]) => (
+            <li key={key} className="flex justify-between">
+              <span className="capitalize">{key.replace(/_/g, " ")}:</span>
+              <span className="font-medium">₹{Number(val).toFixed(2)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Additional Payments */}
+      {existingSalaryRecord.additional_payments?.length > 0 && (
+        <section className="border-l-4 border-purple-600 bg-white p-4 rounded shadow-sm">
+          <h4 className="font-bold text-gray-800 mb-2 text-base">🎁 Additional Payments</h4>
+          <ul className="space-y-1.5 text-gray-700">
+            {existingSalaryRecord.additional_payments.map((pay, i) => (
+              <li key={i} className="flex justify-between">
+                <span>{pay.name || "Payment"}:</span>
+                <span className="font-medium">₹{Number(pay.value).toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Payment Summary */}
+      <section className="border-l-4 border-amber-700 bg-white p-4 rounded shadow-sm">
+        <h4 className="font-bold text-gray-800 mb-2 text-base">📊 Payment Summary</h4>
+        <div className="space-y-1.5 text-gray-700">
+          <p><strong>Total Earnings:</strong> ₹{Number(existingSalaryRecord.total_earnings).toFixed(2)}</p>
+          <p><strong>Total Deductions:</strong> ₹{Number(existingSalaryRecord.total_deductions).toFixed(2)}</p>
+          <p><strong>Net Payable:</strong> ₹{Number(existingSalaryRecord.net_payable).toFixed(2)}</p>
+          <p><strong>Paid Amount:</strong> ₹{Number(existingSalaryRecord.paid_amount).toFixed(2)}</p>
+          <p><strong>Remaining Balance:</strong> ₹{Number(existingSalaryRecord.remaining_balance).toFixed(2)}</p>
+          <p>
+            <strong>Status:</strong>{' '}
+            <span
+              className={
+                existingSalaryRecord.status === "Paid"
+                  ? "text-green-600 font-medium"
+                  : "text-orange-600 font-medium"
+              }
+            >
+              {existingSalaryRecord.status}
+            </span>
+          </p>
+          {existingSalaryRecord.transaction_id && (
+            <p><strong>Transaction ID:</strong> {existingSalaryRecord.transaction_id}</p>
+          )}
+          <p><strong>Payment Method:</strong> {existingSalaryRecord.payment_method || "—"} </p>
+          <p><strong>Pay Date:</strong> {moment(existingSalaryRecord.pay_date).format("DD MMM YYYY")}</p>
+        </div>
+      </section>
+    </div>
+  ) : (
+    <div className="flex items-center justify-center h-32">
+      <p className="text-gray-500">Loading salary details...</p>
+    </div>
+  )}
+</Modal>
+
       </div>
+      
     </div>
   );
 };
