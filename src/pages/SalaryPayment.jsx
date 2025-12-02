@@ -64,9 +64,9 @@ const SalaryPayment = () => {
       professional_tax: 0,
     },
     additional_payments: [],
-     pay_date: moment(),
-      payment_method: "Cash",       
-  transaction_id: "", 
+    pay_date: moment(),
+    payment_method: "Cash",
+    transaction_id: "",
   });
 
   const thisYear = dayjs().format("YYYY");
@@ -142,10 +142,10 @@ const SalaryPayment = () => {
     additional_payments: [],
     total_salary_payable: 0,
     paid_amount: 0,
-     pay_date: moment(),
+    pay_date: moment(),
     payment_method: "Cash",
     transaction_id: "",
-    
+
   });
 
   async function fetchEmployees() {
@@ -245,9 +245,9 @@ const SalaryPayment = () => {
           additional_payments: salaryData.additional_payments || [],
           total_salary_payable: salaryData.total_salary_payable || 0,
           paid_amount: salaryData.paid_amount || 0,
-           payment_method: salaryData.payment_method || "Cash",      
-  transaction_id: salaryData.transaction_id || "",  
-   pay_date: salaryData.pay_date ? moment(salaryData.pay_date) : moment(),
+          payment_method: salaryData.payment_method || "Cash",
+          transaction_id: salaryData.transaction_id || "",
+          pay_date: salaryData.pay_date ? moment(salaryData.pay_date) : moment(),
         };
 
         setUpdateFormData(formData);
@@ -544,30 +544,30 @@ const SalaryPayment = () => {
         ? calculatedSalary.calculated_salary
         : totalEarnings - totalDeductions + additionalPaymentsTotal;
 
-     const salaryData = {
-  employee_id: formData.employee_id,
-  salary_from_date: calculatedSalary
-    ? calculatedSalary.salary_from_date
-    : new Date(),
-  salary_to_date: calculatedSalary
-    ? calculatedSalary.salary_to_date
-    : new Date(),
-  salary_month: formData.month,
-  salary_year: formData.year,
-  earnings: formData.earnings,
-  deductions: formData.deductions,
-  additional_payments: formData.additional_payments,
-  paid_days: calculatedSalary ? calculatedSalary.paid_days : 30,
-  lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
-  net_payable: netPayable,
-  paid_amount: formData.paid_amount || 0,
-  remaining_balance: (formData.total_salary_payable || netPayable) - (formData.paid_amount || 0),
-  total_salary_payable: formData.total_salary_payable || netPayable,
-  payment_method: formData.payment_method, // ✅ dynamic
-  transaction_id: formData.payment_method === "Cash" ? null : (formData.transaction_id || null), // ✅ conditional
-  status: "Pending",
-  pay_date: new Date(),
-};
+      const salaryData = {
+        employee_id: formData.employee_id,
+        salary_from_date: calculatedSalary
+          ? calculatedSalary.salary_from_date
+          : new Date(),
+        salary_to_date: calculatedSalary
+          ? calculatedSalary.salary_to_date
+          : new Date(),
+        salary_month: formData.month,
+        salary_year: formData.year,
+        earnings: formData.earnings,
+        deductions: formData.deductions,
+        additional_payments: formData.additional_payments,
+        paid_days: calculatedSalary ? calculatedSalary.paid_days : 30,
+        lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
+        net_payable: netPayable,
+        paid_amount: formData.paid_amount || 0,
+        remaining_balance: (formData.total_salary_payable || netPayable) - (formData.paid_amount || 0),
+        total_salary_payable: formData.total_salary_payable || netPayable,
+        payment_method: formData.payment_method, // ✅ dynamic
+        transaction_id: formData.payment_method === "Cash" ? null : (formData.transaction_id || null), // ✅ conditional
+        status: "Pending",
+        pay_date: new Date(),
+      };
 
       await API.post("/salary-payment/", salaryData);
       message.success("Salary added successfully");
@@ -1131,91 +1131,7 @@ const SalaryPayment = () => {
                       </div>
 
                       {/* Payment Details */}
-                      <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                        <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                          Payment Details
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="form-group">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Total Salary Payable
-                            </label>
-                            <input
-                              type="number"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              value={formData.total_salary_payable || 0}
-                              onChange={(e) =>
-                                handleChange("total_salary_payable", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Paid Amount
-                            </label>
-                            <input
-                              type="number"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              value={formData.paid_amount || 0}
-                              onChange={(e) => handleChange("paid_amount", e.target.value)}
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Payment Mode <span className="text-red-600">*</span>
-                            </label>
-                            <Select
-                              style={{ width: "100%" }}
-                              placeholder="Select mode"
-                              value={formData.payment_method}
-                              onChange={(value) => handleChange("payment_method", value)}
-                              options={[
-                                { label: "Cash", value: "Cash" },
-                                { label: "Online / UPI", value: "Online/UPI" },
-                                { label: "Online / NEFT", value: "Online/NEFT" },
-                                { label: "Online / IMPS", value: "Online/IMPS" },
-                                { label: "Online / RTGS", value: "Online/RTGS" },
 
-                            
-                              ]}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Transaction ID (only if not Cash) */}
-                        {formData.payment_method !== "Cash" && (
-                          <div className="mt-4">
-                            <div className="form-group">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Transaction ID <span className="text-red-600">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Enter transaction id"
-                                value={formData.transaction_id || ""}
-                                onChange={(e) => handleChange("transaction_id", e.target.value)}
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="form-group">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Pay Date <span className="text-red-600">*</span>
-  </label>
-  <DatePicker
-    style={{ width: "100%" }}
-    value={formData.pay_date}
-    onChange={(date) => handleChange("pay_date", date)}
-    format="DD MMM YYYY"
-    disabledDate={(current) => {
-      // Optional: prevent future dates
-      return current && current.isAfter(moment().endOf('day'));
-    }}
-  />
-</div>
-                      </div>
 
                     </div>
                   )}
@@ -1285,6 +1201,90 @@ const SalaryPayment = () => {
                       ))}
                     </div>
                   )}
+                  {/* Transaction Details */}
+                  {calculatedSalary && (
+                    <div className="bg-blue-50 p-4 rounded-lg mt-4">
+                      <h3 className="text-lg font-semibold text-blue-800 mb-4">
+                        Transaction Details
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="form-group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Total Salary Payable
+                          </label>
+                          <input
+                            type="number"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            value={formData.total_salary_payable || 0}
+                            onChange={(e) =>
+                              handleChange("total_salary_payable", e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Paid Amount
+                          </label>
+                          <input
+                            type="number"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            value={formData.paid_amount || 0}
+                            onChange={(e) => handleChange("paid_amount", e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Payment Mode <span className="text-red-600">*</span>
+                          </label>
+                          <Select
+                            style={{ width: "100%" }}
+                            placeholder="Select mode"
+                            value={formData.payment_method}
+                            onChange={(value) => handleChange("payment_method", value)}
+                            options={[
+                              { label: "Cash", value: "Cash" },
+                              { label: "Online / UPI", value: "Online/UPI" },
+                              { label: "Online / NEFT", value: "Online/NEFT" },
+                              { label: "Online / IMPS", value: "Online/IMPS" },
+                              { label: "Online / RTGS", value: "Online/RTGS" },
+                            ]}
+                          />
+                        </div>
+                      </div>
+                      {/* Transaction ID (only if not Cash) */}
+                      {formData.payment_method !== "Cash" && (
+                        <div className="mt-4">
+                          <div className="form-group">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Transaction ID <span className="text-red-600">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="Enter transaction id"
+                              value={formData.transaction_id || ""}
+                              onChange={(e) => handleChange("transaction_id", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Pay Date <span className="text-red-600">*</span>
+                        </label>
+                        <DatePicker
+                          style={{ width: "100%" }}
+                          value={formData.pay_date}
+                          onChange={(date) => handleChange("pay_date", date)}
+                          format="DD MMM YYYY"
+                          disabledDate={(current) => {
+                            return current && current.isAfter(moment().endOf('day'));
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
                 </>
               )
             ) : (
@@ -1527,55 +1527,55 @@ const SalaryPayment = () => {
                 </Form.Item>
               </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <Form.Item
-      name="payment_method"
-      label="Payment Mode"
-      rules={[{ required: true, message: "Please select payment mode" }]}
-    >
-      <Select
-        placeholder="Select payment mode"
-        options={[
-          { label: "Cash", value: "Cash" },
-          { label: "Online / UPI", value: "Online/UPI" },
-          { label: "Online / NEFT", value: "Online/NEFT" },
-          { label: "Online / IMPS", value: "Online/IMPS" },
-          { label: "Online / RTGS", value: "Online/RTGS" },
-          { label: "Bank Transfer", value: "Bank Transfer" },
-          { label: "Cheque", value: "Cheque" },
-          { label: "Direct Deposit", value: "Direct Deposit" },
-        ]}
-      />
-    </Form.Item>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Form.Item
+                  name="payment_method"
+                  label="Payment Mode"
+                  rules={[{ required: true, message: "Please select payment mode" }]}
+                >
+                  <Select
+                    placeholder="Select payment mode"
+                    options={[
+                      { label: "Cash", value: "Cash" },
+                      { label: "Online / UPI", value: "Online/UPI" },
+                      { label: "Online / NEFT", value: "Online/NEFT" },
+                      { label: "Online / IMPS", value: "Online/IMPS" },
+                      { label: "Online / RTGS", value: "Online/RTGS" },
+                      { label: "Bank Transfer", value: "Bank Transfer" },
+                      { label: "Cheque", value: "Cheque" },
+                      { label: "Direct Deposit", value: "Direct Deposit" },
+                    ]}
+                  />
+                </Form.Item>
 
-    {updateForm.getFieldValue("payment_method") !== "Cash" && (
-      <Form.Item
-        name="transaction_id"
-        label="Transaction ID"
-        rules={[
-          { required: updateForm.getFieldValue("payment_method") !== "Cash", message: "Transaction ID is required" }
-        ]}
-      >
-        <Input placeholder="Enter transaction reference" />
-      </Form.Item>
-    )}
+                {updateForm.getFieldValue("payment_method") !== "Cash" && (
+                  <Form.Item
+                    name="transaction_id"
+                    label="Transaction ID"
+                    rules={[
+                      { required: updateForm.getFieldValue("payment_method") !== "Cash", message: "Transaction ID is required" }
+                    ]}
+                  >
+                    <Input placeholder="Enter transaction reference" />
+                  </Form.Item>
+                )}
 
-    <Form.Item
-  name="pay_date"
-  label="Pay Date"
-  rules={[{ required: true, message: "Please select pay date" }]}
-  getValueProps={(value) => ({
-    value: value ? moment(value) : null,
-  })}
-  getValueFromEvent={(date) => (date ? date.toDate() : null)}
->
-  <DatePicker
-    style={{ width: "100%" }}
-    format="DD MMM YYYY"
-    disabledDate={(current) => current && current.isAfter(moment().endOf('day'))}
-  />
-</Form.Item>
-  </div>
+                <Form.Item
+                  name="pay_date"
+                  label="Pay Date"
+                  rules={[{ required: true, message: "Please select pay date" }]}
+                  getValueProps={(value) => ({
+                    value: value ? moment(value) : null,
+                  })}
+                  getValueFromEvent={(date) => (date ? date.toDate() : null)}
+                >
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    format="DD MMM YYYY"
+                    disabledDate={(current) => current && current.isAfter(moment().endOf('day'))}
+                  />
+                </Form.Item>
+              </div>
             </div>
 
           </Form>
