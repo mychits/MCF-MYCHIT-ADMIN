@@ -64,6 +64,7 @@ const SalaryPayment = () => {
       professional_tax: 0,
     },
     additional_payments: [],
+     pay_date: moment(),
       payment_method: "Cash",       
   transaction_id: "", 
   });
@@ -141,8 +142,10 @@ const SalaryPayment = () => {
     additional_payments: [],
     total_salary_payable: 0,
     paid_amount: 0,
+     pay_date: moment(),
     payment_method: "Cash",
     transaction_id: "",
+    
   });
 
   async function fetchEmployees() {
@@ -244,6 +247,7 @@ const SalaryPayment = () => {
           paid_amount: salaryData.paid_amount || 0,
            payment_method: salaryData.payment_method || "Cash",      
   transaction_id: salaryData.transaction_id || "",  
+   pay_date: salaryData.pay_date ? moment(salaryData.pay_date) : moment(),
         };
 
         setUpdateFormData(formData);
@@ -1195,6 +1199,22 @@ const SalaryPayment = () => {
                             </div>
                           </div>
                         )}
+
+                        <div className="form-group">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Pay Date <span className="text-red-600">*</span>
+  </label>
+  <DatePicker
+    style={{ width: "100%" }}
+    value={formData.pay_date}
+    onChange={(date) => handleChange("pay_date", date)}
+    format="DD MMM YYYY"
+    disabledDate={(current) => {
+      // Optional: prevent future dates
+      return current && current.isAfter(moment().endOf('day'));
+    }}
+  />
+</div>
                       </div>
 
                     </div>
@@ -1539,6 +1559,22 @@ const SalaryPayment = () => {
         <Input placeholder="Enter transaction reference" />
       </Form.Item>
     )}
+
+    <Form.Item
+  name="pay_date"
+  label="Pay Date"
+  rules={[{ required: true, message: "Please select pay date" }]}
+  getValueProps={(value) => ({
+    value: value ? moment(value) : null,
+  })}
+  getValueFromEvent={(date) => (date ? date.toDate() : null)}
+>
+  <DatePicker
+    style={{ width: "100%" }}
+    format="DD MMM YYYY"
+    disabledDate={(current) => current && current.isAfter(moment().endOf('day'))}
+  />
+</Form.Item>
   </div>
             </div>
 
