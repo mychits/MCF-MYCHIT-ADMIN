@@ -405,7 +405,7 @@ const SalaryPayment = () => {
     if (formData.employee_id) {
       fetchSalaryDetails();
     }
-  }, [formData?.employee_id]);
+  }, [formData?.employee_id,formData.month,formData.month]);
 
 
   const handleChange = (name, value) => {
