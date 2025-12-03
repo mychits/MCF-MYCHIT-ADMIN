@@ -822,12 +822,13 @@ const SalaryPayment = () => {
                           onChange={(e) =>
                             handleEarningsChange(e.target.name, e.target.value)
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="basic"
                           id="basic"
                           value={formData?.earnings?.basic}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.basic)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.basic || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -844,7 +845,7 @@ const SalaryPayment = () => {
                           id="hra"
                           value={formData?.earnings?.hra}
                         />
-                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.hra)}</span>
+                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.hra || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -856,12 +857,13 @@ const SalaryPayment = () => {
                           onChange={(e) =>
                             handleEarningsChange(e.target.name, e.target.value)
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="travel_allowance"
                           id="travel_allowance"
                           value={formData?.earnings?.travel_allowance}
                         />
-                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.travel_allowance)}</span>
+                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.travel_allowance || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -878,7 +880,7 @@ const SalaryPayment = () => {
                           id="medical_allowance"
                           value={formData?.earnings?.medical_allowance}
                         />
-                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.medical_allowance)}</span>
+                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.medical_allowance || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -890,12 +892,13 @@ const SalaryPayment = () => {
                           onChange={(e) =>
                             handleEarningsChange(e.target.name, e.target.value)
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="basket_of_benifits"
                           id="basket_of_benifits"
                           value={formData?.earnings?.basket_of_benifits}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.basket_of_benifits)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.basket_of_benifits || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -907,12 +910,13 @@ const SalaryPayment = () => {
                           onChange={(e) =>
                             handleEarningsChange(e.target.name, e.target.value)
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="performance_bonus"
                           id="performance_bonus"
                           value={formData?.earnings?.performance_bonus}
                         />
-                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.performance_bonus)}</span>
+                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.performance_bonus || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -924,11 +928,13 @@ const SalaryPayment = () => {
                           onChange={(e) =>
                             handleEarningsChange(e.target.name, e.target.value)
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="other_allowances"
                           id="other_allowances"
                           value={formData?.earnings?.other_allowances}
                         />
+                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.other_allowances || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -940,11 +946,13 @@ const SalaryPayment = () => {
                           onChange={(e) =>
                             handleEarningsChange(e.target.name, e.target.value)
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="conveyance"
                           id="conveyance"
                           value={formData?.earnings?.conveyance}
                         />
+                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.conveyance || 0)}</span>
                       </div>
                     </div>
                   </div>
@@ -967,11 +975,13 @@ const SalaryPayment = () => {
                               e.target.value
                             )
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="income_tax"
                           id="income_tax"
                           value={formData?.deductions?.income_tax}
                         />
+                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.deductions?.income_tax || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -986,11 +996,13 @@ const SalaryPayment = () => {
                               e.target.value
                             )
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="esi"
                           id="esi"
                           value={formData?.deductions?.esi}
                         />
+                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.deductions?.esi || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1005,11 +1017,13 @@ const SalaryPayment = () => {
                               e.target.value
                             )
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="epf"
                           id="epf"
                           value={formData?.deductions?.epf}
                         />
+                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.deductions?.epf || 0)}</span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1024,11 +1038,13 @@ const SalaryPayment = () => {
                               e.target.value
                             )
                           }
-                          type="text"
+                          type="number"
+onWheel={(e)=> e.target.blur()}
                           name="professional_tax"
                           id="professional_tax"
                           value={formData?.deductions?.professional_tax}
                         />
+                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.deductions?.professional_tax || 0)}</span>
                       </div>
                     </div>
                   </div>
@@ -1059,88 +1075,107 @@ const SalaryPayment = () => {
                             Total Days
                           </label>
                           <input
-                            type="text"
+                            type="number"
+onWheel={(e)=> e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.total_days}
                             disabled
                           />
+                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.total_days || 0)}</span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Present Days
                           </label>
                           <input
-                            type="text"
+                            type="number"
+onWheel={(e)=> e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.present_days}
                             disabled
                           />
+                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.present_days || 0)}</span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Paid Days
                           </label>
                           <input
-                            type="text"
+                            type="number"
+onWheel={(e)=> e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.paid_days}
                             disabled
                           />
+                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.paid_days || 0)}</span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             LOP Days
                           </label>
                           <input
-                            type="text"
+                            type="number"
+onWheel={(e)=> e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.lop_days}
                             disabled
                           />
+                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.lop_days || 0)}</span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Per Day Salary
                           </label>
                           <input
-                            type="text"
+                            type="number"
+onWheel={(e)=> e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.per_day_salary.toFixed(2)}
                             disabled
                           />
+                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.per_day_salary.toFixed(2) || 0)}</span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Total Earnings
                           </label>
                           <input
-                            type="text"
+                            type="number"
+onWheel={(e)=> e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.total_earnings.toFixed(2)}
                             disabled
                           />
+                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.total_earnings.toFixed(2) || 0)}</span>
+
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Total Deductions
                           </label>
                           <input
-                            type="text"
+                            type="number"
+onWheel={(e)=> e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.total_deductions.toFixed(2)}
                             disabled
                           />
+                                                    <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.total_deductions.toFixed(2) || 0)}</span>
+
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Calculated Salary
                           </label>
                           <input
-                            type="text"
+                            type="number"
+onWheel={(e)=> e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.calculated_salary.toFixed(2)}
                             disabled
                           />
+                                                    <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.calculated_salary.toFixed(2) || 0)}</span>
+
                         </div>
                       </div>
 
@@ -1203,6 +1238,8 @@ const SalaryPayment = () => {
                                   )
                                 }
                               />
+                                                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(payment.value || 0)}</span>
+
                             </div>
                             <Button
                               type="primary"
@@ -1228,12 +1265,15 @@ const SalaryPayment = () => {
                           </label>
                           <input
                             type="number"
+                            onW
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.total_salary_payable.toFixed(2) || 0}
+                            value={(formData?.total_salary_payable || 0).toFixed(2) || 0}
                             onChange={(e) =>
                               handleChange("total_salary_payable", e.target.value)
                             }
                           />
+                                                    <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData.total_salary_payable.toFixed(2) || 0)}</span>
+
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1245,6 +1285,7 @@ const SalaryPayment = () => {
                             value={formData.paid_amount.toFixed(2) || 0}
                             onChange={(e) => handleChange("paid_amount", e.target.value)}
                           />
+                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData.paid_amount.toFixed(2) || 0)}</span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1273,12 +1314,14 @@ const SalaryPayment = () => {
                               Transaction ID <span className="text-red-600">*</span>
                             </label>
                             <input
-                              type="text"
+                              type="number"
+onWheel={(e)=> e.target.blur()}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="Enter transaction id"
                               value={formData.transaction_id || ""}
                               onChange={(e) => handleChange("transaction_id", e.target.value)}
                             />
+                            <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData.transaction_id || 0)}</span>
                           </div>
                         </div>
                       )}
@@ -1398,6 +1441,7 @@ const SalaryPayment = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Form.Item name={["earnings", "basic"]} label="Basic Salary">
                   <Input type="number" />
+                  
                 </Form.Item>
                 <Form.Item name={["earnings", "hra"]} label="HRA">
                   <Input type="number" />
