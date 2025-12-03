@@ -205,6 +205,21 @@ const Payroll = () => {
   };
 
   const handleChange = (name, value, earnings = false, deductions = false) => {
+     if(name ==="salary"){
+    let basic = 0.6 * value;
+    let hra = basic * 0.4;
+    let travelAllowance = 1000;
+    let medicalAllowance = 1250;
+    let basketOfBenifits = 1000;
+    let performanceBonus = 1000;
+    let otherAllowances = 1000;
+    let conveyance = 1000;
+    let incomeTax = 1000;
+    let esi = 1000;
+    let epf = 1000;
+    let professionalTax = 1000;
+    let salaryAdvance = 1000;
+    }
     if (earnings) {
       setFormData((prevData) => ({
         ...prevData,
@@ -415,43 +430,43 @@ const Payroll = () => {
           },
         });
         setShowModal(false);
-        setFormData({
-          name: "",
-          email: "",
-          phone_number: "",
-          password: "",
-          address: "",
-          pincode: "",
-          adhaar_no: "",
-          designation_id: "",
-          pan_no: "",
-          joining_date: "",
-          status: "",
-          dob: "",
-          gender: "",
-          alternate_number: "",
-          salary: "",
-          leaving_date: "",
-          emergency_contact_person: "",
-          emergency_contact_number: [""],
-          total_allocated_leaves: "2",
-          earnings: {
-            basic: 0,
-            hra: 0,
-            travel_allowance: 0,
-            medical_allowance: 0,
-            basket_of_benifits: 0,
-            performance_bonus: 0,
-            other_allowances: 0,
-            conveyance: 0,
-          },
-          deductions: {
-            income_tax: 0,
-            esi: 0,
-            epf: 0,
-            professional_tax: 0,
-          },
-        });
+        // setFormData({
+        //   name: "",
+        //   email: "",
+        //   phone_number: "",
+        //   password: "",
+        //   address: "",
+        //   pincode: "",
+        //   adhaar_no: "",
+        //   designation_id: "",
+        //   pan_no: "",
+        //   joining_date: "",
+        //   status: "",
+        //   dob: "",
+        //   gender: "",
+        //   alternate_number: "",
+        //   salary: "",
+        //   leaving_date: "",
+        //   emergency_contact_person: "",
+        //   emergency_contact_number: [""],
+        //   total_allocated_leaves: "2",
+        //   earnings: {
+        //     basic: 0,
+        //     hra: 0,
+        //     travel_allowance: 0,
+        //     medical_allowance: 0,
+        //     basket_of_benifits: 0,
+        //     performance_bonus: 0,
+        //     other_allowances: 0,
+        //     conveyance: 0,
+        //   },
+        //   deductions: {
+        //     income_tax: 0,
+        //     esi: 0,
+        //     epf: 0,
+        //     professional_tax: 0,
+        //   },
+        // });
         setSelectedManagerId("");
         setSelectedReportingManagerId("");
         setReloadTrigger((prev) => prev + 1);
@@ -692,7 +707,7 @@ const Payroll = () => {
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Employee</h1>
+                <h1 className="text-2xl font-semibold">Payroll</h1>
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -700,7 +715,7 @@ const Payroll = () => {
                   }}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
-                  + Add Employee
+                  + Add Employee 
                 </button>
               </div>
             </div>
