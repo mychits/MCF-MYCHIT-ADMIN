@@ -1,4 +1,4 @@
-// PenaltySettings.jsx
+
 import { useEffect, useState } from "react";
 import SettingSidebar from "../components/layouts/SettingSidebar";
 import Navbar from "../components/layouts/Navbar";
@@ -6,6 +6,7 @@ import api from "../instance/TokenInstance";
 import {
   Select,
   InputNumber,
+  Drawer,
   Button,
   message,
   Card,
@@ -67,7 +68,9 @@ const PenaltySettings = () => {
   const [saving, setSaving] = useState(false);
   const [storedPenalties, setStoredPenalties] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [editingPenalty, setEditingPenalty] = useState(null);
+  const [editRow, setEditRow] = useState(null);
   const [modalForm] = Form.useForm();
   const [activeTab, setActiveTab] = useState("configure");
   const [additionalCharges, setAdditionalCharges] = useState([]);
@@ -77,8 +80,14 @@ const PenaltySettings = () => {
   const isGroupSelected = !!selectedGroup;
 
   const [vacantChitPenaltyAmount, setVacantChitPenaltyAmount] = useState(0);
-  const [vacantChitGraceDays, setVacantChitGraceDays] = useState(0);
+  const [vacantChitGraceDays, setVacantChitGraceDays] = useState(30);
   const [vacantChitPenaltyRate, setVacantChitPenaltyRate] = useState(0);
+
+  const [latePaymentRate, setLatePaymentRate] = useState(0);
+
+  const [penaltyPreview, setPenaltyPreview] = useState(null);
+  const [showPenaltyPreview, setShowPenaltyPreview] = useState(false);
+
 
 
   useEffect(() => {
@@ -98,7 +107,7 @@ const PenaltySettings = () => {
 
   const fetchGroups = async () => {
     try {
-      const res = await api.get("/penalty/eligible-groups");
+      const res = await api.get("/group/get-group");
       setGroups(res.data || []);
     } catch (err) {
       message.error("Failed to load groups");
@@ -145,14 +154,57 @@ const PenaltySettings = () => {
   };
 
   const handleGroupChange = (value) => {
-    const group = groups.find((g) => g._id === value);
+    const group = groups.find(g => g._id === value);
     setSelectedGroup(group);
+
+    const existing = storedPenalties.find(p => p.group_id === value);
+
+    if (existing) {
+      setPenaltyPreview({
+        ...existing,
+        monthly_installment: group?.monthly_installment || 0,
+        weekly_installment: group?.weekly_installment || 0,
+        daily_installment: group?.daily_installment || 0,
+        groupData: group
+      });
+      setShowPenaltyPreview(true);
+    }
+
+    // reset fields
     setPenaltyRate(0);
     setGraceDays(0);
     setPenaltyAmount(0);
     setLatePaymentAmount(0);
+    setLatePaymentRate(0);
     setDaysLateThreshold(0);
     setAdditionalCharges([]);
+  };
+
+
+
+  const handleDrawerSave = async () => {
+    if (!editingPenalty) return;
+    try {
+      await api.post(`/penalty/penalty-settings/${editingPenalty.group_id}`, {
+        penalty_type: "percentage",
+        penalty_rate: editingPenalty.penalty_rate,
+        grace_days: editingPenalty.grace_days,
+        penalty_amount: editingPenalty.penalty_amount,
+        late_payment_amount: editingPenalty.late_payment_amount,
+        late_payment_rate: editingPenalty.late_payment_rate,
+        days_late_threshold: editingPenalty.days_late_threshold,
+        installment_amount: editingPenalty.installment_amount,
+        group_name: editingPenalty.group_name,
+        vacant_chit_penalty_amount: editingPenalty.vacant_chit_penalty_amount,
+        vacant_chit_grace_days: editingPenalty.vacant_chit_grace_days,
+        vacant_chit_penalty_rate: editingPenalty.vacant_chit_penalty_rate,
+      });
+      message.success("Penalty updated successfully");
+      setEditDrawerOpen(false);
+      fetchPenalties();
+    } catch (err) {
+      message.error("Failed to update penalty");
+    }
   };
 
   const handleSave = async () => {
@@ -168,6 +220,7 @@ const PenaltySettings = () => {
         grace_days: graceDays,
         penalty_amount: penaltyAmount,
         late_payment_amount: latePaymentAmount,
+        late_payment_rate: latePaymentRate,
         days_late_threshold: daysLateThreshold,
         installment_amount: installmentAmount,
         group_name: selectedGroup.group_name,
@@ -196,46 +249,36 @@ const PenaltySettings = () => {
     }
   };
 
-  const openEditModal = (row) => {
-    modalForm.setFieldsValue({
-      group_name: row.group_name,
-      installment_amount: row.installment_amount,
-      penalty_rate: row.penalty_rate,
-      grace_days: row.grace_days,
-      penalty_amount: row.penalty_amount,
-      late_payment_amount: row.late_payment_amount || 0, // Handles potentially missing field
-      days_late_threshold: row.days_late_threshold || 0, // Handles potentially missing field
-      // Correctly fetch and set vacant chit fields, defaulting to 0 if missing
+  const openEditDrawer = (row) => {
+    const fullGroup = groups.find(g => g._id === row.group_id);
+    console.log(groups, row, row.group_id, 'this is full group')
+    setEditingPenalty({
+      ...row,
+
+      // always pull these LIVE from group collection
+      installment_amount:
+        Number(fullGroup?.monthly_installment) ||
+        Number(fullGroup?.weekly_installment) ||
+        Number(fullGroup?.daily_installment) ||
+        0,
+
+      monthly_installment: Number(fullGroup?.monthly_installment || 0),
+      weekly_installment: Number(fullGroup?.weekly_installment || 0),
+      daily_installment: Number(fullGroup?.daily_installment || 0),
+
+      late_payment_amount: row.late_payment_amount || 0,
+      days_late_threshold: row.days_late_threshold || 0,
+
       vacant_chit_penalty_amount: row.vacant_chit_penalty_amount || 0,
       vacant_chit_grace_days: row.vacant_chit_grace_days || 0,
       vacant_chit_penalty_rate: row.vacant_chit_penalty_rate || 0,
-      group_id: row.group_id,
     });
-    setIsModalOpen(true);
+
+    setEditDrawerOpen(true);
   };
 
-  const handleModalSave = async (values) => {
-    try {
-      await api.post(`/penalty/penalty-settings/${values.group_id}`, {
-        penalty_type: "percentage",
-        penalty_rate: values.penalty_rate,
-        grace_days: values.grace_days,
-        penalty_amount: values.penalty_amount,
-        late_payment_amount: values.late_payment_amount,
-        days_late_threshold: values.days_late_threshold,
-        installment_amount: values.installment_amount,
-        group_name: values.group_name,
-        vacant_chit_penalty_amount: values.vacant_chit_penalty_amount,
-        vacant_chit_grace_days: values.vacant_chit_grace_days,
-        vacant_chit_penalty_rate: values.vacant_chit_penalty_rate,
-      });
-      message.success("Penalty updated successfully");
-      setIsModalOpen(false);
-      fetchPenalties();
-    } catch (err) {
-      message.error("Failed to update penalty");
-    }
-  };
+
+
 
   const handleModalCalculate = () => {
     const values = modalForm.getFieldsValue();
@@ -307,23 +350,23 @@ const PenaltySettings = () => {
         </div>
       ),
     },
-    {
-      title: "Installment Amount",
-      dataIndex: "installment_amount",
-      align: 'right',
-      render: (v) => (
-        <div style={{
-          background: '#f0f9ff',
-          padding: '4px 8px',
-          borderRadius: '6px',
-          display: 'inline-block'
-        }}>
-          <Text style={{ fontWeight: '600', fontSize: '14px', color: '#0369a1' }}>
-            ₹{Number(v || 0).toLocaleString("en-IN")}
-          </Text>
-        </div>
-      ),
-    },
+    // {
+    //   title: "Installment Amount",
+    //   dataIndex: "installment_amount",
+    //   align: 'right',
+    //   render: (v) => (
+    //     <div style={{
+    //       background: '#f0f9ff',
+    //       padding: '4px 8px',
+    //       borderRadius: '6px',
+    //       display: 'inline-block'
+    //     }}>
+    //       <Text style={{ fontWeight: '600', fontSize: '14px', color: '#0369a1' }}>
+    //         ₹{Number(v || 0).toLocaleString("en-IN")}
+    //       </Text>
+    //     </div>
+    //   ),
+    // },
     {
       title: "Penalty Rate",
       dataIndex: "penalty_rate",
@@ -403,7 +446,7 @@ const PenaltySettings = () => {
         <Button
           type="primary"
           icon={<EditOutlined />}
-          onClick={() => openEditModal(row)}
+          onClick={() => openEditDrawer(row)}
           style={{
             borderRadius: '6px',
             fontWeight: '500',
@@ -454,9 +497,9 @@ const PenaltySettings = () => {
                   <Title level={1} style={{ margin: 0, fontWeight: '700', color: '#ffffff', fontSize: '28px' }}>
                     Penalty Settings
                   </Title>
-                  <Paragraph style={{ margin: 0, color: 'rgba(255, 255, 255, 0.9)', fontSize: '16px' }}>
-                    Configure penalty rates, late fees, and grace periods for Groups
-                  </Paragraph>
+                  {/* <Paragraph style={{ margin: 0, color: 'rgba(255, 255, 255, 0.9)', fontSize: '16px' }}>
+                    Add penalty rates, late fees, and grace periods for Groups
+                  </Paragraph> */}
                 </div>
               </div>
             </div>
@@ -487,7 +530,7 @@ const PenaltySettings = () => {
                 tab={
                   <span style={{ display: 'flex', alignItems: 'center' }}>
                     <SettingOutlined style={{ marginRight: '8px' }} />
-                    Configuration
+                    Add Penalty
                   </span>
                 }
                 key="configure"
@@ -700,6 +743,8 @@ const PenaltySettings = () => {
                     </div>
                   </Card>
 
+{!penaltyPreview && (
+  <>
                   {isGroupSelected && (
                     <>
                       {/* Late Charges Section */}
@@ -730,10 +775,10 @@ const PenaltySettings = () => {
                         </div>
                         <div style={{ padding: '24px' }}>
                           <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={12} md={8}>
+                            <Col xs={24} sm={12} md={6}>
                               <div style={{ marginBottom: '8px' }}>
                                 <Text strong style={{ color: '#475569', fontSize: '14px' }}>
-                                  Days Late Threshold
+                                  Grace Days (Late Fee)
                                 </Text>
                                 <Text type="danger"> *</Text>
                               </div>
@@ -746,7 +791,31 @@ const PenaltySettings = () => {
                                 placeholder="Enter threshold days"
                               />
                             </Col>
-                            <Col xs={24} sm={12} md={8}>
+                            <Col xs={24} sm={12} md={6}>
+                              <div style={{ marginBottom: '8px' }}>
+                                <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                                  Late Fee Rate (%)
+                                </Text>
+                                <Text type="danger"> *</Text>
+                              </div>
+                              <InputNumber
+                                style={{ width: "100%" }}
+                                min={0}
+                                max={100}
+                                value={latePaymentRate}
+                                onChange={(val) => {
+                                  setLatePaymentRate(val || 0);
+                                  if (selectedGroup) {
+                                    const amount = getInstallmentAmount(selectedGroup);
+                                    const lateFee = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
+                                    setLatePaymentAmount(lateFee);
+                                  }
+                                }}
+                                size="large"
+                                placeholder="Enter rate"
+                              />
+                            </Col>
+                            <Col xs={24} sm={12} md={6}>
                               <div style={{ marginBottom: '8px' }}>
                                 <Text strong style={{ color: '#475569', fontSize: '14px' }}>
                                   Late Fee Amount (₹)
@@ -757,11 +826,18 @@ const PenaltySettings = () => {
                                 style={{ width: "100%" }}
                                 min={0}
                                 value={latePaymentAmount}
-                                onChange={setLatePaymentAmount}
+                                onChange={(val) => {
+                                  setLatePaymentAmount(val || 0);
+                                  if (selectedGroup) {
+                                    const amount = getInstallmentAmount(selectedGroup);
+                                    const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
+                                    setLatePaymentRate(parseFloat(rate));
+                                  }
+                                }}
                                 size="large"
                                 formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                                 parser={value => value.replace(/\₹\s?|(,*)/g, '')}
-                                placeholder="Enter late fee"
+                                placeholder="Enter amount"
                               />
                             </Col>
                           </Row>
@@ -796,10 +872,10 @@ const PenaltySettings = () => {
                         </div>
                         <div style={{ padding: '24px' }}>
                           <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={12} md={8}>
+                            {/* <Col xs={24} sm={12} md={8}>
                               <div style={{ marginBottom: '8px' }}>
                                 <Text strong style={{ color: '#475569', fontSize: '14px' }}>
-                                  Grace Days
+                                  Grace Days (Overdue Charges)
                                 </Text>
                                 <Text type="danger"> *</Text>
                               </div>
@@ -811,7 +887,7 @@ const PenaltySettings = () => {
                                 size="large"
                                 placeholder="Enter days"
                               />
-                            </Col>
+                            </Col> */}
                             <Col xs={24} sm={12} md={8}>
                               <div style={{ marginBottom: '8px' }}>
                                 <Text strong style={{ color: '#475569', fontSize: '14px' }}>
@@ -865,7 +941,7 @@ const PenaltySettings = () => {
                         </div>
                       </Card>
 
-                      {/* Vacant Chit Penalties Section */}
+
                       <Card
                         style={{
                           borderRadius: '12px',
@@ -898,11 +974,10 @@ const PenaltySettings = () => {
                             Overdue Charges for Vacant Chit
                           </Title>
                         </div>
-
                         <div style={{ padding: '24px' }}>
                           <Row gutter={[16, 16]}>
                             <Col xs={24} sm={12} md={8}>
-                              <Text strong>Vacant Chit Grace Days</Text>
+                              <Text strong>Grace Days (Vacant Chit)</Text>
                               <InputNumber
                                 style={{ width: '100%' }}
                                 min={0}
@@ -911,19 +986,8 @@ const PenaltySettings = () => {
                                 size="large"
                               />
                             </Col>
-                            <Col xs={24} sm={12} md={8}>
-                              <Text strong>Vacant Chit Penalty Amount (₹)</Text>
-                              <InputNumber
-                                style={{ width: '100%' }}
-                                min={0}
-                                value={vacantChitPenaltyAmount}
-                                onChange={setVacantChitPenaltyAmount}
-                                size="large"
-                              />
-                            </Col>
 
-
-
+                            {/* Vacant Chit Penalty Rate (%) */}
                             <Col xs={24} sm={12} md={8}>
                               <Text strong>Vacant Chit Penalty Rate (%)</Text>
                               <InputNumber
@@ -931,8 +995,38 @@ const PenaltySettings = () => {
                                 min={0}
                                 max={100}
                                 value={vacantChitPenaltyRate}
-                                onChange={setVacantChitPenaltyRate}
+                                onChange={(val) => {
+                                  setVacantChitPenaltyRate(val || 0);
+                                  if (selectedGroup) {
+                                    const amount = getInstallmentAmount(selectedGroup);
+                                    const penalty = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
+                                    setVacantChitPenaltyAmount(penalty);
+                                  }
+                                }}
                                 size="large"
+                                placeholder="Enter rate"
+                              />
+                            </Col>
+
+                            {/* Vacant Chit Penalty Amount (₹) */}
+                            <Col xs={24} sm={12} md={8}>
+                              <Text strong>Vacant Chit Penalty Amount (₹)</Text>
+                              <InputNumber
+                                style={{ width: '100%' }}
+                                min={0}
+                                value={vacantChitPenaltyAmount}
+                                onChange={(val) => {
+                                  setVacantChitPenaltyAmount(val || 0);
+                                  if (selectedGroup) {
+                                    const amount = getInstallmentAmount(selectedGroup);
+                                    const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
+                                    setVacantChitPenaltyRate(parseFloat(rate));
+                                  }
+                                }}
+                                size="large"
+                                formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                parser={value => value.replace(/\₹\s?|(,*)/g, '')}
+                                placeholder="Enter amount"
                               />
                             </Col>
                           </Row>
@@ -963,13 +1057,15 @@ const PenaltySettings = () => {
                       </div>
                     </>
                   )}
+                  </>
+                  )}
                 </div>
               </TabPane>
               <TabPane
                 tab={
                   <span style={{ display: 'flex', alignItems: 'center' }}>
                     <FileTextOutlined style={{ marginRight: '8px' }} />
-                    Records
+                    View Penality
                   </span>
                 }
                 key="records"
@@ -1052,175 +1148,462 @@ const PenaltySettings = () => {
             </Tabs>
           </Card>
 
-          {/* Edit Modal */}
-          <Modal
+
+          <Drawer
             title={
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
                 background: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)',
-                margin: '-24px -24px 20px -24px',
+
+
                 padding: '20px 24px',
                 borderTopLeftRadius: '8px',
                 borderTopRightRadius: '8px',
               }}>
                 <EditOutlined style={{ fontSize: '20px', color: '#ffffff' }} />
                 <span style={{ fontSize: '18px', fontWeight: '600', color: '#ffffff' }}>
-                  Edit Penalty Configuration
+                  Edit Penalty: {editingPenalty?.group_name}
                 </span>
               </div>
             }
-            open={isModalOpen}
-            onCancel={() => setIsModalOpen(false)}
-            width={600}
-            footer={[
-              <Button
-                key="cancel"
-                onClick={() => setIsModalOpen(false)}
-                style={{
-                  borderRadius: '6px',
-                  fontWeight: '500',
-                  height: '36px',
-                }}
-              >
-                Cancel
-              </Button>,
-              <Button
-                key="calculate"
-                icon={<CalculatorOutlined />}
-                onClick={handleModalCalculate}
-                style={{
-                  borderRadius: '6px',
-                  fontWeight: '500',
-                  height: '36px',
-                  background: 'linear-gradient(to right, #36d1dc, #5b86e5)',
-                  border: 'none',
-                  color: '#ffffff',
-                }}
-              >
-                Calculate
-              </Button>,
-              <Button
-                key="save"
-                type="primary"
-                icon={<CheckCircleOutlined />}
-                onClick={() => {
-                  modalForm.validateFields().then((values) => handleModalSave(values));
-                }}
-                style={{
-                  borderRadius: '6px',
-                  fontWeight: '600',
-                  height: '36px',
-                  background: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)',
-                  border: 'none',
-                }}
-              >
-                Update
-              </Button>,
-            ]}
+            width={900}
+            open={editDrawerOpen}
+            onClose={() => setEditDrawerOpen(false)}
+            footer={
+              <div style={{ textAlign: 'right' }}>
+                <Space size={12}>
+                  <Button
+                    onClick={() => setEditDrawerOpen(false)}
+                    style={{ height: '36px', fontWeight: '500' }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    type="primary"
+                    icon={<CheckCircleOutlined />}
+                    onClick={handleDrawerSave}
+                    style={{
+                      height: '36px',
+                      fontWeight: '600',
+                      background: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)',
+                      border: 'none',
+                    }}
+                  >
+                    Update
+                  </Button>
+                </Space>
+              </div>
+            }
           >
-            <Form form={modalForm} layout="vertical" style={{ marginTop: '20px' }}>
-              <Form.Item label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Group Name</Text>} name="group_name">
-                <Input style={{ width: "100%" }} disabled />
-              </Form.Item>
+            {editDrawerOpen && editingPenalty && (
+              <div style={{ padding: '24px', background: '#fafafa' }}>
 
-              <Form.Item label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Installment Amount (₹)</Text>} name="installment_amount">
-                <InputNumber
-                  style={{ width: "100%" }}
-                  disabled
-                  formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                />
-              </Form.Item>
+                <Card
+                  style={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                    marginBottom: "24px",
+                    background: "#ffffff",
+                  }}
+                >
+                  <div style={{ padding: "20px 24px" }}>
+                    <Title
+                      level={4}
+                      style={{
+                        margin: 0,
+                        color: "#1e293b",
+                        fontWeight: "600",
+                        fontSize: "18px",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <CalendarOutlined style={{ marginRight: "8px", color: "#1890ff" }} />
+                      Installment Details
+                    </Title>
 
-              <Form.Item
-                label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Grace Period (Days)</Text>}
-                name="grace_days"
-                rules={[{ required: true, message: 'Please enter grace days' }]}
-              >
-                <InputNumber
-                  style={{ width: "100%" }}
-                  min={0}
-                />
-              </Form.Item>
+                    <Row gutter={[16, 16]} style={{ marginTop: "16px" }}>
+                      <Col xs={24} sm={8}>
+                        <Text strong>Monthly Installment</Text>
+                        <div
+                          style={{
+                            padding: "12px 16px",
+                            background: "#e0f2fe",
+                            border: "1px solid #bae6fd",
+                            borderRadius: "8px",
+                            marginTop: "6px",
+                            fontWeight: "600",
+                            fontSize: "16px",
+                            color: "#0369a1",
+                          }}
+                        >
+                          ₹{Number(editingPenalty.monthly_installment).toLocaleString("en-IN")}
+                        </div>
+                      </Col>
 
-              <Form.Item
-                label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Days Late Threshold (Days)</Text>}
-                name="days_late_threshold"
-                rules={[{ required: true, message: 'Please enter days late threshold' }]}
-              >
-                <InputNumber
-                  style={{ width: "100%" }}
-                  min={0}
-                />
-              </Form.Item>
+                      <Col xs={24} sm={8}>
+                        <Text strong>Weekly Installment</Text>
+                        <div
+                          style={{
+                            padding: "12px 16px",
+                            background: "#fef3c7",
+                            border: "1px solid #fde68a",
+                            borderRadius: "8px",
+                            marginTop: "6px",
+                            fontWeight: "600",
+                            fontSize: "16px",
+                            color: "#ca8a04",
+                          }}
+                        >
+                          ₹{Number(editingPenalty.weekly_installment).toLocaleString("en-IN")}
+                        </div>
+                      </Col>
 
-              <Form.Item
-                label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Penalty Rate (%)</Text>}
-                name="penalty_rate"
-                rules={[{ required: true, message: 'Please enter penalty rate' }]}
-              >
-                <InputNumber
-                  style={{ width: "100%" }}
-                  min={0}
-                  max={100}
-                />
-              </Form.Item>
+                      <Col xs={24} sm={8}>
+                        <Text strong>Daily Installment</Text>
+                        <div
+                          style={{
+                            padding: "12px 16px",
+                            background: "#fee2e2",
+                            border: "1px solid #fecaca",
+                            borderRadius: "8px",
+                            marginTop: "6px",
+                            fontWeight: "600",
+                            fontSize: "16px",
+                            color: "#b91c1c",
+                          }}
+                        >
+                          ₹{Number(editingPenalty.daily_installment).toLocaleString("en-IN")}
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                </Card>
 
-              <Form.Item label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Penalty Amount (₹)</Text>} name="penalty_amount">
-                <InputNumber
-                  style={{ width: "100%" }}
-                  disabled
-                  formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                />
-              </Form.Item>
+                {/* === Late Charges Section === */}
+                <Card
+                  style={{
+                    borderRadius: '12px',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    marginBottom: '24px',
+                    background: '#ffffff',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      background: 'linear-gradient(to right, #fff7e6, #fff2cc)',
+                      padding: '16px 24px',
+                      borderBottom: '1px solid #ffd591',
+                    }}
+                  >
+                    <Title
+                      level={4}
+                      style={{
+                        margin: 0,
+                        color: '#d46b08',
+                        fontWeight: '600',
+                        fontSize: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <ThunderboltOutlined style={{ marginRight: '8px' }} />
+                      Late Charges
+                    </Title>
+                  </div>
+                  <div style={{ padding: '24px' }}>
+                    <Row gutter={[16, 16]}>
+                      <Col xs={24} sm={12} md={8}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                            Grace Days (Late Fee)
+                          </Text>
+                          <Text type="danger"> *</Text>
+                        </div>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          value={editingPenalty.days_late_threshold || 0}
+                          onChange={(val) =>
+                            setEditingPenalty(prev => ({ ...prev, days_late_threshold: val ?? 0 }))
+                          }
+                          size="large"
+                          placeholder="Enter threshold days"
+                        />
+                      </Col>
+                      <Col xs={24} sm={12} md={8}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                            Late Fee Rate (%)
+                          </Text>
+                          <Text type="danger"> *</Text>
+                        </div>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          max={100}
+                          value={Number(editingPenalty.late_payment_rate || 0)}
+                          onChange={(val) => {
+                            const installment = Number(editingPenalty.monthly_installment) || 0;
+                            console.log(installment, val, "this is val")
+                            const rate = typeof val === 'number' && !isNaN(val) ? val : 0;
+                            const amount = installment > 0 ? parseFloat(((installment * rate) / 100).toFixed(2)) : 0;
+                            setEditingPenalty(prev => ({
+                              ...prev,
+                              late_payment_rate: rate,
+                              late_payment_amount: amount,
+                            }));
+                          }}
+                          size="large"
+                          placeholder="Enter rate"
+                        />
+                      </Col>
+                      <Col xs={24} sm={12} md={8}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                            Late Fee Amount (₹)
+                          </Text>
+                          <Text type="danger"> *</Text>
+                        </div>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          value={editingPenalty.late_payment_amount ?? 0}
+                          onChange={(val) => {
+                            const installment = Number(editingPenalty.installment_amount) || 0;
+                            const amount = typeof val === 'number' && !isNaN(val) ? val : 0;
+                            const rate = installment > 0 ? parseFloat(((amount / installment) * 100).toFixed(2)) : 0;
+                            setEditingPenalty(prev => ({
+                              ...prev,
+                              late_payment_amount: amount,
+                              late_payment_rate: rate,
+                            }));
+                          }}
+                          size="large"
+                          formatter={(value) =>
+                            `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                          }
+                          parser={(value) => value.replace(/\₹\s?|(,*)/g, '')}
+                          placeholder="Enter late fee"
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                </Card>
 
-              <Form.Item
-                label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Late Fee Amount (₹)</Text>}
-                name="late_payment_amount"
-                rules={[{ required: true, message: 'Please enter late fee amount' }]}
-              >
-                <InputNumber
-                  style={{ width: "100%" }}
-                  min={0}
-                  formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={value => value.replace(/\₹\s?|(,*)/g, '')}
-                />
-              </Form.Item>
-              <Form.Item
-                label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Vacant Chit Penalty Amount (₹)</Text>}
-                name="vacant_chit_penalty_amount"
-                rules={[{ required: true, message: 'Please enter penalty amount' }]}
-              >
-                <InputNumber
-                  style={{ width: "100%" }}
-                  min={0}
-                  formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={value => value.replace(/\₹\s?|(,*)/g, '')}
-                />
-              </Form.Item>
+                {/* === Overdue Charges Section === */}
+                <Card
+                  style={{
+                    borderRadius: '12px',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    marginBottom: '24px',
+                    background: '#ffffff',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      background: 'linear-gradient(to right, #fff1f0, #ffccc7)',
+                      padding: '16px 24px',
+                      borderBottom: '1px solid #ffa39e',
+                    }}
+                  >
+                    <Title
+                      level={4}
+                      style={{
+                        margin: 0,
+                        color: '#cf1322',
+                        fontWeight: '600',
+                        fontSize: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <ClockCircleOutlined style={{ marginRight: '8px' }} />
+                      Overdue Charges
+                    </Title>
+                  </div>
+                  <div style={{ padding: '24px' }}>
+                    <Row gutter={[16, 16]}>
+                      <Col xs={24} sm={12} md={8}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                            Penalty Rate (%)
+                          </Text>
+                          <Text type="danger"> *</Text>
+                        </div>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          max={100}
+                          value={editingPenalty.penalty_rate ?? 0}
+                          onChange={(val) => {
+                            const installment = Number(editingPenalty.installment_amount) || 0;
+                            const rate = typeof val === 'number' && !isNaN(val) ? val : 0;
+                            const amount = installment > 0 ? parseFloat(((installment * rate) / 100).toFixed(2)) : 0;
+                            setEditingPenalty(prev => ({
+                              ...prev,
+                              penalty_rate: rate,
+                              penalty_amount: amount,
+                            }));
+                          }}
+                          size="large"
+                          placeholder="Enter rate"
+                        />
+                      </Col>
+                      <Col xs={24} sm={12} md={8}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                            Penalty Amount (₹)
+                          </Text>
+                          <Text type="danger"> *</Text>
+                        </div>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          value={editingPenalty.penalty_amount ?? 0}
+                          onChange={(val) => {
+                            const installment = Number(editingPenalty.installment_amount) || 0;
+                            const amount = typeof val === 'number' && !isNaN(val) ? val : 0;
+                            const rate = installment > 0 ? parseFloat(((amount / installment) * 100).toFixed(2)) : 0;
+                            setEditingPenalty(prev => ({
+                              ...prev,
+                              penalty_amount: amount,
+                              penalty_rate: rate,
+                            }));
+                          }}
+                          size="large"
+                          formatter={(value) =>
+                            `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                          }
+                          parser={(value) => value.replace(/\₹\s?|(,*)/g, '')}
+                          placeholder="Enter amount"
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                </Card>
 
-              <Form.Item
-                label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Vacant Chit Grace Days</Text>}
-                name="vacant_chit_grace_days"
-                rules={[{ required: true, message: 'Please enter grace days' }]}
-              >
-                <InputNumber style={{ width: "100%" }} min={0} />
-              </Form.Item>
+                {/* === Vacant Chit Charges Section === */}
+                <Card
+                  style={{
+                    borderRadius: '12px',
+                    border: 'none',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    marginBottom: '24px',
+                    background: '#ffffff',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      background: 'linear-gradient(to right, #ffe7cc, #ffd8a8)',
+                      padding: '16px 24px',
+                      borderBottom: '1px solid #ffc078',
+                    }}
+                  >
+                    <Title
+                      level={4}
+                      style={{
+                        margin: 0,
+                        color: '#d9480f',
+                        fontWeight: '600',
+                        fontSize: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <WarningOutlined style={{ marginRight: '8px' }} />
+                      Overdue Charges for Vacant Chit
+                    </Title>
+                  </div>
+                  <div style={{ padding: '24px' }}>
+                    <Row gutter={[16, 16]}>
+                      <Col xs={24} sm={12} md={8}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                            Grace Days (Vacant Chit)
+                          </Text>
+                        </div>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          value={editingPenalty.vacant_chit_grace_days ?? 0}
+                          onChange={(val) =>
+                            setEditingPenalty(prev => ({ ...prev, vacant_chit_grace_days: val ?? 0 }))
+                          }
+                          size="large"
+                          placeholder="Enter days"
+                        />
+                      </Col>
+                      <Col xs={24} sm={12} md={8}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                            Vacant Chit Penalty Rate (%)
+                          </Text>
+                        </div>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          max={100}
+                          value={editingPenalty.vacant_chit_penalty_rate ?? 0}
+                          onChange={(val) => {
+                            const installment = Number(editingPenalty.installment_amount) || 0;
+                            const rate = typeof val === 'number' && !isNaN(val) ? val : 0;
+                            const amount = installment > 0 ? parseFloat(((installment * rate) / 100).toFixed(2)) : 0;
+                            setEditingPenalty(prev => ({
+                              ...prev,
+                              vacant_chit_penalty_rate: rate,
+                              vacant_chit_penalty_amount: amount,
+                            }));
+                          }}
+                          size="large"
+                          placeholder="Enter rate"
+                        />
+                      </Col>
+                      <Col xs={24} sm={12} md={8}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                            Vacant Chit Penalty Amount (₹)
+                          </Text>
+                        </div>
+                        <InputNumber
+                          style={{ width: '100%' }}
+                          min={0}
+                          value={editingPenalty.vacant_chit_penalty_amount ?? 0}
+                          onChange={(val) => {
+                            const installment = Number(editingPenalty.installment_amount) || 0;
+                            console.log(installment)
+                            const amount = typeof val === 'number' && !isNaN(val) ? val : 0;
+                            const rate = installment > 0 ? parseFloat(((amount / installment) * 100).toFixed(2)) : 0;
+                            setEditingPenalty(prev => ({
+                              ...prev,
+                              vacant_chit_penalty_amount: amount,
+                              vacant_chit_penalty_rate: rate,
+                            }));
+                          }}
+                          size="large"
+                          formatter={(value) =>
+                            `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                          }
+                          parser={(value) => value.replace(/\₹\s?|(,*)/g, '')}
+                          placeholder="Enter amount"
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                </Card>
+              </div>
+            )}
 
-              <Form.Item
-                label={<Text strong style={{ fontSize: '14px', color: '#475569' }}>Vacant Chit Penalty Rate (%)</Text>}
-                name="vacant_chit_penalty_rate"
-                rules={[{ required: true, message: 'Please enter penalty rate' }]}
-              >
-                <InputNumber style={{ width: "100%" }} min={0} max={100} />
-              </Form.Item>
-
-              <Form.Item name="group_id" hidden>
-                <InputNumber />
-              </Form.Item>
-            </Form>
-          </Modal>
+          </Drawer>
 
           {/* Add Charge Modal */}
           <Modal
@@ -1345,6 +1728,145 @@ const PenaltySettings = () => {
               </Form.Item>
             </Form>
           </Modal>
+          <Modal
+            open={showPenaltyPreview}
+            onCancel={() => setShowPenaltyPreview(false)}
+            footer={null}
+            width={850}
+            closable={false}
+            style={{ top: 40 }}
+            bodyStyle={{ padding: 0, background: "#f5f7fa" }}
+          >
+            {penaltyPreview && (
+              <div style={{ padding: '24px' }}>
+
+                {/* HEADER */}
+                <div style={{
+                  background: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)',
+                  padding: '20px 24px',
+                  borderRadius: '12px',
+                  marginBottom: '20px',
+                  color: '#fff',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <span style={{ fontSize: '18px', fontWeight: '600' }}>
+                    Penalty Already Set — {penaltyPreview.group_name}
+                  </span>
+
+                  <Button
+                    type="primary"
+                    style={{
+                     
+                      
+                      borderRadius: "6px",
+                      fontWeight: "600",
+                     
+                    }}
+                    onClick={() => {
+                      setShowPenaltyPreview(false);
+                      openEditDrawer(penaltyPreview); 
+                    }}
+                  >
+                    Edit Penalty
+                  </Button>
+                </div>
+
+                {/* INSTALLMENTS CARD */}
+                <Card
+                  style={{
+                    borderRadius: '12px',
+                    marginBottom: '20px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                  }}
+                >
+                  <Title level={4} style={{ marginBottom: 16 }}>
+                    Installment Details
+                  </Title>
+
+                  <Row gutter={[16, 16]}>
+                    <Col span={8}>
+                      <Text strong>Monthly Installment</Text>
+                      <div className="info-box blueBox">
+                        ₹{penaltyPreview.monthly_installment}
+                      </div>
+                    </Col>
+
+                    <Col span={8}>
+                      <Text strong>Weekly Installment</Text>
+                      <div className="info-box yellowBox">
+                        ₹{penaltyPreview.weekly_installment}
+                      </div>
+                    </Col>
+
+                    <Col span={8}>
+                      <Text strong>Daily Installment</Text>
+                      <div className="info-box redBox">
+                        ₹{penaltyPreview.daily_installment}
+                      </div>
+                    </Col>
+                  </Row>
+                </Card>
+
+                {/* LATE CHARGES */}
+                <Card
+                  style={{
+                    borderRadius: '12px',
+                    marginBottom: '20px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                  }}
+                >
+                  <Title level={4} style={{ marginBottom: 16 }}>Late Charges</Title>
+                  <Row gutter={[16, 16]}>
+                    <Col span={8}><b>Grace Days:</b> {penaltyPreview.days_late_threshold}</Col>
+                    <Col span={8}><b>Late Fee Rate:</b> {penaltyPreview.late_payment_rate}%</Col>
+                    <Col span={8}><b>Late Fee Amount:</b> ₹{penaltyPreview.late_payment_amount}</Col>
+                  </Row>
+                </Card>
+
+                {/* OVERDUE CHARGES */}
+                <Card
+                  style={{
+                    borderRadius: '12px',
+                    marginBottom: '20px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                  }}
+                >
+                  <Title level={4} style={{ marginBottom: 16 }}>Overdue Charges</Title>
+                  <Row gutter={[16, 16]}>
+                    <Col span={8}><b>Penalty Rate:</b> {penaltyPreview.penalty_rate}%</Col>
+                    <Col span={8}><b>Penalty Amount:</b> ₹{penaltyPreview.penalty_amount}</Col>
+                   
+                  </Row>
+                </Card>
+
+                {/* VACANT CHIT */}
+                <Card
+                  style={{
+                    borderRadius: '12px',
+                    marginBottom: '20px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                  }}
+                >
+                  <Title level={4} style={{ marginBottom: 16 }}>Vacant Chit Charges</Title>
+                  <Row gutter={[16, 16]}>
+                    <Col span={8}><b>Grace Days:</b> {penaltyPreview.vacant_chit_grace_days}</Col>
+                    <Col span={8}><b>Rate:</b> {penaltyPreview.vacant_chit_penalty_rate}%</Col>
+                    <Col span={8}><b>Amount:</b> ₹{penaltyPreview.vacant_chit_penalty_amount}</Col>
+                  </Row>
+                </Card>
+
+                {/* CLOSE BUTTON */}
+                <div style={{ textAlign: "right", marginTop: 20 }}>
+                  <Button onClick={() => setShowPenaltyPreview(false)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Modal>
+
 
           <style>{`
             .ant-select-selector {
@@ -1481,6 +2003,32 @@ const PenaltySettings = () => {
             .ant-collapse-content-box {
               padding: 16px !important;
             }
+              .info-box {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 6px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.blueBox {
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+}
+
+.yellowBox {
+  background: #fef9c3;
+  border: 1px solid #fde68a;
+  color: #ca8a04;
+}
+
+.redBox {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
           `}</style>
         </div>
       </div>
