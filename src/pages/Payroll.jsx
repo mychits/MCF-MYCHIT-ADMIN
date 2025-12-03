@@ -249,14 +249,12 @@ const Payroll = () => {
     if (earnings) {
       setFormData((prevData) => ({
         ...prevData,
-        [name]: value,
         earnings: { ...prevData.earnings, [name]: value },
         deductions: { ...prevData.deductions },
       }));
     } else if (deductions) {
       setFormData((prevData) => ({
         ...prevData,
-        [name]: value,
         earnings: { ...prevData.earnings },
         deductions: { ...prevData.deductions, [name]: value },
       }));
@@ -600,46 +598,20 @@ const Payroll = () => {
     earnings = false,
     deductions = false
   ) => {
-    // const basic = 1000;
-    // const hra = 1000;
-    // const travelAllowance = 1000;
-    // const medicalAllowance = 1000;
-    // const basketOfBenifits = 1000;
-    // const performanceBonus = 1000;
-    // const otherAllowances = 1000;
-    // const conveyance = 1000;
-    // const incomeTax = 1000;
-    // const esi = 1000;
-    // const epf = 1000;
-    // const professionalTax = 1000;
-    // const salaryAdvance = 1000;
-    // if (name === "salary") {
-    //   setFormData((prevData) => ({
-    //     ...prevData,
-    //     deductions: {
-    //       ...prevData.deductions,
-    //       basic,
-    //       hra,
-    //       travel_allowance: travelAllowance,
-    //       medical_allowance: medicalAllowance,
-    //       basket_of_benifits: basketOfBenifits,
-    //       performance_bonus: performanceBonus,
-    //       other_allowances: otherAllowances,
-    //       conveyance: conveyance,
-    //     },
-    //     earnings: {
-    //       ...prevData.earnings,
-    //       income_tax: incomeTax,
-    //       esi,
-    //       epf,
-    //       professional_tax: professionalTax,
-    //       salary_advance: salaryAdvance,
-    //     },
-    //     [name]: value,
-    //   }));
-    // } else {
-    //   setFormData((prevData) => ({ ...prevData, [name]: value }));
-    // }
+    let basic = 1000;
+    let hra = 1000;
+    let travelAllowance = 1000;
+    let medicalAllowance = 1000;
+    let basketOfBenifits = 1000;
+    let performanceBonus = 1000;
+    let otherAllowances = 1000;
+    let conveyance = 1000;
+    let incomeTax = 1000;
+    let esi = 1000;
+    let epf = 1000;
+    let professionalTax = 1000;
+    let salaryAdvance = 1000;
+    
     if (earnings) {
       setUpdateFormData((prevData) => ({
         ...prevData,
@@ -693,6 +665,12 @@ const Payroll = () => {
       if (isValid) {
         const dataToSend = {
           ...updateFormData,
+          deductions:{
+...updateFormData.deductions
+          },
+          earnings:{
+...updateFormData.earnings
+          },
           designation_id: selectedManagerId,
           reporting_manager_id: selectedReportingManagerId,
         };
