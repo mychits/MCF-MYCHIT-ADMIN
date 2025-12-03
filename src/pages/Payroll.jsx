@@ -192,6 +192,8 @@ const Payroll = () => {
     setSelectedManagerTitle(title);
     setFormData((prev) => ({
       ...prev,
+      deductions:{...prev.deductions},
+      earnings:{...prev.earnings},
       managerId,
       managerTitle: title,
     }));
@@ -203,7 +205,7 @@ const Payroll = () => {
   };
 
   const handleChange = (name, value, earnings = false, deductions = false) => {
-    console.log(name, value, "this is name and value");
+ 
     // const basic = 1000;
     // const hra = 1000;
     // const travelAllowance = 1000;
@@ -645,7 +647,7 @@ const Payroll = () => {
         deductions: { ...prevData.deductions, [name]: value },
       }));
     } else {
-      setUpdateFormData((prevData) => ({ ...prevData, [name]: value }));
+      setUpdateFormData((prevData) => ({ ...prevData, earnings: { ...prevData.earnings },deductions: { ...prevData.deductions, [name]: value }, [name]: value }));
       setErrors((prevData) => ({
         ...prevData,
         [name]: "",

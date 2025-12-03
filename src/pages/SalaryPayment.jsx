@@ -18,14 +18,14 @@ import API from "../instance/TokenInstance";
 import dayjs from "dayjs";
 import { Select as AntSelect, Segmented, Button as AntButton } from "antd";
 import { IoMdMore } from "react-icons/io";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import SalarySlipPrint from "../components/printFormats/SalarySlipPrint";
-import {numberToIndianWords} from "../helpers/numberToIndianWords";
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
 import moment from "moment";
 
 const SalaryPayment = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [isOpenAddModal, setIsOpenAddModal] = useState(false);
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
@@ -148,7 +148,6 @@ const SalaryPayment = () => {
     pay_date: moment(),
     payment_method: "Cash",
     transaction_id: "",
-
   });
 
   async function fetchEmployees() {
@@ -208,10 +207,16 @@ const SalaryPayment = () => {
     });
   };
 
-
   useEffect(() => {
-    if (formData.employee_id && formData.year && employeeDetails?.joining_date) {
-      const validMonths = getValidMonths(employeeDetails.joining_date, formData.year);
+    if (
+      formData.employee_id &&
+      formData.year &&
+      employeeDetails?.joining_date
+    ) {
+      const validMonths = getValidMonths(
+        employeeDetails.joining_date,
+        formData.year
+      );
       const currentMonthValid = validMonths.some(
         (m) => m.value === formData.month && !m.disabled
       );
@@ -236,7 +241,6 @@ const SalaryPayment = () => {
       if (salaryData) {
         setCurrentSalaryId(id);
 
-
         const yearAsDayjs = dayjs(salaryData.salary_year, "YYYY");
 
         const formData = {
@@ -250,7 +254,9 @@ const SalaryPayment = () => {
           paid_amount: salaryData.paid_amount || 0,
           payment_method: salaryData.payment_method || "Cash",
           transaction_id: salaryData.transaction_id || "",
-          pay_date: salaryData.pay_date ? moment(salaryData.pay_date) : moment(),
+          pay_date: salaryData.pay_date
+            ? moment(salaryData.pay_date)
+            : moment(),
         };
 
         setUpdateFormData(formData);
@@ -278,7 +284,6 @@ const SalaryPayment = () => {
   };
 
   const handleUpdateChange = (changedValues, allValues) => {
-
     if (changedValues.year && dayjs.isDayjs(changedValues.year)) {
       changedValues.year = changedValues.year.format("YYYY");
     }
@@ -293,7 +298,6 @@ const SalaryPayment = () => {
   const handleUpdateSubmit = async () => {
     try {
       setUpdateLoading(true);
-
 
       const totalEarnings = Object.values(updateFormData.earnings).reduce(
         (sum, value) => sum + Number(value),
@@ -311,7 +315,8 @@ const SalaryPayment = () => {
       );
 
       // Calculate net payable
-      const netPayable = totalEarnings - totalDeductions + additionalPaymentsTotal;
+      const netPayable =
+        totalEarnings - totalDeductions + additionalPaymentsTotal;
 
       const updateData = {
         ...updateFormData,
@@ -319,7 +324,9 @@ const SalaryPayment = () => {
         deductions: updateFormData.deductions, // Ensure this is an object
         net_payable: netPayable,
         total_salary_payable: updateFormData.total_salary_payable || netPayable,
-        remaining_balance: (updateFormData.total_salary_payable || netPayable) - (updateFormData.paid_amount || 0),
+        remaining_balance:
+          (updateFormData.total_salary_payable || netPayable) -
+          (updateFormData.paid_amount || 0),
       };
 
       await API.put(`/salary-payment/${currentSalaryId}`, updateData);
@@ -334,23 +341,22 @@ const SalaryPayment = () => {
     }
   };
   const handlePrint = (salaryPaymentId) => {
-    navigate("/salary-slip-print/"+salaryPaymentId);
-  }
+    navigate("/salary-slip-print/" + salaryPaymentId);
+  };
 
   const dropDownItems = (salaryPayment) => {
     const dropDownItemList = [
       {
         key: "1",
-     
-       label: (
+
+        label: (
           <div
             key={salaryPayment?._id}
             className="text-green-600"
-           onClick={() =>handlePrint(salaryPayment?._id)}
+            onClick={() => handlePrint(salaryPayment?._id)}
           >
-          Print
-          
-</div>
+            Print
+          </div>
         ),
       },
       {
@@ -405,8 +411,7 @@ const SalaryPayment = () => {
     if (formData.employee_id) {
       fetchSalaryDetails();
     }
-  }, [formData?.employee_id,formData.month,formData.month]);
-
+  }, [formData?.employee_id, formData.month, formData.month]);
 
   const handleChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -416,8 +421,6 @@ const SalaryPayment = () => {
       setShowAdditionalPayments(false);
     }
   };
-
-
 
   const handleDeductionsChange = (name, value) => {
     setFormData((prev) => ({
@@ -569,10 +572,15 @@ const SalaryPayment = () => {
         lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
         net_payable: netPayable,
         paid_amount: formData.paid_amount || 0,
-        remaining_balance: (formData.total_salary_payable || netPayable) - (formData.paid_amount || 0),
+        remaining_balance:
+          (formData.total_salary_payable || netPayable) -
+          (formData.paid_amount || 0),
         total_salary_payable: formData.total_salary_payable || netPayable,
         payment_method: formData.payment_method, // ✅ dynamic
-        transaction_id: formData.payment_method === "Cash" ? null : (formData.transaction_id || null), // ✅ conditional
+        transaction_id:
+          formData.payment_method === "Cash"
+            ? null
+            : formData.transaction_id || null, // ✅ conditional
         status: "Pending",
         pay_date: new Date(),
       };
@@ -668,7 +676,12 @@ const SalaryPayment = () => {
           closable={true}
           footer={
             <div className="flex justify-end gap-2">
-              <Button onClick={() => setIsOpenAddModal(false)} className="bg-red-600 hover:bg-red-700 text-white">Cancel</Button>
+              <Button
+                onClick={() => setIsOpenAddModal(false)}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Cancel
+              </Button>
               {calculatedSalary && (
                 <Button type="primary" onClick={handleAddSalary}>
                   Save Salary
@@ -712,13 +725,19 @@ const SalaryPayment = () => {
                         Select Year <span className="text-red-600">*</span>
                       </label>
                       <DatePicker
-                        value={formData.year ? dayjs(formData.year, "YYYY") : null}
-                        onChange={(date, dateString) => handleChange("year", dateString)}
+                        value={
+                          formData.year ? dayjs(formData.year, "YYYY") : null
+                        }
+                        onChange={(date, dateString) =>
+                          handleChange("year", dateString)
+                        }
                         picker="year"
                         style={{ width: "100%" }}
                         disabledDate={(current) => {
                           if (!employeeDetails?.joining_date) return false;
-                          const joinYear = dayjs(employeeDetails.joining_date).year();
+                          const joinYear = dayjs(
+                            employeeDetails.joining_date
+                          ).year();
                           const currentYear = dayjs().year();
                           const year = current ? current.year() : null;
                           return year < joinYear || year > currentYear;
@@ -732,7 +751,10 @@ const SalaryPayment = () => {
                       <Segmented
                         className="[&_.ant-segmented-item-selected]:!bg-green-600 [&_.ant-segmented-item-selected]:!text-white"
                         value={formData.month}
-                        options={getValidMonths(employeeDetails?.joining_date, formData.year)}
+                        options={getValidMonths(
+                          employeeDetails?.joining_date,
+                          formData.year
+                        )}
                         onChange={(value) => handleChange("month", value)}
                         style={{ width: "100%" }}
                       />
@@ -823,12 +845,14 @@ const SalaryPayment = () => {
                             handleEarningsChange(e.target.name, e.target.value)
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="basic"
                           id="basic"
                           value={formData?.earnings?.basic}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.basic || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(formData?.earnings?.basic || 0)}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -845,7 +869,9 @@ onWheel={(e)=> e.target.blur()}
                           id="hra"
                           value={formData?.earnings?.hra}
                         />
-                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.hra || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(formData?.earnings?.hra || 0)}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -858,12 +884,16 @@ onWheel={(e)=> e.target.blur()}
                             handleEarningsChange(e.target.name, e.target.value)
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="travel_allowance"
                           id="travel_allowance"
                           value={formData?.earnings?.travel_allowance}
                         />
-                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.travel_allowance || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.travel_allowance || 0
+                          )}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -880,7 +910,11 @@ onWheel={(e)=> e.target.blur()}
                           id="medical_allowance"
                           value={formData?.earnings?.medical_allowance}
                         />
-                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.medical_allowance || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.medical_allowance || 0
+                          )}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -893,12 +927,16 @@ onWheel={(e)=> e.target.blur()}
                             handleEarningsChange(e.target.name, e.target.value)
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="basket_of_benifits"
                           id="basket_of_benifits"
                           value={formData?.earnings?.basket_of_benifits}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.basket_of_benifits || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.basket_of_benifits || 0
+                          )}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -911,12 +949,16 @@ onWheel={(e)=> e.target.blur()}
                             handleEarningsChange(e.target.name, e.target.value)
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="performance_bonus"
                           id="performance_bonus"
                           value={formData?.earnings?.performance_bonus}
                         />
-                         <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.performance_bonus || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.performance_bonus || 0
+                          )}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -929,12 +971,16 @@ onWheel={(e)=> e.target.blur()}
                             handleEarningsChange(e.target.name, e.target.value)
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="other_allowances"
                           id="other_allowances"
                           value={formData?.earnings?.other_allowances}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.other_allowances || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.other_allowances || 0
+                          )}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -947,12 +993,16 @@ onWheel={(e)=> e.target.blur()}
                             handleEarningsChange(e.target.name, e.target.value)
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="conveyance"
                           id="conveyance"
                           value={formData?.earnings?.conveyance}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.earnings?.conveyance || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.conveyance || 0
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -976,12 +1026,16 @@ onWheel={(e)=> e.target.blur()}
                             )
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="income_tax"
                           id="income_tax"
                           value={formData?.deductions?.income_tax}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.deductions?.income_tax || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.deductions?.income_tax || 0
+                          )}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -997,12 +1051,14 @@ onWheel={(e)=> e.target.blur()}
                             )
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="esi"
                           id="esi"
                           value={formData?.deductions?.esi}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.deductions?.esi || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(formData?.deductions?.esi || 0)}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1018,12 +1074,14 @@ onWheel={(e)=> e.target.blur()}
                             )
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="epf"
                           id="epf"
                           value={formData?.deductions?.epf}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.deductions?.epf || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(formData?.deductions?.epf || 0)}
+                        </span>
                       </div>
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1039,12 +1097,16 @@ onWheel={(e)=> e.target.blur()}
                             )
                           }
                           type="number"
-onWheel={(e)=> e.target.blur()}
+                          onWheel={(e) => e.target.blur()}
                           name="professional_tax"
                           id="professional_tax"
                           value={formData?.deductions?.professional_tax}
                         />
-                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData?.deductions?.professional_tax || 0)}</span>
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.deductions?.professional_tax || 0
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1057,7 +1119,11 @@ onWheel={(e)=> e.target.blur()}
                       size="large"
                       className="px-8"
                       loading={calculateLoading}
-                      disabled={!formData.employee_id || !formData.month || !formData.year}
+                      disabled={
+                        !formData.employee_id ||
+                        !formData.month ||
+                        !formData.year
+                      }
                     >
                       Calculate Salary
                     </Button>
@@ -1076,12 +1142,16 @@ onWheel={(e)=> e.target.blur()}
                           </label>
                           <input
                             type="number"
-onWheel={(e)=> e.target.blur()}
+                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.total_days}
                             disabled
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.total_days || 0)}</span>
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              calculatedSalary.total_days || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1089,12 +1159,16 @@ onWheel={(e)=> e.target.blur()}
                           </label>
                           <input
                             type="number"
-onWheel={(e)=> e.target.blur()}
+                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.present_days}
                             disabled
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.present_days || 0)}</span>
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              calculatedSalary.present_days || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1102,12 +1176,16 @@ onWheel={(e)=> e.target.blur()}
                           </label>
                           <input
                             type="number"
-onWheel={(e)=> e.target.blur()}
+                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.paid_days}
                             disabled
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.paid_days || 0)}</span>
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              calculatedSalary.paid_days || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1115,12 +1193,16 @@ onWheel={(e)=> e.target.blur()}
                           </label>
                           <input
                             type="number"
-onWheel={(e)=> e.target.blur()}
+                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.lop_days}
                             disabled
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.lop_days || 0)}</span>
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              calculatedSalary.lop_days || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1128,12 +1210,16 @@ onWheel={(e)=> e.target.blur()}
                           </label>
                           <input
                             type="number"
-onWheel={(e)=> e.target.blur()}
+                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.per_day_salary.toFixed(2)}
                             disabled
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.per_day_salary.toFixed(2) || 0)}</span>
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              calculatedSalary.per_day_salary.toFixed(2) || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1141,13 +1227,16 @@ onWheel={(e)=> e.target.blur()}
                           </label>
                           <input
                             type="number"
-onWheel={(e)=> e.target.blur()}
+                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.total_earnings.toFixed(2)}
                             disabled
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.total_earnings.toFixed(2) || 0)}</span>
-
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              calculatedSalary.total_earnings.toFixed(2) || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1155,13 +1244,16 @@ onWheel={(e)=> e.target.blur()}
                           </label>
                           <input
                             type="number"
-onWheel={(e)=> e.target.blur()}
+                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                             value={calculatedSalary.total_deductions.toFixed(2)}
                             disabled
                           />
-                                                    <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.total_deductions.toFixed(2) || 0)}</span>
-
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              calculatedSalary.total_deductions.toFixed(2) || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1169,19 +1261,22 @@ onWheel={(e)=> e.target.blur()}
                           </label>
                           <input
                             type="number"
-onWheel={(e)=> e.target.blur()}
+                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.calculated_salary.toFixed(2)}
+                            value={calculatedSalary.calculated_salary.toFixed(
+                              2
+                            )}
                             disabled
                           />
-                                                    <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(calculatedSalary.calculated_salary.toFixed(2) || 0)}</span>
-
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              calculatedSalary.calculated_salary.toFixed(2) || 0
+                            )}
+                          </span>
                         </div>
                       </div>
 
                       {/* Payment Details */}
-
-
                     </div>
                   )}
 
@@ -1238,8 +1333,9 @@ onWheel={(e)=> e.target.blur()}
                                   )
                                 }
                               />
-                                                        <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(payment.value || 0)}</span>
-
+                              <span className="ml-2 font-medium font-mono text-blue-600">
+                                {numberToIndianWords(payment.value || 0)}
+                              </span>
                             </div>
                             <Button
                               type="primary"
@@ -1267,13 +1363,23 @@ onWheel={(e)=> e.target.blur()}
                             type="number"
                             onW
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={(formData?.total_salary_payable || 0).toFixed(2) || 0}
+                            value={
+                              (formData?.total_salary_payable || 0).toFixed(
+                                2
+                              ) || 0
+                            }
                             onChange={(e) =>
-                              handleChange("total_salary_payable", e.target.value)
+                              handleChange(
+                                "total_salary_payable",
+                                e.target.value
+                              )
                             }
                           />
-                                                    <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData.total_salary_payable.toFixed(2) || 0)}</span>
-
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              formData.total_salary_payable.toFixed(2) || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1283,9 +1389,15 @@ onWheel={(e)=> e.target.blur()}
                             type="number"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={formData.paid_amount.toFixed(2) || 0}
-                            onChange={(e) => handleChange("paid_amount", e.target.value)}
+                            onChange={(e) =>
+                              handleChange("paid_amount", e.target.value)
+                            }
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData.paid_amount.toFixed(2) || 0)}</span>
+                          <span className="ml-2 font-medium font-mono text-blue-600">
+                            {numberToIndianWords(
+                              formData.paid_amount.toFixed(2) || 0
+                            )}
+                          </span>
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1295,7 +1407,9 @@ onWheel={(e)=> e.target.blur()}
                             style={{ width: "100%" }}
                             placeholder="Select mode"
                             value={formData.payment_method}
-                            onChange={(value) => handleChange("payment_method", value)}
+                            onChange={(value) =>
+                              handleChange("payment_method", value)
+                            }
                             options={[
                               { label: "Cash", value: "Cash" },
                               { label: "Online / UPI", value: "Online/UPI" },
@@ -1311,17 +1425,24 @@ onWheel={(e)=> e.target.blur()}
                         <div className="mt-4">
                           <div className="form-group">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Transaction ID <span className="text-red-600">*</span>
+                              Transaction ID{" "}
+                              <span className="text-red-600">*</span>
                             </label>
                             <input
                               type="number"
-onWheel={(e)=> e.target.blur()}
+                              onWheel={(e) => e.target.blur()}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               placeholder="Enter transaction id"
                               value={formData.transaction_id || ""}
-                              onChange={(e) => handleChange("transaction_id", e.target.value)}
+                              onChange={(e) =>
+                                handleChange("transaction_id", e.target.value)
+                              }
                             />
-                            <span className="ml-2 font-medium font-mono text-blue-600">{numberToIndianWords(formData.transaction_id || 0)}</span>
+                            <span className="ml-2 font-medium font-mono text-blue-600">
+                              {numberToIndianWords(
+                                formData.transaction_id || 0
+                              )}
+                            </span>
                           </div>
                         </div>
                       )}
@@ -1335,13 +1456,14 @@ onWheel={(e)=> e.target.blur()}
                           onChange={(date) => handleChange("pay_date", date)}
                           format="DD MMM YYYY"
                           disabledDate={(current) => {
-                            return current && current.isAfter(moment().endOf('day'));
+                            return (
+                              current && current.isAfter(moment().endOf("day"))
+                            );
                           }}
                         />
                       </div>
                     </div>
                   )}
-
                 </>
               )
             ) : (
@@ -1390,7 +1512,6 @@ onWheel={(e)=> e.target.blur()}
               name="employee_id"
               label="Employee ID"
               rules={[{ required: true, message: "Please select an employee" }]}
-
             >
               <Select
                 disabled
@@ -1441,7 +1562,6 @@ onWheel={(e)=> e.target.blur()}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Form.Item name={["earnings", "basic"]} label="Basic Salary">
                   <Input type="number" />
-                  
                 </Form.Item>
                 <Form.Item name={["earnings", "hra"]} label="HRA">
                   <Input type="number" />
@@ -1589,7 +1709,9 @@ onWheel={(e)=> e.target.blur()}
                 <Form.Item
                   name="payment_method"
                   label="Payment Mode"
-                  rules={[{ required: true, message: "Please select payment mode" }]}
+                  rules={[
+                    { required: true, message: "Please select payment mode" },
+                  ]}
                 >
                   <Select
                     placeholder="Select payment mode"
@@ -1611,7 +1733,11 @@ onWheel={(e)=> e.target.blur()}
                     name="transaction_id"
                     label="Transaction ID"
                     rules={[
-                      { required: updateForm.getFieldValue("payment_method") !== "Cash", message: "Transaction ID is required" }
+                      {
+                        required:
+                          updateForm.getFieldValue("payment_method") !== "Cash",
+                        message: "Transaction ID is required",
+                      },
                     ]}
                   >
                     <Input placeholder="Enter transaction reference" />
@@ -1621,7 +1747,9 @@ onWheel={(e)=> e.target.blur()}
                 <Form.Item
                   name="pay_date"
                   label="Pay Date"
-                  rules={[{ required: true, message: "Please select pay date" }]}
+                  rules={[
+                    { required: true, message: "Please select pay date" },
+                  ]}
                   getValueProps={(value) => ({
                     value: value ? moment(value) : null,
                   })}
@@ -1630,12 +1758,13 @@ onWheel={(e)=> e.target.blur()}
                   <DatePicker
                     style={{ width: "100%" }}
                     format="DD MMM YYYY"
-                    disabledDate={(current) => current && current.isAfter(moment().endOf('day'))}
+                    disabledDate={(current) =>
+                      current && current.isAfter(moment().endOf("day"))
+                    }
                   />
                 </Form.Item>
               </div>
             </div>
-
           </Form>
         </Drawer>
 
@@ -1685,7 +1814,11 @@ onWheel={(e)=> e.target.blur()}
               <Button
                 key="edit"
                 type="primary"
-                style={{ backgroundColor: '#D4AF37', borderColor: '#B8860B', color: '#000' }}
+                style={{
+                  backgroundColor: "#D4AF37",
+                  borderColor: "#B8860B",
+                  color: "#000",
+                }}
                 onClick={() => {
                   handleEdit(existingSalaryRecord._id);
                   setAlreadyPaidModalOpen(false);
@@ -1695,69 +1828,130 @@ onWheel={(e)=> e.target.blur()}
               </Button>
             ),
           ]}
-          style={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto', backgroundColor: '#fafafa' }}
+          style={{
+            padding: "24px",
+            maxHeight: "70vh",
+            overflowY: "auto",
+            backgroundColor: "#fafafa",
+          }}
         >
           {existingSalaryRecord ? (
             <div className="space-y-6 text-sm">
               {/* Salary Period */}
               <section className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                 <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
-
                   Salary Period
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-gray-700">
-                  <div><strong>Month:</strong> {existingSalaryRecord.salary_month} {existingSalaryRecord.salary_year}</div>
-                  <div><strong>From:</strong> {moment(existingSalaryRecord.salary_from_date).format("DD MMM YYYY")}</div>
-                  <div><strong>To:</strong> {moment(existingSalaryRecord.salary_to_date).format("DD MMM YYYY")}</div>
+                  <div>
+                    <strong>Month:</strong> {existingSalaryRecord.salary_month}{" "}
+                    {existingSalaryRecord.salary_year}
+                  </div>
+                  <div>
+                    <strong>From:</strong>{" "}
+                    {moment(existingSalaryRecord.salary_from_date).format(
+                      "DD MMM YYYY"
+                    )}
+                  </div>
+                  <div>
+                    <strong>To:</strong>{" "}
+                    {moment(existingSalaryRecord.salary_to_date).format(
+                      "DD MMM YYYY"
+                    )}
+                  </div>
                 </div>
               </section>
 
               {/* Attendance Summary */}
               <section className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                 <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
-
                   Attendance Summary
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-gray-700">
-                  <div><strong>Total Days:</strong> {existingSalaryRecord.total_days || 0}</div>
-                  <div><strong>Paid Days:</strong> {existingSalaryRecord.paid_days || 0}</div>
-                  <div><strong>LOP Days:</strong> {existingSalaryRecord.lop_days || 0}</div>
-                  <div><strong>Present:</strong> {existingSalaryRecord.present_days || 0}</div>
-                  <div><strong>Absent:</strong> {existingSalaryRecord.absent_days || 0}</div>
-                  <div><strong>On Leave:</strong> {existingSalaryRecord.leave_days || 0}</div>
-                  <div><strong>Half Days:</strong> {existingSalaryRecord.half_days || 0}</div>
+                  <div>
+                    <strong>Total Days:</strong>{" "}
+                    {existingSalaryRecord.total_days || 0}
+                  </div>
+                  <div>
+                    <strong>Paid Days:</strong>{" "}
+                    {existingSalaryRecord.paid_days || 0}
+                  </div>
+                  <div>
+                    <strong>LOP Days:</strong>{" "}
+                    {existingSalaryRecord.lop_days || 0}
+                  </div>
+                  <div>
+                    <strong>Present:</strong>{" "}
+                    {existingSalaryRecord.present_days || 0}
+                  </div>
+                  <div>
+                    <strong>Absent:</strong>{" "}
+                    {existingSalaryRecord.absent_days || 0}
+                  </div>
+                  <div>
+                    <strong>On Leave:</strong>{" "}
+                    {existingSalaryRecord.leave_days || 0}
+                  </div>
+                  <div>
+                    <strong>Half Days:</strong>{" "}
+                    {existingSalaryRecord.half_days || 0}
+                  </div>
                 </div>
               </section>
 
               {/* Earnings */}
               <section className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                 <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
-
                   Earnings
                 </h4>
                 <ul className="space-y-2 text-gray-700">
-                  {Object.entries(existingSalaryRecord.earnings || {}).map(([key, val]) => (
-                    <li key={key} className="flex justify-between border-b border-gray-100 pb-1">
-                      <span className="capitalize">{key.replace(/_/g, " ")}</span>
-                      <span className="font-medium">₹{Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </li>
-                  ))}
+                  {Object.entries(existingSalaryRecord.earnings || {}).map(
+                    ([key, val]) => (
+                      <li
+                        key={key}
+                        className="flex justify-between border-b border-gray-100 pb-1"
+                      >
+                        <span className="capitalize">
+                          {key.replace(/_/g, " ")}
+                        </span>
+                        <span className="font-medium">
+                          ₹
+                          {Number(val).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </li>
+                    )
+                  )}
                 </ul>
               </section>
 
               {/* Deductions */}
               <section className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                 <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
-
                   Deductions
                 </h4>
                 <ul className="space-y-2 text-gray-700">
-                  {Object.entries(existingSalaryRecord.deductions || {}).map(([key, val]) => (
-                    <li key={key} className="flex justify-between border-b border-gray-100 pb-1">
-                      <span className="capitalize">{key.replace(/_/g, " ")}</span>
-                      <span className="font-medium">₹{Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </li>
-                  ))}
+                  {Object.entries(existingSalaryRecord.deductions || {}).map(
+                    ([key, val]) => (
+                      <li
+                        key={key}
+                        className="flex justify-between border-b border-gray-100 pb-1"
+                      >
+                        <span className="capitalize">
+                          {key.replace(/_/g, " ")}
+                        </span>
+                        <span className="font-medium">
+                          ₹
+                          {Number(val).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </li>
+                    )
+                  )}
                 </ul>
               </section>
 
@@ -1765,14 +1959,22 @@ onWheel={(e)=> e.target.blur()}
               {existingSalaryRecord.additional_payments?.length > 0 && (
                 <section className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                   <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
-
                     Additional Payments
                   </h4>
                   <ul className="space-y-2 text-gray-700">
                     {existingSalaryRecord.additional_payments.map((pay, i) => (
-                      <li key={i} className="flex justify-between border-b border-gray-100 pb-1">
+                      <li
+                        key={i}
+                        className="flex justify-between border-b border-gray-100 pb-1"
+                      >
                         <span>{pay.name || "Payment"}</span>
-                        <span className="font-medium">₹{Number(pay.value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        <span className="font-medium">
+                          ₹
+                          {Number(pay.value).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -1782,35 +1984,102 @@ onWheel={(e)=> e.target.blur()}
               {/* Payment Summary */}
               <section className="bg-gradient-to-r from-amber-50 to-white border border-amber-200 p-5 rounded-lg shadow-sm">
                 <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
-
                   Payment Summary
                 </h4>
                 <div className="space-y-2 text-gray-800 font-medium">
-                  <div className="flex justify-between"><span>Total Earnings:</span> <span>₹{Number(existingSalaryRecord.total_earnings).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-                  <div className="flex justify-between"><span>Total Deductions:</span> <span>₹{Number(existingSalaryRecord.total_deductions).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                  <div className="flex justify-between">
+                    <span>Total Earnings:</span>{" "}
+                    <span>
+                      ₹
+                      {Number(
+                        existingSalaryRecord.total_earnings
+                      ).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Total Deductions:</span>{" "}
+                    <span>
+                      ₹
+                      {Number(
+                        existingSalaryRecord.total_deductions
+                      ).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
                   <div className="flex justify-between text-lg font-bold text-gray-900 border-t pt-2 mt-2">
                     <span>Net Payable:</span>
-                    <span>₹{Number(existingSalaryRecord.net_payable).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span>
+                      ₹
+                      {Number(existingSalaryRecord.net_payable).toLocaleString(
+                        "en-IN",
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                      )}
+                    </span>
                   </div>
-                  <div className="flex justify-between"><span>Paid Amount:</span> <span>₹{Number(existingSalaryRecord.paid_amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                  <div className="flex justify-between">
+                    <span>Paid Amount:</span>{" "}
+                    <span>
+                      ₹
+                      {Number(existingSalaryRecord.paid_amount).toLocaleString(
+                        "en-IN",
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                      )}
+                    </span>
+                  </div>
                   <div className="flex justify-between">
                     <span>Remaining Balance:</span>
-                    <span className={Number(existingSalaryRecord.remaining_balance) > 0 ? "text-red-600 font-bold" : "text-green-600"}>
-                      ₹{Number(existingSalaryRecord.remaining_balance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span
+                      className={
+                        Number(existingSalaryRecord.remaining_balance) > 0
+                          ? "text-red-600 font-bold"
+                          : "text-green-600"
+                      }
+                    >
+                      ₹
+                      {Number(
+                        existingSalaryRecord.remaining_balance
+                      ).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Status:</span>
-                    <span className={existingSalaryRecord.status === "Paid" ? "text-green-700 font-bold" : "text-amber-700 font-bold"}>
+                    <span
+                      className={
+                        existingSalaryRecord.status === "Paid"
+                          ? "text-green-700 font-bold"
+                          : "text-amber-700 font-bold"
+                      }
+                    >
                       {existingSalaryRecord.status}
                     </span>
                   </div>
 
                   {existingSalaryRecord.transaction_id && (
-                    <div className="flex justify-between"><span>Transaction ID:</span> <span>{existingSalaryRecord.transaction_id}</span></div>
+                    <div className="flex justify-between">
+                      <span>Transaction ID:</span>{" "}
+                      <span>{existingSalaryRecord.transaction_id}</span>
+                    </div>
                   )}
-                  <div className="flex justify-between"><span>Payment Method:</span> <span>{existingSalaryRecord.payment_method || "—"} </span></div>
-                  <div className="flex justify-between"><span>Pay Date:</span> <span>{moment(existingSalaryRecord.pay_date).format("DD MMM YYYY")}</span></div>
+                  <div className="flex justify-between">
+                    <span>Payment Method:</span>{" "}
+                    <span>{existingSalaryRecord.payment_method || "—"} </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Pay Date:</span>{" "}
+                    <span>
+                      {moment(existingSalaryRecord.pay_date).format(
+                        "DD MMM YYYY"
+                      )}
+                    </span>
+                  </div>
                 </div>
               </section>
             </div>
@@ -1820,9 +2089,7 @@ onWheel={(e)=> e.target.blur()}
             </div>
           )}
         </Modal>
-
       </div>
-
     </div>
   );
 };
