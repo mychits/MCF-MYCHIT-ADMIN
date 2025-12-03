@@ -1368,6 +1368,9 @@ const Payroll = () => {
                       placeholder="Enter House Rent Allowance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.earnings?.hra || 0)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4 mb-6">
@@ -1394,6 +1397,9 @@ const Payroll = () => {
                       placeholder="Enter Employee Travel Allowance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.earnings?.travel_allowance || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -1418,6 +1424,9 @@ const Payroll = () => {
                       placeholder="Enter  Medical Allowance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.earnings?.medical_allowance || 0)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4 mb-6">
@@ -1444,6 +1453,9 @@ const Payroll = () => {
                       placeholder="Enter Employee Basket of Benifits"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.earnings?.basket_of_benifits || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -1468,6 +1480,9 @@ const Payroll = () => {
                       placeholder="Enter Performance Bonus"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.earnings?.performance_bonus || 0)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4 mb-6">
@@ -1494,6 +1509,9 @@ const Payroll = () => {
                       placeholder="Enter Other Allowance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.earnings?.other_allowances || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -1518,6 +1536,9 @@ const Payroll = () => {
                       placeholder="Enter Conveyance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.earnings?.conveyance || 0)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1553,6 +1574,9 @@ const Payroll = () => {
                       placeholder="Enter Employee Income Tax"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.deductions?.income_tax || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -1577,6 +1601,9 @@ const Payroll = () => {
                       placeholder="Enter Employees' State Insurance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.deductions?.esi || 0)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4 mb-6">
@@ -1603,6 +1630,9 @@ const Payroll = () => {
                       placeholder="Enter Employees' Provident Fund"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.deductions?.epf || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -1627,6 +1657,9 @@ const Payroll = () => {
                       placeholder="Enter Employees' Professional Tax"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(formData.deductions?.professional_tax || 0)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -2051,6 +2084,9 @@ const Payroll = () => {
                     required
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                  <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.salary || 0)}
+                    </span>
                   {errors.salary && (
                     <p className="mt-2 text-sm text-red-600">{errors.salary}</p>
                   )}
@@ -2075,6 +2111,7 @@ const Payroll = () => {
                     required
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                  
                   {errors.alternate_number && (
                     <p className="mt-2 text-sm text-red-600">
                       {errors.alternate_number}
@@ -2250,6 +2287,9 @@ const Payroll = () => {
                       placeholder="Enter Employee Basic Salary"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.earnings?.basic || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -2279,6 +2319,9 @@ const Payroll = () => {
                       placeholder="Enter House Rent Allowance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.earnings?.hra || 0)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4 mb-6">
@@ -2310,6 +2353,9 @@ const Payroll = () => {
                       placeholder="Enter Employee Travel Allowance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.earnings?.travel_allowance || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -2339,6 +2385,9 @@ const Payroll = () => {
                       placeholder="Enter  Medical Allowance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.earnings?.medical_allowance || 0)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4 mb-6">
@@ -2370,6 +2419,9 @@ const Payroll = () => {
                       placeholder="Enter Employee Basket of Benifits"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.earnings?.basket_of_benifits || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -2399,6 +2451,9 @@ const Payroll = () => {
                       placeholder="Enter Performance Bonus"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.earnings?.performance_bonus || 0)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4 mb-6">
@@ -2430,6 +2485,9 @@ const Payroll = () => {
                       placeholder="Enter Other Allowance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.earnings?.other_allowances || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -2459,6 +2517,9 @@ const Payroll = () => {
                       placeholder="Enter Conveyance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.earnings?.conveyance || 0)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -2499,6 +2560,9 @@ const Payroll = () => {
                       placeholder="Enter Employee Income Tax"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.deductions?.income_tax || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -2528,6 +2592,9 @@ const Payroll = () => {
                       placeholder="Enter Employees' State Insurance"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.deductions?.esi || 0)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4 mb-6">
@@ -2559,6 +2626,9 @@ const Payroll = () => {
                       placeholder="Enter Employees' Provident Fund"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.deductions?.epf || 0)}
+                    </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -2588,6 +2658,9 @@ const Payroll = () => {
                       placeholder="Enter Employees' Professional Tax"
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
+                    <span className="ml-2 font-medium font-mono text-blue-600">
+                      {numberToIndianWords(updateFormData.deductions?.professional_tax || 0)}
+                    </span>
                   </div>
                 </div>
               </div>
