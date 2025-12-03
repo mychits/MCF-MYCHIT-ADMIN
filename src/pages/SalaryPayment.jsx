@@ -1099,7 +1099,7 @@ const SalaryPayment = () => {
                           <input
                             type="text"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.per_day_salary}
+                            value={calculatedSalary.per_day_salary.toFixed(2)}
                             disabled
                           />
                         </div>
@@ -1110,7 +1110,7 @@ const SalaryPayment = () => {
                           <input
                             type="text"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.total_earnings}
+                            value={calculatedSalary.total_earnings.toFixed(2)}
                             disabled
                           />
                         </div>
@@ -1121,7 +1121,7 @@ const SalaryPayment = () => {
                           <input
                             type="text"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.total_deductions}
+                            value={calculatedSalary.total_deductions.toFixed(2)}
                             disabled
                           />
                         </div>
@@ -1132,7 +1132,7 @@ const SalaryPayment = () => {
                           <input
                             type="text"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.calculated_salary}
+                            value={calculatedSalary.calculated_salary.toFixed(2)}
                             disabled
                           />
                         </div>
@@ -1223,7 +1223,7 @@ const SalaryPayment = () => {
                           <input
                             type="number"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.total_salary_payable || 0}
+                            value={formData.total_salary_payable.toFixed(2) || 0}
                             onChange={(e) =>
                               handleChange("total_salary_payable", e.target.value)
                             }
@@ -1231,12 +1231,12 @@ const SalaryPayment = () => {
                         </div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Paid Amount
+                            Total Payable Amount
                           </label>
                           <input
                             type="number"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.paid_amount || 0}
+                            value={formData.paid_amount.toFixed(2) || 0}
                             onChange={(e) => handleChange("paid_amount", e.target.value)}
                           />
                         </div>
