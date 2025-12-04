@@ -674,76 +674,76 @@ const SalaryPayment = () => {
     }
   }
 
-  async function handleAddSalary() {
-    try {
-      const totalEarnings = Object.values(formData.earnings).reduce(
-        (sum, value) => sum + Number(value),
-        0
-      );
-      const totalDeductions = Object.values(formData.deductions).reduce(
-        (sum, value) => sum + Number(value),
-        0
-      );
+async function handleAddSalary() {
+  try {
+    // Base amount: use calculated salary if available, otherwise fallback to manual earnings/deductions
+    const baseSalary = calculatedSalary
+      ? calculatedSalary.calculated_salary
+      : Object.values(formData.earnings).reduce(
+          (sum, v) => sum + Number(v || 0),
+          0
+        ) -
+        Object.values(formData.deductions).reduce(
+          (sum, v) => sum + Number(v || 0),
+          0
+        );
 
-      const additionalPaymentsTotal = formData.additional_payments.reduce(
-        (sum, payment) => sum + Number(payment.value),
-        0
-      );
+    const additionalPaymentsTotal = formData.additional_payments.reduce(
+      (sum, payment) => sum + Number(payment.value || 0),
+      0
+    );
 
-      const additionalDeductionsTotal = formData.additional_deductions.reduce(
-        (sum, deduction) => sum + Number(deduction.value),
-        0
-      );
+    const additionalDeductionsTotal = formData.additional_deductions.reduce(
+      (sum, deduction) => sum + Number(deduction.value || 0),
+      0
+    );
 
-      const netPayable = calculatedSalary
-        ? calculatedSalary.calculated_salary
-        : totalEarnings -
-          totalDeductions +
-          additionalPaymentsTotal -
-          additionalDeductionsTotal;
+    // ✅ Correct Total Salary Payable
+    const totalSalaryPayable = baseSalary + additionalPaymentsTotal - additionalDeductionsTotal;
 
-      const salaryData = {
-        employee_id: formData?.employee_id,
-        salary_from_date: calculatedSalary
-          ? calculatedSalary?.salary_from_date
-          : new Date(),
-        salary_to_date: calculatedSalary
-          ? calculatedSalary.salary_to_date
-          : new Date(),
-        salary_month: formData.month,
-        salary_year: formData.year,
-        earnings: formData.earnings,
-        deductions: formData.deductions,
-        additional_deductions: formData.additional_deductions,
-        additional_payments: formData.additional_payments,
-        paid_days: calculatedSalary ? calculatedSalary.paid_days : 30,
-        lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
-        net_payable: netPayable,
-        paid_amount: formData.paid_amount || 0,
-        remaining_balance:
-          (formData.total_salary_payable || netPayable) -
-          (formData.paid_amount || 0),
-        total_salary_payable: formData.total_salary_payable || netPayable,
-        payment_method: formData.payment_method,
-        transaction_id:
-          formData.payment_method === "Cash"
-            ? null
-            : formData.transaction_id || null,
-        status: "Pending",
-        pay_date: new Date(),
-      };
+    const paidAmount = Number(formData.paid_amount || 0);
+    const remainingBalance = totalSalaryPayable - paidAmount;
 
-      await API.post("/salary-payment/", salaryData);
-      message.success("Salary added successfully");
-      setIsOpenAddModal(false);
-      setCalculatedSalary(null);
-      setShowAdditionalPayments(false);
-      getAllSalary();
-    } catch (error) {
-      console.error("Error adding salary:", error);
-      message.error("Failed to add salary");
-    }
+    const salaryData = {
+      employee_id: formData?.employee_id,
+      salary_from_date: calculatedSalary
+        ? calculatedSalary?.salary_from_date
+        : new Date(),
+      salary_to_date: calculatedSalary
+        ? calculatedSalary.salary_to_date
+        : new Date(),
+      salary_month: formData.month,
+      salary_year: formData.year,
+      earnings: formData.earnings,
+      deductions: formData.deductions,
+      additional_deductions: formData.additional_deductions,
+      additional_payments: formData.additional_payments,
+      paid_days: calculatedSalary ? calculatedSalary.paid_days : 30,
+      lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
+      net_payable: totalSalaryPayable, // 👈 This is the final payable amount
+      paid_amount: paidAmount,
+      remaining_balance: remainingBalance,
+      total_salary_payable: totalSalaryPayable, // 👈 Explicitly store it
+      payment_method: formData.payment_method,
+      transaction_id:
+        formData.payment_method === "Cash"
+          ? null
+          : formData.transaction_id || null,
+      status: remainingBalance <= 0 ? "Paid" : "Pending",
+      pay_date: formData.pay_date ? formData.pay_date.toDate() : new Date(),
+    };
+
+    await API.post("/salary-payment/", salaryData);
+    message.success("Salary added successfully");
+    setIsOpenAddModal(false);
+    setCalculatedSalary(null);
+    setShowAdditionalPayments(false);
+    getAllSalary();
+  } catch (error) {
+    console.error("Error adding salary:", error);
+    message.error("Failed to add salary");
   }
+}
 
   async function getAllSalary() {
     try {
@@ -1672,32 +1672,37 @@ const SalaryPayment = () => {
                         Transaction Details
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="form-group">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Total Salary Payable
-                          </label>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={
-                              (formData?.total_salary_payable || 0).toFixed(
-                                2
-                              ) || 0
-                            }
-                            onChange={(e) =>
-                              handleChange(
-                                "total_salary_payable",
-                                e.target.value
-                              )
-                            }
-                          />
-                          <span className="ml-2 font-medium font-mono text-blue-600">
-                            {numberToIndianWords(
-                              formData.total_salary_payable.toFixed(2) || 0
-                            )}
-                          </span>
-                        </div>
+                        {/* Total Salary Payable (Auto-calculated) */}
+<div className="form-group">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Total Salary Payable
+  </label>
+  {(() => {
+    const base = calculatedSalary?.calculated_salary || 0;
+    const addPayments = formData.additional_payments.reduce(
+      (sum, p) => sum + Number(p.value || 0),
+      0
+    );
+    const addDeductions = formData.additional_deductions.reduce(
+      (sum, d) => sum + Number(d.value || 0),
+      0
+    );
+    const total = base + addPayments - addDeductions;
+    return (
+      <>
+        <input
+          type="number"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+          value={total.toFixed(2)}
+          disabled
+        />
+        <span className="ml-2 font-medium font-mono text-blue-600">
+          {numberToIndianWords(total.toFixed(2))}
+        </span>
+      </>
+    );
+  })()}
+</div>
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Total Payable Amount
