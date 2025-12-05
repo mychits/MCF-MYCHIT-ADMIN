@@ -678,11 +678,12 @@ const SalaryPayment = () => {
       const rawDefaultDifference =
         totalEarnings - totalDeductions - calcSalary;
 
-
-      autoAdditionalDeductions.push({
-        name: "Absence Adjustment",
-        value: rawDefaultDifference,
-      });
+if (rawDefaultDifference !== 0) {
+  autoAdditionalDeductions.push({
+    name: "Absence Adjustment",
+    value: rawDefaultDifference,
+  });
+}
 
 
 
@@ -720,7 +721,7 @@ const SalaryPayment = () => {
 
   async function handleAddSalary() {
     try {
-      // Base amount: use calculated salary if available, otherwise fallback to manual earnings/deductions
+  
       const baseSalary = calculatedSalary
         ? calculatedSalary.calculated_salary
         : Object.values(formData.earnings).reduce(
