@@ -527,6 +527,8 @@ const SalaryPayment = () => {
       earnings: { ...prev.earnings },
       deductions: { ...prev.deductions, [name]: value },
     }));
+    setCalculatedSalary(null);
+  setShowAdditionalPayments(false);
   };
 
   const handleEarningsChange = (name, value) => {
@@ -535,6 +537,8 @@ const SalaryPayment = () => {
       earnings: { ...prev.earnings, [name]: value },
       deductions: { ...prev.deductions },
     }));
+    setCalculatedSalary(null);
+  setShowAdditionalPayments(false);
   };
 
   const updateTotalEarnings = useMemo(() => {
@@ -1645,7 +1649,7 @@ const SalaryPayment = () => {
                                   type="number"
                                   placeholder="Enter amount"
                                   onWheel={(e) => e.target.blur()}
-                                  value={deduction.value}
+                                  value={deduction.value.toFixed(2)}
                                   onChange={(e) =>
                                     handleAdditionalDeductionChange(
                                       index,
