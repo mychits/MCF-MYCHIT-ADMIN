@@ -1374,7 +1374,7 @@ const SalaryPayment = () => {
                         backgroundColor: "#16a34a",
                       }}
                     >
-                      Calculate Salary
+                      Continue
                     </Button>
                   </div>
 
