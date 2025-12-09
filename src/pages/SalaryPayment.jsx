@@ -643,14 +643,9 @@ const SalaryPayment = () => {
         }
       }
 
-
-
-
-
       const safeNumber = (v) => {
         if (v === null || v === undefined) return 0;
         if (typeof v === "object") {
-
           if (v === null) return 0;
           if ("amount" in v) return Number(v.amount) || 0;
           if ("value" in v) return Number(v.value) || 0;
@@ -660,34 +655,25 @@ const SalaryPayment = () => {
         return Number(v);
       };
 
-
       const totalEarnings = Object.entries(formData.earnings || {})
         .filter(([key]) => key !== "salary")
         .reduce((sum, [, val]) => sum + safeNumber(val), 0);
-
 
       const totalDeductions = Object.values(formData.deductions || {}).reduce(
         (sum, val) => sum + safeNumber(val),
         0
       );
 
-
       const calcSalary = safeNumber(calculated?.calculated_salary);
 
+      const rawDefaultDifference = totalEarnings - totalDeductions - calcSalary;
 
-      const rawDefaultDifference =
-        totalEarnings - totalDeductions - calcSalary;
-
-if (rawDefaultDifference !== 0) {
-  autoAdditionalDeductions.push({
-    name: "Absence Adjustment",
-    value: rawDefaultDifference,
-  });
-}
-
-
-
-
+      if (rawDefaultDifference !== 0) {
+        autoAdditionalDeductions.push({
+          name: "Absence Adjustment",
+          value: rawDefaultDifference,
+        });
+      }
 
       setFormData((prev) => ({
         ...prev,
@@ -721,17 +707,16 @@ if (rawDefaultDifference !== 0) {
 
   async function handleAddSalary() {
     try {
-  
       const baseSalary = calculatedSalary
         ? calculatedSalary.calculated_salary
         : Object.values(formData.earnings).reduce(
-          (sum, v) => sum + Number(v || 0),
-          0
-        ) -
-        Object.values(formData.deductions).reduce(
-          (sum, v) => sum + Number(v || 0),
-          0
-        );
+            (sum, v) => sum + Number(v || 0),
+            0
+          ) -
+          Object.values(formData.deductions).reduce(
+            (sum, v) => sum + Number(v || 0),
+            0
+          );
 
       const additionalPaymentsTotal = formData.additional_payments.reduce(
         (sum, payment) => sum + Number(payment.value || 0),
@@ -1738,7 +1723,7 @@ if (rawDefaultDifference !== 0) {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         {/* Total Salary Payable (Auto-calculated) */}
-                        
+
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Total Salary Payable
@@ -1780,7 +1765,7 @@ if (rawDefaultDifference !== 0) {
                             type="number"
                             onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.paid_amount || 0}
+                            value={formData.paid_amount}
                             onChange={(e) =>
                               handleChange("paid_amount", e.target.value)
                             }
@@ -1838,7 +1823,6 @@ if (rawDefaultDifference !== 0) {
                           </div>
                         </div>
                       )}
-                      
                     </div>
                   )}
                 </>
@@ -2320,9 +2304,12 @@ if (rawDefaultDifference !== 0) {
                   </div>
                   <div>
                     <strong>To:</strong>{" "}
-                    {moment(existingSalaryRecord.salary_to_date).format(
+                    {/* {moment(existingSalaryRecord.salary_to_date).format(
                       "DD MMM YYYY"
-                    )}
+                    )} */}
+                    {moment(existingSalaryRecord.salary_to_date)
+                      .subtract(1, "day")
+                      .format("DD MMM YYYY")}
                   </div>
                 </div>
               </section>
