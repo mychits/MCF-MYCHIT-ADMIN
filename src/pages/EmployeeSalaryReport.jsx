@@ -1,4 +1,4 @@
-import React,{ useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import Navbar from "../components/layouts/Navbar";
@@ -22,7 +22,7 @@ const { Option } = Select;
 //       try {
 //         const response = await api.get("/agent/get-employee");
 //         setAllEmployees(response?.data?.employee || []);
-        
+
 //       } catch (error) {
 //         console.error("unable to fetch employee")
 //       }
@@ -52,14 +52,14 @@ const { Option } = Select;
 //           paidDays: salary?.paid_days || "N/A",
 //           paidDate: salary?.pay_date?.split("T")[0] || "N/A",
 //           addPayments:
-          //   salary?.additional_payments
-          //     .map((ele) => `${ele?.name} : ${ele?.value}`)
-          //     .join("|") || "N/A",
-          // //    addPayments: salary?.additional_payments.reduce((acc, curr) => acc + curr.value, 0),
-          // dedPayments:
-          //   salary?.additional_deductions
-          //     .map((ele) => `${ele?.name}:${ele?.value}`)
-          //     .join("|") || "N/A",
+//   salary?.additional_payments
+//     .map((ele) => `${ele?.name} : ${ele?.value}`)
+//     .join("|") || "N/A",
+// //    addPayments: salary?.additional_payments.reduce((acc, curr) => acc + curr.value, 0),
+// dedPayments:
+//   salary?.additional_deductions
+//     .map((ele) => `${ele?.name}:${ele?.value}`)
+//     .join("|") || "N/A",
 //           // dedPayments: salary?.additional_deductions.reduce((acc, curr) => acc + curr.value,0),
 
 //           earningBasic: salary?.earnings?.basic || "N/A",
@@ -101,11 +101,11 @@ const { Option } = Select;
 //       query.push(`month=${selectedMonthYear.month}`);
 //       query.push(`year=${selectedMonthYear.year}`);
 //     }
-    
+
 //     const res = await api.get(`/salary-payment/report?${query.join("&")}`)
 
 //     setAllSalaryTable(res?.data?.data || []);
-    
+
 //   } catch (error) {
 //     console.error("unable to fetch Employees all Data")
 //   }finally{
@@ -146,7 +146,6 @@ const { Option } = Select;
 //   setSelectedEmployee(null);
 //   setSelectedMonthYear(null);
 
-
 // }
 
 //     const columns = [
@@ -159,7 +158,7 @@ const { Option } = Select;
 //     { key: "paidDate", header: "Pay Date" },
 //     { key: "netPayable", header: "Net Payable" },
 //     { key: "paidAmount", header: "Paid Amount" },
-    
+
 //   ];
 
 //   const allColumns = [
@@ -224,11 +223,11 @@ const { Option } = Select;
 //           >
 //             Reset
 //           </button>
-      
+
 //           </div>
 //           {isLoading ? (
 //             <div className="flex justify-center py-10">
-//             <Spin size="large"/>  
+//             <Spin size="large"/>
 //             </div>
 //           ):(
 //           <DataTable
@@ -245,9 +244,7 @@ const { Option } = Select;
 //   );
 // };
 
-
-
-// const EmployeeSalaryReport = () => { 
+// const EmployeeSalaryReport = () => {
 //   const [allEmployeeSalary, setAllEmployeeSalary] = useState([]);
 //   const [allEmployees, setAllEmployees] = useState([]);
 //   const [allSalaryTable, setAllSalaryTable] = useState([]);
@@ -339,7 +336,7 @@ const { Option } = Select;
 //     const year = value.year();
 
 //     const monthNames = [
-//       "January", "February", "March", "April", "May", "June", "July", "August", 
+//       "January", "February", "March", "April", "May", "June", "July", "August",
 //       "September", "October", "November", "December"
 //     ];
 //     const monthName = monthNames[monthIndex]; // Get the full month name
@@ -433,7 +430,7 @@ const { Option } = Select;
 
 //           {isLoading ? (
 //             <div className="flex justify-center py-10">
-//               <Spin size="large" />  
+//               <Spin size="large" />
 //             </div>
 //           ) : (
 //             <DataTable
@@ -451,7 +448,6 @@ const { Option } = Select;
 //   );
 // };
 
-
 // const EmployeeSalaryReport = () => {
 //   const [allEmployees, setAllEmployees] = useState([]);
 //   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -460,7 +456,6 @@ const { Option } = Select;
 //   const [allSalaryTable, setAllSalaryTable] = useState([]);
 //   const [isLoading, setIsLoading] = useState(false);
 
- 
 //   useEffect(() => {
 //     const fetchEmployees = async () => {
 //       try {
@@ -473,7 +468,6 @@ const { Option } = Select;
 //     fetchEmployees();
 //   }, []);
 
- 
 //   const formatTableData = (data) => {
 //     return data.map((salary, index) => ({
 //       _id: salary?._id,
@@ -489,7 +483,6 @@ const { Option } = Select;
 //     }));
 //   };
 
- 
 //   const fetchFilteredSalary = async () => {
 //     try {
 //       setIsLoading(true);
@@ -520,7 +513,6 @@ const { Option } = Select;
 //     fetchFilteredSalary();
 //   }, [selectedEmployee, selectedMonthYear]);
 
- 
 //   const handleMonthPick = (value) => {
 //     if (!value) return setSelectedMonthYear(null);
 
@@ -550,14 +542,12 @@ const { Option } = Select;
 //     });
 //   };
 
- 
 //   const handleReset = () => {
 //     setSelectedEmployee(null);
 //     setSelectedMonthYear(null);
 //     fetchFilteredSalary();
 //   };
 
- 
 //   const columns = [
 //     { key: "slNo", header: "SL. NO" },
 //     { key: "employeeName", header: "Employee Name" },
@@ -570,36 +560,36 @@ const { Option } = Select;
 //     { key: "paidAmount", header: "Paid Amount" },
 //   ];
 
-  // const allColumns = [
-  //   { key: "slNo", header: "Sl No" },
-  //   { key: "employeeCode", header: "Employee ID" },
-  //   { key: "employeeName", header: "Name" },
-  //   { key: "employeePhone", header: "Phone Number" },
-  //   { key: "salaryMonth", header: "Month" },
-  //   { key: "salaryYear", header: "Year" },
-  //   { key: "totalSalaryPayable", header: "Total Salary Payable" },
-  //   { key: "netPayable", header: "Net Payable" },
-  //   { key: "paidAmount", header: "Paid Amount" },
-  //   { key: "remainingBalance", header: "Remaining Balance" },
-  //   { key: "paidDays", header: "Paid Days" },
-  //   { key: "paidDate", header: "Paid Date" },
-  //   { key: "addPayments", header: "Additional Payments" },
-  //   { key: "dedPayments", header: "Deduction Payments" },
-  //   { key: "earningBasic", header: "Basic" },
-  //   { key: "earningHra", header: "HRA" },
-  //   { key: "earningTravelAllowance", header: "Travel Allowance" },
-  //   { key: "earningMedicalAllowance", header: "Medical Allowance" },
-  //   { key: "earningBenifits", header: "Performance Benifits" },
-  //   { key: "earningOthers", header: "Other Allowance" },
-  //   { key: "earningConveyance", header: "Conveyance" },
-  //   { key: "deductIT", header: "Income Tax" },
-  //   { key: "deductESI", header: "ESI" },
-  //   { key: "deductEPF", header: "EPF" },
-  //   { key: "deductPT", header: "Professional Tax" },
-  //   { key: "deductSalaryAdvance", header: "SalaryAdvance" },
-  //   { key: "salaryPaymentMethod", header: "Payment Type" },
-  //   { key: "status", header: "Status" },
-  // ];
+// const allColumns = [
+//   { key: "slNo", header: "Sl No" },
+//   { key: "employeeCode", header: "Employee ID" },
+//   { key: "employeeName", header: "Name" },
+//   { key: "employeePhone", header: "Phone Number" },
+//   { key: "salaryMonth", header: "Month" },
+//   { key: "salaryYear", header: "Year" },
+//   { key: "totalSalaryPayable", header: "Total Salary Payable" },
+//   { key: "netPayable", header: "Net Payable" },
+//   { key: "paidAmount", header: "Paid Amount" },
+//   { key: "remainingBalance", header: "Remaining Balance" },
+//   { key: "paidDays", header: "Paid Days" },
+//   { key: "paidDate", header: "Paid Date" },
+//   { key: "addPayments", header: "Additional Payments" },
+//   { key: "dedPayments", header: "Deduction Payments" },
+//   { key: "earningBasic", header: "Basic" },
+//   { key: "earningHra", header: "HRA" },
+//   { key: "earningTravelAllowance", header: "Travel Allowance" },
+//   { key: "earningMedicalAllowance", header: "Medical Allowance" },
+//   { key: "earningBenifits", header: "Performance Benifits" },
+//   { key: "earningOthers", header: "Other Allowance" },
+//   { key: "earningConveyance", header: "Conveyance" },
+//   { key: "deductIT", header: "Income Tax" },
+//   { key: "deductESI", header: "ESI" },
+//   { key: "deductEPF", header: "EPF" },
+//   { key: "deductPT", header: "Professional Tax" },
+//   { key: "deductSalaryAdvance", header: "SalaryAdvance" },
+//   { key: "salaryPaymentMethod", header: "Payment Type" },
+//   { key: "status", header: "Status" },
+// ];
 
 //   return (
 //     <div className="w-screen">
@@ -622,7 +612,6 @@ const { Option } = Select;
 //             ))}
 //           </Select>
 
-         
 //           <MonthPicker
 //             style={{ width: 200 }}
 //             placeholder="Select Month"
@@ -655,7 +644,6 @@ const { Option } = Select;
 //     </div>
 //   );
 // };
-
 
 // const EmployeeSalaryReport = () => {
 //   const [allEmployees, setAllEmployees] = useState([]);
@@ -1251,15 +1239,22 @@ const EmployeeSalaryReport = () => {
         : 0;
 
       const dedTotal = Array.isArray(s?.additional_deductions)
-        ? s.additional_deductions.reduce((acc, cur) => acc + (cur.value || 0), 0)
+        ? s.additional_deductions.reduce(
+            (acc, cur) => acc + (cur.value || 0),
+            0
+          )
         : 0;
 
       const addListStr = Array.isArray(s?.additional_payments)
-        ? s.additional_payments.map((ele) => `${ele.name}:${ele.value}`).join(" | ")
+        ? s.additional_payments
+            .map((ele) => `${ele.name}:${ele.value}`)
+            .join(" | ")
         : "N/A";
 
       const dedListStr = Array.isArray(s?.additional_deductions)
-        ? s.additional_deductions.map((ele) => `${ele.name}:${ele.value}`).join(" | ")
+        ? s.additional_deductions
+            .map((ele) => `${ele.name}:${ele.value}`)
+            .join(" | ")
         : "N/A";
 
       return {
@@ -1321,10 +1316,12 @@ const EmployeeSalaryReport = () => {
       summaryData.totalPaidDays += Number(r.paidDays) || 0;
       summaryData.totalAdditionalPayments += Number(r.addPayments) || 0;
       summaryData.totalAdditionalDeductions += Number(r.dedPayments) || 0;
-      summaryData.totalRemainingBalance += Number(r.remainingBalance)
+      summaryData.totalRemainingBalance += Number(r.remainingBalance);
 
-      if (r.addPaymentsList && r.addPaymentsList !== "N/A") addListArr.push(r.addPaymentsList);
-      if (r.dedPaymentsList && r.dedPaymentsList !== "N/A") dedListArr.push(r.dedPaymentsList);
+      if (r.addPaymentsList && r.addPaymentsList !== "N/A")
+        addListArr.push(r.addPaymentsList);
+      if (r.dedPaymentsList && r.dedPaymentsList !== "N/A")
+        dedListArr.push(r.dedPaymentsList);
     });
 
     summaryData.addPaymentsListSummary = addListArr.join(" | ");
@@ -1386,8 +1383,18 @@ const EmployeeSalaryReport = () => {
     const year = value.year();
 
     const monthNames = [
-      "January","February","March","April","May","June",
-      "July","August","September","October","November","December",
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
     setSelectedMonthYear({
@@ -1401,7 +1408,7 @@ const EmployeeSalaryReport = () => {
     setSelectedMonthYear(null);
   };
 
-    const columns = [
+  const columns = [
     { key: "slNo", header: "SL. NO" },
     { key: "employeeName", header: "Employee Name" },
     { key: "employeeCode", header: "Employee ID" },
@@ -1444,6 +1451,34 @@ const EmployeeSalaryReport = () => {
     { key: "status", header: "Status" },
   ];
 
+  const printHeaderKeys = [
+    "Employee",
+    "Month",
+    "Year",
+    "Total Net Payable",
+    "Total Paid Amount",
+    "Total Paid Days",
+    "Total Add. Payments",
+    "Total Add. Deductions",
+    "Total Remaining Balance",
+  ];
+
+  const printHeaderValues = [
+    selectedEmployee
+      ? allEmployees.find((e) => e._id === selectedEmployee)?.name || "—"
+      : "All Employees",
+
+    selectedMonthYear?.month || "—",
+    selectedMonthYear?.year || "—",
+
+    `₹${summary.totalNetPayable.toLocaleString("en-IN")}`,
+    `₹${summary.totalPaidAmount.toLocaleString("en-IN")}`,
+    summary.totalPaidDays,
+    `₹${summary.totalAdditionalPayments.toLocaleString("en-IN")}`,
+    `₹${summary.totalAdditionalDeductions.toLocaleString("en-IN")}`,
+    `₹${summary.totalRemainingBalance.toLocaleString("en-IN")}`,
+  ];
+
   return (
     <div className="w-screen">
       <Navbar />
@@ -1482,15 +1517,28 @@ const EmployeeSalaryReport = () => {
 
         {/* SUMMARY BOX */}
         <div className="grid grid-cols-2 gap-4 bg-gray-100 p-4 mb-5 rounded">
-          <div><b>Total Net Payable:</b> ₹{summary.totalNetPayable}</div>
-          <div><b>Total Paid Amount:</b> ₹{summary.totalPaidAmount}</div>
-          <div><b>Total Paid Days:</b> {summary.totalPaidDays}</div>
-          <div><b>Total Add. Payments:</b> ₹{summary.totalAdditionalPayments}</div>
-          <div><b>Total Add. Deductions:</b> ₹{summary.totalAdditionalDeductions}</div>
-          <div><b>All Additional Payments:</b> {summary.addPaymentsListSummary}</div>
-          <div><b>All Deduction Payments:</b> {summary.dedPaymentsListSummary}</div>
-          <div><b>All Remaining:</b> {summary.totalRemainingBalance}</div>
-
+          <div>
+            <b>Total Net Payable:</b> ₹{summary.totalNetPayable}
+          </div>
+          <div>
+            <b>Total Paid Amount:</b> ₹{summary.totalPaidAmount}
+          </div>
+          <div>
+            <b>Total Paid Days:</b> {summary.totalPaidDays}
+          </div>
+          <div>
+            <b>Total Add. Payments:</b> ₹{summary.totalAdditionalPayments}
+          </div>
+          <div>
+            <b>Total Add. Deductions:</b> ₹{summary.totalAdditionalDeductions}
+          </div>
+          <div>
+            <b>All Additional Payments:</b> {summary.addPaymentsListSummary}
+          </div>
+          <div>
+            <b>All Deduction Payments:</b> {summary.dedPaymentsListSummary}
+          </div>
+          {/* <div><b>All Remaining:</b> {summary.totalRemainingBalance}</div> */}
         </div>
 
         {isLoading ? (
@@ -1504,6 +1552,8 @@ const EmployeeSalaryReport = () => {
             exportCols={allColumns}
             isExportEnabled={true}
             exportedPdfName="Employee Salary Report"
+            printHeaderKeys={printHeaderKeys}
+            printHeaderValues={printHeaderValues}
             exportedFileName="EmployeeSalaryReport.csv"
           />
         )}
@@ -1511,13 +1561,5 @@ const EmployeeSalaryReport = () => {
     </div>
   );
 };
-
-
-
-
-
-
-
-
 
 export default EmployeeSalaryReport;
