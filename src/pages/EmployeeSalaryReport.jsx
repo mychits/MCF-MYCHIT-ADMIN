@@ -1263,6 +1263,7 @@ const EmployeeSalaryReport = () => {
         employeeCode: s?.employee_id?.employeeCode || "N/A",
         employeeName: s?.employee_id?.name || "N/A",
         employeePhone: s?.employee_id?.phone_number || "N/A",
+        employeeSalary: s?.employee_id?.salary || "N/A",
         salaryMonth: s?.salary_month || "N/A",
         salaryYear: s?.salary_year || "N/A",
         totalSalaryPayable: s?.total_salary_payable || 0,
@@ -1288,7 +1289,7 @@ const EmployeeSalaryReport = () => {
         deductEPF: s?.deductions?.epf || 0,
         deductPT: s?.deductions?.professional_tax || 0,
         deductSalaryAdvance: s?.deductions?.salary_advance || 0,
-        salaryPaymentMethod: s?.salary_payment_method || "N/A",
+        salaryPaymentMethod: s?.payment_method || "N/A",
         status: s?.status || "N/A",
       };
     });
@@ -1413,6 +1414,7 @@ const EmployeeSalaryReport = () => {
     { key: "employeeName", header: "Employee Name" },
     { key: "employeeCode", header: "Employee ID" },
     { key: "employeePhone", header: "Phone" },
+    {key: "employeeSalary", header: "Salary"},
     { key: "salaryMonth", header: "Month" },
     { key: "salaryYear", header: "Year" },
     { key: "paidDate", header: "Pay Date" },
@@ -1425,6 +1427,7 @@ const EmployeeSalaryReport = () => {
     { key: "employeeCode", header: "Employee ID" },
     { key: "employeeName", header: "Name" },
     { key: "employeePhone", header: "Phone Number" },
+    {key: "employeeSalary", header: "Salary"},
     { key: "salaryMonth", header: "Month" },
     { key: "salaryYear", header: "Year" },
     { key: "totalSalaryPayable", header: "Total Salary Payable" },

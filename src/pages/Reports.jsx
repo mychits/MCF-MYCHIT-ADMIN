@@ -260,14 +260,14 @@ const subMenus = [
     Icon: BsCalendarDate,
     color: "from-indigo-500 to-indigo-600",
   },
-  {
-    id:"24",
-    title: "Payout Salary Report",
-    link: "/reports/payout-salary-report",
-    category: "Employee",
-    Icon: HiOutlineBanknotes,
-    color: "from-indigo-500 to-indigo-600",
-  },
+  // {
+  //   id:"24",
+  //   title: "Payout Salary Report",
+  //   link: "/reports/payout-salary-report",
+  //   category: "Employee",
+  //   Icon: HiOutlineBanknotes,
+  //   color: "from-indigo-500 to-indigo-600",
+  // },
   {
     id:"25",
     title: "Commission Report",
