@@ -761,7 +761,10 @@ const SalaryPayment = () => {
             ? null
             : formData.transaction_id || null,
         status: remainingBalance <= 0 ? "Paid" : "Pending",
-        pay_date: formData.pay_date ? formData.pay_date.toDate() : new Date(),
+        // pay_date: formData.pay_date ? formData.pay_date.toDate() : new Date(),
+        pay_date: formData?.pay_date
+  ? moment(formData?.pay_date).startOf("day").add(12, "hours")
+  : moment().startOf("day").add(12, "hours"),
       };
 
       await API.post("/salary-payment/", salaryData);
