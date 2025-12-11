@@ -467,7 +467,7 @@ const User = () => {
     { key: "action", header: "Action" },
   ];
 
-    const printtableColumns = [
+  const printtableColumns = [
     { key: "id", header: "SL. NO" },
     { key: "approval_status", header: "Approval Status" },
     { key: "customer_id", header: "Customer Id" },
@@ -719,7 +719,6 @@ const User = () => {
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableUsers, searchText)}
                 columns={columns}
-                
                 exportCols={printtableColumns}
                 isExportEnabled={true}
                 exportedPdfName="Customers"
@@ -972,700 +971,907 @@ const User = () => {
           isVisible={showModalUpdate}
           onClose={() => setShowModalUpdate(false)}
         >
-          <div className="py-6 px-5 lg:px-8 text-left">
+          <div
+            className={`py-6 px-5 lg:px-8 text-left ${
+              !updateFormData || Object.keys(updateFormData).length === 0
+                ? "bg-red-50"
+                : ""
+            }`}
+          >
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Update Customer
             </h3>
-            <form className="space-y-6" onSubmit={handleUpdate} noValidate>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="title"
-                  >
-                    Title
-                  </label>
-
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select Title"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    name="title"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={updateFormData?.title || undefined}
-                    onChange={(value) => handleAntInputDSelect("title", value)}
-                  >
-                    <Select.Option value="">Select Title</Select.Option>
-                    {["Mr", "Ms", "Mrs", "M/S", "Dr"].map((cTitle) => (
-                      <Select.Option key={cTitle} value={cTitle}>
-                        {cTitle}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </div>
-
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="email"
-                  >
-                    Full Name <span className="text-red-500 ">*</span>
-                  </label>
-                  <Input
-                    type="text"
-                    name="full_name"
-                    value={updateFormData?.full_name}
-                    onChange={handleInputChange}
-                    id="name"
-                    placeholder="Enter the Full Name"
-                    required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                  {errors.full_name && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.full_name}
-                    </p>
-                  )}
-                </div>
+            {!updateFormData || Object.keys(updateFormData).length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 text-lg">
+                  No customer data available
+                </p>
               </div>
+            ) : (
+              <form className="space-y-6" onSubmit={handleUpdate} noValidate>
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="title"
+                    >
+                      Title
+                    </label>
 
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    name="email"
-                    value={updateFormData?.email}
-                    onChange={handleInputChange}
-                    id="text"
-                    placeholder="Enter Email"
-                    required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                  {errors.email && (
-                    <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-                  )}
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Phone Number <span className="text-red-500 ">*</span>
-                  </label>
-                  <Input
-                    type="number"
-                    name="phone_number"
-                    value={updateFormData?.phone_number}
-                    onChange={handleInputChange}
-                    id="text"
-                    placeholder="Enter Phone Number"
-                    required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                  {errors.phone_number && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.phone_number}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Aadhar Number <span className="text-red-500 ">*</span>
-                  </label>
-                  <Input
-                    type="text"
-                    name="adhaar_no"
-                    value={updateFormData?.adhaar_no}
-                    onChange={handleInputChange}
-                    id="text"
-                    placeholder="Enter Adhaar Number"
-                    required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                  {errors.adhaar_no && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.adhaar_no}
-                    </p>
-                  )}
-                </div>
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Pan Number
-                  </label>
-                  <Input
-                    type="text"
-                    name="pan_no"
-                    value={updateFormData?.pan_no}
-                    onChange={handleInputChange}
-                    id="text"
-                    placeholder="Enter Pan Number"
-                    required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                  {errors.pan_no && (
-                    <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="address"
-                >
-                  Address <span className="text-red-500 ">*</span>
-                </label>
-                <Input
-                  type="text"
-                  name="address"
-                  value={updateFormData?.address}
-                  onChange={handleInputChange}
-                  id="address"
-                  placeholder="Enter the Address"
-                  required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                />
-                {errors.address && (
-                  <p className="mt-2 text-sm text-red-600">{errors.address}</p>
-                )}
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Pincode <span className="text-red-500 ">*</span>
-                  </label>
-                  <Input
-                    type="text"
-                    name="pincode"
-                    value={updateFormData?.pincode}
-                    onChange={handleInputChange}
-                    id="text"
-                    placeholder="Enter Pincode"
-                    required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                  {errors.pincode && (
-                    <p className="mt-2 text-sm text-red-600">
-                      {errors.pincode}
-                    </p>
-                  )}
-                </div>
-
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="email"
-                  >
-                    Father Name
-                  </label>
-                  <Input
-                    type="text"
-                    name="father_name"
-                    value={updateFormData?.father_name}
-                    onChange={handleInputChange}
-                    id="father-name"
-                    placeholder="Enter the Father name"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-full">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="area"
-                  >
-                    Collection Area
-                  </label>
-
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select Or Search Collection Area"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    name="collection_area"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toString()
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={updateFormData?.collection_area || undefined}
-                    onChange={(value) =>
-                      handleAntInputDSelect("collection_area", value)
-                    }
-                  >
-                    <Select.Option value="">
-                      Select or Search Collection Area
-                    </Select.Option>
-                    {areas.map((area) => (
-                      <Select.Option key={area._id} value={area._id}>
-                        {area.route_name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="date"
-                  >
-                    Customer Date of Birth
-                  </label>
-                  <Input
-                    type="date"
-                    name="dateofbirth"
-                    value={
-                      updateFormData?.dateofbirth
-                        ? new Date(updateFormData?.dateofbirth || "")
-                            .toISOString()
-                            .split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                    id="date"
-                    placeholder="Enter the Date of Birth"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                </div>
-
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="gender"
-                  >
-                    Gender
-                  </label>
-
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select Gender"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    name="gender"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={updateFormData?.gender || undefined}
-                    onChange={(value) => handleAntInputDSelect("gender", value)}
-                  >
-                    {["Male", "Female"].map((gType) => (
-                      <Select.Option key={gType} value={gType}>
-                        {gType}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="marital-status"
-                  >
-                    Marital Status
-                  </label>
-
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select Marital Status"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    name="marital_status"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={updateFormData?.marital_status || undefined}
-                    onChange={(value) =>
-                      handleAntInputDSelect("marital_status", value)
-                    }
-                  >
-                    {["Married", "Unmarried", "Widow", "Divorced"].map(
-                      (mStatus) => (
-                        <Select.Option key={mStatus} value={mStatus}>
-                          {mStatus}
+                    <Select
+                      className={`${
+                        !updateFormData?.title ||
+                        updateFormData?.title.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
+                      placeholder="Select Title"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="title"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.title || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("title", value)
+                      }
+                    >
+                      <Select.Option value="">Select Title</Select.Option>
+                      {["Mr", "Ms", "Mrs", "M/S", "Dr"].map((cTitle) => (
+                        <Select.Option key={cTitle} value={cTitle}>
+                          {cTitle}
                         </Select.Option>
-                      )
+                      ))}
+                    </Select>
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="email"
+                    >
+                      Full Name <span className="text-red-500 ">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      name="full_name"
+                      value={updateFormData?.full_name}
+                      onChange={handleInputChange}
+                      id="name"
+                      placeholder="Enter the Full Name"
+                      required
+                      className={`${
+                        !updateFormData?.full_name ||
+                        updateFormData?.full_name.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                    {errors.full_name && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.full_name}
+                      </p>
                     )}
-                  </Select>
+                  </div>
                 </div>
 
-                <div className="w-1/2">
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="date"
+                    >
+                      Email
+                    </label>
+                    <Input
+                      type="email"
+                      name="email"
+                      value={updateFormData?.email}
+                      onChange={handleInputChange}
+                      id="text"
+                      placeholder="Enter Email"
+                      required
+                      className={`${
+                        !updateFormData?.email ||
+                        updateFormData?.email.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                    {errors.email && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.email}
+                      </p>
+                    )}
+                  </div>
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="date"
+                    >
+                      Phone Number <span className="text-red-500 ">*</span>
+                    </label>
+                    <Input
+                      type="number"
+                      name="phone_number"
+                      value={updateFormData?.phone_number}
+                      onChange={handleInputChange}
+                      id="text"
+                      placeholder="Enter Phone Number"
+                      required
+                      className={`${
+                        !updateFormData?.phone_number ||
+                        updateFormData?.phone_number.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                    {errors.phone_number && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.phone_number}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="date"
+                    >
+                      Aadhar Number <span className="text-red-500 ">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      name="adhaar_no"
+                      value={updateFormData?.adhaar_no}
+                      onChange={handleInputChange}
+                      id="text"
+                      placeholder="Enter Adhaar Number"
+                      required
+                      className={`${
+                        !updateFormData?.adhaar_no ||
+                        updateFormData?.adhaar_no.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                    {errors.adhaar_no && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.adhaar_no}
+                      </p>
+                    )}
+                  </div>
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="date"
+                    >
+                      Pan Number
+                    </label>
+                    <Input
+                      type="text"
+                      name="pan_no"
+                      value={updateFormData?.pan_no}
+                      onChange={handleInputChange}
+                      id="text"
+                      placeholder="Enter Pan Number"
+                      required
+                      className={`${
+                        !updateFormData?.pan_no ||
+                        updateFormData?.pan_no.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                    {errors.pan_no && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.pan_no}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="referral-name"
+                    htmlFor="address"
                   >
-                    Referral Name
+                    Address <span className="text-red-500 ">*</span>
                   </label>
                   <Input
                     type="text"
-                    name="referral_name"
-                    value={updateFormData?.referral_name}
+                    name="address"
+                    value={updateFormData?.address}
                     onChange={handleInputChange}
-                    id="referral-name"
-                    placeholder="Enter the Referral Name"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    id="address"
+                    placeholder="Enter the Address"
+                    required
+                    className={`${
+                        !updateFormData?.address ||
+                        updateFormData?.address.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                  {errors.address && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.address}
+                    </p>
+                  )}
                 </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="nationality"
-                  >
-                    Nationality
-                  </label>
 
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select Nationality"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    name="nationality"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={updateFormData?.nationality || undefined}
-                    onChange={(value) =>
-                      handleAntInputDSelect("nationality", value)
-                    }
-                  >
-                    {["Indian", "Other"].map((nation) => (
-                      <Select.Option key={nation} value={nation}>
-                        {nation}
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="date"
+                    >
+                      Pincode <span className="text-red-500 ">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      name="pincode"
+                      value={updateFormData?.pincode}
+                      onChange={handleInputChange}
+                      id="text"
+                      placeholder="Enter Pincode"
+                      required
+                      className={`${
+                        !updateFormData?.pincode ||
+                        updateFormData?.pincode.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                    {errors.pincode && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.pincode}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="email"
+                    >
+                      Father Name
+                    </label>
+                    <Input
+                      type="text"
+                      name="father_name"
+                      value={updateFormData?.father_name}
+                      onChange={handleInputChange}
+                      id="father-name"
+                      placeholder="Enter the Father name"
+                       className={`${
+                        !updateFormData?.father_name ||
+                        updateFormData?.father_name.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-full">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="area"
+                    >
+                      Collection Area
+                    </label>
+
+                    <Select
+                      className={`${
+                        !updateFormData?.father_name ||
+                        updateFormData?.father_name.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300" } border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
+                      placeholder="Select Or Search Collection Area"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="collection_area"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.collection_area || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("collection_area", value)
+                      }
+                    >
+                      <Select.Option value="">
+                        Select or Search Collection Area
                       </Select.Option>
-                    ))}
-                  </Select>
+                      {areas.map((area) => (
+                        <Select.Option key={area._id} value={area._id}>
+                          {area.route_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
                 </div>
 
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="alternate-number"
-                  >
-                    Alternate Phone Number
-                  </label>
-                  <Input
-                    type="number"
-                    name="alternate_number"
-                    value={updateFormData?.alternate_number}
-                    onChange={handleInputChange}
-                    id="alternate-number"
-                    placeholder="Enter the Alternate Phone number"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="date"
+                    >
+                      Customer Date of Birth
+                    </label>
+                    <Input
+                      type="date"
+                      name="dateofbirth"
+                      value={
+                        updateFormData?.dateofbirth
+                          ? new Date(updateFormData?.dateofbirth || "")
+                              .toISOString()
+                              .split("T")[0]
+                          : ""
+                      }
+                      className={`${
+                        !updateFormData?.dateofbirth ||
+                        updateFormData?.dateofbirth.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                      onChange={handleInputChange}
+                      id="date"
+                      placeholder="Enter the Date of Birth"
+                    />
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="gender"
+                    >
+                      Gender
+                    </label>
+
+                    <Select
+                      className={`${
+                        !updateFormData?.gender ||
+                        updateFormData?.gender.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300" } border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
+                      placeholder="Select Gender"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="gender"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.gender || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("gender", value)
+                      }
+                    >
+                      {["Male", "Female"].map((gType) => (
+                        <Select.Option key={gType} value={gType}>
+                          {gType}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
                 </div>
-              </div>
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="marital-status"
+                    >
+                      Marital Status
+                    </label>
 
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="village"
-                  >
-                    Village
-                  </label>
-                  <Input
-                    type="text"
-                    name="village"
-                    value={updateFormData?.village}
-                    onChange={handleInputChange}
-                    id="village"
-                    placeholder="Enter the Village"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
+                    <Select
+                      className={`${
+                        !updateFormData?.marital_status ||
+                        updateFormData?.marital_status.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300" } border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
+                      placeholder="Select Marital Status"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="marital_status"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.marital_status || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("marital_status", value)
+                      }
+                    >
+                      {["Married", "Unmarried", "Widow", "Divorced"].map(
+                        (mStatus) => (
+                          <Select.Option key={mStatus} value={mStatus}>
+                            {mStatus}
+                          </Select.Option>
+                        )
+                      )}
+                    </Select>
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="referral-name"
+                    >
+                      Referral Name
+                    </label>
+                    <Input
+                      type="text"
+                      name="referral_name"
+                      value={updateFormData?.referral_name}
+                      onChange={handleInputChange}
+                      id="referral-name"
+                      placeholder="Enter the Referral Name"
+                      className={`${
+                        !updateFormData?.referral_name ||
+                        updateFormData?.referral_name.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
                 </div>
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="nationality"
+                    >
+                      Nationality
+                    </label>
 
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="taluk"
-                  >
-                    Taluk
-                  </label>
-                  <Input
-                    type="text"
-                    name="taluk"
-                    value={updateFormData?.taluk}
-                    onChange={handleInputChange}
-                    id="taluk"
-                    placeholder="Enter the taluk"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                </div>
-              </div>
+                    <Select
+                      className={`${
+                        !updateFormData?.nationality ||
+                        updateFormData?.nationality.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
+                      placeholder="Select Nationality"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="nationality"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.nationality || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("nationality", value)
+                      }
+                    >
+                      {["Indian", "Other"].map((nation) => (
+                        <Select.Option key={nation} value={nation}>
+                          {nation}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
 
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="state"
-                  >
-                    State
-                  </label>
-
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select State"
-                    showSearch
-                    name="state"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={updateFormData?.state || undefined}
-                    onChange={(value) => handleAntInputDSelect("state", value)}
-                  >
-                    {["Karnataka", "Maharashtra", "Tamil Nadu"].map((state) => (
-                      <Select.Option key={state} value={state}>
-                        {state}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </div>
-
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="district"
-                  >
-                    District
-                  </label>
-
-                  <Input
-                    type="text"
-                    name="district"
-                    value={updateFormData?.district}
-                    onChange={handleInputChange}
-                    placeholder="Enter District"
-                    className="w-full p-2 h-14 border rounded-md sm:text-lg text-sm bg-gray-50 border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  {/* )} */}
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="nominee"
-                  >
-                    Nominee Name
-                  </label>
-                  <Input
-                    type="text"
-                    name="nominee_name"
-                    value={updateFormData?.nominee_name}
-                    onChange={handleInputChange}
-                    id="nominee"
-                    placeholder="Enter the Nominee Name"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                </div>
-
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="nominee-date"
-                  >
-                    Nominee Date of Birth
-                  </label>
-                  <Input
-                    type="date"
-                    name="nominee_dateofbirth"
-                    value={
-                      updateFormData?.nominee_dateofbirth
-                        ? new Date(updateFormData?.nominee_dateofbirth)
-                            .toISOString()
-                            .split("T")[0]
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                    id="nominee-date"
-                    placeholder="Enter the Nominee Date of Birth"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="nominee-relationship"
-                  >
-                    Nominee Relationship
-                  </label>
-
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    placeholder="Select Nominee Relationship"
-                    popupMatchSelectWidth={false}
-                    showSearch
-                    name="nominee_relationship"
-                    filterOption={(input, option) =>
-                      option.children
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    value={updateFormData?.nominee_relationship || undefined}
-                    onChange={(value) =>
-                      handleAntInputDSelect("nominee_relationship", value)
-                    }
-                  >
-                    {[
-                      "Father",
-                      "Mother",
-                      "Brother/Sister",
-                      "Spouse",
-                      "Son/Daughter",
-                      "Other",
-                    ].map((nominee) => (
-                      <Select.Option key={nominee} value={nominee}>
-                        {nominee}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </div>
-
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="nominee-phone-number"
-                  >
-                    Nominee Phone Number
-                  </label>
-                  <Input
-                    type="number"
-                    name="nominee_phone_number"
-                    value={updateFormData?.nominee_phone_number}
-                    onChange={handleInputChange}
-                    id="nominee-phone-number"
-                    placeholder="Enter the Nominee Phone number"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="bank-name"
-                  >
-                    Bank Name
-                  </label>
-                  <Input
-                    type="text"
-                    name="bank_name"
-                    value={updateFormData?.bank_name}
-                    onChange={handleInputChange}
-                    id="bank-name"
-                    placeholder="Enter the Customer Bank Name"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="alternate-number"
+                    >
+                      Alternate Phone Number
+                    </label>
+                    <Input
+                      type="number"
+                      name="alternate_number"
+                      value={updateFormData?.alternate_number}
+                      onChange={handleInputChange}
+                      id="alternate-number"
+                      placeholder="Enter the Alternate Phone number"
+                       className={`${
+                        !updateFormData?.alternate_number ||
+                        updateFormData?.alternate_number.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
                 </div>
 
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="bank-branch-name"
-                  >
-                    Bank Branch Name
-                  </label>
-                  <Input
-                    type="text"
-                    name="bank_branch_name"
-                    value={updateFormData?.bank_branch_name}
-                    onChange={handleInputChange}
-                    id="bank-branch-name"
-                    placeholder="Enter the Bank Branch Name"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-row justify-between space-x-4">
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="account-number"
-                  >
-                    Bank Account Number
-                  </label>
-                  <Input
-                    type="text"
-                    name="bank_account_number"
-                    value={updateFormData?.bank_account_number}
-                    onChange={handleInputChange}
-                    id="account-number"
-                    placeholder="Enter the Customer Bank Account Number"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="village"
+                    >
+                      Village
+                    </label>
+                    <Input
+                      type="text"
+                      name="village"
+                      value={updateFormData?.village}
+                      onChange={handleInputChange}
+                      id="village"
+                      placeholder="Enter the Village"
+                       className={`${
+                        !updateFormData?.village ||
+                        updateFormData?.village.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="taluk"
+                    >
+                      Taluk
+                    </label>
+                    <Input
+                      type="text"
+                      name="taluk"
+                      value={updateFormData?.taluk}
+                      onChange={handleInputChange}
+                      id="taluk"
+                      placeholder="Enter the taluk"
+                      className={`${
+                        !updateFormData?.taluk ||
+                        updateFormData?.taluk.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
                 </div>
 
-                <div className="w-1/2">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                    htmlFor="ifsc"
-                  >
-                    Bank IFSC Code
-                  </label>
-                  <Input
-                    type="text"
-                    name="bank_IFSC_code"
-                    value={updateFormData?.bank_IFSC_code}
-                    onChange={handleInputChange}
-                    id="ifsc"
-                    placeholder="Enter the Bank IFSC Code"
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                  />
-                </div>
-              </div>
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="state"
+                    >
+                      State
+                    </label>
 
-              <div className="w-full flex justify-end">
-                <button
-                  type="submit"
-                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+                    <Select
+                      className={`${
+                        !updateFormData?.taluk ||
+                        updateFormData?.taluk.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
+                      placeholder="Select State"
+                      showSearch
+                      name="state"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.state || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("state", value)
+                      }
+                    >
+                      {["Karnataka", "Maharashtra", "Tamil Nadu"].map(
+                        (state) => (
+                          <Select.Option key={state} value={state}>
+                            {state}
+                          </Select.Option>
+                        )
+                      )}
+                    </Select>
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="district"
+                    >
+                      District
+                    </label>
+
+                    <Input
+                      type="text"
+                      name="district"
+                      value={updateFormData?.district}
+                      onChange={handleInputChange}
+                      placeholder="Enter District"
+                      className={`${
+                        !updateFormData?.district ||
+                        updateFormData?.district.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                    {/* )} */}
+                  </div>
+                </div>
+
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="nominee"
+                    >
+                      Nominee Name
+                    </label>
+                    <Input
+                      type="text"
+                      name="nominee_name"
+                      value={updateFormData?.nominee_name}
+                      onChange={handleInputChange}
+                      id="nominee"
+                      placeholder="Enter the Nominee Name"
+                       className={`${
+                        !updateFormData?.nominee_name ||
+                        updateFormData?.nominee_name.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="nominee-date"
+                    >
+                      Nominee Date of Birth
+                    </label>
+                    <Input
+                      type="date"
+                      name="nominee_dateofbirth"
+                      value={
+                        updateFormData?.nominee_dateofbirth
+                          ? new Date(updateFormData?.nominee_dateofbirth)
+                              .toISOString()
+                              .split("T")[0]
+                          : ""
+                      }
+                      onChange={handleInputChange}
+                      id="nominee-date"
+                      placeholder="Enter the Nominee Date of Birth"
+                       className={`${
+                        !updateFormData?.nominee_dateofbirth ||
+                        updateFormData?.nominee_dateofbirth.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="nominee-relationship"
+                    >
+                      Nominee Relationship
+                    </label>
+
+                    <Select
+                      className={`${
+                        !updateFormData?.nominee_relationship ||
+                        updateFormData?.nominee_relationship.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full`}
+                      placeholder="Select Nominee Relationship"
+                      popupMatchSelectWidth={false}
+                      showSearch
+                      name="nominee_relationship"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      value={updateFormData?.nominee_relationship || undefined}
+                      onChange={(value) =>
+                        handleAntInputDSelect("nominee_relationship", value)
+                      }
+                    >
+                      {[
+                        "Father",
+                        "Mother",
+                        "Brother/Sister",
+                        "Spouse",
+                        "Son/Daughter",
+                        "Other",
+                      ].map((nominee) => (
+                        <Select.Option key={nominee} value={nominee}>
+                          {nominee}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="nominee-phone-number"
+                    >
+                      Nominee Phone Number
+                    </label>
+                    <Input
+                      type="number"
+                      name="nominee_phone_number"
+                      value={updateFormData?.nominee_phone_number}
+                      onChange={handleInputChange}
+                      id="nominee-phone-number"
+                      placeholder="Enter the Nominee Phone number"
+                       className={`${
+                        !updateFormData?.nominee_phone_number ||
+                        updateFormData?.nominee_phone_number.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="bank-name"
+                    >
+                      Bank Name
+                    </label>
+                    <Input
+                      type="text"
+                      name="bank_name"
+                      value={updateFormData?.bank_name}
+                      onChange={handleInputChange}
+                      id="bank-name"
+                      placeholder="Enter the Customer Bank Name"
+                     className={`${
+                        !updateFormData?.bank_name ||
+                        updateFormData?.bank_name.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="bank-branch-name"
+                    >
+                      Bank Branch Name
+                    </label>
+                    <Input
+                      type="text"
+                      name="bank_branch_name"
+                      value={updateFormData?.bank_branch_name}
+                      onChange={handleInputChange}
+                      id="bank-branch-name"
+                      placeholder="Enter the Bank Branch Name"
+                      className={`${
+                        !updateFormData?.bank_branch_name ||
+                        updateFormData?.bank_branch_name.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row justify-between space-x-4">
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="account-number"
+                    >
+                      Bank Account Number
+                    </label>
+                    <Input
+                      type="text"
+                      name="bank_account_number"
+                      value={updateFormData?.bank_account_number}
+                      onChange={handleInputChange}
+                      id="account-number"
+                      placeholder="Enter the Customer Bank Account Number"
+                      className={`${
+                        !updateFormData?.bank_account_number ||
+                        updateFormData?.bank_account_number.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+
+                  <div className="w-1/2">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="ifsc"
+                    >
+                      Bank IFSC Code
+                    </label>
+                    <Input
+                      type="text"
+                      name="bank_IFSC_code"
+                      value={updateFormData?.bank_IFSC_code}
+                      onChange={handleInputChange}
+                      id="ifsc"
+                      placeholder="Enter the Bank IFSC Code"
+                      className={`${
+                        !updateFormData?.bank_IFSC_code ||
+                        updateFormData?.bank_IFSC_code.trim() === ""
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-300"
+                      } ${
+                        fieldSize.height
+                      } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                    />
+                  </div>
+                </div>
+
+                <div className="w-full flex justify-end">
+                  <button
+                    type="submit"
+                    className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
               focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
-                  Update
-                </button>
-              </div>
-            </form>
+                  >
+                    Update
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </Modal>
         <Modal

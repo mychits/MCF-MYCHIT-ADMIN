@@ -2684,7 +2684,7 @@ const SalarySlipPrint = () => {
       
       const totalDeductions = incomeTax + esi + epf + professionalTax + salaryAdvance + additionalDeductionsTotal;
       
-      const netPayable = parseFloat(payment.net_payable || 0);
+      const netPayable = parseFloat(payment.paid_amount || 0);
       
       // Calculate LOP (Loss of Pay)
       const lop = totalEarnings - netPayable - totalDeductions;
