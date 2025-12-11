@@ -639,11 +639,11 @@ if (target > 0) {
 
   if (diff > 0) {
 
-    autoAdditionalPayments = [{ name: "Others", value: diff }];
+    autoAdditionalPayments = [{ name: "Incentive", value: diff }];
   } else if (diff < 0) {
  
     autoAdditionalDeductions = [
-      { name: "Others", value: Math.abs(diff) }
+      { name: "Incentive", value: Math.abs(diff) }
     ];
   }
 }
