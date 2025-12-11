@@ -147,7 +147,7 @@ const SalaryPayment = () => {
     additional_deductions: [],
     total_salary_payable: 0,
     paid_amount: 0,
-    pay_date: moment(),
+    pay_date: dayjs(),
     payment_method: "Cash",
     transaction_id: "",
     target: 0,
@@ -627,21 +627,27 @@ const SalaryPayment = () => {
 
       const calculated = response.data.data;
       setCalculatedSalary(calculated);
-      let autoAdditionalPayments = [];
-      let autoAdditionalDeductions = [];
-      const target = Number(formData?.target || 0);
-      if (target > 0) {
-        const fixedSalary = Number(formData?.earnings?.salary || 0);
-        const incentive = Number(formData?.incentive || 0);
-        const diff = incentive - fixedSalary;
-        if (diff > 0) {
-          autoAdditionalPayments = [{ name: "Others", value: diff }];
-        } else if (diff < 0) {
-          autoAdditionalDeductions = [
-            { name: "Others", value: Math.abs(diff) },
-          ];
-        }
-      }
+     let autoAdditionalPayments = [];
+let autoAdditionalDeductions = [];
+
+const target = Number(formData?.target || 0);
+const incentive = Number(formData?.incentive || 0);
+
+if (target > 0) {
+  const incentiveValue = incentive * 100; 
+  const diff = (incentiveValue - target)/100;
+
+  if (diff > 0) {
+
+    autoAdditionalPayments = [{ name: "Others", value: diff }];
+  } else if (diff < 0) {
+ 
+    autoAdditionalDeductions = [
+      { name: "Others", value: Math.abs(diff) }
+    ];
+  }
+}
+
 
       const safeNumber = (v) => {
         if (v === null || v === undefined) return 0;
@@ -678,8 +684,8 @@ const SalaryPayment = () => {
       setFormData((prev) => ({
         ...prev,
         total_salary_payable: calculated.calculated_salary,
-        // additional_payments: autoAdditionalPayments,
-        // additional_deductions: autoAdditionalDeductions,
+        additional_payments: autoAdditionalPayments,
+        additional_deductions: autoAdditionalDeductions,
       }));
       setShowAdditionalPayments(true);
       message.success("Salary calculated successfully");
