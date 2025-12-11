@@ -1,650 +1,8 @@
-import { div } from "framer-motion/client";
 import { useState, useEffect, useMemo } from "react";
 import DataTable from "../components/layouts/Datatable"
 import api from "../instance/TokenInstance";
-import { Select, Table, Spin, Button, Tag } from "antd";
-
-
-
-// const { RangePicker } = DatePicker;
-
-// const EmployeeMonthlyReport = () => {
-//   const [presentCount, setPresentCount] = useState(0);
-//   const [absentCount, setAbsentCount] = useState(0);
-//   const [attendanceMonthlyTableReport, setAttendanceMonthlyReport] = useState([]);
-//   const [employees, setEmployees] = useState([]);
-//   const [selectedEmployee, setSelectedEmployee] = useState(null);
-//   const [loading, setLoading] = useState(false);
-
-//   // ✅ Fetch employee list
-//   useEffect(() => {
-//     const fetchEmployees = async () => {
-//       try {
-//         const response = await api.get(`/employee`);
-//         setEmployees(response.data.employee || []);
-//       } catch (error) {
-//         console.error("Unable to fetch employees:", error);
-//       }
-//     };
-//     fetchEmployees();
-//   }, []);
-
-//   // ✅ Fetch monthly attendance for selected employee
-//   useEffect(() => {
-//     if (!selectedEmployee) return;
-
-//     const fetchEmployeeMonthlyAttendance = async () => {
-//       setLoading(true);
-//       try {
-//         const response = await api.get(
-//           `/employee-attendance/employee/${selectedEmployee}`
-//         );
-
-//         const attendanceData = response.data.attendanceDataResponse || [];
-//         let present = 0;
-//         let absent = 0;
-
-//         attendanceData.forEach((record) => {
-//           if (record.status === "Present") present++;
-//           else if (record.status === "Absent") absent++;
-//         });
-
-//         setPresentCount(present);
-//         setAbsentCount(absent);
-
-//         const formattedData = [
-//           {
-//             key: 1,
-//             SlNo: 1,
-//             EmployeeName: attendanceData[0]?.employee_id?.name || "-",
-//             PresentDays: present,
-//             AbsentDays: absent,
-//           },
-//         ];
-
-//         setAttendanceMonthlyReport(formattedData);
-//       } catch (error) {
-//         console.error("Unable to fetch Employee monthly attendance:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchEmployeeMonthlyAttendance();
-//   }, [selectedEmployee]);
-
-//   // ✅ Table columns
-//   const attendanceColumns = [
-//     { title: "Sl No", dataIndex: "SlNo", key: "SlNo" },
-//     { title: "Employee Name", dataIndex: "EmployeeName", key: "EmployeeName" },
-//     { title: "Present Days", dataIndex: "PresentDays", key: "PresentDays" },
-//     { title: "Absent Days", dataIndex: "AbsentDays", key: "AbsentDays" },
-//   ];
-
-//   return (
-//     <div className="p-4">
-//       <h2 className="text-xl font-semibold mb-4">Employee Monthly Report</h2>
-
-//       {/* Employee Selector */}
-//       <Select
-//         placeholder="Select Employee"
-//         style={{ width: 300, marginBottom: 20 }}
-//         onChange={(value) => setSelectedEmployee(value)}
-//         value={selectedEmployee}
-//       >
-//         {employees.map((emp) => (
-//           <Select.Option key={emp._id} value={emp._id}>
-//             {emp.name}
-//           </Select.Option>
-//         ))}
-//       </Select>
-
-//       {loading ? (
-//         <div className="flex justify-center items-center h-40">
-//           <Spin size="large" />
-//         </div>
-//       ) : (
-//         <>
-//           {attendanceMonthlyTableReport.length > 0 ? (
-//             <>
-//               <div className="mb-4">
-//                 <p>
-//                   <strong>Present Days:</strong> {presentCount}
-//                 </p>
-//                 <p>
-//                   <strong>Absent Days:</strong> {absentCount}
-//                 </p>
-//               </div>
-
-//               <Table
-//                 columns={attendanceColumns}
-//                 dataSource={attendanceMonthlyTableReport}
-//                 pagination={false}
-//                 bordered
-//               />
-//             </>
-//           ) : (
-//             selectedEmployee && (
-//               <p className="text-gray-500">No attendance data found.</p>
-//             )
-//           )}
-//         </>
-//       )}
-//     </div>
-//   );
-// };
-
-// const EmployeeMonthlyReport = () => {
-//   const [attendanceData, setAttendanceData] = useState([]);
-//   const [employees, setEmployees] = useState([]);
-//   const [selectedEmployee, setSelectedEmployee] = useState("all");
-//   const [selectedDate, setSelectedDate] = useState(currentYearMonth); // YYYY-MM format
-//   const [loading, setLoading] = useState(false);
-
-
-//   const today = new Date();
-//   const currentYear = today.getFullYear();
-//   const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
-//   const currentYearMonth = `${currentYear}-${currentMonth}`;
-
- 
-//   function formatDate(date) {
-//     const year = date.getFullYear();
-//     const month = `0${date.getMonth() + 1}`.slice(-2);
-//     const day = `0${date.getDate()}`.slice(-2);
-//     return `${year}-${month}-${day}`;
-//   }
-
-
-//   function formatToYearMonth(year, month) {
-//     return `${year}-${String(month).padStart(2, "0")}`;
-//   }
-
-
-//   useEffect(() => {
-//     const fetchEmployees = async () => {
-//       try {
-//         const res = await api.get("/employee");
-//         setEmployees(res.data.employee || []);
-//       } catch (err) {
-//         console.error("Error fetching employees:", err);
-//       }
-//     };
-//     fetchEmployees();
-//   }, []);
-
-
-//   const fetchAttendanceData = async () => {
-//     if (!selectedDate) return alert("Please select a month first!");
-
-//     setLoading(true);
-//     try {
-//       const [year, month] = selectedDate.split("-");
-//       const fromDate = `${year}-${month}-01`;
-//       const toDate = formatDate(new Date(year, month, 0)); // last day of month
-
-//       const params = {
-//         from_date: fromDate,
-//         to_date: toDate,
-//         employee_id: selectedEmployee !== "all" ? selectedEmployee : "",
-//       };
-
-//       const res = await api.get("/employee-attendance/monthly-report", { params });
-//       const attendanceResponse = res.data.attendanceDataResponse || [];
-
-      
-//       const groupedData = {};
-//       attendanceResponse.forEach((record) => {
-//         const emp = record.employee_id;
-//         if (!groupedData[emp._id]) {
-//           groupedData[emp._id] = {
-//             key: emp._id,
-//             EmployeeName: emp.name,
-//             PresentDays: 0,
-//             AbsentDays: 0,
-//           };
-//         }
-
-//         if (record.status === "Present") groupedData[emp._id].PresentDays++;
-//         else if (record.status === "Absent") groupedData[emp._id].AbsentDays++;
-//       });
-
-//       setAttendanceData(Object.values(groupedData));
-//     } catch (err) {
-//       console.error("Error fetching attendance:", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
- 
-//   const columns = [
-//     { title: "Sl No", render: (_, __, index) => index + 1 },
-//     { title: "Employee Name", dataIndex: "EmployeeName" },
-//     { title: "Present Days", dataIndex: "PresentDays", align: "center" },
-//     { title: "Absent Days", dataIndex: "AbsentDays", align: "center" },
-//   ];
-
-//   return (
-//     <div className="p-4 bg-white rounded-lg shadow-md">
-//       <h2 className="text-xl font-semibold mb-4">Monthly Attendance Report</h2>
-
-     
-//       <div className="flex flex-wrap gap-3 mb-4 items-end">
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700 mb-1">
-//             Target Month
-//           </label>
-//           <input
-//             type="month"
-//             className="p-2 border rounded w-full min-w-[150px]"
-//             value={selectedDate}
-//             onChange={(e) => setSelectedDate(e.target.value)}
-//             max={formatToYearMonth(currentYear, currentMonth)}
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700 mb-1">
-//             Employee
-//           </label>
-//           <Select
-//             showSearch
-//             placeholder="Select Employee"
-//             style={{ width: 250 }}
-//             value={selectedEmployee}
-//             onChange={setSelectedEmployee}
-//           >
-//             <Select.Option value="all">All Employees</Select.Option>
-//             {employees.map((emp) => (
-//               <Select.Option key={emp._id} value={emp._id}>
-//                 {emp.name}
-//               </Select.Option>
-//             ))}
-//           </Select>
-//         </div>
-
-//         <Button type="primary" onClick={fetchAttendanceData}>
-//           Show Report
-//         </Button>
-//       </div>
-
-//       {/* 📊 Attendance Table */}
-//       {loading ? (
-//         <div className="flex justify-center items-center h-40">
-//           <Spin size="large" />
-//         </div>
-//       ) : (
-//         <Table
-//           columns={columns}
-//           dataSource={attendanceData}
-//           pagination={{ pageSize: 10 }}
-//           bordered
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// const EmployeeMonthlyReport = () => {
-//   const today = new Date();
-//   const currentYear = today.getFullYear();
-//   const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
-//   const currentYearMonth = `${currentYear}-${currentMonth}`; // e.g., "2025-10"
-
-//   // ✅ format helper
-//   const formatDate = (date) => {
-//     const year = date.getFullYear();
-//     const month = `0${date.getMonth() + 1}`.slice(-2);
-//     const day = `0${date.getDate()}`.slice(-2);
-//     return `${year}-${month}-${day}`;
-//   };
-
-//   // ✅ state
-//   const [selectedDate, setSelectedDate] = useState(currentYearMonth); // default current month
-//   const [attendanceData, setAttendanceData] = useState([]);
-//   const [employees, setEmployees] = useState([]);
-//   const [selectedEmployee, setSelectedEmployee] = useState("all");
-//   const [loading, setLoading] = useState(false);
-
-//   // ✅ get first and last day of month
-//   const getMonthRange = (yearMonth) => {
-//     const [year, month] = yearMonth.split("-");
-//     const firstDay = new Date(year, month - 1, 1);
-//     const lastDay = new Date(year, month, 0);
-//     return {
-//       from_date: formatDate(firstDay),
-//       to_date: formatDate(lastDay),
-//     };
-//   };
-
-//   // ✅ fetch employees
-//   useEffect(() => {
-//     const fetchEmployees = async () => {
-//       try {
-//         const res = await api.get("/employee");
-//         setEmployees(res.data.employee || []);
-//       } catch (err) {
-//         console.error("Error fetching employees:", err);
-//       }
-//     };
-//     fetchEmployees();
-//   }, []);
-
-//   // ✅ fetch attendance for current month or selected month
-//   const fetchAttendanceData = async () => {
-//     setLoading(true);
-//     try {
-//       const { from_date, to_date } = getMonthRange(selectedDate);
-//       const params = {
-//         from_date,
-//         to_date,
-//         employee_id: selectedEmployee !== "all" ? selectedEmployee : "",
-//       };
-
-//       const res = await api.get("/employee-attendance/monthly-report", { params });
-//       const attendanceResponse = res.data.attendanceDataResponse || [];
-
-//       // ✅ group by employee
-//       const grouped = {};
-//       attendanceResponse.forEach((record) => {
-//         const emp = record.employee_id;
-//         if (!grouped[emp._id]) {
-//           grouped[emp._id] = {
-//             key: emp._id,
-//             EmployeeName: emp.name,
-//             PresentDays: 0,
-//             AbsentDays: 0,
-//           };
-//         }
-//         if (record.status === "Present") grouped[emp._id].PresentDays++;
-//         if (record.status === "Absent") grouped[emp._id].AbsentDays++;
-//       });
-
-//       setAttendanceData(Object.values(grouped));
-//     } catch (err) {
-//       console.error("Error fetching attendance:", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // ✅ auto fetch on mount or filter change
-//   useEffect(() => {
-//     fetchAttendanceData();
-//   }, [selectedEmployee, selectedDate]);
-
-//   // ✅ table columns
-//   const columns = [
-//     { title: "Sl No", render: (_, __, i) => i + 1 },
-//     { title: "Employee Name", dataIndex: "EmployeeName" },
-//     { title: "Present Days", dataIndex: "PresentDays", align: "center" },
-//     { title: "Absent Days", dataIndex: "AbsentDays", align: "center" },
-//   ];
-
-//   return (
-//     <div className="p-4 bg-white rounded-lg shadow-md">
-//       <h2 className="text-xl font-semibold mb-4">Monthly Attendance Report</h2>
-
-//       {/* 🔍 Filters */}
-//       <div className="flex flex-wrap gap-4 mb-4 items-end">
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700 mb-1">
-//             Target Month
-//           </label>
-//           <input
-//             type="month"
-//             className="p-2 border rounded w-full min-w-[150px]"
-//             value={selectedDate}
-//             onChange={(e) => setSelectedDate(e.target.value)}
-//             max={currentYearMonth}
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700 mb-1">
-//             Employee
-//           </label>
-//           <Select
-//             showSearch
-//             style={{ width: 250 }}
-//             value={selectedEmployee}
-//             onChange={setSelectedEmployee}
-//           >
-//             <Select.Option value="all">All Employees</Select.Option>
-//             {employees.map((emp) => (
-//               <Select.Option key={emp._id} value={emp._id}>
-//                 {emp.name}
-//               </Select.Option>
-//             ))}
-//           </Select>
-//         </div>
-
-//         <Button type="primary" onClick={fetchAttendanceData}>
-//           Filter
-//         </Button>
-//       </div>
-
-//       {/* 📊 Table */}
-//       {loading ? (
-//         <div className="flex justify-center items-center h-40">
-//           <Spin size="large" />
-//         </div>
-//       ) : (
-//         <Table
-//           columns={columns}
-//           dataSource={attendanceData}
-//           pagination={{ pageSize: 10 }}
-//           bordered
-//         />
-//       )}
-
-//       {/* 🗓️ Summary */}
-//       <div className="mt-3 text-gray-600">
-//         Showing attendance for <strong>{selectedDate}</strong>
-//       </div>
-//     </div>
-//   );
-// };
-
-
-// const EmployeeMonthlyReport = () => {
-//   const today = new Date();
-//   const currentYear = today.getFullYear();
-//   const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
-//   const currentYearMonth = `${currentYear}-${currentMonth}`; // e.g. 2025-10
-
-//   const formatDate = (date) => {
-//     const year = date.getFullYear();
-//     const month = `0${date.getMonth() + 1}`.slice(-2);
-//     const day = `0${date.getDate()}`.slice(-2);
-//     return `${year}-${month}-${day}`;
-//   };
-
-//   const [selectedDate, setSelectedDate] = useState(currentYearMonth);
-//   const [attendanceData, setAttendanceData] = useState([]);
-//   const [employees, setEmployees] = useState([]);
-//   const [selectedEmployee, setSelectedEmployee] = useState("all");
-//   const [loading, setLoading] = useState(false);
-
-//   const getMonthRange = (yearMonth) => {
-//     const [year, month] = yearMonth.split("-");
-//     const firstDay = new Date(year, month - 1, 1);
-//     const lastDay = new Date(year, month, 0);
-//     return {
-//       from_date: formatDate(firstDay),
-//       to_date: formatDate(lastDay),
-//     };
-//   };
-
-//   // ✅ Fetch employee list
-//   useEffect(() => {
-//     const fetchEmployees = async () => {
-//       try {
-//         const res = await api.get("/employee");
-//         setEmployees(res.data.employee || []);
-//       } catch (err) {
-//         console.error("Error fetching employees:", err);
-//       }
-//     };
-//     fetchEmployees();
-//   }, []);
-
-//   // ✅ Fetch attendance report
-//   const fetchAttendanceData = async () => {
-//     setLoading(true);
-//     try {
-//       const { from_date, to_date } = getMonthRange(selectedDate);
-//       const params = {
-//         from_date,
-//         to_date,
-//         employee_id: selectedEmployee !== "all" ? selectedEmployee : "",
-//       };
-
-//       const res = await api.get("/employee-attendance/monthly-report", { params });
-//       const attendanceResponse = res.data.attendanceDataResponse || [];
-
-//       if (selectedEmployee !== "all") {
-//         // For individual employee → Date-wise records
-//         const formatted = attendanceResponse.map((rec) => ({
-//           key: rec._id,
-//           date: rec.date.split("T")[0],
-//           time: rec.time,
-//           day: new Date(rec.date).toLocaleDateString("en-US", { weekday: "short" }),
-//           status: rec.status,
-//         }));
-//         setAttendanceData(formatted);
-//       } else {
-//         // For all employees → Summary
-//         const grouped = {};
-//         attendanceResponse.forEach((record) => {
-//           const emp = record.employee_id;
-//           if (!grouped[emp._id]) {
-//             grouped[emp._id] = {
-//               key: emp._id,
-//               EmployeeName: emp.name,
-//               PresentDays: 0,
-//               AbsentDays: 0,
-//             };
-//           }
-//           if (record.status === "Present") grouped[emp._id].PresentDays++;
-//           if (record.status === "Absent") grouped[emp._id].AbsentDays++;
-//         });
-//         setAttendanceData(Object.values(grouped));
-//       }
-//     } catch (err) {
-//       console.error("Error fetching attendance:", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchAttendanceData();
-//   }, [selectedEmployee, selectedDate]);
-
-//   // ✅ Columns for all employees
-//   const allEmployeesColumns = [
-//     { title: "Sl No", render: (_, __, i) => i + 1 },
-//     { title: "Employee Name", dataIndex: "EmployeeName" },
-//     { title: "Present Days", dataIndex: "PresentDays", align: "center" },
-//     { title: "Absent Days", dataIndex: "AbsentDays", align: "center" },
-//   ];
-
-//   // ✅ Columns for single employee (date-wise)
-//   const individualColumns = [
-//     { title: "Sl No", render: (_, __, i) => i + 1 },
-//     { title: "Date", dataIndex: "date", align: "center" },
-//     {title: "Time", dataIndex: "time", align: "center"},
-//     { title: "Day", dataIndex: "day", align: "center" },
-//     {
-//       title: "Status",
-//       dataIndex: "status",
-//       align: "center",
-//       render: (status) =>
-//         status === "Present" ? (
-//           <Tag color="green">Present</Tag>
-//         ) : (
-//           <Tag color="red">Absent</Tag>
-//         ),
-//     },
-//   ];
-
-//   return (
-//     <div className="p-4 bg-white rounded-lg shadow-md">
-//       <h2 className="text-xl font-semibold mb-4">Monthly Attendance Report</h2>
-
-//       {/* 🔍 Filters */}
-//       <div className="flex flex-wrap gap-4 mb-4 items-end">
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700 mb-1">
-//             Target Month
-//           </label>
-//           <input
-//             type="month"
-//             className="p-2 border rounded w-full min-w-[150px]"
-//             value={selectedDate}
-//             onChange={(e) => setSelectedDate(e.target.value)}
-//             max={currentYearMonth}
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700 mb-1">
-//             Employee
-//           </label>
-//           <Select
-//             showSearch
-//             style={{ width: 250 }}
-//             value={selectedEmployee}
-//             onChange={setSelectedEmployee}
-//           >
-//             <Select.Option value="all">All Employees</Select.Option>
-//             {employees.map((emp) => (
-//               <Select.Option key={emp._id} value={emp._id}>
-//                 {emp.name}
-//               </Select.Option>
-//             ))}
-//           </Select>
-//         </div>
-
-//         <Button type="primary" onClick={fetchAttendanceData}>
-//           Filter
-//         </Button>
-//       </div>
-
-//       {/* 📊 Table Section */}
-//       {loading ? (
-//         <div className="flex justify-center items-center h-40">
-//           <Spin size="large" />
-//         </div>
-//       ) : selectedEmployee === "all" ? (
-//         <Table
-//           columns={allEmployeesColumns}
-//           dataSource={attendanceData}
-//           pagination={{ pageSize: 10 }}
-//           bordered
-//         />
-//       ) : (
-//         <Table
-//           columns={individualColumns}
-//           dataSource={attendanceData}
-//           pagination={{ pageSize: 31 }}
-//           bordered
-//         />
-//       )}
-
-//       {/* 📅 Summary */}
-//       <div className="mt-3 text-gray-600">
-//         Showing attendance for <strong>{selectedDate}</strong>{" "}
-//         {selectedEmployee !== "all" &&
-//           `– ${
-//             employees.find((e) => e._id === selectedEmployee)?.name || ""
-//           }`}
-//       </div>
-//     </div>
-//   );
-// };
+import { Select, Spin, Button, Tag } from "antd";
+import { CalendarOutlined, UserOutlined, FilterOutlined } from '@ant-design/icons';
 
 const EmployeeMonthlyReport = () => {
   const today = new Date();
@@ -675,7 +33,6 @@ const EmployeeMonthlyReport = () => {
     };
   };
 
-  // ✅ Fetch employee list
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -688,7 +45,6 @@ const EmployeeMonthlyReport = () => {
     fetchEmployees();
   }, []);
 
-  // ✅ Fetch attendance report
   const fetchAttendanceData = async () => {
     setLoading(true);
     try {
@@ -703,7 +59,6 @@ const EmployeeMonthlyReport = () => {
       const attendanceResponse = res.data.attendanceDataResponse || [];
 
       if (selectedEmployee !== "all") {
-        // For individual employee → Date-wise records
         const formatted = attendanceResponse.map((rec, index) => ({
           slNo: index + 1,
           key: rec._id || index,
@@ -717,7 +72,6 @@ const EmployeeMonthlyReport = () => {
         }));
         setAttendanceData(formatted);
       } else {
-        // For all employees → Summary
         const grouped = {};
         attendanceResponse.forEach((record, index) => {
           const emp = record?.employee_id;
@@ -730,10 +84,12 @@ const EmployeeMonthlyReport = () => {
               EmployeeName: emp?.name || "",
               PresentDays: 0,
               AbsentDays: 0,
+              HalfDays: 0,
             };
           }
           if (record?.status === "Present") grouped[emp._id].PresentDays++;
           if (record?.status === "Absent") grouped[emp._id].AbsentDays++;
+          if (record?.status === "Half Day") grouped[emp._id].HalfDays++;
         });
         setAttendanceData(Object.values(grouped));
       }
@@ -748,15 +104,14 @@ const EmployeeMonthlyReport = () => {
     fetchAttendanceData();
   }, [selectedEmployee, selectedDate]);
 
-  // ✅ Columns for all employees
   const allEmployeesColumns = [
     { header: "Sl No", key: "slNo", },
     { header: "Employee Name", key: "EmployeeName" },
     { header: "Present Days", key: "PresentDays" },
     { header: "Absent Days", key: "AbsentDays"},
+    { header: "Half Days", key: "HalfDays"},
   ];
 
-  // ✅ Columns for single employee (date-wise)
   const individualColumns = [
     { header: "Sl No", key: "slNo" },
     { header: "Date", key: "date" },
@@ -766,18 +121,18 @@ const EmployeeMonthlyReport = () => {
     {
       header: "Status",
       key: "status",
-      
-      // render: (status) =>
-      //   status?.toLowerCase() === "present" ? (
-      //     <Tag color="green">Present</Tag>
-      //   ) : status?.toLowerCase() === "absent" ? (
-      //     <Tag color="red">Absent</Tag>
-      //   ) : (
-      //     ""
-      //   ),
+      render: (status) => {
+        if (status?.toLowerCase() === "present") {
+          return <Tag color="green">Present</Tag>;
+        } else if (status?.toLowerCase() === "absent") {
+          return <Tag color="red">Absent</Tag>;
+        } else if (status?.toLowerCase() === "half day") {
+          return <Tag color="orange">Half Day</Tag>;
+        }
+        return status || "";
+      },
     },
   ];
-
 
   const safeData = attendanceData.map((row) => {
     const clean = {};
@@ -789,155 +144,207 @@ const EmployeeMonthlyReport = () => {
   });
 
   const summaryStats = useMemo(() => {
-  const total = attendanceData.length;
+    const total = attendanceData.length;
 
-  // If All Employees → Present & Absent totals by employee
-  if (selectedEmployee === "all") {
-    const totalPresent = attendanceData.reduce((sum, e) => sum + (e.PresentDays || 0), 0);
-    const totalAbsent = attendanceData.reduce((sum, e) => sum + (e.AbsentDays || 0), 0);
+    if (selectedEmployee === "all") {
+      const totalPresent = attendanceData.reduce((sum, e) => sum + (e.PresentDays || 0), 0);
+      const totalAbsent = attendanceData.reduce((sum, e) => sum + (e.AbsentDays || 0), 0);
+      const totalHalfDays = attendanceData.reduce((sum, e) => sum + (e.HalfDays || 0), 0);
+
+      return {
+        totalEmployees: total,
+        totalPresent,
+        totalAbsent,
+        totalHalfDays,
+        presentPercent: total ? ((totalPresent / (totalPresent + totalAbsent + totalHalfDays)) * 100).toFixed(1) : 0,
+      };
+    }
+
+    const present = attendanceData.filter((r) => r.status === "Present").length;
+    const absent = attendanceData.filter((r) => r.status === "Absent").length;
+    const halfDays = attendanceData.filter((r) => r.status === "Half Day").length;
 
     return {
-      totalEmployees: total,
-      totalPresent,
-      totalAbsent,
-      presentPercent: total ? ((totalPresent / (totalPresent + totalAbsent)) * 100).toFixed(1) : 0,
+      totalDays: total,
+      present,
+      absent,
+      halfDays,
+      presentPercent: total ? ((present / total) * 100).toFixed(1) : 0,
     };
-  }
-
-  // If Individual Employee → Count by records
-  const present = attendanceData.filter((r) => r.status === "Present").length;
-  const absent = attendanceData.filter((r) => r.status === "Absent").length;
-
-  return {
-    totalDays: total,
-    present,
-    absent,
-    presentPercent: total ? ((present / total) * 100).toFixed(1) : 0,
-  };
-}, [attendanceData, selectedEmployee]);
-
-
+  }, [attendanceData, selectedEmployee]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Monthly Attendance Report</h2>
-
-      {/* 🔍 Filters */}
-      <div className="flex flex-wrap gap-4 mb-4 items-end">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Target Month
-          </label>
-          <input
-            type="month"
-            className="p-2 border rounded w-full min-w-[150px]"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            max={currentYearMonth}
-          />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-slate-200">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <CalendarOutlined className="text-white text-2xl" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-800">Monthly Attendance Report</h1>
+              <p className="text-slate-500 text-sm mt-1">Track and analyze employee attendance patterns</p>
+            </div>
+          </div>
         </div>
 
-        <div >
-          <label className="block text-sm font-medium text-gray-700 mb-3 ">
-            Employee
-          </label>
-          <Select
-            showSearch
-            style={{ width: 250 }}
-            value={selectedEmployee}
-            onChange={setSelectedEmployee}
-            
-          >
-            <Select.Option value="all">All Employees</Select.Option>
-            {employees.map((emp) => (
-              <Select.Option key={emp._id} value={emp._id}>
-                {emp.name}
-              </Select.Option>
-            ))}
-          </Select>
+        {/* Filters Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-slate-200">
+          <div className="flex items-center gap-2 mb-4">
+            <FilterOutlined className="text-blue-600 text-lg" />
+            <h3 className="text-lg font-semibold text-slate-700">Filters</h3>
+          </div>
+          
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Target Month
+              </label>
+              <input
+                type="month"
+                className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200 bg-slate-50 hover:bg-white"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                max={currentYearMonth}
+              />
+            </div>
+
+            <div className="flex-1 min-w-[250px]">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Employee
+              </label>
+              <Select
+                showSearch
+                className="w-full"
+                style={{ width: '100%' }}
+                value={selectedEmployee}
+                onChange={setSelectedEmployee}
+                placeholder="Search employee"
+                size="large"
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
+              >
+                <Select.Option value="all">All Employees</Select.Option>
+                {employees.map((emp) => (
+                  <Select.Option key={emp._id} value={emp._id}>
+                    {emp.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            <Button 
+              type="primary" 
+              size="large"
+              onClick={fetchAttendanceData}
+              className="px-8 h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              Apply Filters
+            </Button>
+          </div>
         </div>
 
-        <Button type="primary" onClick={fetchAttendanceData}>
-          Filter
-        </Button>
-      </div>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          {/* Total Employees / Total Days */}
+          <div className="bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <UserOutlined className="text-3xl opacity-80" />
+            </div>
+            <p className="text-slate-300 text-sm font-medium mb-1">
+              {selectedEmployee === "all" ? "Total Employees" : "Total Days"}
+            </p>
+            <p className="text-4xl font-bold">
+              {selectedEmployee === "all"
+                ? summaryStats.totalEmployees
+                : summaryStats.totalDays}
+            </p>
+          </div>
 
-{/* ✅ Attendance Summary Cards */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          {/* Present */}
+          {selectedEmployee !== "all" && (
+            <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">✓</span>
+                </div>
+              </div>
+              <p className="text-emerald-100 text-sm font-medium mb-1">Present</p>
+              <p className="text-4xl font-bold">{summaryStats.present}</p>
+            </div>
+          )}
 
-  {/* Total Employees / Total Days */}
-  <div className="p-4 bg-white rounded-lg shadow-md border border-slate-200 text-center">
-    <span className="text-sm font-semibold block">
-      {selectedEmployee === "all" ? "Total Employees" : "Total Days"}
-    </span>
-    <span className="text-xl font-bold text-slate-900">
-      {selectedEmployee === "all"
-        ? summaryStats.totalEmployees
-        : summaryStats.totalDays}
-    </span>
-  </div>
+          {/* Absent */}
+          {selectedEmployee !== "all" && (
+            <div className="bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+              <div className="flex items-center justify-between mb-2">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">✕</span>
+                </div>
+              </div>
+              <p className="text-rose-100 text-sm font-medium mb-1">Absent</p>
+              <p className="text-4xl font-bold">{summaryStats.absent}</p>
+            </div>
+          )}
 
-  {/* ✅ Show Present only when employee selected */}
-  {selectedEmployee !== "all" && (
-    <div className="p-4 bg-green-50 rounded-lg shadow-md border border-slate-200 text-center">
-      <span className="text-sm font-semibold block text-green-700">Present</span>
-      <span className="text-xl font-bold text-green-700">
-        {summaryStats.present}
-      </span>
-    </div>
-  )}
+          {/* Half Day */}
+          <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <span className="text-2xl">½</span>
+              </div>
+            </div>
+            <p className="text-amber-100 text-sm font-medium mb-1">Half Day</p>
+            <p className="text-4xl font-bold">
+              {selectedEmployee === "all" ? summaryStats.totalHalfDays : summaryStats.halfDays}
+            </p>
+          </div>
 
-  {/* ✅ Show Absent only when employee selected */}
-  {selectedEmployee !== "all" && (
-    <div className="p-4 bg-red-50 rounded-lg shadow-md border border-slate-200 text-center">
-      <span className="text-sm font-semibold block text-red-700">Absent</span>
-      <span className="text-xl font-bold text-red-700">
-        {summaryStats.absent}
-      </span>
-    </div>
-  )}
-
-  {/* Always show Present % */}
-  <div className="p-4 bg-emerald-50 rounded-lg shadow-md border border-slate-200 text-center">
-    <span className="text-sm font-semibold block text-emerald-700">Present %</span>
-    <span className="text-xl font-bold text-emerald-700">
-      {summaryStats.presentPercent}%
-    </span>
-  </div>
-
-</div>
-
-
-     
-      {loading ? (
-        <div className="flex justify-center items-center h-40">
-          <Spin size="large" />
+          {/* Present % */}
+          <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <span className="text-2xl">%</span>
+              </div>
+            </div>
+            <p className="text-blue-100 text-sm font-medium mb-1">Present Rate</p>
+            <p className="text-4xl font-bold">{summaryStats.presentPercent}%</p>
+          </div>
         </div>
-      ) : (
-        <DataTable
-          columns={selectedEmployee === "all" ? allEmployeesColumns : individualColumns}
-          data={safeData}
-         exportedPdfName="Employee Monthly Attendence Report"
+
+        {/* Data Table */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+          {loading ? (
+            <div className="flex flex-col justify-center items-center h-64">
+              <Spin size="large" />
+              <p className="text-slate-500 mt-4">Loading attendance data...</p>
+            </div>
+          ) : (
+            <>
+              <DataTable
+                columns={selectedEmployee === "all" ? allEmployeesColumns : individualColumns}
+                data={safeData}
+                exportedPdfName="Employee Monthly Attendence Report"
                 exportedFileName={`EmployeeMonthlyAttendenceReport.csv`}
-          loading={loading}
-        />
-      )}
-
-    
-      <div className="mt-3 text-gray-600">
-        Showing attendance for <strong>{selectedDate}</strong>{" "}
-        {selectedEmployee !== "all" &&
-          `– ${
-            employees.find((e) => e._id === selectedEmployee)?.name || ""
-          }`}
+                loading={loading}
+              />
+              
+              <div className="mt-6 pt-4 border-t border-slate-200">
+                <p className="text-slate-600 text-sm">
+                  <span className="font-medium">Showing attendance for:</span>{" "}
+                  <span className="text-blue-600 font-semibold">{selectedDate}</span>
+                  {selectedEmployee !== "all" &&
+                    ` • ${employees.find((e) => e._id === selectedEmployee)?.name || ""}`}
+                </p>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
 };
-
-
-
-
-
 
 export default EmployeeMonthlyReport;
