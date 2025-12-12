@@ -876,7 +876,7 @@ if (target > 0) {
         ? moment(formData?.pay_date).startOf("day").add(12, "hours")
         : moment().startOf("day").add(12, "hours"),
      
-      calculated_salary_details: calculatedSalaryDetails,
+      attendance_details: attendanceDetails,
       monthly_target_incentive: monthlyTargetIncentive
     };
 
@@ -1916,7 +1916,7 @@ if (target > 0) {
                           <Select
                             style={{ width: "100%" }}
                             placeholder="Select mode"
-                            value={formData.payment_method}
+                            value={formData.payment_method || "Cash" }
                             onChange={(value) =>
                               handleChange("payment_method", value)
                             }
