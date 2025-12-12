@@ -953,7 +953,7 @@ const PaymentSummary = () => {
                   dailyPaymentTotal,
                   latestPaymentAmount: latestAmount,
                   latestPaymentDate: pay.latestPaymentDate || null,
-                  latestCollectedBy: pay?.payments?.individualPayments?.collectedBy || "N/A",
+                  latestCollectedBy: pay?.latestCollectedBy || "N/A",
 
                   amountPaid: totalPaid,
                   amountToBePaid: totalPayable,
@@ -992,7 +992,7 @@ const PaymentSummary = () => {
                   dailyPaymentTotal,
                   latestPaymentAmount: latestAmount,
                   latestPaymentDate: pay.latestPaymentDate || null,
-                  latestCollectedBy,
+                  latestCollectedBy: pay?.latestCollectedBy || "N/A",
 
                   amountToBePaid: pigmeAmount,
                   amountPaid: totalPaid,

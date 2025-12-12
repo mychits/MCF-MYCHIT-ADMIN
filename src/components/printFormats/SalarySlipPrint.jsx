@@ -5,8 +5,8 @@ import api from "../../instance/TokenInstance";
 import imageInput from "../../assets/images/Agent.png";
 import { useParams } from "react-router-dom";
 import { PrinterOutlined, DownloadOutlined } from "@ant-design/icons";
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 // const SalarySlipPrint = () => {
 //   const params = useParams();
@@ -29,7 +29,7 @@ import html2canvas from 'html2canvas';
 //     const fetchPaymentDetails = async () => {
 //       setLoading(true);
 //       setError(null);
-      
+
 //       try {
 //         const response = await api.get(`/salary-payment/${paymentId}`);
 //         setPayment(response.data?.data);
@@ -73,12 +73,12 @@ import html2canvas from 'html2canvas';
 //       const toDate = payment.salary_to_date;
 //       const salaryMonth = payment.salary_month;
 //       const salaryYear = payment.salary_year;
-      
+
 //       // Extract earnings and deductions from the payment data
 //       const earnings = payment.earnings || {};
 //       const deductions = payment.deductions || {};
 //       const additionalPayments = payment.additional_payments || [];
-      
+
 //       // Calculate values
 //       const monthlySalary = parseFloat(earnings.basic || 0);
 //       const hra = parseFloat(earnings.hra || 0);
@@ -88,30 +88,30 @@ import html2canvas from 'html2canvas';
 //       const performanceBonus = parseFloat(earnings.performance_bonus || 0);
 //       const otherAllowances = parseFloat(earnings.other_allowances || 0);
 //       const conveyance = parseFloat(earnings.conveyance || 0);
-      
+
 //       const incomeTax = parseFloat(deductions.income_tax || 0);
 //       const esi = parseFloat(deductions.esi || 0);
 //       const epf = parseFloat(deductions.epf || 0);
 //       const professionalTax = parseFloat(deductions.professional_tax || 0);
 //       const salaryAdvance = parseFloat(deductions.salary_advance || 0);
-      
+
 //       // Calculate additional payments total
 //       const additionalPaymentsTotal = additionalPayments.reduce(
 //         (sum, payment) => sum + parseFloat(payment.value || 0), 0
 //       );
-      
+
 //       // Calculate total earnings and deductions
-//       const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance + 
-//                            basketOfBenefits + performanceBonus + otherAllowances + 
+//       const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance +
+//                            basketOfBenefits + performanceBonus + otherAllowances +
 //                            conveyance + additionalPaymentsTotal;
-      
+
 //       const totalDeductions = incomeTax + esi + epf + professionalTax + salaryAdvance;
-      
+
 //       const netPayable = parseFloat(payment.net_payable || 0);
-      
+
 //       // Calculate LOP (Loss of Pay)
 //       const lop = totalEarnings - netPayable - totalDeductions;
-      
+
 //       // Format date
 //       const formatDate = (date) => {
 //         if (!date) return "N/A";
@@ -121,7 +121,7 @@ import html2canvas from 'html2canvas';
 //           day: "numeric",
 //         });
 //       };
-      
+
 //       // Convert amount to words
 //       const amountInWords = numToWords(netPayable);
 
@@ -200,7 +200,7 @@ import html2canvas from 'html2canvas';
 //               <tr><td>Performance Bonus</td><td>₹${performanceBonus.toFixed(2)}</td><td>LOP</td><td>₹${lop.toFixed(2)}</td></tr>
 //               <tr><td>Other Allowances</td><td>₹${otherAllowances.toFixed(2)}</td></tr>
 //               <tr><td>Conveyance</td><td>₹${conveyance.toFixed(2)}</td></tr>
-//               ${additionalPayments.map(payment => 
+//               ${additionalPayments.map(payment =>
 //                 `<tr><td>${payment.name}</td><td>₹${parseFloat(payment.value || 0).toFixed(2)}</td></tr>`
 //               ).join('')}
 //               <tr class="total-row">
@@ -231,173 +231,173 @@ import html2canvas from 'html2canvas';
 // <head>
 // <style>
 // @page { size: A4; margin: 12mm; }
-// body { 
-//   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-//   margin: 0; 
-//   color: #1a202c; 
-//   background: #ffffff; 
+// body {
+//   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+//   margin: 0;
+//   color: #1a202c;
+//   background: #ffffff;
 //   padding: 0;
 //   -webkit-print-color-adjust: exact;
 //   print-color-adjust: exact;
 // }
-// .document { 
-//   background: #ffffff; 
-//   margin: 0 auto; 
-//   width: 100%; 
+// .document {
+//   background: #ffffff;
+//   margin: 0 auto;
+//   width: 100%;
 //   min-height: 100vh;
-//   box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-//   padding: 0; 
-//   box-sizing: border-box; 
-//   overflow: hidden; 
-//   display: flex; 
-//   flex-direction: column; 
+//   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+//   padding: 0;
+//   box-sizing: border-box;
+//   overflow: hidden;
+//   display: flex;
+//   flex-direction: column;
 // }
-// .header-band { 
-//   background: #667eea; 
-//   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-//   color: #fff; 
-//   padding: 20px; 
+// .header-band {
+//   background: #667eea;
+//   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+//   color: #fff;
+//   padding: 20px;
 // }
-// .header-content { 
-//   display: flex; 
-//   align-items: center; 
-//   justify-content: space-between; 
-//   gap: 20px; 
+// .header-content {
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   gap: 20px;
 // }
-// .logo-circle { 
-//   width: 70px; 
-//   height: 70px; 
-//   background: rgba(255,255,255,0.2); 
-//   border-radius: 6px; 
-//   display: flex; 
-//   align-items: center; 
-//   justify-content: center; 
+// .logo-circle {
+//   width: 70px;
+//   height: 70px;
+//   background: rgba(255,255,255,0.2);
+//   border-radius: 6px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
 // }
-// .logo-circle img { 
-//   width: 50px; 
-//   height: 50px; 
-//   border-radius: 4px; 
+// .logo-circle img {
+//   width: 50px;
+//   height: 50px;
+//   border-radius: 4px;
 // }
 // .header-text { flex: 1; }
-// .company-title { 
-//   font-size: 22px; 
-//   font-weight: 700; 
-//   margin-bottom: 4px; 
+// .company-title {
+//   font-size: 22px;
+//   font-weight: 700;
+//   margin-bottom: 4px;
 // }
-// .company-subtitle { 
-//   font-size: 11px; 
-//   opacity: 0.9; 
-//   line-height: 1.4; 
+// .company-subtitle {
+//   font-size: 11px;
+//   opacity: 0.9;
+//   line-height: 1.4;
 // }
-// .header-meta { 
-//   text-align: right; 
-//   background: rgba(255,255,255,0.15); 
-//   padding: 12px; 
-//   border-radius: 10px; 
-//   font-size: 11px; 
+// .header-meta {
+//   text-align: right;
+//   background: rgba(255,255,255,0.15);
+//   padding: 12px;
+//   border-radius: 10px;
+//   font-size: 11px;
 // }
 // .meta-line { margin: 2px 0; }
 // .meta-value { font-weight: 400; }
-// .content { 
-//   flex: 1; 
-//   padding: 20px; 
+// .content {
+//   flex: 1;
+//   padding: 20px;
 //   background: #ffffff;
 // }
-// .payslip-title { 
-//   text-align: center; 
-//   font-size: 24px; 
-//   font-weight: 500; 
-//   color: #4a5568; 
-//   margin: 20px 0; 
-//   letter-spacing: 2px; 
+// .payslip-title {
+//   text-align: center;
+//   font-size: 24px;
+//   font-weight: 500;
+//   color: #4a5568;
+//   margin: 20px 0;
+//   letter-spacing: 2px;
 // }
-// .card { 
-//   background: #fff; 
-//   border: 1px solid #e2e8f0; 
-//   border-radius: 10px; 
-//   margin-bottom: 20px; 
-//   overflow: hidden; 
-//   box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+// .card {
+//   background: #fff;
+//   border: 1px solid #e2e8f0;
+//   border-radius: 10px;
+//   margin-bottom: 20px;
+//   overflow: hidden;
+//   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 // }
-// .card-header { 
-//   background: #f7fafc; 
-//   padding: 12px; 
-//   border-bottom: 1px solid #e2e8f0; 
-//   font-weight: 600; 
-//   color: #4a5568; 
+// .card-header {
+//   background: #f7fafc;
+//   padding: 12px;
+//   border-bottom: 1px solid #e2e8f0;
+//   font-weight: 600;
+//   color: #4a5568;
 // }
 // .card-body { padding: 15px; }
-// .info-grid { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 12px; 
+// .info-grid {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 12px;
 // }
-// .info-pair { 
-//   display: flex; 
-//   justify-content: space-between; 
-//   padding: 6px 0; 
-//   border-bottom: 1px dotted #e2e8f0; 
-//   font-size: 12px; 
+// .info-pair {
+//   display: flex;
+//   justify-content: space-between;
+//   padding: 6px 0;
+//   border-bottom: 1px dotted #e2e8f0;
+//   font-size: 12px;
 // }
 // .info-pair:last-child { border-bottom: none; }
-// .salary-grid { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 20px; 
+// .salary-grid {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 20px;
 // }
 // .earnings-card { border-left: 4px solid #48bb78; }
 // .deductions-card { border-left: 4px solid #f56565; }
-// .item-row { 
-//   display: flex; 
-//   justify-content: space-between; 
-//   padding: 8px 0; 
-//   border-bottom: 1px solid #f7fafc; 
-//   font-size: 12px; 
+// .item-row {
+//   display: flex;
+//   justify-content: space-between;
+//   padding: 8px 0;
+//   border-bottom: 1px solid #f7fafc;
+//   font-size: 12px;
 // }
 // .item-row:last-child { border-bottom: 2px solid #e2e8f0; }
 // .item-name { color: #4a5568; }
 // .item-amount { color: #2d3748; font-weight: 600; }
-// .total-amount { 
-//   background: #edf2f7; 
-//   padding: 10px; 
-//   border-radius: 6px; 
-//   font-weight: 700; 
-//   text-align: right; 
+// .total-amount {
+//   background: #edf2f7;
+//   padding: 10px;
+//   border-radius: 6px;
+//   font-weight: 700;
+//   text-align: right;
 // }
-// .net-section { 
-//   background: #4299e1; 
-//   background: linear-gradient(135deg, #4299e1, #3182ce); 
-//   color: #fff; 
-//   padding: 20px; 
-//   border-radius: 10px; 
-//   text-align: center; 
-//   margin: 25px 0; 
+// .net-section {
+//   background: #4299e1;
+//   background: linear-gradient(135deg, #4299e1, #3182ce);
+//   color: #fff;
+//   padding: 20px;
+//   border-radius: 10px;
+//   text-align: center;
+//   margin: 25px 0;
 // }
 // .net-title { font-size: 14px; margin-bottom: 8px; }
 // .net-figure { font-size: 28px; font-weight: 500; margin-bottom: 10px; }
 // .net-words { font-size: 11px; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 6px; }
-// .signature-section { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 20px; 
-//   margin-top: 15px; 
+// .signature-section {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 20px;
+//   margin-top: 15px;
 // }
-// .signature-line { 
-//   border-top: 1px solid #cbd5e0; 
-//   margin-top: 40px; 
-//   padding-top: 8px; 
-//   font-size: 11px; 
-//   color: #718096; 
+// .signature-line {
+//   border-top: 1px solid #cbd5e0;
+//   margin-top: 40px;
+//   padding-top: 8px;
+//   font-size: 11px;
+//   color: #718096;
 // }
-// .footer-text { 
-//   text-align: center; 
-//   color: #a0aec0; 
-//   font-size: 9px; 
-//   margin: 25px 0; 
+// .footer-text {
+//   text-align: center;
+//   color: #a0aec0;
+//   font-size: 9px;
+//   margin: 25px 0;
 // }
-// @media print { 
-//   body { background: #fff; } 
-//   .document { box-shadow: none; page-break-after: avoid; } 
+// @media print {
+//   body { background: #fff; }
+//   .document { box-shadow: none; page-break-after: avoid; }
 // }
 // </style>
 // </head>
@@ -446,7 +446,7 @@ import html2canvas from 'html2canvas';
 //           <div class="item-row"><div class="item-name">Performance Bonus</div><div class="item-amount">₹${performanceBonus.toFixed(2)}</div></div>
 //           <div class="item-row"><div class="item-name">Other Allowances</div><div class="item-amount">₹${otherAllowances.toFixed(2)}</div></div>
 //           <div class="item-row"><div class="item-name">Conveyance</div><div class="item-amount">₹${conveyance.toFixed(2)}</div></div>
-//           ${additionalPayments.map(payment => 
+//           ${additionalPayments.map(payment =>
 //             `<div class="item-row"><div class="item-name">${payment.name}</div><div class="item-amount">₹${parseFloat(payment.value || 0).toFixed(2)}</div></div>`
 //           ).join('')}
 //           <div class="total-amount">Total: ₹${totalEarnings.toFixed(2)}</div>
@@ -530,7 +530,7 @@ import html2canvas from 'html2canvas';
 
 //       // Get image data
 //       const imgData = canvas.toDataURL('image/png');
-      
+
 //       // Calculate PDF dimensions
 //       const imgWidth = 210; // A4 width in mm
 //       const pageHeight = 297; // A4 height in mm
@@ -540,7 +540,7 @@ import html2canvas from 'html2canvas';
 
 //       // Create PDF
 //       const pdf = new jsPDF('p', 'mm', 'a4');
-      
+
 //       // Add image to PDF
 //       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
 //       heightLeft -= pageHeight;
@@ -565,7 +565,7 @@ import html2canvas from 'html2canvas';
 
 //   const numToWords = (num) => {
 //     if (isNaN(num) || num === 0) return "Zero";
-    
+
 //     const a = [
 //       "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
 //       "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
@@ -573,20 +573,20 @@ import html2canvas from 'html2canvas';
 //     const b = [
 //       "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety",
 //     ];
-    
+
 //     num = Math.round(num);
 //     if ((num = num.toString()).length > 9) return "Overflow";
-    
+
 //     const n = ("000000000" + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
 //     if (!n) return "";
-    
+
 //     let str = "";
 //     str += n[1] != 0 ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + " Crore " : "";
 //     str += n[2] != 0 ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + " Lakh " : "";
 //     str += n[3] != 0 ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + " Thousand " : "";
 //     str += n[4] != 0 ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + " Hundred " : "";
 //     str += n[5] != 0 ? (str != "" ? "and " : "") + (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]]) + " " : "";
-    
+
 //     return str.trim() || "Zero";
 //   };
 
@@ -622,20 +622,20 @@ import html2canvas from 'html2canvas';
 //       </Card>
 
 //       {/* Preview Section */}
-//       <Card 
+//       <Card
 //         title={`Preview: ${formatButtons.find(f => f.key === printFormat)?.label}`}
 //         className="shadow-lg border-0"
 //         extra={
 //           <div className="flex gap-3">
-//             <Button 
-//               type="primary" 
+//             <Button
+//               type="primary"
 //               icon={<PrinterOutlined />}
 //               onClick={handlePrint}
 //               className="bg-blue-600 hover:bg-blue-700"
 //             >
 //               Print
 //             </Button>
-//             <Button 
+//             <Button
 //               type="primary"
 //               icon={<DownloadOutlined />}
 //               onClick={handleDownloadPDF}
@@ -648,11 +648,11 @@ import html2canvas from 'html2canvas';
 //         }
 //       >
 //         <div className="bg-gray-100 rounded-lg p-4">
-//           <div 
+//           <div
 //             ref={previewRef}
 //             className="bg-white rounded shadow-md overflow-auto"
-//             style={{ 
-//               height: '75vh', 
+//             style={{
+//               height: '75vh',
 //               transform: 'scale(0.85)',
 //               transformOrigin: 'top left',
 //               width: '117.65%' // 100 / 0.85 to compensate for scaling
@@ -673,7 +673,6 @@ import html2canvas from 'html2canvas';
 // };
 
 // src/components/SalarySlipPrint.jsx
-
 
 // const SalarySlipPrint = () => {
 //   const params = useParams();
@@ -696,7 +695,7 @@ import html2canvas from 'html2canvas';
 //     const fetchPaymentDetails = async () => {
 //       setLoading(true);
 //       setError(null);
-      
+
 //       try {
 //         const response = await api.get(`/salary-payment/${paymentId}`);
 //         setPayment(response.data?.data);
@@ -742,12 +741,12 @@ import html2canvas from 'html2canvas';
 //       const toDate = payment.salary_to_date;
 //       const salaryMonth = payment.salary_month;
 //       const salaryYear = payment.salary_year;
-      
+
 //       // Extract earnings and deductions from the payment data
 //       const earnings = payment.earnings || {};
 //       const deductions = payment.deductions || {};
 //       const additionalPayments = payment.additional_payments || [];
-      
+
 //       // Calculate values
 //       const monthlySalary = parseFloat(earnings.basic || 0);
 //       const hra = parseFloat(earnings.hra || 0);
@@ -757,30 +756,30 @@ import html2canvas from 'html2canvas';
 //       const performanceBonus = parseFloat(earnings.performance_bonus || 0);
 //       const otherAllowances = parseFloat(earnings.other_allowances || 0);
 //       const conveyance = parseFloat(earnings.conveyance || 0);
-      
+
 //       const incomeTax = parseFloat(deductions.income_tax || 0);
 //       const esi = parseFloat(deductions.esi || 0);
 //       const epf = parseFloat(deductions.epf || 0);
 //       const professionalTax = parseFloat(deductions.professional_tax || 0);
 //       const salaryAdvance = parseFloat(deductions.salary_advance || 0);
-      
+
 //       // Calculate additional payments total
 //       const additionalPaymentsTotal = additionalPayments.reduce(
 //         (sum, payment) => sum + parseFloat(payment.value || 0), 0
 //       );
-      
+
 //       // Calculate total earnings and deductions
-//       const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance + 
-//                            basketOfBenefits + performanceBonus + otherAllowances + 
+//       const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance +
+//                            basketOfBenefits + performanceBonus + otherAllowances +
 //                            conveyance + additionalPaymentsTotal;
-      
+
 //       const totalDeductions = incomeTax + esi + epf + professionalTax + salaryAdvance;
-      
+
 //       const netPayable = parseFloat(payment.net_payable || 0);
-      
+
 //       // Calculate LOP (Loss of Pay)
 //       const lop = totalEarnings - netPayable - totalDeductions;
-      
+
 //       // Format date
 //       const formatDate = (date) => {
 //         if (!date) return "N/A";
@@ -790,7 +789,7 @@ import html2canvas from 'html2canvas';
 //           day: "numeric",
 //         });
 //       };
-      
+
 //       // Convert amount to words
 //       const amountInWords = numToWords(netPayable);
 
@@ -869,7 +868,7 @@ import html2canvas from 'html2canvas';
 //               <tr><td>Performance Bonus</td><td>₹${performanceBonus.toFixed(2)}</td><td>LOP</td><td>₹${lop.toFixed(2)}</td></tr>
 //               <tr><td>Other Allowances</td><td>₹${otherAllowances.toFixed(2)}</td></tr>
 //               <tr><td>Conveyance</td><td>₹${conveyance.toFixed(2)}</td></tr>
-//               ${additionalPayments.map(payment => 
+//               ${additionalPayments.map(payment =>
 //                 `<tr><td>${payment.name}</td><td>₹${parseFloat(payment.value || 0).toFixed(2)}</td></tr>`
 //               ).join('')}
 //               <tr class="total-row">
@@ -900,173 +899,173 @@ import html2canvas from 'html2canvas';
 // <head>
 // <style>
 // @page { size: A4; margin: 12mm; }
-// body { 
-//   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-//   margin: 0; 
-//   color: #1a202c; 
-//   background: #ffffff; 
+// body {
+//   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+//   margin: 0;
+//   color: #1a202c;
+//   background: #ffffff;
 //   padding: 0;
 //   -webkit-print-color-adjust: exact;
 //   print-color-adjust: exact;
 // }
-// .document { 
-//   background: #ffffff; 
-//   margin: 0 auto; 
-//   width: 100%; 
+// .document {
+//   background: #ffffff;
+//   margin: 0 auto;
+//   width: 100%;
 //   min-height: 100vh;
-//   box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-//   padding: 0; 
-//   box-sizing: border-box; 
-//   overflow: hidden; 
-//   display: flex; 
-//   flex-direction: column; 
+//   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+//   padding: 0;
+//   box-sizing: border-box;
+//   overflow: hidden;
+//   display: flex;
+//   flex-direction: column;
 // }
-// .header-band { 
-//   background: #667eea; 
-//   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-//   color: #fff; 
-//   padding: 20px; 
+// .header-band {
+//   background: #667eea;
+//   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+//   color: #fff;
+//   padding: 20px;
 // }
-// .header-content { 
-//   display: flex; 
-//   align-items: center; 
-//   justify-content: space-between; 
-//   gap: 20px; 
+// .header-content {
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   gap: 20px;
 // }
-// .logo-circle { 
-//   width: 70px; 
-//   height: 70px; 
-//   background: rgba(255,255,255,0.2); 
-//   border-radius: 6px; 
-//   display: flex; 
-//   align-items: center; 
-//   justify-content: center; 
+// .logo-circle {
+//   width: 70px;
+//   height: 70px;
+//   background: rgba(255,255,255,0.2);
+//   border-radius: 6px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
 // }
-// .logo-circle img { 
-//   width: 50px; 
-//   height: 50px; 
-//   border-radius: 4px; 
+// .logo-circle img {
+//   width: 50px;
+//   height: 50px;
+//   border-radius: 4px;
 // }
 // .header-text { flex: 1; }
-// .company-title { 
-//   font-size: 22px; 
-//   font-weight: 700; 
-//   margin-bottom: 4px; 
+// .company-title {
+//   font-size: 22px;
+//   font-weight: 700;
+//   margin-bottom: 4px;
 // }
-// .company-subtitle { 
-//   font-size: 11px; 
-//   opacity: 0.9; 
-//   line-height: 1.4; 
+// .company-subtitle {
+//   font-size: 11px;
+//   opacity: 0.9;
+//   line-height: 1.4;
 // }
-// .header-meta { 
-//   text-align: right; 
-//   background: rgba(255,255,255,0.15); 
-//   padding: 12px; 
-//   border-radius: 10px; 
-//   font-size: 11px; 
+// .header-meta {
+//   text-align: right;
+//   background: rgba(255,255,255,0.15);
+//   padding: 12px;
+//   border-radius: 10px;
+//   font-size: 11px;
 // }
 // .meta-line { margin: 2px 0; }
 // .meta-value { font-weight: 400; }
-// .content { 
-//   flex: 1; 
-//   padding: 20px; 
+// .content {
+//   flex: 1;
+//   padding: 20px;
 //   background: #ffffff;
 // }
-// .payslip-title { 
-//   text-align: center; 
-//   font-size: 24px; 
-//   font-weight: 500; 
-//   color: #4a5568; 
-//   margin: 20px 0; 
-//   letter-spacing: 2px; 
+// .payslip-title {
+//   text-align: center;
+//   font-size: 24px;
+//   font-weight: 500;
+//   color: #4a5568;
+//   margin: 20px 0;
+//   letter-spacing: 2px;
 // }
-// .card { 
-//   background: #fff; 
-//   border: 1px solid #e2e8f0; 
-//   border-radius: 10px; 
-//   margin-bottom: 20px; 
-//   overflow: hidden; 
-//   box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+// .card {
+//   background: #fff;
+//   border: 1px solid #e2e8f0;
+//   border-radius: 10px;
+//   margin-bottom: 20px;
+//   overflow: hidden;
+//   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 // }
-// .card-header { 
-//   background: #f7fafc; 
-//   padding: 12px; 
-//   border-bottom: 1px solid #e2e8f0; 
-//   font-weight: 600; 
-//   color: #4a5568; 
+// .card-header {
+//   background: #f7fafc;
+//   padding: 12px;
+//   border-bottom: 1px solid #e2e8f0;
+//   font-weight: 600;
+//   color: #4a5568;
 // }
 // .card-body { padding: 15px; }
-// .info-grid { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 12px; 
+// .info-grid {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 12px;
 // }
-// .info-pair { 
-//   display: flex; 
-//   justify-content: space-between; 
-//   padding: 6px 0; 
-//   border-bottom: 1px dotted #e2e8f0; 
-//   font-size: 12px; 
+// .info-pair {
+//   display: flex;
+//   justify-content: space-between;
+//   padding: 6px 0;
+//   border-bottom: 1px dotted #e2e8f0;
+//   font-size: 12px;
 // }
 // .info-pair:last-child { border-bottom: none; }
-// .salary-grid { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 20px; 
+// .salary-grid {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 20px;
 // }
 // .earnings-card { border-left: 4px solid #48bb78; }
 // .deductions-card { border-left: 4px solid #f56565; }
-// .item-row { 
-//   display: flex; 
-//   justify-content: space-between; 
-//   padding: 8px 0; 
-//   border-bottom: 1px solid #f7fafc; 
-//   font-size: 12px; 
+// .item-row {
+//   display: flex;
+//   justify-content: space-between;
+//   padding: 8px 0;
+//   border-bottom: 1px solid #f7fafc;
+//   font-size: 12px;
 // }
 // .item-row:last-child { border-bottom: 2px solid #e2e8f0; }
 // .item-name { color: #4a5568; }
 // .item-amount { color: #2d3748; font-weight: 600; }
-// .total-amount { 
-//   background: #edf2f7; 
-//   padding: 10px; 
-//   border-radius: 6px; 
-//   font-weight: 700; 
-//   text-align: right; 
+// .total-amount {
+//   background: #edf2f7;
+//   padding: 10px;
+//   border-radius: 6px;
+//   font-weight: 700;
+//   text-align: right;
 // }
-// .net-section { 
-//   background: #4299e1; 
-//   background: linear-gradient(135deg, #4299e1, #3182ce); 
-//   color: #fff; 
-//   padding: 20px; 
-//   border-radius: 10px; 
-//   text-align: center; 
-//   margin: 25px 0; 
+// .net-section {
+//   background: #4299e1;
+//   background: linear-gradient(135deg, #4299e1, #3182ce);
+//   color: #fff;
+//   padding: 20px;
+//   border-radius: 10px;
+//   text-align: center;
+//   margin: 25px 0;
 // }
 // .net-title { font-size: 14px; margin-bottom: 8px; }
 // .net-figure { font-size: 28px; font-weight: 500; margin-bottom: 10px; }
 // .net-words { font-size: 11px; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 6px; }
-// .signature-section { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 20px; 
-//   margin-top: 15px; 
+// .signature-section {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 20px;
+//   margin-top: 15px;
 // }
-// .signature-line { 
-//   border-top: 1px solid #cbd5e0; 
-//   margin-top: 40px; 
-//   padding-top: 8px; 
-//   font-size: 11px; 
-//   color: #718096; 
+// .signature-line {
+//   border-top: 1px solid #cbd5e0;
+//   margin-top: 40px;
+//   padding-top: 8px;
+//   font-size: 11px;
+//   color: #718096;
 // }
-// .footer-text { 
-//   text-align: center; 
-//   color: #a0aec0; 
-//   font-size: 9px; 
-//   margin: 25px 0; 
+// .footer-text {
+//   text-align: center;
+//   color: #a0aec0;
+//   font-size: 9px;
+//   margin: 25px 0;
 // }
-// @media print { 
-//   body { background: #fff; } 
-//   .document { box-shadow: none; page-break-after: avoid; } 
+// @media print {
+//   body { background: #fff; }
+//   .document { box-shadow: none; page-break-after: avoid; }
 // }
 // </style>
 // </head>
@@ -1115,7 +1114,7 @@ import html2canvas from 'html2canvas';
 //           <div class="item-row"><div class="item-name">Performance Bonus</div><div class="item-amount">₹${performanceBonus.toFixed(2)}</div></div>
 //           <div class="item-row"><div class="item-name">Other Allowances</div><div class="item-amount">₹${otherAllowances.toFixed(2)}</div></div>
 //           <div class="item-row"><div class="item-name">Conveyance</div><div class="item-amount">₹${conveyance.toFixed(2)}</div></div>
-//           ${additionalPayments.map(payment => 
+//           ${additionalPayments.map(payment =>
 //             `<div class="item-row"><div class="item-name">${payment.name}</div><div class="item-amount">₹${parseFloat(payment.value || 0).toFixed(2)}</div></div>`
 //           ).join('')}
 //           <div class="total-amount">Total: ₹${totalEarnings.toFixed(2)}</div>
@@ -1255,11 +1254,11 @@ import html2canvas from 'html2canvas';
 //     const toDate = payment.salary_to_date;
 //     const salaryMonth = payment.salary_month;
 //     const salaryYear = payment.salary_year;
-    
+
 //     const earnings = payment.earnings || {};
 //     const deductions = payment.deductions || {};
 //     const additionalPayments = payment.additional_payments || [];
-    
+
 //     const monthlySalary = parseFloat(earnings.basic || 0);
 //     const hra = parseFloat(earnings.hra || 0);
 //     const travelAllowance = parseFloat(earnings.travel_allowance || 0);
@@ -1268,27 +1267,27 @@ import html2canvas from 'html2canvas';
 //     const performanceBonus = parseFloat(earnings.performance_bonus || 0);
 //     const otherAllowances = parseFloat(earnings.other_allowances || 0);
 //     const conveyance = parseFloat(earnings.conveyance || 0);
-    
+
 //     const incomeTax = parseFloat(deductions.income_tax || 0);
 //     const esi = parseFloat(deductions.esi || 0);
 //     const epf = parseFloat(deductions.epf || 0);
 //     const professionalTax = parseFloat(deductions.professional_tax || 0);
 //     const salaryAdvance = parseFloat(deductions.salary_advance || 0);
-    
+
 //     const additionalPaymentsTotal = additionalPayments.reduce(
 //       (sum, payment) => sum + parseFloat(payment.value || 0), 0
 //     );
-    
-//     const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance + 
-//                          basketOfBenefits + performanceBonus + otherAllowances + 
+
+//     const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance +
+//                          basketOfBenefits + performanceBonus + otherAllowances +
 //                          conveyance + additionalPaymentsTotal;
-    
+
 //     const totalDeductions = incomeTax + esi + epf + professionalTax + salaryAdvance;
-    
+
 //     const netPayable = parseFloat(payment.net_payable || 0);
-    
+
 //     const lop = totalEarnings - netPayable - totalDeductions;
-    
+
 //     const formatDate = (date) => {
 //       if (!date) return "N/A";
 //       return new Date(date).toLocaleDateString("en-IN", {
@@ -1297,7 +1296,7 @@ import html2canvas from 'html2canvas';
 //         day: "numeric",
 //       });
 //     };
-    
+
 //     const amountInWords = numToWords(netPayable);
 
 //     // Generate the printable HTML content (using format1 style for consistency)
@@ -1309,128 +1308,128 @@ import html2canvas from 'html2canvas';
 //         <title>Salary Slip</title>
 //         <style>
 //           @page { size: A4; margin: 10mm; }
-//           body { 
-//             font-family: 'Times New Roman', serif; 
-//             margin: 0; 
-//             color: #000; 
-//             background: #fff; 
+//           body {
+//             font-family: 'Times New Roman', serif;
+//             margin: 0;
+//             color: #000;
+//             background: #fff;
 //             padding: 0;
 //             box-sizing: border-box;
 //           }
-//           .container { 
-//             max-width: 200mm; 
-//             margin: 0 auto; 
+//           .container {
+//             max-width: 200mm;
+//             margin: 0 auto;
 //             padding: 5mm;
 //           }
-//           .header { 
-//             border: 2px solid #000; 
-//             padding: 8px; 
-//             margin-bottom: 10px; 
-//             background: #f5f5f5; 
+//           .header {
+//             border: 2px solid #000;
+//             padding: 8px;
+//             margin-bottom: 10px;
+//             background: #f5f5f5;
 //           }
-//           .header-top { 
-//             display: flex; 
-//             align-items: center; 
-//             justify-content: space-between; 
-//             margin-bottom: 5px; 
+//           .header-top {
+//             display: flex;
+//             align-items: center;
+//             justify-content: space-between;
+//             margin-bottom: 5px;
 //           }
-//           .logo { 
-//             width: 60px; 
-//             height: 60px; 
+//           .logo {
+//             width: 60px;
+//             height: 60px;
 //           }
-//           .company-info { 
-//             text-align: center; 
-//             flex: 1; 
+//           .company-info {
+//             text-align: center;
+//             flex: 1;
 //           }
-//           .company-name { 
-//             font-size: 18px; 
-//             font-weight: bold; 
-//             margin: 2px 0; 
+//           .company-name {
+//             font-size: 18px;
+//             font-weight: bold;
+//             margin: 2px 0;
 //           }
-//           .company-addr { 
-//             font-size: 8px; 
-//             margin: 1px 0; 
+//           .company-addr {
+//             font-size: 8px;
+//             margin: 1px 0;
 //           }
-//           .payslip-title { 
-//             text-align: center; 
-//             font-size: 16px; 
-//             font-weight: bold; 
-//             text-decoration: underline; 
-//             margin: 10px 0; 
+//           .payslip-title {
+//             text-align: center;
+//             font-size: 16px;
+//             font-weight: bold;
+//             text-decoration: underline;
+//             margin: 10px 0;
 //           }
-//           .meta-info { 
-//             text-align: right; 
-//             font-size: 10px; 
+//           .meta-info {
+//             text-align: right;
+//             font-size: 10px;
 //           }
-//           .emp-details { 
-//             border: 1px solid #000; 
-//             margin: 10px 0; 
+//           .emp-details {
+//             border: 1px solid #000;
+//             margin: 10px 0;
 //           }
-//           .emp-header { 
-//             background: #000; 
-//             color: #fff; 
-//             padding: 5px; 
-//             font-weight: bold; 
-//             text-align: center; 
+//           .emp-header {
+//             background: #000;
+//             color: #fff;
+//             padding: 5px;
+//             font-weight: bold;
+//             text-align: center;
 //           }
-//           .emp-grid { 
-//             display: grid; 
-//             grid-template-columns: 1fr 1fr; 
+//           .emp-grid {
+//             display: grid;
+//             grid-template-columns: 1fr 1fr;
 //           }
-//           .emp-item { 
-//             padding: 5px; 
-//             border-right: 1px solid #000; 
-//             border-bottom: 1px solid #000; 
-//             font-size: 10px; 
+//           .emp-item {
+//             padding: 5px;
+//             border-right: 1px solid #000;
+//             border-bottom: 1px solid #000;
+//             font-size: 10px;
 //           }
-//           .emp-item:nth-child(even) { 
-//             border-right: none; 
+//           .emp-item:nth-child(even) {
+//             border-right: none;
 //           }
-//           .salary-table { 
-//             width: 100%; 
-//             border: 1px solid #000; 
-//             border-collapse: collapse; 
-//             margin: 10px 0; 
+//           .salary-table {
+//             width: 100%;
+//             border: 1px solid #000;
+//             border-collapse: collapse;
+//             margin: 10px 0;
 //           }
-//           .salary-table th { 
-//             background: #000; 
-//             color: #fff; 
-//             padding: 5px; 
-//             border: 1px solid #000; 
-//             font-size: 10px; 
+//           .salary-table th {
+//             background: #000;
+//             color: #fff;
+//             padding: 5px;
+//             border: 1px solid #000;
+//             font-size: 10px;
 //           }
-//           .salary-table td { 
-//             padding: 5px; 
-//             border: 1px solid #000; 
-//             font-size: 10px; 
+//           .salary-table td {
+//             padding: 5px;
+//             border: 1px solid #000;
+//             font-size: 10px;
 //           }
-//           .total-row { 
-//             background: #e0e0e0; 
-//             font-weight: bold; 
+//           .total-row {
+//             background: #e0e0e0;
+//             font-weight: bold;
 //           }
-//           .net-section { 
-//             border: 2px double #000; 
-//             padding: 10px; 
-//             text-align: center; 
-//             margin: 15px 0; 
-//             background: #f9f9f9; 
+//           .net-section {
+//             border: 2px double #000;
+//             padding: 10px;
+//             text-align: center;
+//             margin: 15px 0;
+//             background: #f9f9f9;
 //           }
-//           .net-amount { 
-//             font-size: 18px; 
-//             font-weight: bold; 
-//             margin: 5px 0; 
+//           .net-amount {
+//             font-size: 18px;
+//             font-weight: bold;
+//             margin: 5px 0;
 //           }
-//           .words { 
-//             font-style: italic; 
-//             font-size: 8px; 
-//             margin-top: 5px; 
+//           .words {
+//             font-style: italic;
+//             font-size: 8px;
+//             margin-top: 5px;
 //           }
-//           .footer { 
-//             text-align: center; 
-//             font-size: 8px; 
-//             margin-top: 20px; 
-//             border-top: 1px solid #000; 
-//             padding-top: 5px; 
+//           .footer {
+//             text-align: center;
+//             font-size: 8px;
+//             margin-top: 20px;
+//             border-top: 1px solid #000;
+//             padding-top: 5px;
 //           }
 //         </style>
 //       </head>
@@ -1475,7 +1474,7 @@ import html2canvas from 'html2canvas';
 //               <tr><td>Performance Bonus</td><td>₹${performanceBonus.toFixed(2)}</td><td>LOP</td><td>₹${lop.toFixed(2)}</td></tr>
 //               <tr><td>Other Allowances</td><td>₹${otherAllowances.toFixed(2)}</td></tr>
 //               <tr><td>Conveyance</td><td>₹${conveyance.toFixed(2)}</td></tr>
-//               ${additionalPayments.map(payment => 
+//               ${additionalPayments.map(payment =>
 //                 `<tr><td>${payment.name}</td><td>₹${parseFloat(payment.value || 0).toFixed(2)}</td></tr>`
 //               ).join('')}
 //               <tr class="total-row">
@@ -1506,10 +1505,9 @@ import html2canvas from 'html2canvas';
 //   }
 // };
 
-
 //   const numToWords = (num) => {
 //     if (isNaN(num) || num === 0) return "Zero";
-    
+
 //     const a = [
 //       "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
 //       "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
@@ -1517,20 +1515,20 @@ import html2canvas from 'html2canvas';
 //     const b = [
 //       "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety",
 //     ];
-    
+
 //     num = Math.round(num);
 //     if ((num = num.toString()).length > 9) return "Overflow";
-    
+
 //     const n = ("000000000" + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
 //     if (!n) return "";
-    
+
 //     let str = "";
 //     str += n[1] != 0 ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + " Crore " : "";
 //     str += n[2] != 0 ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + " Lakh " : "";
 //     str += n[3] != 0 ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + " Thousand " : "";
 //     str += n[4] != 0 ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + " Hundred " : "";
 //     str += n[5] != 0 ? (str != "" ? "and " : "") + (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]]) + " " : "";
-    
+
 //     return str.trim() || "Zero";
 //   };
 
@@ -1566,20 +1564,20 @@ import html2canvas from 'html2canvas';
 //       </Card>
 
 //       {/* Preview Section */}
-//       <Card 
+//       <Card
 //         title={`Preview: ${formatButtons.find(f => f.key === printFormat)?.label}`}
 //         className="shadow-lg border-0"
 //         extra={
 //           <div className="flex gap-3">
-//             <Button 
-//               type="primary" 
+//             <Button
+//               type="primary"
 //               icon={<PrinterOutlined />}
 //               onClick={handlePrint}
 //               className="bg-blue-600 hover:bg-blue-700"
 //             >
 //               Print
 //             </Button>
-//             <Button 
+//             <Button
 //               type="primary"
 //               icon={<DownloadOutlined />}
 //               onClick={handleDownloadPDF}
@@ -1592,11 +1590,11 @@ import html2canvas from 'html2canvas';
 //         }
 //       >
 //         <div className="bg-gray-100 rounded-lg p-4">
-//           <div 
+//           <div
 //             ref={previewRef}
 //             className="bg-white rounded shadow-md overflow-auto"
-//             style={{ 
-//               height: '75vh', 
+//             style={{
+//               height: '75vh',
 //               transform: 'scale(0.85)',
 //               transformOrigin: 'top left',
 //               width: '117.65%' // 100 / 0.85 to compensate for scaling
@@ -1637,7 +1635,7 @@ import html2canvas from 'html2canvas';
 //     const fetchPaymentDetails = async () => {
 //       setLoading(true);
 //       setError(null);
-      
+
 //       try {
 //         const response = await api.get(`/salary-payment/${paymentId}`);
 //         setPayment(response.data?.data);
@@ -1683,13 +1681,13 @@ import html2canvas from 'html2canvas';
 //       const toDate = payment.salary_to_date;
 //       const salaryMonth = payment.salary_month;
 //       const salaryYear = payment.salary_year;
-      
+
 //       // Extract earnings and deductions from the payment data
 //       const earnings = payment.earnings || {};
 //       const deductions = payment.deductions || {};
 //       const additionalPayments = payment.additional_payments || [];
 //       const additionalDeductions = payment.additional_deductions || [];
-      
+
 //       // Calculate values
 //       const monthlySalary = parseFloat(earnings.basic || 0);
 //       const hra = parseFloat(earnings.hra || 0);
@@ -1699,35 +1697,35 @@ import html2canvas from 'html2canvas';
 //       const performanceBonus = parseFloat(earnings.performance_bonus || 0);
 //       const otherAllowances = parseFloat(earnings.other_allowances || 0);
 //       const conveyance = parseFloat(earnings.conveyance || 0);
-      
+
 //       const incomeTax = parseFloat(deductions.income_tax || 0);
 //       const esi = parseFloat(deductions.esi || 0);
 //       const epf = parseFloat(deductions.epf || 0);
 //       const professionalTax = parseFloat(deductions.professional_tax || 0);
 //       const salaryAdvance = parseFloat(deductions.salary_advance || 0);
-      
+
 //       // Calculate additional payments total
 //       const additionalPaymentsTotal = additionalPayments.reduce(
 //         (sum, payment) => sum + parseFloat(payment.value || 0), 0
 //       );
-      
+
 //       // Calculate additional deductions total
 //       const additionalDeductionsTotal = additionalDeductions.reduce(
 //         (sum, deduction) => sum + parseFloat(deduction.value || 0), 0
 //       );
-      
+
 //       // Calculate total earnings and deductions
-//       const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance + 
-//                            basketOfBenefits + performanceBonus + otherAllowances + 
+//       const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance +
+//                            basketOfBenefits + performanceBonus + otherAllowances +
 //                            conveyance + additionalPaymentsTotal;
-      
+
 //       const totalDeductions = incomeTax + esi + epf + professionalTax + salaryAdvance + additionalDeductionsTotal;
-      
+
 //       const netPayable = parseFloat(payment.net_payable || 0);
-      
+
 //       // Calculate LOP (Loss of Pay)
 //       const lop = totalEarnings - netPayable - totalDeductions;
-      
+
 //       // Format date
 //       const formatDate = (date) => {
 //         if (!date) return "N/A";
@@ -1737,7 +1735,7 @@ import html2canvas from 'html2canvas';
 //           day: "numeric",
 //         });
 //       };
-      
+
 //       // Convert amount to words
 //       const amountInWords = numToWords(netPayable);
 
@@ -1816,10 +1814,10 @@ import html2canvas from 'html2canvas';
 //               <tr><td>Performance Bonus</td><td>₹${performanceBonus.toFixed(2)}</td><td>LOP</td><td>₹${lop.toFixed(2)}</td></tr>
 //               <tr><td>Other Allowances</td><td>₹${otherAllowances.toFixed(2)}</td></tr>
 //               <tr><td>Conveyance</td><td>₹${conveyance.toFixed(2)}</td></tr>
-//               ${additionalPayments.map(payment => 
+//               ${additionalPayments.map(payment =>
 //                 `<tr><td>${payment.name}</td><td>₹${parseFloat(payment.value || 0).toFixed(2)}</td></tr>`
 //               ).join('')}
-//               ${additionalDeductions.map(deduction => 
+//               ${additionalDeductions.map(deduction =>
 //                 `<tr><td></td><td></td><td>${deduction.name}</td><td>₹${parseFloat(deduction.value || 0).toFixed(2)}</td></tr>`
 //               ).join('')}
 //               <tr class="total-row">
@@ -1850,173 +1848,173 @@ import html2canvas from 'html2canvas';
 // <head>
 // <style>
 // @page { size: A4; margin: 12mm; }
-// body { 
-//   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-//   margin: 0; 
-//   color: #1a202c; 
-//   background: #ffffff; 
+// body {
+//   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+//   margin: 0;
+//   color: #1a202c;
+//   background: #ffffff;
 //   padding: 0;
 //   -webkit-print-color-adjust: exact;
 //   print-color-adjust: exact;
 // }
-// .document { 
-//   background: #ffffff; 
-//   margin: 0 auto; 
-//   width: 100%; 
+// .document {
+//   background: #ffffff;
+//   margin: 0 auto;
+//   width: 100%;
 //   min-height: 100vh;
-//   box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-//   padding: 0; 
-//   box-sizing: border-box; 
-//   overflow: hidden; 
-//   display: flex; 
-//   flex-direction: column; 
+//   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+//   padding: 0;
+//   box-sizing: border-box;
+//   overflow: hidden;
+//   display: flex;
+//   flex-direction: column;
 // }
-// .header-band { 
-//   background: #667eea; 
-//   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-//   color: #fff; 
-//   padding: 20px; 
+// .header-band {
+//   background: #667eea;
+//   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+//   color: #fff;
+//   padding: 20px;
 // }
-// .header-content { 
-//   display: flex; 
-//   align-items: center; 
-//   justify-content: space-between; 
-//   gap: 20px; 
+// .header-content {
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   gap: 20px;
 // }
-// .logo-circle { 
-//   width: 70px; 
-//   height: 70px; 
-//   background: rgba(255,255,255,0.2); 
-//   border-radius: 6px; 
-//   display: flex; 
-//   align-items: center; 
-//   justify-content: center; 
+// .logo-circle {
+//   width: 70px;
+//   height: 70px;
+//   background: rgba(255,255,255,0.2);
+//   border-radius: 6px;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
 // }
-// .logo-circle img { 
-//   width: 50px; 
-//   height: 50px; 
-//   border-radius: 4px; 
+// .logo-circle img {
+//   width: 50px;
+//   height: 50px;
+//   border-radius: 4px;
 // }
 // .header-text { flex: 1; }
-// .company-title { 
-//   font-size: 22px; 
-//   font-weight: 700; 
-//   margin-bottom: 4px; 
+// .company-title {
+//   font-size: 22px;
+//   font-weight: 700;
+//   margin-bottom: 4px;
 // }
-// .company-subtitle { 
-//   font-size: 11px; 
-//   opacity: 0.9; 
-//   line-height: 1.4; 
+// .company-subtitle {
+//   font-size: 11px;
+//   opacity: 0.9;
+//   line-height: 1.4;
 // }
-// .header-meta { 
-//   text-align: right; 
-//   background: rgba(255,255,255,0.15); 
-//   padding: 12px; 
-//   border-radius: 10px; 
-//   font-size: 11px; 
+// .header-meta {
+//   text-align: right;
+//   background: rgba(255,255,255,0.15);
+//   padding: 12px;
+//   border-radius: 10px;
+//   font-size: 11px;
 // }
 // .meta-line { margin: 2px 0; }
 // .meta-value { font-weight: 400; }
-// .content { 
-//   flex: 1; 
-//   padding: 20px; 
+// .content {
+//   flex: 1;
+//   padding: 20px;
 //   background: #ffffff;
 // }
-// .payslip-title { 
-//   text-align: center; 
-//   font-size: 24px; 
-//   font-weight: 500; 
-//   color: #4a5568; 
-//   margin: 20px 0; 
-//   letter-spacing: 2px; 
+// .payslip-title {
+//   text-align: center;
+//   font-size: 24px;
+//   font-weight: 500;
+//   color: #4a5568;
+//   margin: 20px 0;
+//   letter-spacing: 2px;
 // }
-// .card { 
-//   background: #fff; 
-//   border: 1px solid #e2e8f0; 
-//   border-radius: 10px; 
-//   margin-bottom: 20px; 
-//   overflow: hidden; 
-//   box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+// .card {
+//   background: #fff;
+//   border: 1px solid #e2e8f0;
+//   border-radius: 10px;
+//   margin-bottom: 20px;
+//   overflow: hidden;
+//   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 // }
-// .card-header { 
-//   background: #f7fafc; 
-//   padding: 12px; 
-//   border-bottom: 1px solid #e2e8f0; 
-//   font-weight: 600; 
-//   color: #4a5568; 
+// .card-header {
+//   background: #f7fafc;
+//   padding: 12px;
+//   border-bottom: 1px solid #e2e8f0;
+//   font-weight: 600;
+//   color: #4a5568;
 // }
 // .card-body { padding: 15px; }
-// .info-grid { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 12px; 
+// .info-grid {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 12px;
 // }
-// .info-pair { 
-//   display: flex; 
-//   justify-content: space-between; 
-//   padding: 6px 0; 
-//   border-bottom: 1px dotted #e2e8f0; 
-//   font-size: 12px; 
+// .info-pair {
+//   display: flex;
+//   justify-content: space-between;
+//   padding: 6px 0;
+//   border-bottom: 1px dotted #e2e8f0;
+//   font-size: 12px;
 // }
 // .info-pair:last-child { border-bottom: none; }
-// .salary-grid { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 20px; 
+// .salary-grid {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 20px;
 // }
 // .earnings-card { border-left: 4px solid #48bb78; }
 // .deductions-card { border-left: 4px solid #f56565; }
-// .item-row { 
-//   display: flex; 
-//   justify-content: space-between; 
-//   padding: 8px 0; 
-//   border-bottom: 1px solid #f7fafc; 
-//   font-size: 12px; 
+// .item-row {
+//   display: flex;
+//   justify-content: space-between;
+//   padding: 8px 0;
+//   border-bottom: 1px solid #f7fafc;
+//   font-size: 12px;
 // }
 // .item-row:last-child { border-bottom: 2px solid #e2e8f0; }
 // .item-name { color: #4a5568; }
 // .item-amount { color: #2d3748; font-weight: 600; }
-// .total-amount { 
-//   background: #edf2f7; 
-//   padding: 10px; 
-//   border-radius: 6px; 
-//   font-weight: 700; 
-//   text-align: right; 
+// .total-amount {
+//   background: #edf2f7;
+//   padding: 10px;
+//   border-radius: 6px;
+//   font-weight: 700;
+//   text-align: right;
 // }
-// .net-section { 
-//   background: #4299e1; 
-//   background: linear-gradient(135deg, #4299e1, #3182ce); 
-//   color: #fff; 
-//   padding: 20px; 
-//   border-radius: 10px; 
-//   text-align: center; 
-//   margin: 25px 0; 
+// .net-section {
+//   background: #4299e1;
+//   background: linear-gradient(135deg, #4299e1, #3182ce);
+//   color: #fff;
+//   padding: 20px;
+//   border-radius: 10px;
+//   text-align: center;
+//   margin: 25px 0;
 // }
 // .net-title { font-size: 14px; margin-bottom: 8px; }
 // .net-figure { font-size: 28px; font-weight: 500; margin-bottom: 10px; }
 // .net-words { font-size: 11px; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 6px; }
-// .signature-section { 
-//   display: grid; 
-//   grid-template-columns: 1fr 1fr; 
-//   gap: 20px; 
-//   margin-top: 15px; 
+// .signature-section {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 20px;
+//   margin-top: 15px;
 // }
-// .signature-line { 
-//   border-top: 1px solid #cbd5e0; 
-//   margin-top: 40px; 
-//   padding-top: 8px; 
-//   font-size: 11px; 
-//   color: #718096; 
+// .signature-line {
+//   border-top: 1px solid #cbd5e0;
+//   margin-top: 40px;
+//   padding-top: 8px;
+//   font-size: 11px;
+//   color: #718096;
 // }
-// .footer-text { 
-//   text-align: center; 
-//   color: #a0aec0; 
-//   font-size: 9px; 
-//   margin: 25px 0; 
+// .footer-text {
+//   text-align: center;
+//   color: #a0aec0;
+//   font-size: 9px;
+//   margin: 25px 0;
 // }
-// @media print { 
-//   body { background: #fff; } 
-//   .document { box-shadow: none; page-break-after: avoid; } 
+// @media print {
+//   body { background: #fff; }
+//   .document { box-shadow: none; page-break-after: avoid; }
 // }
 // </style>
 // </head>
@@ -2065,7 +2063,7 @@ import html2canvas from 'html2canvas';
 //           <div class="item-row"><div class="item-name">Performance Bonus</div><div class="item-amount">₹${performanceBonus.toFixed(2)}</div></div>
 //           <div class="item-row"><div class="item-name">Other Allowances</div><div class="item-amount">₹${otherAllowances.toFixed(2)}</div></div>
 //           <div class="item-row"><div class="item-name">Conveyance</div><div class="item-amount">₹${conveyance.toFixed(2)}</div></div>
-//           ${additionalPayments.map(payment => 
+//           ${additionalPayments.map(payment =>
 //             `<div class="item-row"><div class="item-name">${payment.name}</div><div class="item-amount">₹${parseFloat(payment.value || 0).toFixed(2)}</div></div>`
 //           ).join('')}
 //           <div class="total-amount">Total: ₹${totalEarnings.toFixed(2)}</div>
@@ -2080,7 +2078,7 @@ import html2canvas from 'html2canvas';
 //           <div class="item-row"><div class="item-name">Professional Tax</div><div class="item-amount">₹${professionalTax.toFixed(2)}</div></div>
 //           <div class="item-row"><div class="item-name">Income Tax</div><div class="item-amount">₹${incomeTax.toFixed(2)}</div></div>
 //           <div class="item-row"><div class="item-name">Salary Advance</div><div class="item-amount">₹${salaryAdvance.toFixed(2)}</div></div>
-//           ${additionalDeductions.map(deduction => 
+//           ${additionalDeductions.map(deduction =>
 //             `<div class="item-row"><div class="item-name">${deduction.name}</div><div class="item-amount">₹${parseFloat(deduction.value || 0).toFixed(2)}</div></div>`
 //           ).join('')}
 //           <div class="total-amount">Total: ₹${totalDeductions.toFixed(2)}</div>
@@ -2208,12 +2206,12 @@ import html2canvas from 'html2canvas';
 //     const toDate = payment.salary_to_date;
 //     const salaryMonth = payment.salary_month;
 //     const salaryYear = payment.salary_year;
-    
+
 //     const earnings = payment.earnings || {};
 //     const deductions = payment.deductions || {};
 //     const additionalPayments = payment.additional_payments || [];
 //     const additionalDeductions = payment.additional_deductions || [];
-    
+
 //     const monthlySalary = parseFloat(earnings.basic || 0);
 //     const hra = parseFloat(earnings.hra || 0);
 //     const travelAllowance = parseFloat(earnings.travel_allowance || 0);
@@ -2222,31 +2220,31 @@ import html2canvas from 'html2canvas';
 //     const performanceBonus = parseFloat(earnings.performance_bonus || 0);
 //     const otherAllowances = parseFloat(earnings.other_allowances || 0);
 //     const conveyance = parseFloat(earnings.conveyance || 0);
-    
+
 //     const incomeTax = parseFloat(deductions.income_tax || 0);
 //     const esi = parseFloat(deductions.esi || 0);
 //     const epf = parseFloat(deductions.epf || 0);
 //     const professionalTax = parseFloat(deductions.professional_tax || 0);
 //     const salaryAdvance = parseFloat(deductions.salary_advance || 0);
-    
+
 //     const additionalPaymentsTotal = additionalPayments.reduce(
 //       (sum, payment) => sum + parseFloat(payment.value || 0), 0
 //     );
-    
+
 //     const additionalDeductionsTotal = additionalDeductions.reduce(
 //       (sum, deduction) => sum + parseFloat(deduction.value || 0), 0
 //     );
-    
-//     const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance + 
-//                          basketOfBenefits + performanceBonus + otherAllowances + 
+
+//     const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance +
+//                          basketOfBenefits + performanceBonus + otherAllowances +
 //                          conveyance + additionalPaymentsTotal;
-    
+
 //     const totalDeductions = incomeTax + esi + epf + professionalTax + salaryAdvance + additionalDeductionsTotal;
-    
+
 //     const netPayable = parseFloat(payment.net_payable || 0);
-    
+
 //     const lop = totalEarnings - netPayable - totalDeductions;
-    
+
 //     const formatDate = (date) => {
 //       if (!date) return "N/A";
 //       return new Date(date).toLocaleDateString("en-IN", {
@@ -2255,7 +2253,7 @@ import html2canvas from 'html2canvas';
 //         day: "numeric",
 //       });
 //     };
-    
+
 //     const amountInWords = numToWords(netPayable);
 
 //     // Generate the printable HTML content (using format1 style for consistency)
@@ -2267,128 +2265,128 @@ import html2canvas from 'html2canvas';
 //         <title>Salary Slip</title>
 //         <style>
 //           @page { size: A4; margin: 10mm; }
-//           body { 
-//             font-family: 'Times New Roman', serif; 
-//             margin: 0; 
-//             color: #000; 
-//             background: #fff; 
+//           body {
+//             font-family: 'Times New Roman', serif;
+//             margin: 0;
+//             color: #000;
+//             background: #fff;
 //             padding: 0;
 //             box-sizing: border-box;
 //           }
-//           .container { 
-//             max-width: 200mm; 
-//             margin: 0 auto; 
+//           .container {
+//             max-width: 200mm;
+//             margin: 0 auto;
 //             padding: 5mm;
 //           }
-//           .header { 
-//             border: 2px solid #000; 
-//             padding: 8px; 
-//             margin-bottom: 10px; 
-//             background: #f5f5f5; 
+//           .header {
+//             border: 2px solid #000;
+//             padding: 8px;
+//             margin-bottom: 10px;
+//             background: #f5f5f5;
 //           }
-//           .header-top { 
-//             display: flex; 
-//             align-items: center; 
-//             justify-content: space-between; 
-//             margin-bottom: 5px; 
+//           .header-top {
+//             display: flex;
+//             align-items: center;
+//             justify-content: space-between;
+//             margin-bottom: 5px;
 //           }
-//           .logo { 
-//             width: 60px; 
-//             height: 60px; 
+//           .logo {
+//             width: 60px;
+//             height: 60px;
 //           }
-//           .company-info { 
-//             text-align: center; 
-//             flex: 1; 
+//           .company-info {
+//             text-align: center;
+//             flex: 1;
 //           }
-//           .company-name { 
-//             font-size: 18px; 
-//             font-weight: bold; 
-//             margin: 2px 0; 
+//           .company-name {
+//             font-size: 18px;
+//             font-weight: bold;
+//             margin: 2px 0;
 //           }
-//           .company-addr { 
-//             font-size: 8px; 
-//             margin: 1px 0; 
+//           .company-addr {
+//             font-size: 8px;
+//             margin: 1px 0;
 //           }
-//           .payslip-title { 
-//             text-align: center; 
-//             font-size: 16px; 
-//             font-weight: bold; 
-//             text-decoration: underline; 
-//             margin: 10px 0; 
+//           .payslip-title {
+//             text-align: center;
+//             font-size: 16px;
+//             font-weight: bold;
+//             text-decoration: underline;
+//             margin: 10px 0;
 //           }
-//           .meta-info { 
-//             text-align: right; 
-//             font-size: 10px; 
+//           .meta-info {
+//             text-align: right;
+//             font-size: 10px;
 //           }
-//           .emp-details { 
-//             border: 1px solid #000; 
-//             margin: 10px 0; 
+//           .emp-details {
+//             border: 1px solid #000;
+//             margin: 10px 0;
 //           }
-//           .emp-header { 
-//             background: #000; 
-//             color: #fff; 
-//             padding: 5px; 
-//             font-weight: bold; 
-//             text-align: center; 
+//           .emp-header {
+//             background: #000;
+//             color: #fff;
+//             padding: 5px;
+//             font-weight: bold;
+//             text-align: center;
 //           }
-//           .emp-grid { 
-//             display: grid; 
-//             grid-template-columns: 1fr 1fr; 
+//           .emp-grid {
+//             display: grid;
+//             grid-template-columns: 1fr 1fr;
 //           }
-//           .emp-item { 
-//             padding: 5px; 
-//             border-right: 1px solid #000; 
-//             border-bottom: 1px solid #000; 
-//             font-size: 10px; 
+//           .emp-item {
+//             padding: 5px;
+//             border-right: 1px solid #000;
+//             border-bottom: 1px solid #000;
+//             font-size: 10px;
 //           }
-//           .emp-item:nth-child(even) { 
-//             border-right: none; 
+//           .emp-item:nth-child(even) {
+//             border-right: none;
 //           }
-//           .salary-table { 
-//             width: 100%; 
-//             border: 1px solid #000; 
-//             border-collapse: collapse; 
-//             margin: 10px 0; 
+//           .salary-table {
+//             width: 100%;
+//             border: 1px solid #000;
+//             border-collapse: collapse;
+//             margin: 10px 0;
 //           }
-//           .salary-table th { 
-//             background: #000; 
-//             color: #fff; 
-//             padding: 5px; 
-//             border: 1px solid #000; 
-//             font-size: 10px; 
+//           .salary-table th {
+//             background: #000;
+//             color: #fff;
+//             padding: 5px;
+//             border: 1px solid #000;
+//             font-size: 10px;
 //           }
-//           .salary-table td { 
-//             padding: 5px; 
-//             border: 1px solid #000; 
-//             font-size: 10px; 
+//           .salary-table td {
+//             padding: 5px;
+//             border: 1px solid #000;
+//             font-size: 10px;
 //           }
-//           .total-row { 
-//             background: #e0e0e0; 
-//             font-weight: bold; 
+//           .total-row {
+//             background: #e0e0e0;
+//             font-weight: bold;
 //           }
-//           .net-section { 
-//             border: 2px double #000; 
-//             padding: 10px; 
-//             text-align: center; 
-//             margin: 15px 0; 
-//             background: #f9f9f9; 
+//           .net-section {
+//             border: 2px double #000;
+//             padding: 10px;
+//             text-align: center;
+//             margin: 15px 0;
+//             background: #f9f9f9;
 //           }
-//           .net-amount { 
-//             font-size: 18px; 
-//             font-weight: bold; 
-//             margin: 5px 0; 
+//           .net-amount {
+//             font-size: 18px;
+//             font-weight: bold;
+//             margin: 5px 0;
 //           }
-//           .words { 
-//             font-style: italic; 
-//             font-size: 8px; 
-//             margin-top: 5px; 
+//           .words {
+//             font-style: italic;
+//             font-size: 8px;
+//             margin-top: 5px;
 //           }
-//           .footer { 
-//             text-align: center; 
-//             font-size: 8px; 
-//             margin-top: 20px; 
-//             border-top: 1px solid #000; 
-//             padding-top: 5px; 
+//           .footer {
+//             text-align: center;
+//             font-size: 8px;
+//             margin-top: 20px;
+//             border-top: 1px solid #000;
+//             padding-top: 5px;
 //           }
 //         </style>
 //       </head>
@@ -2433,10 +2431,10 @@ import html2canvas from 'html2canvas';
 //               <tr><td>Performance Bonus</td><td>₹${performanceBonus.toFixed(2)}</td><td>LOP</td><td>₹${lop.toFixed(2)}</td></tr>
 //               <tr><td>Other Allowances</td><td>₹${otherAllowances.toFixed(2)}</td></tr>
 //               <tr><td>Conveyance</td><td>₹${conveyance.toFixed(2)}</td></tr>
-//               ${additionalPayments.map(payment => 
+//               ${additionalPayments.map(payment =>
 //                 `<tr><td>${payment.name}</td><td>₹${parseFloat(payment.value || 0).toFixed(2)}</td></tr>`
 //               ).join('')}
-//               ${additionalDeductions.map(deduction => 
+//               ${additionalDeductions.map(deduction =>
 //                 `<tr><td></td><td></td><td>${deduction.name}</td><td>₹${parseFloat(deduction.value || 0).toFixed(2)}</td></tr>`
 //               ).join('')}
 //               <tr class="total-row">
@@ -2467,10 +2465,9 @@ import html2canvas from 'html2canvas';
 //   }
 // };
 
-
 //   const numToWords = (num) => {
 //     if (isNaN(num) || num === 0) return "Zero";
-    
+
 //     const a = [
 //       "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
 //       "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
@@ -2478,20 +2475,20 @@ import html2canvas from 'html2canvas';
 //     const b = [
 //       "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety",
 //     ];
-    
+
 //     num = Math.round(num);
 //     if ((num = num.toString()).length > 9) return "Overflow";
-    
+
 //     const n = ("000000000" + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
 //     if (!n) return "";
-    
+
 //     let str = "";
 //     str += n[1] != 0 ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + " Crore " : "";
 //     str += n[2] != 0 ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + " Lakh " : "";
 //     str += n[3] != 0 ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + " Thousand " : "";
 //     str += n[4] != 0 ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + " Hundred " : "";
 //     str += n[5] != 0 ? (str != "" ? "and " : "") + (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]]) + " " : "";
-    
+
 //     return str.trim() || "Zero";
 //   };
 
@@ -2527,20 +2524,20 @@ import html2canvas from 'html2canvas';
 //       </Card>
 
 //       {/* Preview Section */}
-//       <Card 
+//       <Card
 //         title={`Preview: ${formatButtons.find(f => f.key === printFormat)?.label}`}
 //         className="shadow-lg border-0"
 //         extra={
 //           <div className="flex gap-3">
-//             <Button 
-//               type="primary" 
+//             <Button
+//               type="primary"
 //               icon={<PrinterOutlined />}
 //               onClick={handlePrint}
 //               className="bg-blue-600 hover:bg-blue-700"
 //             >
 //               Print
 //             </Button>
-//             <Button 
+//             <Button
 //               type="primary"
 //               icon={<DownloadOutlined />}
 //               onClick={handleDownloadPDF}
@@ -2553,11 +2550,11 @@ import html2canvas from 'html2canvas';
 //         }
 //       >
 //         <div className="bg-gray-100 rounded-lg p-4">
-//           <div 
+//           <div
 //             ref={previewRef}
 //             className="bg-white rounded shadow-md overflow-auto"
-//             style={{ 
-//               height: '75vh', 
+//             style={{
+//               height: '75vh',
 //               transform: 'scale(0.85)',
 //               transformOrigin: 'top left',
 //               width: '117.65%' // 100 / 0.85 to compensate for scaling
@@ -2598,10 +2595,11 @@ const SalarySlipPrint = () => {
     const fetchPaymentDetails = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         const response = await api.get(`/salary-payment/${paymentId}`);
         setPayment(response.data?.data);
+        console.info(response.data?.data, "gfjhdsfgjhsdfgjhsdfggf");
       } catch (err) {
         console.error("Error fetching payment details:", err);
         setError("Failed to fetch payment details. Please try again.");
@@ -2622,15 +2620,27 @@ const SalarySlipPrint = () => {
   }, [printFormat, payment]);
 
   if (loading) {
-    return <div className="flex justify-center p-4"><Spin size="large" /></div>;
+    return (
+      <div className="flex justify-center p-4">
+        <Spin size="large" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="p-4"><Alert message={error} type="error" showIcon /></div>;
+    return (
+      <div className="p-4">
+        <Alert message={error} type="error" showIcon />
+      </div>
+    );
   }
 
   if (!payment || typeof payment !== "object" || !payment.employee_id) {
-    return <div className="p-4"><Alert message="Payment details not found" type="warning" showIcon /></div>;
+    return (
+      <div className="p-4">
+        <Alert message="Payment details not found" type="warning" showIcon />
+      </div>
+    );
   }
 
   const generateSalarySlipContent = () => {
@@ -2642,15 +2652,19 @@ const SalarySlipPrint = () => {
       const payDate = payment.pay_date || payment.createdAt;
       const fromDate = payment.salary_from_date;
       const toDate = payment.salary_to_date;
+      console.info(fromDate, "fromdate");
+      console.info(toDate, "todate");
       const salaryMonth = payment.salary_month;
       const salaryYear = payment.salary_year;
-      
+      const lossOfPay = payment?.lop_days;
+      const presentPay = payment?.paid_days;
+
       // Extract earnings and deductions from the payment data
       const earnings = payment.earnings || {};
       const deductions = payment.deductions || {};
       const additionalPayments = payment.additional_payments || [];
       const additionalDeductions = payment.additional_deductions || [];
-      
+
       // Calculate values
       const monthlySalary = parseFloat(earnings.basic || 0);
       const hra = parseFloat(earnings.hra || 0);
@@ -2660,35 +2674,62 @@ const SalarySlipPrint = () => {
       const performanceBonus = parseFloat(earnings.performance_bonus || 0);
       const otherAllowances = parseFloat(earnings.other_allowances || 0);
       const conveyance = parseFloat(earnings.conveyance || 0);
-      
+
       const incomeTax = parseFloat(deductions.income_tax || 0);
       const esi = parseFloat(deductions.esi || 0);
       const epf = parseFloat(deductions.epf || 0);
       const professionalTax = parseFloat(deductions.professional_tax || 0);
       const salaryAdvance = parseFloat(deductions.salary_advance || 0);
-      
+
       // Calculate additional payments total
       const additionalPaymentsTotal = additionalPayments.reduce(
-        (sum, payment) => sum + parseFloat(payment.value || 0), 0
+        (sum, payment) => sum + parseFloat(payment.value || 0),
+        0
       );
-      
+
       // Calculate additional deductions total
       const additionalDeductionsTotal = additionalDeductions.reduce(
-        (sum, deduction) => sum + parseFloat(deduction.value || 0), 0
+        (sum, deduction) => sum + parseFloat(deduction.value || 0),
+        0
       );
-      
+
       // Calculate total earnings and deductions
-      const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance + 
-                           basketOfBenefits + performanceBonus + otherAllowances + 
-                           conveyance + additionalPaymentsTotal;
-      
-      const totalDeductions = incomeTax + esi + epf + professionalTax + salaryAdvance + additionalDeductionsTotal;
-      
+      const totalEarnings =
+        monthlySalary +
+        hra +
+        travelAllowance +
+        medicalAllowance +
+        basketOfBenefits +
+        performanceBonus +
+        otherAllowances +
+        conveyance +
+        additionalPaymentsTotal;
+      const lopaddcal =
+        monthlySalary +
+        hra +
+        travelAllowance +
+        medicalAllowance +
+        basketOfBenefits +
+        performanceBonus +
+        otherAllowances +
+        conveyance;
+      const lop =
+        (lopaddcal / (parseFloat(lossOfPay) + parseFloat(presentPay))) *
+          parseFloat(lossOfPay) || 0;
+      // console.info(lop, "fhjdfgjhdfgjhfdgdf check123");
+      const totalDeductions =
+        incomeTax +
+        esi +
+        epf +
+        professionalTax +
+        salaryAdvance +
+        additionalDeductionsTotal +
+        lop;
+
       const netPayable = parseFloat(payment.paid_amount || 0);
-      
+
       // Calculate LOP (Loss of Pay)
-      const lop = totalEarnings - netPayable - totalDeductions;
-      
+
       // Format date
       const formatDate = (date) => {
         if (!date) return "N/A";
@@ -2696,9 +2737,10 @@ const SalarySlipPrint = () => {
           year: "numeric",
           month: "short",
           day: "numeric",
+          timeZone: "UTC",
         });
       };
-      
+
       // Convert amount to words
       const amountInWords = numToWords(netPayable);
 
@@ -2749,7 +2791,7 @@ const SalarySlipPrint = () => {
                 <div class="company-addr">CIN: U65999KA2022PTC161858</div>
               </div>
               <div class="meta-info">
-                Payslip ID: <strong>${payslipId}</strong><br>
+              
                 Date: <strong>${new Date().toLocaleDateString()}</strong>
               </div>
             </div>
@@ -2759,12 +2801,24 @@ const SalarySlipPrint = () => {
           <div class="emp-details">
             <div class="emp-header">EMPLOYEE DETAILS</div>
             <div class="emp-grid">
-              <div class="emp-item"><strong>Name:</strong> ${agent?.name || "N/A"}</div>
-              <div class="emp-item"><strong>Employee ID:</strong> ${agent?.employeeCode || "N/A"}</div>
-              <div class="emp-item"><strong>Designation:</strong> ${agent?.designation_id?.title || "N/A"}</div>
-              <div class="emp-item"><strong>Department:</strong> ${agent?.department || "N/A"}</div>
-              <div class="emp-item"><strong>Pay Period:</strong> ${formatDate(fromDate)} to ${formatDate(toDate)}</div>
-              <div class="emp-item"><strong>Payment Date:</strong> ${formatDate(payDate)}</div>
+              <div class="emp-item"><strong>Name:</strong> ${
+                agent?.name || "N/A"
+              }</div>
+              <div class="emp-item"><strong>Employee ID:</strong> ${
+                agent?.employeeCode || "N/A"
+              }</div>
+              <div class="emp-item"><strong>Designation:</strong> ${
+                agent?.designation_id?.title || "N/A"
+              }</div>
+              <div class="emp-item"><strong>Department:</strong> ${
+                agent?.department || "N/A"
+              }</div>
+              <div class="emp-item"><strong>Pay Period:</strong> ${formatDate(
+                fromDate
+              )} to ${formatDate(toDate)}</div>
+              <div class="emp-item"><strong>Payment Date:</strong> ${formatDate(
+                payDate
+              )}</div>
             </div>
           </div>
 
@@ -2822,7 +2876,9 @@ const SalarySlipPrint = () => {
 
     return `
       <td>${totalExtraDeductions > 0 ? "Others" : ""}</td>
-      <td>${totalExtraDeductions > 0 ? `₹${totalExtraDeductions.toFixed(2)}` : ""}</td>
+      <td>${
+        totalExtraDeductions > 0 ? `₹${totalExtraDeductions.toFixed(2)}` : ""
+      }</td>
     `;
   })()}
 </tr>
@@ -2840,15 +2896,15 @@ const SalarySlipPrint = () => {
         0
       );
 
-    
-
       // If no extra values, return empty string
-      if (totalExtraPayments === 0 ) return "";
+      if (totalExtraPayments === 0) return "";
 
       return `
         <tr>
           <td>${totalExtraPayments > 0 ? "Others" : ""}</td>
-          <td>${totalExtraPayments > 0 ? `₹${totalExtraPayments.toFixed(2)}` : ""}</td>
+          <td>${
+            totalExtraPayments > 0 ? `₹${totalExtraPayments.toFixed(2)}` : ""
+          }</td>
 
           
         </tr>
@@ -2869,7 +2925,7 @@ const SalarySlipPrint = () => {
 
 
           <div class="net-section">
-            <div>NET PAYABLE AMOUNT</div>
+            <div>NET PAID AMOUNT</div>
             <div class="net-amount">₹${netPayable.toFixed(2)}</div>
             <div class="words">Amount in words: Indian Rupees ${amountInWords} Only</div>
           </div>
@@ -3079,7 +3135,9 @@ body {
       <div class="header-meta">
         <div class="meta-line">Payslip ID: <span class="meta-value">${payslipId}</span></div>
         <div class="meta-line">Period: <span class="meta-value">${salaryMonth} ${salaryYear}</span></div>
-        <div class="meta-line">Date: <span class="meta-value">${formatDate(payDate)}</span></div>
+        <div class="meta-line">Date: <span class="meta-value">${formatDate(
+          payDate
+        )}</span></div>
       </div>
     </div>
   </div>
@@ -3089,12 +3147,24 @@ body {
       <div class="card-header">Employee Information</div>
       <div class="card-body">
         <div class="info-grid">
-          <div class="info-pair"><span>Employee Name</span><span>${agent?.name || "N/A"}</span></div>
-          <div class="info-pair"><span>Employee ID</span><span>${agent?.employeeCode || "N/A"}</span></div>
-          <div class="info-pair"><span>Designation</span><span>${agent?.designation_id?.title || "N/A"}</span></div>
-          <div class="info-pair"><span>Department</span><span>${agent?.department || "N/A"}</span></div>
-          <div class="info-pair"><span>Pay Period</span><span>${formatDate(fromDate)} to ${formatDate(toDate)}</span></div>
-          <div class="info-pair"><span>Payment Method</span><span>${payment.payment_method || "N/A"}</span></div>
+          <div class="info-pair"><span>Employee Name</span><span>${
+            agent?.name || "N/A"
+          }</span></div>
+          <div class="info-pair"><span>Employee ID</span><span>${
+            agent?.employeeCode || "N/A"
+          }</span></div>
+          <div class="info-pair"><span>Designation</span><span>${
+            agent?.designation_id?.title || "N/A"
+          }</span></div>
+          <div class="info-pair"><span>Department</span><span>${
+            agent?.department || "N/A"
+          }</span></div>
+          <div class="info-pair"><span>Pay Period</span><span>${formatDate(
+            fromDate
+          )} to ${formatDate(toDate)}</span></div>
+          <div class="info-pair"><span>Payment Method</span><span>${
+            payment.payment_method || "N/A"
+          }</span></div>
         </div>
       </div>
     </div>
@@ -3102,42 +3172,86 @@ body {
       <div class="card earnings-card">
         <div class="card-header" style="color: #48bb78;">Earnings</div>
         <div class="card-body">
-          <div class="item-row"><div class="item-name">Basic Salary</div><div class="item-amount">₹${monthlySalary.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">HRA</div><div class="item-amount">₹${hra.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Travel Allowance</div><div class="item-amount">₹${travelAllowance.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Medical Allowance</div><div class="item-amount">₹${medicalAllowance.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Basket of Benefits</div><div class="item-amount">₹${basketOfBenefits.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Performance Bonus</div><div class="item-amount">₹${performanceBonus.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Other Allowances</div><div class="item-amount">₹${otherAllowances.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Conveyance</div><div class="item-amount">₹${conveyance.toFixed(2)}</div></div>
-          ${additionalPayments.length > 0 ? 
-            `<div class="sub-header">Additional Payments</div>` : ''}
-          ${additionalPayments.map(payment => 
-            `<div class="item-row"><div class="item-name">Others</div><div class="item-amount">₹${parseFloat(payment.value || 0).toFixed(2)}</div></div>`
-          ).join('')}
+          <div class="item-row"><div class="item-name">Basic Salary</div><div class="item-amount">₹${monthlySalary.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">HRA</div><div class="item-amount">₹${hra.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Travel Allowance</div><div class="item-amount">₹${travelAllowance.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Medical Allowance</div><div class="item-amount">₹${medicalAllowance.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Basket of Benefits</div><div class="item-amount">₹${basketOfBenefits.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Performance Bonus</div><div class="item-amount">₹${performanceBonus.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Other Allowances</div><div class="item-amount">₹${otherAllowances.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Conveyance</div><div class="item-amount">₹${conveyance.toFixed(
+            2
+          )}</div></div>
+          ${
+            additionalPayments.length > 0
+              ? `<div class="sub-header">Additional Payments</div>`
+              : ""
+          }
+          ${additionalPayments
+            .map(
+              (payment) =>
+                `<div class="item-row"><div class="item-name">Others</div><div class="item-amount">₹${parseFloat(
+                  payment.value || 0
+                ).toFixed(2)}</div></div>`
+            )
+            .join("")}
           <div class="total-amount">Total: ₹${totalEarnings.toFixed(2)}</div>
         </div>
       </div>
       <div class="card deductions-card">
         <div class="card-header" style="color: #f56565;">Deductions</div>
         <div class="card-body">
-          <div class="item-row"><div class="item-name">Loss of Pay</div><div class="item-amount">₹${lop.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">EPF</div><div class="item-amount">₹${epf.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">ESI</div><div class="item-amount">₹${esi.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Professional Tax</div><div class="item-amount">₹${professionalTax.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Income Tax</div><div class="item-amount">₹${incomeTax.toFixed(2)}</div></div>
-          <div class="item-row"><div class="item-name">Salary Advance</div><div class="item-amount">₹${salaryAdvance.toFixed(2)}</div></div>
-          ${additionalDeductions.length > 0 ? 
-            `<div class="sub-header">Additional Deductions</div>` : ''}
-          ${additionalDeductions.map(deduction => 
-            `<div class="item-row"><div class="item-name">Others</div><div class="item-amount">₹${parseFloat(deduction.value || 0).toFixed(2)}</div></div>`
-          ).join('')}
+          <div class="item-row"><div class="item-name">Loss of Pay</div><div class="item-amount">₹${lop.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">EPF</div><div class="item-amount">₹${epf.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">ESI</div><div class="item-amount">₹${esi.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Professional Tax</div><div class="item-amount">₹${professionalTax.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Income Tax</div><div class="item-amount">₹${incomeTax.toFixed(
+            2
+          )}</div></div>
+          <div class="item-row"><div class="item-name">Salary Advance</div><div class="item-amount">₹${salaryAdvance.toFixed(
+            2
+          )}</div></div>
+          ${
+            additionalDeductions.length > 0
+              ? `<div class="sub-header">Additional Deductions</div>`
+              : ""
+          }
+          ${additionalDeductions
+            .map(
+              (deduction) =>
+                `<div class="item-row"><div class="item-name">Others</div><div class="item-amount">₹${parseFloat(
+                  deduction.value || 0
+                ).toFixed(2)}</div></div>`
+            )
+            .join("")}
           <div class="total-amount">Total: ₹${totalDeductions.toFixed(2)}</div>
         </div>
       </div>
     </div>
     <div class="net-section">
-      <div class="net-title">Net Payable Amount</div>
+      <div class="net-title">Net Paid Amount</div>
       <div class="net-figure">₹${netPayable.toFixed(2)}</div>
       <div class="net-words">Amount in Words: Indian Rupees ${amountInWords} Only</div>
     </div>
@@ -3167,7 +3281,9 @@ body {
       const agent = payment.employee_id;
       const salaryMonth = payment.salary_month;
       const salaryYear = payment.salary_year;
-      const fileName = `${agent?.name || "Employee"}_${salaryMonth}_${salaryYear} Slip`;
+      const fileName = `${
+        agent?.name || "Employee"
+      }_${salaryMonth}_${salaryYear} Slip`;
 
       const printWindow = window.open("", "_blank");
       printWindow.document.write(htmlContent);
@@ -3180,135 +3296,153 @@ body {
     }
   };
 
-const handleDownloadPDF = async () => {
-  try {
-    setDownloading(true);
-    const element = previewRef.current;
+  const handleDownloadPDF = async () => {
+    try {
+      setDownloading(true);
+      const element = previewRef.current;
 
-    const agent = payment.employee_id;
-    const salaryMonth = payment.salary_month;
-    const salaryYear = payment.salary_year;
-    const fileName = `${agent?.name || "Employee"}_${salaryMonth}_${salaryYear}_Payslip.pdf`;
+      const agent = payment.employee_id;
+      const salaryMonth = payment.salary_month;
+      const salaryYear = payment.salary_year;
+      const fileName = `${
+        agent?.name || "Employee"
+      }_${salaryMonth}_${salaryYear}_Payslip.pdf`;
 
-    // Create a hidden container to render the printable version
-    const printContainer = document.createElement('div');
-    printContainer.style.position = 'absolute';
-    printContainer.style.left = '-9999px';
-    printContainer.style.top = '-9999px';
-    printContainer.style.width = '210mm'; // A4 width
-    printContainer.style.padding = '10mm'; // Add padding as margin
-    printContainer.style.boxSizing = 'border-box';
-    printContainer.innerHTML = generatePrintableSalarySlipContent(); // Use a modified version for print
-    document.body.appendChild(printContainer);
+      // Create a hidden container to render the printable version
+      const printContainer = document.createElement("div");
+      printContainer.style.position = "absolute";
+      printContainer.style.left = "-9999px";
+      printContainer.style.top = "-9999px";
+      printContainer.style.width = "210mm"; // A4 width
+      printContainer.style.padding = "10mm"; // Add padding as margin
+      printContainer.style.boxSizing = "border-box";
+      printContainer.innerHTML = generatePrintableSalarySlipContent(); // Use a modified version for print
+      document.body.appendChild(printContainer);
 
-    // Capture canvas from the print container
-    const canvas = await html2canvas(printContainer, {
-      scale: 2, // Higher DPI for better quality
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      width: 800, // Set a fixed width for consistent rendering
-      logging: false
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-
-    // Calculate dimensions for A4 page (210mm x 297mm)
-    const pageWidth = 210;
-    const pageHeight = 297;
-
-    // Calculate image dimensions based on A4 size and canvas aspect ratio
-    const imgWidth = pageWidth - 20; // Subtract 20mm for margins (10mm each side)
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    let position = 0;
-    let heightLeft = imgHeight;
-
-    // Add first page
-    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight); // Start at (10,10) for 10mm margin
-
-    // Add subsequent pages if needed
-    while (heightLeft > pageHeight - 20) { // -20 for top/bottom margins
-      position += pageHeight - 20;
-      heightLeft -= pageHeight - 20;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 10, 10 - position, imgWidth, imgHeight);
-    }
-
-    // Clean up
-    document.body.removeChild(printContainer);
-
-    pdf.save(fileName);
-  } catch (err) {
-    console.error("PDF error:", err);
-    alert("Failed to download PDF. Please try again.");
-  } finally {
-    setDownloading(false);
-  }
-};
-
-// Add this function to generate a printable version of the content
-const generatePrintableSalarySlipContent = () => {
-  try {
-    const agent = payment.employee_id;
-    const payslipId = payment._id;
-    const payDate = payment.pay_date || payment.createdAt;
-    const fromDate = payment.salary_from_date;
-    const toDate = payment.salary_to_date;
-    const salaryMonth = payment.salary_month;
-    const salaryYear = payment.salary_year;
-    
-    const earnings = payment.earnings || {};
-    const deductions = payment.deductions || {};
-    const additionalPayments = payment.additional_payments || [];
-    const additionalDeductions = payment.additional_deductions || [];
-    
-    const monthlySalary = parseFloat(earnings.basic || 0);
-    const hra = parseFloat(earnings.hra || 0);
-    const travelAllowance = parseFloat(earnings.travel_allowance || 0);
-    const medicalAllowance = parseFloat(earnings.medical_allowance || 0);
-    const basketOfBenefits = parseFloat(earnings.basket_of_benifits || 0);
-    const performanceBonus = parseFloat(earnings.performance_bonus || 0);
-    const otherAllowances = parseFloat(earnings.other_allowances || 0);
-    const conveyance = parseFloat(earnings.conveyance || 0);
-    
-    const incomeTax = parseFloat(deductions.income_tax || 0);
-    const esi = parseFloat(deductions.esi || 0);
-    const epf = parseFloat(deductions.epf || 0);
-    const professionalTax = parseFloat(deductions.professional_tax || 0);
-    const salaryAdvance = parseFloat(deductions.salary_advance || 0);
-    
-    const additionalPaymentsTotal = additionalPayments.reduce(
-      (sum, payment) => sum + parseFloat(payment.value || 0), 0
-    );
-    
-    const additionalDeductionsTotal = additionalDeductions.reduce(
-      (sum, deduction) => sum + parseFloat(deduction.value || 0), 0
-    );
-    
-    const totalEarnings = monthlySalary + hra + travelAllowance + medicalAllowance + 
-                         basketOfBenefits + performanceBonus + otherAllowances + 
-                         conveyance + additionalPaymentsTotal;
-    
-    const totalDeductions = incomeTax + esi + epf + professionalTax + salaryAdvance + additionalDeductionsTotal;
-    
-    const netPayable = parseFloat(payment.net_payable || 0);
-    
-    const lop = totalEarnings - netPayable - totalDeductions;
-    
-    const formatDate = (date) => {
-      if (!date) return "N/A";
-      return new Date(date).toLocaleDateString("en-IN", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
+      // Capture canvas from the print container
+      const canvas = await html2canvas(printContainer, {
+        scale: 2, // Higher DPI for better quality
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        width: 800, // Set a fixed width for consistent rendering
+        logging: false,
       });
-    };
-    
-    const amountInWords = numToWords(netPayable);
 
-    // Generate the printable HTML content (using format1 style for consistency)
-    const printableContent = `
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+
+      // Calculate dimensions for A4 page (210mm x 297mm)
+      const pageWidth = 210;
+      const pageHeight = 297;
+
+      // Calculate image dimensions based on A4 size and canvas aspect ratio
+      const imgWidth = pageWidth - 20; // Subtract 20mm for margins (10mm each side)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let position = 0;
+      let heightLeft = imgHeight;
+
+      // Add first page
+      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight); // Start at (10,10) for 10mm margin
+
+      // Add subsequent pages if needed
+      while (heightLeft > pageHeight - 20) {
+        // -20 for top/bottom margins
+        position += pageHeight - 20;
+        heightLeft -= pageHeight - 20;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, 10 - position, imgWidth, imgHeight);
+      }
+
+      // Clean up
+      document.body.removeChild(printContainer);
+
+      pdf.save(fileName);
+    } catch (err) {
+      console.error("PDF error:", err);
+      alert("Failed to download PDF. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  // Add this function to generate a printable version of the content
+  const generatePrintableSalarySlipContent = () => {
+    try {
+      const agent = payment.employee_id;
+      const payslipId = payment._id;
+      const payDate = payment.pay_date || payment.createdAt;
+      const fromDate = payment.salary_from_date;
+      const toDate = payment.salary_to_date;
+      const salaryMonth = payment.salary_month;
+      const salaryYear = payment.salary_year;
+
+      const earnings = payment.earnings || {};
+      const deductions = payment.deductions || {};
+      const additionalPayments = payment.additional_payments || [];
+      const additionalDeductions = payment.additional_deductions || [];
+
+      const monthlySalary = parseFloat(earnings.basic || 0);
+      const hra = parseFloat(earnings.hra || 0);
+      const travelAllowance = parseFloat(earnings.travel_allowance || 0);
+      const medicalAllowance = parseFloat(earnings.medical_allowance || 0);
+      const basketOfBenefits = parseFloat(earnings.basket_of_benifits || 0);
+      const performanceBonus = parseFloat(earnings.performance_bonus || 0);
+      const otherAllowances = parseFloat(earnings.other_allowances || 0);
+      const conveyance = parseFloat(earnings.conveyance || 0);
+
+      const incomeTax = parseFloat(deductions.income_tax || 0);
+      const esi = parseFloat(deductions.esi || 0);
+      const epf = parseFloat(deductions.epf || 0);
+      const professionalTax = parseFloat(deductions.professional_tax || 0);
+      const salaryAdvance = parseFloat(deductions.salary_advance || 0);
+
+      const additionalPaymentsTotal = additionalPayments.reduce(
+        (sum, payment) => sum + parseFloat(payment.value || 0),
+        0
+      );
+
+      const additionalDeductionsTotal = additionalDeductions.reduce(
+        (sum, deduction) => sum + parseFloat(deduction.value || 0),
+        0
+      );
+
+      const totalEarnings =
+        monthlySalary +
+        hra +
+        travelAllowance +
+        medicalAllowance +
+        basketOfBenefits +
+        performanceBonus +
+        otherAllowances +
+        conveyance +
+        additionalPaymentsTotal;
+
+      const totalDeductions =
+        incomeTax +
+        esi +
+        epf +
+        professionalTax +
+        salaryAdvance +
+        additionalDeductionsTotal;
+
+      const netPayable = parseFloat(payment.net_payable || 0);
+
+      const lop = totalEarnings - netPayable - totalDeductions;
+
+      const formatDate = (date) => {
+        if (!date) return "N/A";
+        return new Date(date).toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      };
+
+      const amountInWords = numToWords(netPayable);
+
+      // Generate the printable HTML content (using format1 style for consistency)
+      const printableContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -3458,7 +3592,7 @@ const generatePrintableSalarySlipContent = () => {
                 <div class="company-addr">CIN: U65999KA2022PTC161858</div>
               </div>
               <div class="meta-info">
-                Payslip ID: <strong>${payslipId}</strong><br>
+                
                 Date: <strong>${new Date().toLocaleDateString()}</strong>
               </div>
             </div>
@@ -3468,33 +3602,73 @@ const generatePrintableSalarySlipContent = () => {
           <div class="emp-details">
             <div class="emp-header">EMPLOYEE DETAILS</div>
             <div class="emp-grid">
-              <div class="emp-item"><strong>Name:</strong> ${agent?.name || "N/A"}</div>
-              <div class="emp-item"><strong>Employee ID:</strong> ${agent?.employeeCode || "N/A"}</div>
-              <div class="emp-item"><strong>Designation:</strong> ${agent?.designation_id?.title || "N/A"}</div>
-              <div class="emp-item"><strong>Department:</strong> ${agent?.department || "N/A"}</div>
-              <div class="emp-item"><strong>Pay Period:</strong> ${formatDate(fromDate)} to ${formatDate(toDate)}</div>
-              <div class="emp-item"><strong>Payment Date:</strong> ${formatDate(payDate)}</div>
+              <div class="emp-item"><strong>Name:</strong> ${
+                agent?.name || "N/A"
+              }</div>
+              <div class="emp-item"><strong>Employee ID:</strong> ${
+                agent?.employeeCode || "N/A"
+              }</div>
+              <div class="emp-item"><strong>Designation:</strong> ${
+                agent?.designation_id?.title || "N/A"
+              }</div>
+              <div class="emp-item"><strong>Department:</strong> ${
+                agent?.department || "N/A"
+              }</div>
+              <div class="emp-item"><strong>Pay Period:</strong> ${formatDate(
+                fromDate
+              )} to ${formatDate(toDate)}</div>
+              <div class="emp-item"><strong>Payment Date:</strong> ${formatDate(
+                payDate
+              )}</div>
             </div>
           </div>
 
           <table class="salary-table">
             <thead><tr><th>EARNINGS</th><th>AMOUNT (₹)</th><th>DEDUCTIONS</th><th>AMOUNT (₹)</th></tr></thead>
             <tbody>
-              <tr><td>Basic Salary</td><td>₹${monthlySalary.toFixed(2)}</td><td>EPF</td><td>₹${epf.toFixed(2)}</td></tr>
-              <tr><td>House Rent Allowance</td><td>₹${hra.toFixed(2)}</td><td>ESI</td><td>₹${esi.toFixed(2)}</td></tr>
-              <tr><td>Travel Allowance</td><td>₹${travelAllowance.toFixed(2)}</td><td>Professional Tax</td><td>₹${professionalTax.toFixed(2)}</td></tr>
-              <tr><td>Medical Allowance</td><td>₹${medicalAllowance.toFixed(2)}</td><td>Income Tax</td><td>₹${incomeTax.toFixed(2)}</td></tr>
-              <tr><td>Basket of Benefits</td><td>₹${basketOfBenefits.toFixed(2)}</td><td>Salary Advance</td><td>₹${salaryAdvance.toFixed(2)}</td></tr>
-              <tr><td>Performance Bonus</td><td>₹${performanceBonus.toFixed(2)}</td><td>LOP</td><td>₹${lop.toFixed(2)}</td></tr>
-              <tr><td>Other Allowances</td><td>₹${otherAllowances.toFixed(2)}</td></tr>
+              <tr><td>Basic Salary</td><td>₹${monthlySalary.toFixed(
+                2
+              )}</td><td>EPF</td><td>₹${epf.toFixed(2)}</td></tr>
+              <tr><td>House Rent Allowance</td><td>₹${hra.toFixed(
+                2
+              )}</td><td>ESI</td><td>₹${esi.toFixed(2)}</td></tr>
+              <tr><td>Travel Allowance</td><td>₹${travelAllowance.toFixed(
+                2
+              )}</td><td>Professional Tax</td><td>₹${professionalTax.toFixed(
+        2
+      )}</td></tr>
+              <tr><td>Medical Allowance</td><td>₹${medicalAllowance.toFixed(
+                2
+              )}</td><td>Income Tax</td><td>₹${incomeTax.toFixed(2)}</td></tr>
+              <tr><td>Basket of Benefits</td><td>₹${basketOfBenefits.toFixed(
+                2
+              )}</td><td>Salary Advance</td><td>₹${salaryAdvance.toFixed(
+        2
+      )}</td></tr>
+              <tr><td>Performance Bonus</td><td>₹${performanceBonus.toFixed(
+                2
+              )}</td><td>LOP</td><td>₹${lop.toFixed(2)}</td></tr>
+              <tr><td>Other Allowances</td><td>₹${otherAllowances.toFixed(
+                2
+              )}</td></tr>
               <tr><td>Conveyance</td><td>₹${conveyance.toFixed(2)}</td></tr>
              
-              ${additionalPayments.map(payment => 
-                `<tr><td>Others</td><td>₹${parseFloat(payment.value || 0).toFixed(2)}</td><td></td><td></td></tr>`
-              ).join('')}
-              ${additionalDeductions.map(deduction => 
-                `<tr><td>Others</td><td>₹${parseFloat(deduction.value || 0).toFixed(2)}</td></tr>`
-              ).join('')}
+              ${additionalPayments
+                .map(
+                  (payment) =>
+                    `<tr><td>Others</td><td>₹${parseFloat(
+                      payment.value || 0
+                    ).toFixed(2)}</td><td></td><td></td></tr>`
+                )
+                .join("")}
+              ${additionalDeductions
+                .map(
+                  (deduction) =>
+                    `<tr><td>Others</td><td>₹${parseFloat(
+                      deduction.value || 0
+                    ).toFixed(2)}</td></tr>`
+                )
+                .join("")}
               <tr class="total-row">
                 <td><strong>GROSS EARNINGS</strong></td>
                 <td><strong>₹${totalEarnings.toFixed(2)}</strong></td>
@@ -3505,7 +3679,7 @@ const generatePrintableSalarySlipContent = () => {
           </table>
 
           <div class="net-section">
-            <div>NET PAYABLE AMOUNT</div>
+            <div>NET PAID AMOUNT</div>
             <div class="net-amount">₹${netPayable.toFixed(2)}</div>
             <div class="words">Amount in words: Indian Rupees ${amountInWords} Only</div>
           </div>
@@ -3516,44 +3690,97 @@ const generatePrintableSalarySlipContent = () => {
       </html>
     `;
 
-    return printableContent;
-  } catch (err) {
-    console.error("Error generating printable content:", err);
-    return "<div>Error generating printable content</div>";
-  }
-};
-
+      return printableContent;
+    } catch (err) {
+      console.error("Error generating printable content:", err);
+      return "<div>Error generating printable content</div>";
+    }
+  };
 
   const numToWords = (num) => {
     if (isNaN(num) || num === 0) return "Zero";
-    
+
     const a = [
-      "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
-      "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
+      "",
+      "One",
+      "Two",
+      "Three",
+      "Four",
+      "Five",
+      "Six",
+      "Seven",
+      "Eight",
+      "Nine",
+      "Ten",
+      "Eleven",
+      "Twelve",
+      "Thirteen",
+      "Fourteen",
+      "Fifteen",
+      "Sixteen",
+      "Seventeen",
+      "Eighteen",
+      "Nineteen",
     ];
     const b = [
-      "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety",
+      "",
+      "",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
     ];
-    
+
     num = Math.round(num);
     if ((num = num.toString()).length > 9) return "Overflow";
-    
-    const n = ("000000000" + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+
+    const n = ("000000000" + num)
+      .substr(-9)
+      .match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
     if (!n) return "";
-    
+
     let str = "";
-    str += n[1] != 0 ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + " Crore " : "";
-    str += n[2] != 0 ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + " Lakh " : "";
-    str += n[3] != 0 ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + " Thousand " : "";
-    str += n[4] != 0 ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + " Hundred " : "";
-    str += n[5] != 0 ? (str != "" ? "and " : "") + (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]]) + " " : "";
-    
+    str +=
+      n[1] != 0
+        ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + " Crore "
+        : "";
+    str +=
+      n[2] != 0
+        ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + " Lakh "
+        : "";
+    str +=
+      n[3] != 0
+        ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + " Thousand "
+        : "";
+    str +=
+      n[4] != 0
+        ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + " Hundred "
+        : "";
+    str +=
+      n[5] != 0
+        ? (str != "" ? "and " : "") +
+          (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]]) +
+          " "
+        : "";
+
     return str.trim() || "Zero";
   };
 
   const formatButtons = [
-    { key: 'format1', label: 'Classic Professional', description: 'Traditional formal style' },
-    { key: 'format2', label: 'Modern Gradient', description: 'Contemporary colorful design' }
+    {
+      key: "format1",
+      label: "Classic Professional",
+      description: "Traditional formal style",
+    },
+    {
+      key: "format2",
+      label: "Modern Gradient",
+      description: "Contemporary colorful design",
+    },
   ];
 
   return (
@@ -3561,8 +3788,12 @@ const generatePrintableSalarySlipContent = () => {
       {/* Format Selection Buttons */}
       <Card className="shadow-lg border-0">
         <div className="mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Salary Slip Generator</h2>
-          <p className="text-gray-600">Select a format and preview your payslip</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Salary Slip Generator
+          </h2>
+          <p className="text-gray-600">
+            Select a format and preview your payslip
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {formatButtons.map((format) => (
@@ -3571,8 +3802,8 @@ const generatePrintableSalarySlipContent = () => {
               onClick={() => setPrintFormat(format.key)}
               className={`p-4 rounded-xl border-2 transition-all duration-300 ${
                 printFormat === format.key
-                  ? 'border-blue-500 bg-blue-50 shadow-md transform scale-105'
-                  : 'border-gray-200 hover:border-gray-300 bg-white hover:shadow-sm'
+                  ? "border-blue-500 bg-blue-50 shadow-md transform scale-105"
+                  : "border-gray-200 hover:border-gray-300 bg-white hover:shadow-sm"
               }`}
             >
               <div className="font-semibold text-lg mb-1">{format.label}</div>
@@ -3583,20 +3814,22 @@ const generatePrintableSalarySlipContent = () => {
       </Card>
 
       {/* Preview Section */}
-      <Card 
-        title={`Preview: ${formatButtons.find(f => f.key === printFormat)?.label}`}
+      <Card
+        title={`Preview: ${
+          formatButtons.find((f) => f.key === printFormat)?.label
+        }`}
         className="shadow-lg border-0"
         extra={
           <div className="flex gap-3">
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<PrinterOutlined />}
               onClick={handlePrint}
               className="bg-blue-600 hover:bg-blue-700"
             >
               Print
             </Button>
-            <Button 
+            <Button
               type="primary"
               icon={<DownloadOutlined />}
               onClick={handleDownloadPDF}
@@ -3609,14 +3842,14 @@ const generatePrintableSalarySlipContent = () => {
         }
       >
         <div className="bg-gray-100 rounded-lg p-4">
-          <div 
+          <div
             ref={previewRef}
             className="bg-white rounded shadow-md overflow-auto"
-            style={{ 
-              height: '75vh', 
-              transform: 'scale(0.85)',
-              transformOrigin: 'top left',
-              width: '117.65%' // 100 / 0.85 to compensate for scaling
+            style={{
+              height: "75vh",
+              transform: "scale(0.85)",
+              transformOrigin: "top left",
+              width: "117.65%", // 100 / 0.85 to compensate for scaling
             }}
           >
             {previewContent ? (
@@ -3633,17 +3866,4 @@ const generatePrintableSalarySlipContent = () => {
   );
 };
 
-
-
-
-
-
-
-
-
-
 export default SalarySlipPrint;
-
-
-
-
