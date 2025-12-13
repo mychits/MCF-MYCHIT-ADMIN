@@ -52,11 +52,13 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import Sidebar from "../components/layouts/Sidebar";
+import { useNavigate } from 'react-router-dom';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Title, Text } = Typography;
 
 const PenaltyMonitor = () => {
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [screenLoading, setScreenLoading] = useState(true);
   const [usersData, setUsersData] = useState([]);
@@ -161,9 +163,25 @@ const PenaltyMonitor = () => {
               };
               const vacantCycles = penaltyData?.cycles?.filter((c) => c.vacant_cycle === true) || [];
               const summary = penaltyData.summary || {};
-              const vcPenalty = summary.total_vacant_chit_penalty || 0;
-              const regularPenalty = Math.max(0, (summary.total_penalty || 0) - vcPenalty);
-              const totalLateFee = summary.total_late_payment_charges || 0;
+              let vcPenalty = summary.total_vacant_chit_penalty || 0;
+              let regularPenalty = Math.max(0, (summary.total_penalty || 0) - vcPenalty);
+              let totalLateFee = summary.total_late_payment_charges || 0;
+
+              // Check if the customer is fully paid
+              const isFullyPaid = (summary.total_paid || 0) >= (summary.total_expected || 0);
+
+              // If fully paid, zero out all penalties
+              if (isFullyPaid) {
+                vcPenalty = 0;
+                regularPenalty = 0;
+                totalLateFee = 0;
+              }
+
+              const amountToBePaid = summary.total_expected || 0;
+              const amountPaid = summary.total_paid || 0;
+              const balanceWithoutPenalty = amountToBePaid - amountPaid;
+              const combinedPenalty = regularPenalty + vcPenalty;
+              const totalOverdueCharges = combinedPenalty + totalLateFee;
               const totalPenalty = regularPenalty + vcPenalty;
               const balanceWithPenalty = summary.grand_total_due_with_penalty || 0;
               const enrollmentDateStr = data.enrollment.createdAt?.split("T")[0] || "";
@@ -299,17 +317,21 @@ const PenaltyMonitor = () => {
                 userName: usrData.userName,
                 userPhone: usrData.phone_number,
                 customerId: usrData.customer_id,
-                amountPaid: summary.total_paid || 0,
+                amountPaid,
                 paymentsTicket: data.payments.ticket,
-                amountToBePaid: summary.total_expected || 0,
+                amountToBePaid,
                 groupName: data.enrollment.group.group_name,
                 enrollmentDate: enrollmentDateStr,
-                totalToBePaid: summary.total_expected || 0,
+                totalToBePaid: amountToBePaid,
                 balance: balanceWithPenalty,
                 regularPenalty,
                 vcPenalty,
-                totalPenalty,
+                totalPenalty: combinedPenalty, // ensures consistency
                 totalLateFee,
+                // ✅ NEWLY ADDED FIELDS
+                balanceWithoutPenalty,
+                combinedPenalty,
+                totalOverdueCharges,
                 actions: whatsappActions,
                 statusDiv: isVcWithinGrace ? (
                   <Tag color="blue">VC – Within Grace</Tag>
@@ -334,7 +356,27 @@ const PenaltyMonitor = () => {
           }
         }
       }
-      const validUsers = usersList.filter((u) => Number(u.totalToBePaid || 0) > 0);
+      const validUsers = usersList.filter((u) => {
+        const amountToBePaid = Number(u.totalToBePaid || 0);
+        const amountPaid = Number(u.amountPaid || 0);
+
+        // ❌ Hide if fully/overpaid
+        if (amountPaid >= amountToBePaid) {
+          return false;
+        }
+
+        // ❌ Hide if no penalties and no late fees
+        if (
+          (u.regularPenalty || 0) === 0 &&
+          (u.vcPenalty || 0) === 0 &&
+          (u.totalLateFee || 0) === 0
+        ) {
+          return false;
+        }
+
+        // ✅ Keep only if amount to be paid is positive
+        return amountToBePaid > 0;
+      });
       setUsersData(validUsers);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -347,6 +389,23 @@ const PenaltyMonitor = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        navigate('/penalty-settings');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigate]);
+
+
 
   // 🔹 Calculate totals
   useEffect(() => {
@@ -361,6 +420,7 @@ const PenaltyMonitor = () => {
     const totalLateFee = filteredUsers.reduce((sum, u) => sum + (u.totalLateFee || 0), 0);
     const totalRegularPenalty = filteredUsers.reduce((sum, u) => sum + (u.regularPenalty || 0), 0);
     const totalVcPenalty = filteredUsers.reduce((sum, u) => sum + (u.vcPenalty || 0), 0);
+    const totalTickets = filteredUsers.length; // Each row = 1 ticket
     setTotals({
       totalCustomers,
       totalGroups,
@@ -371,6 +431,7 @@ const PenaltyMonitor = () => {
       totalLateFee,
       totalRegularPenalty,
       totalVcPenalty,
+      totalTickets,
     });
   }, [filteredUsers, groupFilter]);
 
@@ -602,39 +663,14 @@ const PenaltyMonitor = () => {
     }
   };
 
+  const formatAmount = (value) =>
+    Number(value || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
   // ✅ COLUMN DEFINITION (unchanged)
   const columns = [
-    // {
-    //   key: "selection",
-    //   header: (
-    //     <Checkbox
-    //       indeterminate={filteredUsers.length > 0 && selectedRows.length > 0 && selectedRows.length < filteredUsers.length}
-    //       checked={filteredUsers.length > 0 && selectedRows.length === filteredUsers.length}
-    //       onChange={(e) => {
-    //         if (e.target.checked) {
-    //           setSelectedRows([...filteredUsers]);
-    //         } else {
-    //           setSelectedRows([]);
-    //         }
-    //       }}
-    //       disabled={filteredUsers.length === 0}
-    //     />
-    //   ),
-    //   render: (_, record) => (
-    //     <Checkbox
-    //       checked={selectedRows.some((row) => row._id === record._id)}
-    //       onChange={(e) => {
-    //         if (e.target.checked) {
-    //           setSelectedRows((prev) => [...prev, record]);
-    //         } else {
-    //           setSelectedRows((prev) => prev.filter((row) => row._id !== record._id));
-    //         }
-    //       }}
-    //     />
-    //   ),
-    //   width: 50,
-    //   align: "center",
-    // },
     {
       key: "sl_no",
       header: "SL. NO",
@@ -677,48 +713,79 @@ const PenaltyMonitor = () => {
     {
       key: "totalToBePaid",
       header: "Amount to be Paid",
-      render: (text) => <span className="font-semibold text-green-600">₹{text?.toLocaleString("en-IN")}</span>,
+      render: (text) => (
+        <span className="font-semibold text-green-600">
+          ₹{Number(text || 0).toFixed(2).toLocaleString("en-IN", {
+          })}
+        </span>
+      ),
     },
     {
       key: "amountPaid",
       header: "Amount Paid",
-      render: (text) => <span className="font-semibold text-indigo-600">₹{text?.toLocaleString("en-IN")}</span>,
-    },
-    {
-      key: "regularPenalty",
-      header: "Penalty",
-      render: (text, record) => (
-        <span className="font-semibold text-red-600">₹{(record.regularPenalty || 0).toLocaleString("en-IN")}</span>
+      render: (text) => (
+        <span className="font-semibold text-indigo-600">
+          ₹{Number(text || 0).toFixed(2).toLocaleString("en-IN", {
+
+          })}
+        </span>
       ),
     },
     {
-      key: "vcPenalty",
-      header: "VC Penalty",
+      key: "balanceWithoutPenalty",
+      header: "Balance",
+      render: (text, record) => {
+        const balance = Number(record.balanceWithoutPenalty || 0);
+        return (
+          <span className={`font-semibold ${balance > 0 ? "text-red-600" : "text-green-600"}`}>
+            ₹{balance.toFixed(2).toLocaleString("en-IN")}
+          </span>
+        );
+      },
+    },
+    {
+      key: "combinedPenalty",
+      header: "Total Penalty",
       render: (text, record) => (
-        <span className="font-semibold text-yellow-700">₹{(record.vcPenalty || 0).toLocaleString("en-IN")}</span>
+        <span className="font-semibold text-purple-600">
+          ₹{Number(record.combinedPenalty || 0).toFixed(2).toLocaleString("en-IN")}
+        </span>
       ),
     },
     {
       key: "totalLateFee",
       header: "Late Fee",
-      render: (text) => <span className="font-semibold text-orange-600">₹{text?.toLocaleString("en-IN")}</span>,
+      render: (text) => (
+        <span className="font-semibold text-orange-600">
+          ₹{Number(text || 0).toFixed(2).toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    {
+      key: "totalOverdueCharges",
+      header: "Total Overdue Charges",
+      render: (text, record) => (
+        <span className="font-semibold text-red-700">
+          ₹{Number(record.totalOverdueCharges || 0).toFixed(2).toLocaleString("en-IN")}
+        </span>
+      ),
     },
     {
       key: "balance",
       header: "Outstanding with Penalty",
-      render: (text) => (
-        <span className={`font-semibold ${text > 0 ? "text-red-600" : "text-green-600"}`}>₹{text?.toLocaleString("en-IN")}</span>
-      ),
+      render: (text) => {
+        const balance = Number(text || 0);
+        return (
+          <span className={`font-semibold ${balance > 0 ? "text-red-600" : "text-green-600"}`}>
+            ₹{balance.toFixed(2).toLocaleString("en-IN")}
+          </span>
+        );
+      },
     },
     {
       key: "actions",
       header: "Actions",
       render: (text, record) => record.actions,
-    },
-    {
-      key: "statusDiv",
-      header: "Status",
-      render: (text) => text,
     },
   ];
   const breakdownColumns = [
@@ -750,50 +817,77 @@ const PenaltyMonitor = () => {
       title: "Expected",
       dataIndex: "expected",
       align: "right",
-      render: (v, row) =>
-        row.vacant_cycle ? (
-          <span style={{ color: "#b58900", fontWeight: "600" }}>₹{v}</span>
+      render: (v, row) => {
+        const value = Number(v || 0);
+        return row.vacant_cycle ? (
+          <span style={{ color: "#b58900", fontWeight: "600" }}>
+            ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
         ) : (
-          <span className="font-medium">₹{v?.toFixed(2)}</span>
-        ),
+          <span className="font-medium">
+            ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        );
+      },
     },
     {
       title: "Paid",
       dataIndex: "paid",
       align: "right",
-      render: (v) => <span className="text-green-600 font-medium">₹{v?.toFixed(2)}</span>,
+      render: (v) => {
+        const value = Number(v || 0);
+        return <span className="text-green-600 font-medium">
+          ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>;
+      },
     },
     {
       title: "Balance",
       dataIndex: "balance",
       align: "right",
-      render: (v) => <span className="text-red-600 font-medium">₹{v?.toFixed(2)}</span>,
+      render: (v) => {
+        const value = Number(v || 0);
+        return <span className="text-red-600 font-medium">
+          ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>;
+      },
     },
     {
       title: "Penalty",
       dataIndex: "penalty",
       align: "right",
-      render: (v, row) =>
-        row.vacant_cycle ? (
-          <span style={{ color: "#d97706", fontWeight: 700 }}>₹{v}</span>
+      render: (v, row) => {
+        const value = Number(v || 0);
+        return row.vacant_cycle ? (
+          <span style={{ color: "#d97706", fontWeight: 700 }}>
+            ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
         ) : (
-          <span style={{ color: v > 0 ? "red" : "gray", fontWeight: 500 }}>₹{v?.toFixed(2)}</span>
-        ),
+          <span style={{ color: value > 0 ? "red" : "gray", fontWeight: 500 }}>
+            ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        );
+      },
     },
     {
       title: "Late Fee",
       dataIndex: "late_payment_charges",
       align: "right",
-      render: (v) => (
-        <span className="text-orange-600 font-medium">₹{Number(v || 0).toLocaleString("en-IN")}</span>
-      ),
+      render: (v) => {
+        const value = Number(v || 0);
+        return (
+          <span className="text-orange-600 font-medium">
+            ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        );
+      },
     },
     {
       title: "Penalty Rate",
       dataIndex: "penalty_rate_percent",
       align: "center",
       render: (v, row) =>
-        row.vacant_cycle ? <Tag color="gold">VC Rate</Tag> : <span className="text-blue-600">{v}%</span>,
+        row.vacant_cycle ? <Tag color="gold">VC Rate</Tag> : <span className="text-blue-600">{Number(v || 0)}%</span>,
     },
   ];
   const filteredTableData = filterOption(
@@ -854,7 +948,7 @@ const PenaltyMonitor = () => {
                       ))}
                     </Select>
                   </div>
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Enrollment Date Range</label>
                     <RangePicker
                       className="w-full"
@@ -869,7 +963,7 @@ const PenaltyMonitor = () => {
                       }}
                       format="DD/MM/YYYY"
                     />
-                  </div>
+                  </div> */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Search Customer</label>
                     <Input
@@ -1008,6 +1102,16 @@ const PenaltyMonitor = () => {
                 <Col xs={24} sm={12} md={4}>
                   <Card className="shadow-sm border border-gray-200">
                     <Statistic
+                      title="Total No. of Tickets"
+                      value={totals.totalTickets}
+
+                      valueStyle={{ color: "#722ed1", fontSize: "1.5rem" }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={4}>
+                  <Card className="shadow-sm border border-gray-200">
+                    <Statistic
                       title="Total Groups"
                       value={totals.totalGroups}
                       prefix={<UsergroupAddOutlined className="text-green-500" />}
@@ -1015,7 +1119,7 @@ const PenaltyMonitor = () => {
                     />
                   </Card>
                 </Col>
-                <Col xs={24} sm={12} md={4}>
+                {/* <Col xs={24} sm={12} md={4}>
                   <Card className="shadow-sm border border-gray-200">
                     <Statistic
                       title="Amount to be Paid"
@@ -1025,8 +1129,8 @@ const PenaltyMonitor = () => {
                       formatter={(value) => `₹${value?.toLocaleString("en-IN")}`}
                     />
                   </Card>
-                </Col>
-                {/* <Col xs={24} sm={12} md={4}>
+                </Col> */}
+                <Col xs={24} sm={12} md={4}>
                   <Card className="shadow-sm border border-gray-200">
                     <Statistic
                       title="Total Penalty"
@@ -1036,7 +1140,7 @@ const PenaltyMonitor = () => {
                       formatter={(value) => `₹${value?.toLocaleString("en-IN")}`}
                     />
                   </Card>
-                </Col> */}
+                </Col>
                 <Col xs={24} sm={12} md={4}>
                   <Card className="shadow-sm border border-gray-200">
                     <Statistic
@@ -1048,7 +1152,7 @@ const PenaltyMonitor = () => {
                     />
                   </Card>
                 </Col>
-                <Col xs={24} sm={12} md={4}>
+                {/* <Col xs={24} sm={12} md={4}>
                   <Card className="shadow-sm border border-gray-200">
                     <Statistic
                       title="Total Paid"
@@ -1058,8 +1162,8 @@ const PenaltyMonitor = () => {
                       formatter={(value) => `₹${value?.toLocaleString("en-IN")}`}
                     />
                   </Card>
-                </Col>
-                <Col xs={24} sm={12} md={4}>
+                </Col> */}
+                {/* <Col xs={24} sm={12} md={4}>
                   <Card className="shadow-sm border border-gray-200">
                     <Statistic
                       title="Total Balance"
@@ -1069,8 +1173,8 @@ const PenaltyMonitor = () => {
                       formatter={(value) => `₹${value?.toLocaleString("en-IN")}`}
                     />
                   </Card>
-                </Col>
-                <Col xs={24} sm={12} md={4}>
+                </Col> */}
+                {/* <Col xs={24} sm={12} md={4}>
                   <Card className="shadow-sm border border-gray-200">
                     <Statistic
                       title=" Penalty"
@@ -1091,9 +1195,18 @@ const PenaltyMonitor = () => {
                       formatter={(value) => `₹${value?.toLocaleString("en-IN")}`}
                     />
                   </Card>
-                </Col>
+                </Col> */}
               </Row>
             </div>
+
+            <Button
+              type="dashed"
+              
+              onClick={() => navigate('/penalty-settings')}
+              style={{ marginBottom: 16 }}
+            >
+              Go to Penalty Settings
+            </Button>
 
             {/* Data Table */}
             <Card
@@ -1105,7 +1218,7 @@ const PenaltyMonitor = () => {
                     {selectedRows.length > 0 ? (
                       <span className="font-medium text-blue-600">{selectedRows.length} selected</span>
                     ) : (
-                      `Showing ${filteredTableData.length} of ${usersData.length} customers`
+                      `Showing ${filteredTableData.length} of ${usersData.length} Records`
                     )}
                   </span>
                 </div>

@@ -51,6 +51,7 @@ import {
   MoneyCollectOutlined,
 } from "@ant-design/icons";
 import CircularLoader from "../components/loaders/CircularLoader";
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -58,6 +59,7 @@ const { Panel } = Collapse;
 const { Search } = Input;
 
 const PenaltySettings = () => {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [penaltyRate, setPenaltyRate] = useState(0);
@@ -99,6 +101,23 @@ const PenaltySettings = () => {
       setPenaltyAmount(0);
     }
   }, [penaltyRate, selectedGroup]);
+
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Skip if typing in input, textarea, etc.
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'm') {
+        e.preventDefault();
+        navigate('/penalty-monitor');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigate]);
+
 
   useEffect(() => {
     fetchGroups();
@@ -467,6 +486,8 @@ const PenaltySettings = () => {
       <div style={{ flex: 1 }}>
         <Navbar />
         <div style={{ padding: '24px 32px', marginTop: '10px' }}>
+
+          
           {/* Header Section */}
           <div style={{
             marginBottom: '24px',
@@ -504,7 +525,14 @@ const PenaltySettings = () => {
               </div>
             </div>
           </div>
-
+   <Button
+                              type="dashed"
+                             
+                              onClick={() => navigate('/penalty-monitor')}
+                              style={{ marginBottom: 16 }}
+                            >
+                              Go to Penalty Monitor
+                            </Button>
           <Card
             style={{
               borderRadius: '16px',
@@ -743,136 +771,136 @@ const PenaltySettings = () => {
                     </div>
                   </Card>
 
-{!penaltyPreview && (
-  <>
-                  {isGroupSelected && (
+                  {!penaltyPreview && (
                     <>
-                      {/* Late Charges Section */}
-                      <Card style={{
-                        borderRadius: '12px',
-                        border: 'none',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                        marginBottom: '24px',
-                        background: '#ffffff',
-                        overflow: 'hidden',
-                      }}>
-                        <div style={{
-                          background: 'linear-gradient(to right, #fff7e6, #fff2cc)',
-                          padding: '16px 24px',
-                          borderBottom: '1px solid #ffd591'
-                        }}>
-                          <Title level={4} style={{
-                            margin: 0,
-                            color: '#d46b08',
-                            fontWeight: '600',
-                            fontSize: '18px',
-                            display: 'flex',
-                            alignItems: 'center'
+                      {isGroupSelected && (
+                        <>
+                          {/* Late Charges Section */}
+                          <Card style={{
+                            borderRadius: '12px',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                            marginBottom: '24px',
+                            background: '#ffffff',
+                            overflow: 'hidden',
                           }}>
-                            <ThunderboltOutlined style={{ marginRight: '8px' }} />
-                            Late Charges
-                          </Title>
-                        </div>
-                        <div style={{ padding: '24px' }}>
-                          <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={12} md={6}>
-                              <div style={{ marginBottom: '8px' }}>
-                                <Text strong style={{ color: '#475569', fontSize: '14px' }}>
-                                  Grace Days (Late Fee)
-                                </Text>
-                                <Text type="danger"> *</Text>
-                              </div>
-                              <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                value={daysLateThreshold}
-                                onChange={setDaysLateThreshold}
-                                size="large"
-                                placeholder="Enter threshold days"
-                              />
-                            </Col>
-                            <Col xs={24} sm={12} md={6}>
-                              <div style={{ marginBottom: '8px' }}>
-                                <Text strong style={{ color: '#475569', fontSize: '14px' }}>
-                                  Late Fee Rate (%)
-                                </Text>
-                                <Text type="danger"> *</Text>
-                              </div>
-                              <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                max={100}
-                                value={latePaymentRate}
-                                onChange={(val) => {
-                                  setLatePaymentRate(val || 0);
-                                  if (selectedGroup) {
-                                    const amount = getInstallmentAmount(selectedGroup);
-                                    const lateFee = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
-                                    setLatePaymentAmount(lateFee);
-                                  }
-                                }}
-                                size="large"
-                                placeholder="Enter rate"
-                              />
-                            </Col>
-                            <Col xs={24} sm={12} md={6}>
-                              <div style={{ marginBottom: '8px' }}>
-                                <Text strong style={{ color: '#475569', fontSize: '14px' }}>
-                                  Late Fee Amount (₹)
-                                </Text>
-                                <Text type="danger"> *</Text>
-                              </div>
-                              <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                value={latePaymentAmount}
-                                onChange={(val) => {
-                                  setLatePaymentAmount(val || 0);
-                                  if (selectedGroup) {
-                                    const amount = getInstallmentAmount(selectedGroup);
-                                    const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
-                                    setLatePaymentRate(parseFloat(rate));
-                                  }
-                                }}
-                                size="large"
-                                formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => value.replace(/\₹\s?|(,*)/g, '')}
-                                placeholder="Enter amount"
-                              />
-                            </Col>
-                          </Row>
-                        </div>
-                      </Card>
+                            <div style={{
+                              background: 'linear-gradient(to right, #fff7e6, #fff2cc)',
+                              padding: '16px 24px',
+                              borderBottom: '1px solid #ffd591'
+                            }}>
+                              <Title level={4} style={{
+                                margin: 0,
+                                color: '#d46b08',
+                                fontWeight: '600',
+                                fontSize: '18px',
+                                display: 'flex',
+                                alignItems: 'center'
+                              }}>
+                                <ThunderboltOutlined style={{ marginRight: '8px' }} />
+                                Late Charges
+                              </Title>
+                            </div>
+                            <div style={{ padding: '24px' }}>
+                              <Row gutter={[16, 16]}>
+                                <Col xs={24} sm={12} md={6}>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                                      Grace Days (Late Fee)
+                                    </Text>
+                                    <Text type="danger"> *</Text>
+                                  </div>
+                                  <InputNumber
+                                    style={{ width: "100%" }}
+                                    min={0}
+                                    value={daysLateThreshold}
+                                    onChange={setDaysLateThreshold}
+                                    size="large"
+                                    placeholder="Enter threshold days"
+                                  />
+                                </Col>
+                                <Col xs={24} sm={12} md={6}>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                                      Late Fee Rate (%)
+                                    </Text>
+                                    <Text type="danger"> *</Text>
+                                  </div>
+                                  <InputNumber
+                                    style={{ width: "100%" }}
+                                    min={0}
+                                    max={100}
+                                    value={latePaymentRate}
+                                    onChange={(val) => {
+                                      setLatePaymentRate(val || 0);
+                                      if (selectedGroup) {
+                                        const amount = getInstallmentAmount(selectedGroup);
+                                        const lateFee = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
+                                        setLatePaymentAmount(lateFee);
+                                      }
+                                    }}
+                                    size="large"
+                                    placeholder="Enter rate"
+                                  />
+                                </Col>
+                                <Col xs={24} sm={12} md={6}>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                                      Late Fee Amount (₹)
+                                    </Text>
+                                    <Text type="danger"> *</Text>
+                                  </div>
+                                  <InputNumber
+                                    style={{ width: "100%" }}
+                                    min={0}
+                                    value={latePaymentAmount}
+                                    onChange={(val) => {
+                                      setLatePaymentAmount(val || 0);
+                                      if (selectedGroup) {
+                                        const amount = getInstallmentAmount(selectedGroup);
+                                        const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
+                                        setLatePaymentRate(parseFloat(rate));
+                                      }
+                                    }}
+                                    size="large"
+                                    formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={value => value.replace(/\₹\s?|(,*)/g, '')}
+                                    placeholder="Enter amount"
+                                  />
+                                </Col>
+                              </Row>
+                            </div>
+                          </Card>
 
-                      {/* Overdue Charges Section */}
-                      <Card style={{
-                        borderRadius: '12px',
-                        border: 'none',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                        marginBottom: '24px',
-                        background: '#ffffff',
-                        overflow: 'hidden',
-                      }}>
-                        <div style={{
-                          background: 'linear-gradient(to right, #fff1f0, #ffccc7)',
-                          padding: '16px 24px',
-                          borderBottom: '1px solid #ffa39e'
-                        }}>
-                          <Title level={4} style={{
-                            margin: 0,
-                            color: '#cf1322',
-                            fontWeight: '600',
-                            fontSize: '18px',
-                            display: 'flex',
-                            alignItems: 'center'
+                          {/* Overdue Charges Section */}
+                          <Card style={{
+                            borderRadius: '12px',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                            marginBottom: '24px',
+                            background: '#ffffff',
+                            overflow: 'hidden',
                           }}>
-                            <ClockCircleOutlined style={{ marginRight: '8px' }} />
-                            Overdue Charges
-                          </Title>
-                        </div>
-                        <div style={{ padding: '24px' }}>
-                          <Row gutter={[16, 16]}>
-                            {/* <Col xs={24} sm={12} md={8}>
+                            <div style={{
+                              background: 'linear-gradient(to right, #fff1f0, #ffccc7)',
+                              padding: '16px 24px',
+                              borderBottom: '1px solid #ffa39e'
+                            }}>
+                              <Title level={4} style={{
+                                margin: 0,
+                                color: '#cf1322',
+                                fontWeight: '600',
+                                fontSize: '18px',
+                                display: 'flex',
+                                alignItems: 'center'
+                              }}>
+                                <ClockCircleOutlined style={{ marginRight: '8px' }} />
+                                Overdue Charges
+                              </Title>
+                            </div>
+                            <div style={{ padding: '24px' }}>
+                              <Row gutter={[16, 16]}>
+                                {/* <Col xs={24} sm={12} md={8}>
                               <div style={{ marginBottom: '8px' }}>
                                 <Text strong style={{ color: '#475569', fontSize: '14px' }}>
                                   Grace Days (Overdue Charges)
@@ -888,176 +916,180 @@ const PenaltySettings = () => {
                                 placeholder="Enter days"
                               />
                             </Col> */}
-                            <Col xs={24} sm={12} md={8}>
-                              <div style={{ marginBottom: '8px' }}>
-                                <Text strong style={{ color: '#475569', fontSize: '14px' }}>
-                                  Penalty Rate (%)
-                                </Text>
-                                <Text type="danger"> *</Text>
-                              </div>
-                              <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                max={100}
-                                value={penaltyRate}
-                                onChange={(val) => {
-                                  setPenaltyRate(val || 0);
-                                  if (selectedGroup) {
-                                    const amount = getInstallmentAmount(selectedGroup);
-                                    const penalty = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
-                                    setPenaltyAmount(penalty);
-                                  }
-                                }}
-                                size="large"
-                                placeholder="Enter rate"
-                              />
-                            </Col>
-                            <Col xs={24} sm={12} md={8}>
-                              <div style={{ marginBottom: '8px' }}>
-                                <Text strong style={{ color: '#475569', fontSize: '14px' }}>
-                                  Penalty Amount
-                                </Text>
-                                <Text type="danger"> *</Text>
-                              </div>
-                              <InputNumber
-                                style={{ width: "100%" }}
-                                min={0}
-                                value={penaltyAmount}
-                                onChange={(val) => {
-                                  setPenaltyAmount(val || 0);
-                                  if (selectedGroup) {
-                                    const amount = getInstallmentAmount(selectedGroup);
-                                    const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
-                                    setPenaltyRate(parseFloat(rate));
-                                  }
-                                }}
-                                size="large"
-                                formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => value.replace(/\₹\s?|(,*)/g, '')}
-                                placeholder="Enter amount"
-                              />
-                            </Col>
-                          </Row>
-                        </div>
-                      </Card>
+                                <Col xs={24} sm={12} md={8}>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                                      Penalty Rate (%)
+                                    </Text>
+                                    <Text type="danger"> *</Text>
+                                  </div>
+                                  <InputNumber
+                                    style={{ width: "100%" }}
+                                    min={0}
+                                    max={100}
+                                    value={penaltyRate}
+                                    onChange={(val) => {
+                                      setPenaltyRate(val || 0);
+                                      if (selectedGroup) {
+                                        const amount = getInstallmentAmount(selectedGroup);
+                                        const penalty = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
+                                        setPenaltyAmount(penalty);
+                                      }
+                                    }}
+                                    size="large"
+                                    placeholder="Enter rate"
+                                  />
+                                </Col>
+                                <Col xs={24} sm={12} md={8}>
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <Text strong style={{ color: '#475569', fontSize: '14px' }}>
+                                      Penalty Amount
+                                    </Text>
+                                    <Text type="danger"> *</Text>
+                                  </div>
+                                  <InputNumber
+                                    style={{ width: "100%" }}
+                                    min={0}
+                                    value={penaltyAmount}
+                                    onChange={(val) => {
+                                      setPenaltyAmount(val || 0);
+                                      if (selectedGroup) {
+                                        const amount = getInstallmentAmount(selectedGroup);
+                                        const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
+                                        setPenaltyRate(parseFloat(rate));
+                                      }
+                                    }}
+                                    size="large"
+                                    formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={value => value.replace(/\₹\s?|(,*)/g, '')}
+                                    placeholder="Enter amount"
+                                  />
+                                </Col>
+                              </Row>
+                            </div>
+                          </Card>
 
 
-                      <Card
-                        style={{
-                          borderRadius: '12px',
-                          border: 'none',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-                          marginBottom: '24px',
-                          background: '#ffffff',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <div
-                          style={{
-                            background: 'linear-gradient(to right, #ffe7cc, #ffd8a8)',
-                            padding: '16px 24px',
-                            borderBottom: '1px solid #ffc078',
-                          }}
-                        >
-                          <Title
-                            level={4}
+                          <Card
                             style={{
-                              margin: 0,
-                              color: '#d9480f',
-                              fontWeight: '600',
-                              fontSize: '18px',
-                              display: 'flex',
-                              alignItems: 'center',
+                              borderRadius: '12px',
+                              border: 'none',
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                              marginBottom: '24px',
+                              background: '#ffffff',
+                              overflow: 'hidden',
                             }}
                           >
-                            <WarningOutlined style={{ marginRight: '8px' }} />
-                            Overdue Charges for Vacant Chit
-                          </Title>
-                        </div>
-                        <div style={{ padding: '24px' }}>
-                          <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={12} md={8}>
-                              <Text strong>Grace Days (Vacant Chit)</Text>
-                              <InputNumber
-                                style={{ width: '100%' }}
-                                min={0}
-                                value={vacantChitGraceDays}
-                                onChange={setVacantChitGraceDays}
-                                size="large"
-                              />
-                            </Col>
-
-                            {/* Vacant Chit Penalty Rate (%) */}
-                            <Col xs={24} sm={12} md={8}>
-                              <Text strong>Vacant Chit Penalty Rate (%)</Text>
-                              <InputNumber
-                                style={{ width: '100%' }}
-                                min={0}
-                                max={100}
-                                value={vacantChitPenaltyRate}
-                                onChange={(val) => {
-                                  setVacantChitPenaltyRate(val || 0);
-                                  if (selectedGroup) {
-                                    const amount = getInstallmentAmount(selectedGroup);
-                                    const penalty = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
-                                    setVacantChitPenaltyAmount(penalty);
-                                  }
+                            <div
+                              style={{
+                                background: 'linear-gradient(to right, #ffe7cc, #ffd8a8)',
+                                padding: '16px 24px',
+                                borderBottom: '1px solid #ffc078',
+                              }}
+                            >
+                              <Title
+                                level={4}
+                                style={{
+                                  margin: 0,
+                                  color: '#d9480f',
+                                  fontWeight: '600',
+                                  fontSize: '18px',
+                                  display: 'flex',
+                                  alignItems: 'center',
                                 }}
-                                size="large"
-                                placeholder="Enter rate"
-                              />
-                            </Col>
+                              >
+                                <WarningOutlined style={{ marginRight: '8px' }} />
+                                Overdue Charges for Vacant Chit
+                              </Title>
+                            </div>
+                            <div style={{ padding: '24px' }}>
+                              <Row gutter={[16, 16]}>
+                                <Col xs={24} sm={12} md={8}>
+                                  <Text strong>Grace Days (Vacant Chit)</Text>
+                                  <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    value={vacantChitGraceDays}
+                                    onChange={setVacantChitGraceDays}
+                                    size="large"
+                                  />
+                                </Col>
 
-                            {/* Vacant Chit Penalty Amount (₹) */}
-                            <Col xs={24} sm={12} md={8}>
-                              <Text strong>Vacant Chit Penalty Amount (₹)</Text>
-                              <InputNumber
-                                style={{ width: '100%' }}
-                                min={0}
-                                value={vacantChitPenaltyAmount}
-                                onChange={(val) => {
-                                  setVacantChitPenaltyAmount(val || 0);
-                                  if (selectedGroup) {
-                                    const amount = getInstallmentAmount(selectedGroup);
-                                    const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
-                                    setVacantChitPenaltyRate(parseFloat(rate));
-                                  }
-                                }}
-                                size="large"
-                                formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => value.replace(/\₹\s?|(,*)/g, '')}
-                                placeholder="Enter amount"
-                              />
-                            </Col>
-                          </Row>
-                        </div>
-                      </Card>
+                                {/* Vacant Chit Penalty Rate (%) */}
+                                <Col xs={24} sm={12} md={8}>
+                                  <Text strong>Vacant Chit Penalty Rate (%)</Text>
+                                  <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    max={100}
+                                    value={vacantChitPenaltyRate}
+                                    onChange={(val) => {
+                                      setVacantChitPenaltyRate(val || 0);
+                                      if (selectedGroup) {
+                                        const amount = getInstallmentAmount(selectedGroup);
+                                        const penalty = amount > 0 ? parseFloat(((amount * (val || 0)) / 100).toFixed(2)) : 0;
+                                        setVacantChitPenaltyAmount(penalty);
+                                      }
+                                    }}
+                                    size="large"
+                                    placeholder="Enter rate"
+                                  />
+                                </Col>
 
-                      {/* Save Button */}
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-                        <Button
-                          type="primary"
-                          icon={<IoMdSave />}
-                          loading={saving}
-                          onClick={handleSave}
-                          size="large"
-                          style={{
-                            fontWeight: '600',
-                            borderRadius: '8px',
-                            background: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)',
-                            border: 'none',
-                            boxShadow: '0 4px 12px rgba(79, 172, 254, 0.3)',
-                            height: '48px',
-                            paddingLeft: '24px',
-                            paddingRight: '24px',
-                          }}
-                        >
-                          Save Settings
-                        </Button>
-                      </div>
+                                {/* Vacant Chit Penalty Amount (₹) */}
+                                <Col xs={24} sm={12} md={8}>
+                                  <Text strong>Vacant Chit Penalty Amount (₹)</Text>
+                                  <InputNumber
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    value={vacantChitPenaltyAmount}
+                                    onChange={(val) => {
+                                      setVacantChitPenaltyAmount(val || 0);
+                                      if (selectedGroup) {
+                                        const amount = getInstallmentAmount(selectedGroup);
+                                        const rate = amount > 0 ? parseFloat(((val || 0) / amount) * 100).toFixed(2) : 0;
+                                        setVacantChitPenaltyRate(parseFloat(rate));
+                                      }
+                                    }}
+                                    size="large"
+                                    formatter={value => `₹${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={value => value.replace(/\₹\s?|(,*)/g, '')}
+                                    placeholder="Enter amount"
+                                  />
+                                </Col>
+                              </Row>
+                            </div>
+                          </Card>
+
+                          {/* Save Button */}
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+                            <Button
+                              type="primary"
+                              icon={<IoMdSave />}
+                              loading={saving}
+                              onClick={handleSave}
+                              size="large"
+                              style={{
+                                fontWeight: '600',
+                                borderRadius: '8px',
+                                background: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)',
+                                border: 'none',
+                                boxShadow: '0 4px 12px rgba(79, 172, 254, 0.3)',
+                                height: '48px',
+                                paddingLeft: '24px',
+                                paddingRight: '24px',
+                              }}
+                            >
+                              Save Settings
+                            </Button>
+                          
+                          </div>
+ 
+                        </>
+                      )}
+                    
                     </>
-                  )}
-                  </>
+                    
                   )}
                 </div>
               </TabPane>
@@ -1758,15 +1790,15 @@ const PenaltySettings = () => {
                   <Button
                     type="primary"
                     style={{
-                     
-                      
+
+
                       borderRadius: "6px",
                       fontWeight: "600",
-                     
+
                     }}
                     onClick={() => {
                       setShowPenaltyPreview(false);
-                      openEditDrawer(penaltyPreview); 
+                      openEditDrawer(penaltyPreview);
                     }}
                   >
                     Edit Penalty
@@ -1837,7 +1869,7 @@ const PenaltySettings = () => {
                   <Row gutter={[16, 16]}>
                     <Col span={8}><b>Penalty Rate:</b> {penaltyPreview.penalty_rate}%</Col>
                     <Col span={8}><b>Penalty Amount:</b> ₹{penaltyPreview.penalty_amount}</Col>
-                   
+
                   </Row>
                 </Card>
 
