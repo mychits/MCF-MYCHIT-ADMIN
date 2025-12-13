@@ -6,6 +6,7 @@ import { IoPeopleOutline } from "react-icons/io5";
 import { RiAdminLine } from "react-icons/ri";
 import { MdAppSettingsAlt } from "react-icons/md";
 import { GoGraph } from "react-icons/go";
+import { GrConfigure } from "react-icons/gr";
 
 const data = [
   {
@@ -35,6 +36,14 @@ const data = [
     path: "app-settings/groups/mobile-access",
     icon: <MdAppSettingsAlt size={25} />,
     iconColor: "bg-green-700",
+  },
+
+    {
+    title: "Penalty Settings",
+    color: "bg-orange-200",
+    path: "/penalty-settings",
+    icon: <GrConfigure size={25} />,
+    iconColor: "bg-orange-700",
   },
   // {
   //   title: "Agent Targets",
