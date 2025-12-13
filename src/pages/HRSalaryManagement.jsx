@@ -20,11 +20,11 @@ import { Select as AntSelect, Segmented, Button as AntButton } from "antd";
 import { IoMdMore } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
-import SalarySlipPrint from "../components/printFormats/SalarySlipPrint";
 import { numberToIndianWords } from "../helpers/numberToIndianWords";
 import moment from "moment";
 
-const SalaryPayment = () => {
+const HRSalaryManagement = () => {
+  console.log(navigator.get);
   const navigate = useNavigate();
   const [isOpenAddModal, setIsOpenAddModal] = useState(false);
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
@@ -68,7 +68,6 @@ const SalaryPayment = () => {
     },
     additional_payments: [],
     additional_deductions: [],
-    pay_date: moment(),
     payment_method: "Cash",
     transaction_id: "",
   });
@@ -97,9 +96,7 @@ const SalaryPayment = () => {
     { key: "employeeCode", header: "Employee Id" },
     { key: "salaryMonth", header: "Salary Month" },
     { key: "salaryYear", header: "Year" },
-    { key: "payDate", header: "Pay Date" },
     { key: "netPayable", header: "Net Payable" },
-    { key: "paidAmount", header: "Paid Amount" },
     { key: "action", header: "Action" },
   ];
 
@@ -147,7 +144,6 @@ const SalaryPayment = () => {
     additional_deductions: [],
     total_salary_payable: 0,
     paid_amount: 0,
-    pay_date: dayjs(),
     payment_method: "Cash",
     transaction_id: "",
     target: 0,
@@ -207,7 +203,6 @@ const SalaryPayment = () => {
     }
   };
 
-  // Helper: Get valid months for a given year, based on joining date and today
   const getValidMonths = (joiningDateStr, selectedYear) => {
     if (!joiningDateStr || !selectedYear) {
       return months.map((m) => ({ ...m, disabled: true }));
@@ -221,14 +216,14 @@ const SalaryPayment = () => {
 
     return months.map((month, index) => {
       const isBeforeJoining =
-        selectedYearNum === joinYear && index < joining.month(); // joining.month() is 0-based
+        selectedYearNum === joinYear && index < joining.month();
 
       const isAfterToday =
-        selectedYearNum === currentYear && index > today.month(); // today.month() is 0-based
+        selectedYearNum === currentYear && index > today.month();
 
       const disabled =
-        selectedYearNum < joinYear || // Year before joining
-        selectedYearNum > currentYear || // Year after current
+        selectedYearNum < joinYear ||
+        selectedYearNum > currentYear ||
         isBeforeJoining ||
         isAfterToday;
 
@@ -303,11 +298,11 @@ const SalaryPayment = () => {
     try {
       setDeleteLoading(true);
       await API.delete(`/salary-payment/${id}`);
-      message.success("Salary payment deleted successfully");
+      message.success("Salary Management deleted successfully");
       setDeleteModalOpen(false);
       getAllSalary();
     } catch (error) {
-      message.error("Failed to delete salary payment");
+      message.error("Failed to delete Salary Management");
     } finally {
       setDeleteLoading(false);
     }
@@ -359,8 +354,8 @@ const SalaryPayment = () => {
 
       const updateData = {
         ...updateFormData,
-        earnings: updateFormData.earnings, // Ensure this is an object
-        deductions: updateFormData.deductions, // Ensure this is an object
+        earnings: updateFormData.earnings,
+        deductions: updateFormData.deductions,
         net_payable: netPayable,
         total_salary_payable: updateFormData.total_salary_payable || netPayable,
         remaining_balance:
@@ -392,8 +387,7 @@ const SalaryPayment = () => {
           <div
             key={salaryPayment?._id}
             className="text-green-600"
-            onClick={() => handlePrint(salaryPayment?._id)}
-          >
+            onClick={() => handlePrint(salaryPayment?._id)}>
             Print
           </div>
         ),
@@ -404,8 +398,7 @@ const SalaryPayment = () => {
           <div
             key={salaryPayment?._id}
             className="text-green-600"
-            onClick={() => handleEdit(salaryPayment._id)}
-          >
+            onClick={() => handleEdit(salaryPayment._id)}>
             Edit
           </div>
         ),
@@ -419,8 +412,7 @@ const SalaryPayment = () => {
             onClick={() => {
               setDeleteId(salaryPayment?._id);
               setDeleteModalOpen(true);
-            }}
-          >
+            }}>
             Delete
           </div>
         ),
@@ -518,9 +510,12 @@ const SalaryPayment = () => {
     if (["employee_id", "month", "year"].includes(name)) {
       setCalculatedSalary(null);
       setShowAdditionalPayments(false);
-       setFormData((prev) => ({ ...prev, paid_amount: 0, transaction_id: "",   payment_method:""  }));
-
-    
+      setFormData((prev) => ({
+        ...prev,
+        paid_amount: 0,
+        transaction_id: "",
+        payment_method: "",
+      }));
     }
   };
 
@@ -529,9 +524,9 @@ const SalaryPayment = () => {
       ...prev,
       earnings: { ...prev.earnings },
       deductions: { ...prev.deductions, [name]: value },
-          paid_amount: 0, 
-    transaction_id: "",
-    payment_method:"",
+      paid_amount: 0,
+      transaction_id: "",
+      payment_method: "",
     }));
     setCalculatedSalary(null);
     setShowAdditionalPayments(false);
@@ -542,9 +537,9 @@ const SalaryPayment = () => {
       ...prev,
       earnings: { ...prev.earnings, [name]: value },
       deductions: { ...prev.deductions },
-       paid_amount: 0, 
-    transaction_id: "",
-    payment_method:"",
+      paid_amount: 0,
+      transaction_id: "",
+      payment_method: "",
     }));
     setCalculatedSalary(null);
     setShowAdditionalPayments(false);
@@ -636,27 +631,24 @@ const SalaryPayment = () => {
 
       const calculated = response.data.data;
       setCalculatedSalary(calculated);
-     let autoAdditionalPayments = [];
-let autoAdditionalDeductions = [];
+      let autoAdditionalPayments = [];
+      let autoAdditionalDeductions = [];
 
-const target = Number(formData?.target || 0);
-const incentive = Number(formData?.incentive || 0);
+      const target = Number(formData?.target || 0);
+      const incentive = Number(formData?.incentive || 0);
 
-if (target > 0) {
-  const incentiveValue = incentive * 100; 
-  const diff = (incentiveValue - target)/100;
+      if (target > 0) {
+        const incentiveValue = incentive * 100;
+        const diff = (incentiveValue - target) / 100;
 
-  if (diff > 0) {
-
-    autoAdditionalPayments = [{ name: "Incentive", value: diff }];
-  } else if (diff < 0) {
- 
-    autoAdditionalDeductions = [
-      { name: "Incentive", value: Math.abs(diff) }
-    ];
-  }
-}
-
+        if (diff > 0) {
+          autoAdditionalPayments = [{ name: "Incentive", value: diff }];
+        } else if (diff < 0) {
+          autoAdditionalDeductions = [
+            { name: "Incentive", value: Math.abs(diff) },
+          ];
+        }
+      }
 
       const safeNumber = (v) => {
         if (v === null || v === undefined) return 0;
@@ -682,13 +674,6 @@ if (target > 0) {
       const calcSalary = safeNumber(calculated?.calculated_salary);
 
       const rawDefaultDifference = totalEarnings - totalDeductions - calcSalary;
-
-      // if (rawDefaultDifference !== 0) {
-      //   autoAdditionalDeductions.push({
-      //     name: "Absence Adjustment",
-      //     value: rawDefaultDifference,
-      //   });
-      // }
 
       setFormData((prev) => ({
         ...prev,
@@ -720,199 +705,104 @@ if (target > 0) {
     }
   }
 
-  // async function handleAddSalary() {
-  //   try {
-  //     const baseSalary = calculatedSalary
-  //       ? calculatedSalary.calculated_salary
-  //       : Object.values(formData.earnings).reduce(
-  //           (sum, v) => sum + Number(v || 0),
-  //           0
-  //         ) -
-  //         Object.values(formData.deductions).reduce(
-  //           (sum, v) => sum + Number(v || 0),
-  //           0
-  //         );
-
-  //     const additionalPaymentsTotal = formData.additional_payments.reduce(
-  //       (sum, payment) => sum + Number(payment.value || 0),
-  //       0
-  //     );
-
-  //     const additionalDeductionsTotal = formData.additional_deductions.reduce(
-  //       (sum, deduction) => sum + Number(deduction.value || 0),
-  //       0
-  //     );
-
-  //     // ✅ Correct Total Salary Payable
-  //     const totalSalaryPayable =
-  //       baseSalary + additionalPaymentsTotal - additionalDeductionsTotal;
-
-  //     const paidAmount = Number(formData.paid_amount || 0);
-  //     const remainingBalance = totalSalaryPayable - paidAmount;
-
-  //     const salaryData = {
-  //       employee_id: formData?.employee_id,
-  //       salary_from_date: calculatedSalary
-  //         ? calculatedSalary?.salary_from_date
-  //         : new Date(),
-  //       salary_to_date: calculatedSalary
-  //         ? calculatedSalary.salary_to_date
-  //         : new Date(),
-  //       salary_month: formData.month,
-  //       salary_year: formData.year,
-  //       earnings: formData.earnings,
-  //       deductions: formData.deductions,
-  //       additional_deductions: formData.additional_deductions,
-  //       additional_payments: formData.additional_payments,
-  //       paid_days: calculatedSalary ? calculatedSalary.paid_days : 30,
-  //       lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
-  //       net_payable: totalSalaryPayable, // 👈 This is the final payable amount
-  //       paid_amount: paidAmount,
-  //       remaining_balance: remainingBalance,
-  //       total_salary_payable: totalSalaryPayable, // 👈 Explicitly store it
-  //       payment_method: formData.payment_method,
-  //       transaction_id:
-  //         formData.payment_method === "Cash"
-  //           ? null
-  //           : formData.transaction_id || null,
-  //       status: remainingBalance <= 0 ? "Paid" : "Pending",
-  //       // pay_date: formData.pay_date ? formData.pay_date.toDate() : new Date(),
-  //       pay_date: formData?.pay_date
-  // ? moment(formData?.pay_date).startOf("day").add(12, "hours")
-  // : moment().startOf("day").add(12, "hours"),
-  //     };
-
-  //     await API.post("/salary-payment/", salaryData);
-  //     message.success("Salary added successfully");
-  //     setIsOpenAddModal(false);
-  //     setCalculatedSalary(null);
-  //     setShowAdditionalPayments(false);
-  //     getAllSalary();
-  //   } catch (error) {
-  //     console.error("Error adding salary:", error);
-  //     message.error("Failed to add salary");
-  //   }
-  // }
-
   async function handleAddSalary() {
-  try {
-    const baseSalary = calculatedSalary
-      ? calculatedSalary.calculated_salary
-      : Object.values(formData.earnings).reduce(
-          (sum, v) => sum + Number(v || 0),
-          0
-        ) -
-        Object.values(formData.deductions).reduce(
-          (sum, v) => sum + Number(v || 0),
-          0
-        );
+    try {
+      const baseSalary = calculatedSalary
+        ? calculatedSalary.calculated_salary
+        : Object.values(formData.earnings).reduce(
+            (sum, v) => sum + Number(v || 0),
+            0
+          ) -
+          Object.values(formData.deductions).reduce(
+            (sum, v) => sum + Number(v || 0),
+            0
+          );
 
-    const additionalPaymentsTotal = formData.additional_payments.reduce(
-      (sum, payment) => sum + Number(payment.value || 0),
-      0
-    );
+      const additionalPaymentsTotal = formData.additional_payments.reduce(
+        (sum, payment) => sum + Number(payment.value || 0),
+        0
+      );
 
-    const additionalDeductionsTotal = formData.additional_deductions.reduce(
-      (sum, deduction) => sum + Number(deduction.value || 0),
-      0
-    );
+      const additionalDeductionsTotal = formData.additional_deductions.reduce(
+        (sum, deduction) => sum + Number(deduction.value || 0),
+        0
+      );
 
-    const totalSalaryPayable =
-      baseSalary + additionalPaymentsTotal - additionalDeductionsTotal;
+      const totalSalaryPayable =
+        baseSalary + additionalPaymentsTotal - additionalDeductionsTotal;
 
-    const paidAmount = Number(formData.paid_amount || 0);
-    const remainingBalance = totalSalaryPayable - paidAmount;
+      const paidAmount = Number(formData.paid_amount || 0);
+      const remainingBalance = totalSalaryPayable - paidAmount;
 
-  
-    const attendanceDetails = calculatedSalary ? {
-      total_days: calculatedSalary.total_days,
-      present_days: calculatedSalary.present_days,
-      paid_days: calculatedSalary.paid_days,
-      lop_days: calculatedSalary.lop_days,
-      per_day_salary: calculatedSalary.per_day_salary,
-      calculated_salary: calculatedSalary.calculated_salary,
-      absent_days: calculatedSalary.absent_days || 0,
-      leave_days: calculatedSalary.leave_days || 0,
-      half_days: calculatedSalary.half_days || 0,
-      salary_from_date: calculatedSalary.salary_from_date,
-      salary_to_date: calculatedSalary.salary_to_date
-    } : {};
+      const attendanceDetails = calculatedSalary
+        ? {
+            total_days: calculatedSalary.total_days,
+            present_days: calculatedSalary.present_days,
+            paid_days: calculatedSalary.paid_days,
+            lop_days: calculatedSalary.lop_days,
+            per_day_salary: calculatedSalary.per_day_salary,
+            calculated_salary: calculatedSalary.calculated_salary,
+            absent_days: calculatedSalary.absent_days || 0,
+            leave_days: calculatedSalary.leave_days || 0,
+            half_days: calculatedSalary.half_days || 0,
+            salary_from_date: calculatedSalary.salary_from_date,
+            salary_to_date: calculatedSalary.salary_to_date,
+          }
+        : {};
 
-  
-    const monthlyTargetIncentive = {
-      target: Number(formData.target || 0),
-      incentive: Number(formData.incentive || 0),
-      target_in_words: numberToIndianWords(formData.target || 0),
-      incentive_in_words: numberToIndianWords(formData.incentive || 0)
-    };
+      const monthlyTargetIncentive = {
+        target: Number(formData.target || 0),
+        total_business_closed: Number(formData.incentive || 0),
+      };
 
-    const salaryData = {
-      employee_id: formData?.employee_id,
-      salary_from_date: calculatedSalary
-        ? calculatedSalary?.salary_from_date
-        : new Date(),
-      salary_to_date: calculatedSalary
-        ? calculatedSalary.salary_to_date
-        : new Date(),
-      salary_month: formData.month,
-      salary_year: formData.year,
-      earnings: formData.earnings,
-      deductions: formData.deductions,
-      additional_deductions: formData.additional_deductions,
-      additional_payments: formData.additional_payments,
-      paid_days: calculatedSalary ? calculatedSalary.paid_days : 30,
-      lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
-      net_payable: totalSalaryPayable,
-      paid_amount: paidAmount,
-      remaining_balance: remainingBalance,
-      total_salary_payable: totalSalaryPayable,
-      payment_method: formData.payment_method,
-      transaction_id:
-        formData.payment_method === "Cash"
-          ? null
-          : formData.transaction_id || null,
-      status: remainingBalance <= 0 ? "Paid" : "Pending",
-      pay_date: formData?.pay_date
-        ? moment(formData?.pay_date).startOf("day").add(12, "hours")
-        : moment().startOf("day").add(12, "hours"),
-     
-      attendance_details: attendanceDetails,
-      monthly_target_incentive: monthlyTargetIncentive
-    };
+      const salaryData = {
+        employee_id: formData?.employee_id,
+        salary_from_date: calculatedSalary
+          ? calculatedSalary?.salary_from_date
+          : new Date(),
+        salary_to_date: calculatedSalary
+          ? calculatedSalary.salary_to_date
+          : new Date(),
+        salary_month: formData.month,
+        salary_year: formData.year,
+        earnings: formData.earnings,
+        deductions: formData.deductions,
+        additional_deductions: formData.additional_deductions,
+        additional_payments: formData.additional_payments,
+        paid_days: calculatedSalary ? calculatedSalary.paid_days : 30,
+        lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
+        net_payable: totalSalaryPayable,
+        paid_amount: paidAmount,
+        remaining_balance: remainingBalance,
+        total_salary_payable: totalSalaryPayable,
+        payment_method: formData.payment_method,
+        transaction_id:
+          formData.payment_method === "Cash"
+            ? null
+            : formData.transaction_id || null,
+        status: remainingBalance <= 0 ? "Paid" : "Pending",
 
-    await API.post("/salary-payment/", salaryData);
-    message.success("Salary added successfully");
-    setIsOpenAddModal(false);
-    setCalculatedSalary(null);
-    setShowAdditionalPayments(false);
-    getAllSalary();
-  } catch (error) {
-    console.error("Error adding salary:", error);
-    message.error("Failed to add salary");
+        attendance_details: attendanceDetails,
+        monthly_business_info: monthlyTargetIncentive,
+      };
+
+      await API.post("/salary-payment/", salaryData);
+      message.success("Salary added successfully");
+      setIsOpenAddModal(false);
+      setCalculatedSalary(null);
+      setShowAdditionalPayments(false);
+      getAllSalary();
+    } catch (error) {
+      console.error("Error adding salary:", error);
+      message.error("Failed to add salary");
+    }
   }
-}
 
   async function getAllSalary() {
     try {
       const response = await API.get("/salary-payment/all");
       const responseData = response?.data?.data || [];
-      const monthOrder = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
 
-    // 👉 Sort by year + month order
-    responseData.sort((a, b) => {
-      const yearA = Number(a.salary_year);
-      const yearB = Number(b.salary_year);
-
-      if (yearA !== yearB) return yearA - yearB;
-
-      return (
-        monthOrder.indexOf(a.salary_month) -
-        monthOrder.indexOf(b.salary_month)
-      );
-    });
       const filteredData = responseData.map((data, index) => ({
         siNo: index + 1,
         _id: data?._id,
@@ -920,10 +810,8 @@ if (target > 0) {
         employeeCode: data?.employee_id?.employeeCode,
         salaryMonth: data?.salary_month,
         salaryYear: data?.salary_year,
-        payDate: new Date(data?.pay_date).toISOString().split("T")[0],
         netPayable: data?.total_salary_payable,
         paidAmount: data?.paid_amount,
-        transactionId: data?.transaction_id,
         action: (
           <div className="flex justify-center gap-2">
             <Dropdown
@@ -932,8 +820,7 @@ if (target > 0) {
               menu={{
                 items: dropDownItems(data),
               }}
-              placement="bottomLeft"
-            >
+              placement="bottomLeft">
               <IoMdMore className="text-bold" />
             </Dropdown>
           </div>
@@ -973,16 +860,15 @@ if (target > 0) {
         <Navbar visibility={true} />
         <Sidebar />
         <div className="flex-grow p-7">
-          <h1 className="text-2xl font-semibold">Salary Payment</h1>
+          <h1 className="text-2xl font-semibold">Salary Management</h1>
           <div className="mt-6 mb-8">
             <div className="mb-10">
               <div className="flex justify-end items-center w-full">
                 <div>
                   <button
                     onClick={() => setIsOpenAddModal(true)}
-                    className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
-                  >
-                    + Add Salary Payment
+                    className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200">
+                    + Add Salary
                   </button>
                 </div>
               </div>
@@ -993,7 +879,7 @@ if (target > 0) {
         </div>
 
         <Drawer
-          title="Add New Salary Payment"
+          title="Add New Salary"
           width={"87%"}
           className="payment-drawer"
           open={isOpenAddModal}
@@ -1007,8 +893,7 @@ if (target > 0) {
             <div className="flex justify-end gap-2">
               <Button
                 onClick={() => setIsOpenAddModal(false)}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
+                className="bg-red-600 hover:bg-red-700 text-white">
                 Cancel
               </Button>
               {calculatedSalary && (
@@ -1017,8 +902,7 @@ if (target > 0) {
                 </Button>
               )}
             </div>
-          }
-        >
+          }>
           <div className="space-y-6">
             <div className="form-group">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1157,7 +1041,6 @@ if (target > 0) {
                       </div>
                     </div>
                   </div>
-
                   <div className="mt-6 border p-4 rounded bg-gray-50">
                     <h3 className="font-semibold text-lg mb-3">
                       Monthly Target & Incentive
@@ -1177,7 +1060,9 @@ if (target > 0) {
                         </span>
                       </div>
                       <div className="flex flex-col">
-                        <label className="font-medium">Total Business Closed (1% Each)</label>
+                        <label className="font-medium">
+                          Total Business Closed (1% Each)
+                        </label>
                         <input
                           type="number"
                           value={formData.incentive || 0}
@@ -1528,8 +1413,7 @@ if (target > 0) {
                       }
                       style={{
                         backgroundColor: "#16a34a",
-                      }}
-                    >
+                      }}>
                       Continue
                     </Button>
                   </div>
@@ -1699,16 +1583,14 @@ if (target > 0) {
                         <Button
                           type="primary"
                           icon={<PlusOutlined />}
-                          onClick={addAdditionalPayment}
-                        >
+                          onClick={addAdditionalPayment}>
                           Add Payment
                         </Button>
                       </div>
                       {formData.additional_payments.map((payment, index) => (
                         <div
                           key={index}
-                          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"
-                        >
+                          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div className="form-group">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Payment Name
@@ -1758,7 +1640,6 @@ if (target > 0) {
                     </div>
                   )}
 
-                  {/* Additional Deductions */}
                   {showAdditionalPayments && (
                     <div className="bg-orange-50 p-4 rounded-lg">
                       <div className="flex justify-between items-center mb-4">
@@ -1769,8 +1650,7 @@ if (target > 0) {
                           type="primary"
                           danger
                           icon={<PlusOutlined />}
-                          onClick={addAdditionalDeduction}
-                        >
+                          onClick={addAdditionalDeduction}>
                           Add Deduction
                         </Button>
                       </div>
@@ -1778,8 +1658,7 @@ if (target > 0) {
                         (deduction, index) => (
                           <div
                             key={index}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"
-                          >
+                            className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="form-group">
                               <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Deduction Name
@@ -1832,31 +1711,14 @@ if (target > 0) {
                       )}
                     </div>
                   )}
-                  {/* Transaction Details */}
+
                   {calculatedSalary && (
                     <div className="bg-blue-50 p-4 rounded-lg mt-4">
                       <h3 className="text-lg font-semibold text-blue-800 mb-4">
                         Transaction Details
                       </h3>
-                      <div className="form-group mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Pay Date <span className="text-red-600">*</span>
-                        </label>
-                        <DatePicker
-                          style={{ width: "100%" }}
-                          value={formData.pay_date}
-                          onChange={(date) => handleChange("pay_date", date)}
-                          format="DD MMM YYYY"
-                          disabledDate={(current) => {
-                            return (
-                              current && current.isAfter(moment().endOf("day"))
-                            );
-                          }}
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        {/* Total Salary Payable (Auto-calculated) */}
 
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Total Salary Payable
@@ -1890,72 +1752,7 @@ if (target > 0) {
                             );
                           })()}
                         </div>
-                        <div className="form-group">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Total Payable Amount
-                          </label>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.paid_amount}
-                            onChange={(e) =>
-                              handleChange("paid_amount", e.target.value)
-                            }
-                          />
-                          <span className="ml-2 font-medium font-mono text-blue-600">
-                            {numberToIndianWords(
-                              Number(formData.paid_amount || 0).toFixed(2)
-                            )}
-                          </span>
-                        </div>
-                        <div className="form-group">
-                          <label className="block text-sm font-medium text-gray-700  mb-2">
-                            Payment Mode <span className="text-red-600">*</span>
-                          </label>
-                          <Select
-                            style={{ width: "100%" }}
-                            placeholder="Select mode"
-                            value={formData.payment_method || "Cash" }
-                            onChange={(value) =>
-                              handleChange("payment_method", value)
-                            }
-                            options={[
-                              { label: "Cash", value: "Cash" },
-                              { label: "Online / UPI", value: "Online/UPI" },
-                              { label: "Online / NEFT", value: "Online/NEFT" },
-                              { label: "Online / IMPS", value: "Online/IMPS" },
-                              { label: "Online / RTGS", value: "Online/RTGS" },
-                            ]}
-                          />
-                        </div>
                       </div>
-                      {/* Transaction ID (only if not Cash) */}
-                      {formData.payment_method !== "Cash" && (
-                        <div className="mt-4">
-                          <div className="form-group">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Transaction ID{" "}
-                              <span className="text-red-600">*</span>
-                            </label>
-                            <input
-                              type="number"
-                              onWheel={(e) => e.target.blur()}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="Enter transaction id"
-                              value={formData.transaction_id || ""}
-                              onChange={(e) =>
-                                handleChange("transaction_id", e.target.value)
-                              }
-                            />
-                            <span className="ml-2 font-medium font-mono text-blue-600">
-                              {numberToIndianWords(
-                                formData.transaction_id || 0
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                 </>
@@ -1973,7 +1770,6 @@ if (target > 0) {
           </div>
         </Drawer>
 
-        {/* Update Salary Drawer */}
         <Drawer
           title="Update Salary"
           width={"50%"}
@@ -1989,24 +1785,22 @@ if (target > 0) {
               <Button
                 type="primary"
                 onClick={handleUpdateSubmit}
-                loading={updateLoading}
-              >
+                loading={updateLoading}>
                 Update Salary
               </Button>
             </div>
-          }
-        >
+          }>
           <Form
             form={updateForm}
             layout="vertical"
             initialValues={updateFormData}
-            onValuesChange={handleUpdateChange}
-          >
+            onValuesChange={handleUpdateChange}>
             <Form.Item
               name="employee_id"
               label="Employee ID"
-              rules={[{ required: true, message: "Please select an employee" }]}
-            >
+              rules={[
+                { required: true, message: "Please select an employee" },
+              ]}>
               <Select
                 disabled
                 showSearch
@@ -2029,8 +1823,7 @@ if (target > 0) {
             <Form.Item
               name="month"
               label="Month"
-              rules={[{ required: true, message: "Please select a month" }]}
-            >
+              rules={[{ required: true, message: "Please select a month" }]}>
               <Select disabled placeholder="Select Month">
                 {months.map((month) => (
                   <Select.Option key={month.value} value={month.value}>
@@ -2044,8 +1837,9 @@ if (target > 0) {
               name="year"
               label="Year"
               rules={[{ required: true, message: "Please select a year" }]}
-              getValueFromEvent={(value) => (value ? value.format("YYYY") : "")}
-            >
+              getValueFromEvent={(value) =>
+                value ? value.format("YYYY") : ""
+              }>
               <DatePicker disabled picker="year" style={{ width: "100%" }} />
             </Form.Item>
 
@@ -2062,32 +1856,27 @@ if (target > 0) {
                 </Form.Item>
                 <Form.Item
                   name={["earnings", "travel_allowance"]}
-                  label="Travel Allowance"
-                >
+                  label="Travel Allowance">
                   <Input type="number" />
                 </Form.Item>
                 <Form.Item
                   name={["earnings", "medical_allowance"]}
-                  label="Medical Allowance"
-                >
+                  label="Medical Allowance">
                   <Input type="number" />
                 </Form.Item>
                 <Form.Item
                   name={["earnings", "basket_of_benifits"]}
-                  label="Basket of Benefits"
-                >
+                  label="Basket of Benefits">
                   <Input type="number" />
                 </Form.Item>
                 <Form.Item
                   name={["earnings", "performance_bonus"]}
-                  label="Performance Bonus"
-                >
+                  label="Performance Bonus">
                   <Input type="number" />
                 </Form.Item>
                 <Form.Item
                   name={["earnings", "other_allowances"]}
-                  label="Other Allowances"
-                >
+                  label="Other Allowances">
                   <Input type="number" />
                 </Form.Item>
                 <Form.Item name={["earnings", "conveyance"]} label="Conveyance">
@@ -2113,8 +1902,7 @@ if (target > 0) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Form.Item
                   name={["deductions", "income_tax"]}
-                  label="Income Tax"
-                >
+                  label="Income Tax">
                   <Input type="number" />
                 </Form.Item>
                 <Form.Item name={["deductions", "esi"]} label="ESI">
@@ -2125,8 +1913,7 @@ if (target > 0) {
                 </Form.Item>
                 <Form.Item
                   name={["deductions", "professional_tax"]}
-                  label="Professional Tax"
-                >
+                  label="Professional Tax">
                   <Input type="number" />
                 </Form.Item>
               </div>
@@ -2159,8 +1946,7 @@ if (target > 0) {
                         { name: "", value: 0 },
                       ],
                     });
-                  }}
-                >
+                  }}>
                   Add Payment
                 </Button>
               </div>
@@ -2170,13 +1956,11 @@ if (target > 0) {
                     {fields.map(({ key, name, ...restField }) => (
                       <div
                         key={key}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"
-                      >
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <Form.Item
                           {...restField}
                           name={[name, "name"]}
-                          label="Payment Name"
-                        >
+                          label="Payment Name">
                           <Input placeholder="Enter payment name" />
                         </Form.Item>
                         <div className="flex items-end gap-2">
@@ -2188,8 +1972,7 @@ if (target > 0) {
                                 e.currentTarget.blur();
                               }}
                               name={[name, "value"]}
-                              label="Amount"
-                            >
+                              label="Amount">
                               <Input type="number" placeholder="Enter amount" />
                             </Form.Item>
                           </div>
@@ -2224,8 +2007,7 @@ if (target > 0) {
                         { name: "", value: 0 },
                       ],
                     });
-                  }}
-                >
+                  }}>
                   Add Deduction
                 </Button>
               </div>
@@ -2235,13 +2017,11 @@ if (target > 0) {
                     {fields.map(({ key, name, ...restField }) => (
                       <div
                         key={key}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"
-                      >
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <Form.Item
                           {...restField}
                           name={[name, "name"]}
-                          label="Deduction Name"
-                        >
+                          label="Deduction Name">
                           <Input placeholder="Enter deduction name" />
                         </Form.Item>
                         <div className="flex items-end gap-2">
@@ -2249,8 +2029,7 @@ if (target > 0) {
                             <Form.Item
                               {...restField}
                               name={[name, "value"]}
-                              label="Amount"
-                            >
+                              label="Amount">
                               <Input
                                 type="number"
                                 placeholder="Enter amount"
@@ -2278,8 +2057,7 @@ if (target > 0) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Form.Item
                   name="total_salary_payable"
-                  label="Total Salary Payable"
-                >
+                  label="Total Salary Payable">
                   <Input type="number" />
                 </Form.Item>
                 <Form.Item name="paid_amount" label="Paid Amount">
@@ -2293,8 +2071,7 @@ if (target > 0) {
                   label="Payment Mode"
                   rules={[
                     { required: true, message: "Please select payment mode" },
-                  ]}
-                >
+                  ]}>
                   <Select
                     placeholder="Select payment mode"
                     options={[
@@ -2320,8 +2097,7 @@ if (target > 0) {
                           updateForm.getFieldValue("payment_method") !== "Cash",
                         message: "Transaction ID is required",
                       },
-                    ]}
-                  >
+                    ]}>
                     <Input placeholder="Enter transaction reference" />
                   </Form.Item>
                 )}
@@ -2335,8 +2111,7 @@ if (target > 0) {
                   getValueProps={(value) => ({
                     value: value ? moment(value) : null,
                   })}
-                  getValueFromEvent={(date) => (date ? date.toDate() : null)}
-                >
+                  getValueFromEvent={(date) => (date ? date.toDate() : null)}>
                   <DatePicker
                     style={{ width: "100%" }}
                     format="DD MMM YYYY"
@@ -2350,9 +2125,8 @@ if (target > 0) {
           </Form>
         </Drawer>
 
-        {/* Delete Confirmation Modal */}
         <Modal
-          title="Delete Salary Payment"
+          title="Delete Salary"
           open={deleteModalOpen}
           onCancel={() => setDeleteModalOpen(false)}
           footer={[
@@ -2364,19 +2138,16 @@ if (target > 0) {
               type="primary"
               danger
               loading={deleteLoading}
-              onClick={() => handleDeleteConfirm(deleteId)}
-            >
+              onClick={() => handleDeleteConfirm(deleteId)}>
               Delete
             </Button>,
-          ]}
-        >
+          ]}>
           <p>
-            Are you sure you want to delete this salary payment? This action
-            cannot be undone.
+            Are you sure you want to delete this salary ? This action cannot be
+            undone.
           </p>
         </Modal>
 
-        {/* Already Paid – Full Details Modal */}
         <Modal
           title={
             <div className="flex items-center gap-3">
@@ -2404,8 +2175,7 @@ if (target > 0) {
                 onClick={() => {
                   handleEdit(existingSalaryRecord._id);
                   setAlreadyPaidModalOpen(false);
-                }}
-              >
+                }}>
                 Edit Record
               </Button>
             ),
@@ -2415,11 +2185,9 @@ if (target > 0) {
             maxHeight: "70vh",
             overflowY: "auto",
             backgroundColor: "#fafafa",
-          }}
-        >
+          }}>
           {existingSalaryRecord ? (
             <div className="space-y-6 text-sm">
-              {/* Salary Period */}
               <section className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                 <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
                   Salary Period
@@ -2437,9 +2205,6 @@ if (target > 0) {
                   </div>
                   <div>
                     <strong>To:</strong>{" "}
-                    {/* {moment(existingSalaryRecord.salary_to_date).format(
-                      "DD MMM YYYY"
-                    )} */}
                     {moment(existingSalaryRecord.salary_to_date)
                       .subtract(1, "day")
                       .format("DD MMM YYYY")}
@@ -2494,8 +2259,7 @@ if (target > 0) {
                     ([key, val]) => (
                       <li
                         key={key}
-                        className="flex justify-between border-b border-gray-100 pb-1"
-                      >
+                        className="flex justify-between border-b border-gray-100 pb-1">
                         <span className="capitalize">
                           {key.replace(/_/g, " ")}
                         </span>
@@ -2522,8 +2286,7 @@ if (target > 0) {
                     ([key, val]) => (
                       <li
                         key={key}
-                        className="flex justify-between border-b border-gray-100 pb-1"
-                      >
+                        className="flex justify-between border-b border-gray-100 pb-1">
                         <span className="capitalize">
                           {key.replace(/_/g, " ")}
                         </span>
@@ -2550,8 +2313,7 @@ if (target > 0) {
                     {existingSalaryRecord.additional_payments.map((pay, i) => (
                       <li
                         key={i}
-                        className="flex justify-between border-b border-gray-100 pb-1"
-                      >
+                        className="flex justify-between border-b border-gray-100 pb-1">
                         <span>{pay.name || "Payment"}</span>
                         <span className="font-medium">
                           ₹
@@ -2577,8 +2339,7 @@ if (target > 0) {
                       (ded, i) => (
                         <li
                           key={i}
-                          className="flex justify-between border-b border-gray-100 pb-1"
-                        >
+                          className="flex justify-between border-b border-gray-100 pb-1">
                           <span>{ded.name || "Deduction"}</span>
                           <span className="font-medium text-red-600">
                             ₹
@@ -2699,8 +2460,7 @@ if (target > 0) {
                         Number(existingSalaryRecord.remaining_balance) > 0
                           ? "text-red-600 font-bold"
                           : "text-green-600"
-                      }
-                    >
+                      }>
                       ₹
                       {Number(
                         existingSalaryRecord.remaining_balance
@@ -2718,8 +2478,7 @@ if (target > 0) {
                         existingSalaryRecord.status === "Paid"
                           ? "text-green-700 font-bold"
                           : "text-amber-700 font-bold"
-                      }
-                    >
+                      }>
                       {existingSalaryRecord.status}
                     </span>
                   </div>
@@ -2735,15 +2494,6 @@ if (target > 0) {
                     <span>Payment Method:</span>{" "}
                     <span>{existingSalaryRecord.payment_method || "—"} </span>
                   </div>
-
-                  <div className="flex justify-between">
-                    <span>Pay Date:</span>{" "}
-                    <span>
-                      {moment(existingSalaryRecord.pay_date).format(
-                        "DD MMM YYYY"
-                      )}
-                    </span>
-                  </div>
                 </div>
               </section>
             </div>
@@ -2758,4 +2508,4 @@ if (target > 0) {
   );
 };
 
-export default SalaryPayment;
+export default HRSalaryManagement;

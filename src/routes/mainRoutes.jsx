@@ -139,6 +139,7 @@ import TransferMenu from "../pages/TransferMenu";
 import CollectionMenu from "../pages/CollectionMenu";
 import SalarySlipPrint from "../components/printFormats/SalarySlipPrint";
 import EmployeeSalaryReport from "../pages/EmployeeSalaryReport"
+import HRSalaryManagement from "../pages/HRSalaryManagement";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -373,6 +374,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Payroll />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/hr-menu/salary-management",
+    element: (
+      <ProtectedRoute>
+        <HRSalaryManagement />
       </ProtectedRoute>
     ),
   },

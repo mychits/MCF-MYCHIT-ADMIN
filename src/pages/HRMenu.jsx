@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Navbar from "../components/layouts/Navbar";
 import Sidebar from "../components/layouts/Sidebar";
-import { Users, Briefcase, ChevronRight,Zap  } from "lucide-react";
+import { Users,IndianRupee ,ChevronRight ,Zap  } from "lucide-react";
 
 const HRMenu = () => {
   const HRCategories = [
@@ -14,6 +14,17 @@ const HRMenu = () => {
       lightColor: "bg-blue-50",
       borderColor: "border-blue-200",
       href: "/hr-menu/payroll",
+      stats: "Active Agents",
+    },
+    {
+      id: 2,
+      title: "Salary Management",
+      description: "Manage Employee Salary",
+      icon: <IndianRupee className="w-8 h-8" />,
+      color: "from-green-600 to-green-700",
+      lightColor: "bg-green-50",
+      borderColor: "border-green-200",
+      href: "/hr-menu/salary-management",
       stats: "Active Agents",
     },
 
