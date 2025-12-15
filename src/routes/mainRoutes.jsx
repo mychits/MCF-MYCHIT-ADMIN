@@ -140,6 +140,7 @@ import CollectionMenu from "../pages/CollectionMenu";
 import SalarySlipPrint from "../components/printFormats/SalarySlipPrint";
 import EmployeeSalaryReport from "../pages/EmployeeSalaryReport"
 import HRSalaryManagement from "../pages/HRSalaryManagement";
+import EmployeeStatement from "../pages/EmployeeStatement"
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -436,6 +437,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <EmployeeAttendance />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/staff-menu/employee-menu/employee-statement",
+    element: (
+      <ProtectedRoute>
+        <EmployeeStatement />
       </ProtectedRoute>
     ),
   },
