@@ -9,6 +9,7 @@ import {
   Button,
   message,
   Popconfirm,
+  Empty,
 } from "antd";
 import Navbar from "../components/layouts/Navbar";
 import Sidebar from "../components/layouts/Sidebar";
@@ -19,6 +20,8 @@ import dayjs from "dayjs";
 import { IoMdMore } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Flex, Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import moment from "moment";
 const SalaryPayment = () => {
   const navigate = useNavigate();
@@ -38,7 +41,7 @@ const SalaryPayment = () => {
   const [updateForm] = Form.useForm();
   const [alreadyPaidModalOpen, setAlreadyPaidModalOpen] = useState(false);
   const [existingSalaryRecord, setExistingSalaryRecord] = useState(null);
-  const [dataTableLoading,setDataTableLoading] = useState(false);
+  const [dataTableLoading, setDataTableLoading] = useState(false);
   const [updateFormData, setUpdateFormData] = useState({
     employee_id: "",
     month: "",
@@ -311,26 +314,26 @@ const SalaryPayment = () => {
         (sum, value) => sum + Number(value),
         0
       );
-      
+
       // Calculate additional payments total
       const additionalPaymentsTotal = updateFormData.additional_payments.reduce(
         (sum, payment) => sum + Number(payment.value),
         0
       );
-      
+
       // Calculate additional deductions total
       const additionalDeductionsTotal =
         updateFormData.additional_deductions.reduce(
           (sum, deduction) => sum + Number(deduction.value),
           0
         );
-      
+
       // Calculate advance payments total
       const advanceTotal = updateFormData.advance_payments.reduce(
         (sum, a) => sum + Number(a.value || 0),
         0
       );
-      
+
       // Calculate net payable including all components
       const netPayable =
         totalEarnings -
@@ -339,17 +342,16 @@ const SalaryPayment = () => {
         additionalDeductionsTotal +
         advanceTotal +
         updateFormData.calculated_incentive;
-      
+
       const updateData = {
         ...updateFormData,
         earnings: updateFormData.earnings,
         deductions: updateFormData.deductions,
         net_payable: netPayable,
         total_salary_payable: netPayable,
-        remaining_balance:
-          netPayable - (updateFormData.paid_amount || 0),
+        remaining_balance: netPayable - (updateFormData.paid_amount || 0),
       };
-      
+
       await API.put(`/salary-payment/${currentSalaryId}`, updateData);
       message.success("Salary updated successfully");
       setIsOpenUpdateModal(false);
@@ -527,6 +529,7 @@ const SalaryPayment = () => {
   }, [updateFormData]);
   async function getAllSalary() {
     try {
+      setDataTableLoading(true);
       const response = await API.get("/salary-payment/status/pending");
       const responseData = response?.data?.data || [];
       const filteredData = responseData.map((data, index) => ({
@@ -555,6 +558,8 @@ const SalaryPayment = () => {
       setAllSalarypayments([...filteredData]);
     } catch (error) {
       setAllSalarypayments([]);
+    } finally {
+      setDataTableLoading(false);
     }
   }
   useEffect(() => {
@@ -569,7 +574,16 @@ const SalaryPayment = () => {
           <h1 className="text-2xl font-semibold">Salary Payment</h1>
           <div className="mt-6 mb-8">
             <div className="mb-10"></div>
-          {allSalaryPayments.length  <DataTable columns={columns} data={allSalaryPayments} />}
+            {dataTableLoading ? (
+              <Spin
+                indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />}
+                className="w-full"
+              />
+            ) : allSalaryPayments.length > 0 ? (
+              <DataTable columns={columns} data={allSalaryPayments} />
+            ) : (
+              <Empty description="No Salary Payment Data Found" />
+            )}
           </div>
         </div>
         <Drawer
@@ -782,8 +796,7 @@ const SalaryPayment = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Incentive Adjustment Display */}
+
             <div className="bg-blue-50 p-4 rounded-lg mb-4">
               <h3 className="font-semibold text-lg mb-3">
                 Incentive Adjustment
@@ -797,8 +810,7 @@ const SalaryPayment = () => {
                 </Form.Item>
               </div>
             </div>
-            
-            {/* Advance Payments Section */}
+
             <div className="bg-indigo-50 p-4 rounded-lg mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-indigo-800">
@@ -859,7 +871,7 @@ const SalaryPayment = () => {
                 )}
               </Form.List>
             </div>
-            
+
             <div className="bg-purple-50 p-4 rounded-lg mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-purple-800">
@@ -1307,13 +1319,22 @@ const SalaryPayment = () => {
                     <span className="text-gray-700 font-medium">
                       Calculated Incentive:
                     </span>
-                    <span className={`font-medium ${existingSalaryRecord.calculated_incentive > 0 ? "text-green-700" : "text-red-700"}`}>
+                    <span
+                      className={`font-medium ${
+                        existingSalaryRecord.calculated_incentive > 0
+                          ? "text-green-700"
+                          : "text-red-700"
+                      }`}>
                       ₹
-                      {Math.abs(existingSalaryRecord.calculated_incentive).toLocaleString("en-IN", {
+                      {Math.abs(
+                        existingSalaryRecord.calculated_incentive
+                      ).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
-                      {existingSalaryRecord.calculated_incentive > 0 ? " (Bonus)" : " (Deduction)"}
+                      {existingSalaryRecord.calculated_incentive > 0
+                        ? " (Bonus)"
+                        : " (Deduction)"}
                     </span>
                   </div>
                 </section>
@@ -1328,7 +1349,8 @@ const SalaryPayment = () => {
                     <span>
                       ₹
                       {Number(
-                        existingSalaryRecord?.attendance_details?.calculated_salary
+                        existingSalaryRecord?.attendance_details
+                          ?.calculated_salary
                       ).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -1401,13 +1423,22 @@ const SalaryPayment = () => {
                   {existingSalaryRecord.calculated_incentive !== 0 && (
                     <div className="flex justify-between">
                       <span>Incentive Adjustment:</span>
-                      <span className={existingSalaryRecord.calculated_incentive > 0 ? "text-green-600" : "text-red-600"}>
+                      <span
+                        className={
+                          existingSalaryRecord.calculated_incentive > 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }>
                         ₹
-                        {Math.abs(existingSalaryRecord.calculated_incentive).toLocaleString("en-IN", {
+                        {Math.abs(
+                          existingSalaryRecord.calculated_incentive
+                        ).toLocaleString("en-IN", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
-                        {existingSalaryRecord.calculated_incentive > 0 ? "" : " (Deduction)"}
+                        {existingSalaryRecord.calculated_incentive > 0
+                          ? ""
+                          : " (Deduction)"}
                       </span>
                     </div>
                   )}
