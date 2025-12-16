@@ -9,6 +9,7 @@ import {
   Button,
   message,
   Popconfirm,
+  Empty,
 } from "antd";
 import Navbar from "../components/layouts/Navbar";
 import Sidebar from "../components/layouts/Sidebar";
@@ -16,13 +17,14 @@ import DataTable from "../components/layouts/Datatable";
 import { useEffect, useState, useMemo } from "react";
 import API from "../instance/TokenInstance";
 import dayjs from "dayjs";
-import { Select as AntSelect, Segmented, Button as AntButton } from "antd";
+import { Select as AntSelect, Segmented, Button as AntButton,Flex, Spin } from "antd";
 import { IoMdMore } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { numberToIndianWords } from "../helpers/numberToIndianWords";
 import moment from "moment";
 import utc from "dayjs/plugin/utc";
+import { LoadingOutlined } from '@ant-design/icons';
 dayjs.extend(utc);
 
 const HRSalaryManagement = () => {
@@ -42,6 +44,7 @@ const HRSalaryManagement = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [form] = Form.useForm();
+  const [dataTableLoading,setDataTableLoading] = useState(false);
   const [updateForm] = Form.useForm();
   const [alreadyPaidModalOpen, setAlreadyPaidModalOpen] = useState(false);
   const [existingSalaryRecord, setExistingSalaryRecord] = useState(null);
@@ -73,7 +76,7 @@ const HRSalaryManagement = () => {
     payment_method: "Cash",
     transaction_id: "",
   });
-  
+
   const thisYear = dayjs().format("YYYY");
   const earningsObject = {
     basic: 0,
@@ -91,7 +94,7 @@ const HRSalaryManagement = () => {
     epf: 0,
     professional_tax: 0,
   };
-  
+
   const columns = [
     { key: "siNo", header: "SL. NO" },
     { key: "employeeName", header: "Employee Name" },
@@ -101,7 +104,7 @@ const HRSalaryManagement = () => {
     { key: "netPayable", header: "Net Payable" },
     { key: "action", header: "Action" },
   ];
-  
+
   const months = [
     { label: "January", value: "January", disabled: false },
     { label: "February", value: "February", disabled: false },
@@ -120,7 +123,7 @@ const HRSalaryManagement = () => {
     { label: "November", value: "November", disabled: false },
     { label: "December", value: "December", disabled: false },
   ];
-  
+
   const previousMonth = months[dayjs().subtract(2, "month").format("MM")].label;
   const [formData, setFormData] = useState({
     employee_id: "",
@@ -263,7 +266,6 @@ const HRSalaryManagement = () => {
     try {
       setUpdateLoading(true);
       const yearValue = dayjs.isDayjs(year) ? year.format("YYYY") : year;
-      // 🔥 POST to new endpoint (no 406)
       const response = await API.post("/salary-payment/calculate-edit", {
         employee_id,
         month,
@@ -272,7 +274,6 @@ const HRSalaryManagement = () => {
         deductions,
       });
       const calculated = response.data.data;
-      // Fetch target & incentive
       const monthIndex = moment().month(month).month();
       const start_date = moment()
         .year(yearValue)
@@ -288,8 +289,7 @@ const HRSalaryManagement = () => {
         fetchEmployeeTarget(employee_id, start_date, end_date),
         fetchEmployeeIncentive(employee_id, start_date, end_date),
       ]);
-      
-      // Calculate incentive adjustment
+
       let calculatedIncentive = 0;
       const target = Number(targetValue || 0);
       const incentive = Number(incentiveValue || 0);
@@ -297,8 +297,7 @@ const HRSalaryManagement = () => {
         const incentiveValueNum = incentive * 100;
         calculatedIncentive = (incentiveValueNum - target) / 100;
       }
-      
-      // Total payable = calculated_salary + advance payments + additional payments - additional deductions + calculated_incentive
+
       const advanceTotal = updateFormData.advance_payments.reduce(
         (sum, a) => sum + Number(a.value || 0),
         0
@@ -307,19 +306,19 @@ const HRSalaryManagement = () => {
         (sum, p) => sum + Number(p.value || 0),
         0
       );
-      const additionalDeductionsTotal = updateFormData.additional_deductions.reduce(
-        (sum, d) => sum + Number(d.value || 0),
-        0
-      );
-      
+      const additionalDeductionsTotal =
+        updateFormData.additional_deductions.reduce(
+          (sum, d) => sum + Number(d.value || 0),
+          0
+        );
+
       const totalPayable =
-        calculated.calculated_salary + 
-        advanceTotal + 
-        additionalPaymentsTotal - 
-        additionalDeductionsTotal + 
+        calculated.calculated_salary +
+        advanceTotal +
+        additionalPaymentsTotal -
+        additionalDeductionsTotal +
         calculatedIncentive;
-      
-      // Update form data
+
       const updatedData = {
         ...updateFormData,
         year: dayjs(yearValue, "YYYY"),
@@ -438,8 +437,7 @@ const HRSalaryManagement = () => {
   const handleUpdateSubmit = async () => {
     try {
       setUpdateLoading(true);
-      
-      // Calculate base earnings and deductions
+
       const totalEarnings = Object.values(updateFormData.earnings).reduce(
         (sum, value) => sum + Number(value),
         0
@@ -448,8 +446,7 @@ const HRSalaryManagement = () => {
         (sum, value) => sum + Number(value),
         0
       );
-      
-      // Calculate totals for all payment/deduction types
+
       const advanceTotal = updateFormData.advance_payments.reduce(
         (sum, a) => sum + Number(a.value || 0),
         0
@@ -458,30 +455,29 @@ const HRSalaryManagement = () => {
         (sum, payment) => sum + Number(payment.value || 0),
         0
       );
-      const additionalDeductionsTotal = updateFormData.additional_deductions.reduce(
-        (sum, deduction) => sum + Number(deduction.value || 0),
-        0
-      );
-      
-      // Calculate net payable
+      const additionalDeductionsTotal =
+        updateFormData.additional_deductions.reduce(
+          (sum, deduction) => sum + Number(deduction.value || 0),
+          0
+        );
+
       const netPayable =
         totalEarnings -
         totalDeductions +
         advanceTotal +
-        additionalPaymentsTotal - 
+        additionalPaymentsTotal -
         additionalDeductionsTotal +
         updateFormData.calculated_incentive;
-      
+
       const updateData = {
         ...updateFormData,
         earnings: updateFormData.earnings,
         deductions: updateFormData.deductions,
         net_payable: netPayable,
         total_salary_payable: netPayable,
-        remaining_balance:
-          netPayable - (updateFormData.paid_amount || 0),
+        remaining_balance: netPayable - (updateFormData.paid_amount || 0),
       };
-      
+
       await API.put(`/salary-payment/${currentSalaryId}`, updateData);
       message.success("Salary updated successfully");
       setIsOpenUpdateModal(false);
@@ -659,17 +655,14 @@ const HRSalaryManagement = () => {
     updatedPayments[index] = { ...updatedPayments[index], [field]: value };
     setFormData((prev) => ({ ...prev, advance_payments: updatedPayments }));
   };
-  
+
   const addAdvancePayment = () => {
     setFormData((prev) => ({
       ...prev,
-      advance_payments: [
-        ...prev.advance_payments,
-        { name: "", value: 0 },
-      ],
+      advance_payments: [...prev.advance_payments, { name: "", value: 0 }],
     }));
   };
-  
+
   const removeAdvancePayment = (index) => {
     const updatedPayments = formData.advance_payments.filter(
       (_, i) => i !== index
@@ -683,7 +676,7 @@ const HRSalaryManagement = () => {
     updatedPayments[index] = { ...updatedPayments[index], [field]: value };
     setFormData((prev) => ({ ...prev, additional_payments: updatedPayments }));
   };
-  
+
   const addAdditionalPayment = () => {
     setFormData((prev) => ({
       ...prev,
@@ -693,7 +686,7 @@ const HRSalaryManagement = () => {
       ],
     }));
   };
-  
+
   const removeAdditionalPayment = (index) => {
     const updatedPayments = formData.additional_payments.filter(
       (_, i) => i !== index
@@ -710,7 +703,7 @@ const HRSalaryManagement = () => {
       additional_deductions: updatedDeductions,
     }));
   };
-  
+
   const addAdditionalDeduction = () => {
     setFormData((prev) => ({
       ...prev,
@@ -720,7 +713,7 @@ const HRSalaryManagement = () => {
       ],
     }));
   };
-  
+
   const removeAdditionalDeduction = (index) => {
     const updatedDeductions = formData.additional_deductions.filter(
       (_, i) => i !== index
@@ -759,7 +752,7 @@ const HRSalaryManagement = () => {
       });
       const calculated = response.data.data;
       setCalculatedSalary(calculated);
-      
+
       // Calculate incentive adjustment
       let calculatedIncentive = 0;
       const target = Number(formData?.target || 0);
@@ -768,13 +761,13 @@ const HRSalaryManagement = () => {
         const incentiveValue = incentive * 100;
         calculatedIncentive = (incentiveValue - target) / 100;
       }
-      
+
       setFormData((prev) => ({
         ...prev,
         calculated_incentive: calculatedIncentive,
         total_salary_payable: calculated.calculated_salary,
       }));
-      
+
       setShowComponents(true);
       message.success("Salary calculated successfully");
     } catch (error) {
@@ -809,34 +802,34 @@ const HRSalaryManagement = () => {
             (sum, v) => sum + Number(v || 0),
             0
           );
-      
+
       // Calculate totals for all payment/deduction types
       const advanceTotal = formData.advance_payments.reduce(
         (sum, a) => sum + Number(a.value || 0),
         0
       );
-      
+
       const additionalPaymentsTotal = formData.additional_payments.reduce(
         (sum, payment) => sum + Number(payment.value || 0),
         0
       );
-      
+
       const additionalDeductionsTotal = formData.additional_deductions.reduce(
         (sum, deduction) => sum + Number(deduction.value || 0),
         0
       );
-      
+
       // Total salary payable includes:
       // base salary + advance payments + additional payments + calculated incentive - additional deductions
       const totalSalaryPayable =
-        baseSalary + 
-        advanceTotal + 
-        additionalPaymentsTotal - 
-        additionalDeductionsTotal 
-      
+        baseSalary +
+        advanceTotal +
+        additionalPaymentsTotal -
+        additionalDeductionsTotal;
+
       const paidAmount = Number(formData.paid_amount || 0);
       const remainingBalance = totalSalaryPayable - paidAmount;
-      
+
       const attendanceDetails = calculatedSalary
         ? {
             total_days: calculatedSalary.total_days,
@@ -852,12 +845,12 @@ const HRSalaryManagement = () => {
             salary_to_date: calculatedSalary.salary_to_date,
           }
         : {};
-      
+
       const monthlyTargetIncentive = {
         target: Number(formData.target || 0),
         total_business_closed: Number(formData.incentive || 0),
       };
-      
+
       const salaryData = {
         employee_id: formData?.employee_id,
         salary_from_date: calculatedSalary
@@ -889,7 +882,7 @@ const HRSalaryManagement = () => {
         attendance_details: attendanceDetails,
         monthly_business_info: monthlyTargetIncentive,
       };
-      
+
       await API.post("/salary-payment/", salaryData);
       message.success("Salary added successfully");
       setIsOpenAddModal(false);
@@ -904,6 +897,7 @@ const HRSalaryManagement = () => {
 
   async function getAllSalary() {
     try {
+      setDataTableLoading(true)
       const response = await API.get("/salary-payment/all");
       const responseData = response?.data?.data || [];
       const filteredData = responseData.map((data, index) => ({
@@ -932,6 +926,8 @@ const HRSalaryManagement = () => {
       setAllSalarypayments([...filteredData]);
     } catch (error) {
       setAllSalarypayments([]);
+    }finally{
+      setDataTableLoading(false)
     }
   }
 
@@ -974,7 +970,11 @@ const HRSalaryManagement = () => {
                 </div>
               </div>
             </div>
-            <DataTable columns={columns} data={allSalaryPayments} />
+            {dataTableLoading ? <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} className="w-full"/> : (allSalaryPayments|| []).length > 0 ? (
+              <DataTable columns={columns} data={allSalaryPayments} />
+            ) : (
+              <Empty description="No Salary Data Found" />
+            )}
           </div>
         </div>
         <Drawer
@@ -1660,7 +1660,7 @@ const HRSalaryManagement = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Incentive Adjustment Display */}
                   {calculatedSalary && (
                     <div className="bg-blue-50 p-4 rounded-lg mt-4">
@@ -1674,15 +1674,25 @@ const HRSalaryManagement = () => {
                         {(() => {
                           const incentiveValue = formData.calculated_incentive;
                           const isPositive = incentiveValue >= 0;
-                          const displayValue = Math.abs(incentiveValue).toFixed(2);
+                          const displayValue =
+                            Math.abs(incentiveValue).toFixed(2);
                           return (
                             <>
                               <input
                                 type="text"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800 font-medium"
-                                value={isPositive 
-                                  ? `+ ${Number(incentiveValue).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
-                                  : `- ${Number(Math.abs(incentiveValue)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                                value={
+                                  isPositive
+                                    ? `+ ${Number(
+                                        incentiveValue
+                                      ).toLocaleString("en-IN", {
+                                        minimumFractionDigits: 2,
+                                      })}`
+                                    : `- ${Number(
+                                        Math.abs(incentiveValue)
+                                      ).toLocaleString("en-IN", {
+                                        minimumFractionDigits: 2,
+                                      })}`
                                 }
                                 disabled
                               />
@@ -1696,7 +1706,7 @@ const HRSalaryManagement = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {showComponents && (
                     <div className="bg-indigo-50 p-4 rounded-lg">
                       <div className="flex justify-between items-center mb-4">
@@ -1722,7 +1732,11 @@ const HRSalaryManagement = () => {
                               placeholder="e.g., Diwali Advance"
                               value={payment.name}
                               onChange={(e) =>
-                                handleAdvancePaymentChange(index, "name", e.target.value)
+                                handleAdvancePaymentChange(
+                                  index,
+                                  "name",
+                                  e.target.value
+                                )
                               }
                             />
                           </div>
@@ -1736,7 +1750,11 @@ const HRSalaryManagement = () => {
                                 placeholder="Enter amount"
                                 value={payment.value}
                                 onChange={(e) =>
-                                  handleAdvancePaymentChange(index, "value", e.target.value)
+                                  handleAdvancePaymentChange(
+                                    index,
+                                    "value",
+                                    e.target.value
+                                  )
                                 }
                               />
                               <span className="ml-2 font-medium font-mono text-blue-600">
@@ -1754,7 +1772,7 @@ const HRSalaryManagement = () => {
                       ))}
                     </div>
                   )}
-                  
+
                   {showComponents && (
                     <div className="bg-purple-50 p-4 rounded-lg">
                       <div className="flex justify-between items-center mb-4">
@@ -1820,7 +1838,7 @@ const HRSalaryManagement = () => {
                       ))}
                     </div>
                   )}
-                  
+
                   {showComponents && (
                     <div className="bg-orange-50 p-4 rounded-lg">
                       <div className="flex justify-between items-center mb-4">
@@ -1892,7 +1910,7 @@ const HRSalaryManagement = () => {
                       )}
                     </div>
                   )}
-                  
+
                   {calculatedSalary && showComponents && (
                     <div className="bg-blue-50 p-4 rounded-lg mt-4">
                       <h3 className="text-lg font-semibold text-blue-800 mb-4">
@@ -1904,20 +1922,25 @@ const HRSalaryManagement = () => {
                             Total Salary Payable
                           </label>
                           {(() => {
-                            const base = calculatedSalary?.calculated_salary || 0;
-                            const advanceTotal = formData.advance_payments.reduce(
-                              (sum, p) => sum + Number(p.value || 0),
-                              0
-                            );
-                            const addPayments = formData.additional_payments.reduce(
-                              (sum, p) => sum + Number(p.value || 0),
-                              0
-                            );
-                            const addDeductions = formData.additional_deductions.reduce(
-                              (sum, d) => sum + Number(d.value || 0),
-                              0
-                            );
-                            const total = base + advanceTotal + addPayments - addDeductions ;
+                            const base =
+                              calculatedSalary?.calculated_salary || 0;
+                            const advanceTotal =
+                              formData.advance_payments.reduce(
+                                (sum, p) => sum + Number(p.value || 0),
+                                0
+                              );
+                            const addPayments =
+                              formData.additional_payments.reduce(
+                                (sum, p) => sum + Number(p.value || 0),
+                                0
+                              );
+                            const addDeductions =
+                              formData.additional_deductions.reduce(
+                                (sum, d) => sum + Number(d.value || 0),
+                                0
+                              );
+                            const total =
+                              base + advanceTotal + addPayments - addDeductions;
                             return (
                               <>
                                 <input
@@ -2123,10 +2146,7 @@ const HRSalaryManagement = () => {
                     Calculated Incentive
                   </label>
                   <Form.Item name="calculated_incentive">
-                    <Input 
-                      type="number" 
-                      disabled 
-                    />
+                    <Input type="number" disabled />
                   </Form.Item>
                 </div>
               </div>
@@ -2429,30 +2449,30 @@ const HRSalaryManagement = () => {
                 </div>
               </section>
               {/* Attendance Summary */}
-                <section className="bg-gradient-to-br from-purple-50 to-purple-50 p-6 rounded-xl shadow-md border border-purple-200 hover:shadow-lg transition-shadow">
+              <section className="bg-gradient-to-br from-purple-50 to-purple-50 p-6 rounded-xl shadow-md border border-purple-200 hover:shadow-lg transition-shadow">
                 <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
                   <span className="w-1 h-6 bg-purple-600 rounded-full mr-3"></span>
                   Attendance Details
                 </h4>
                 <ul className="space-y-2">
-                  {Object.entries(existingSalaryRecord.attendance_details || {}).map(
-                    ([key, val]) => (
-                      <li
-                        key={key}
-                        className="flex justify-between items-center bg-white p-4 rounded-lg border border-purple-100 hover:border-purple-200 transition-colors">
-                        <span className="capitalize text-slate-700 font-medium">
-                          {key.replace(/_/g, " ")}
-                        </span>
-                        <span className="font-bold text-purple-700">
-                          ₹
-                          {Number(val).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </li>
-                    )
-                  )}
+                  {Object.entries(
+                    existingSalaryRecord.attendance_details || {}
+                  ).map(([key, val]) => (
+                    <li
+                      key={key}
+                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-purple-100 hover:border-purple-200 transition-colors">
+                      <span className="capitalize text-slate-700 font-medium">
+                        {key.replace(/_/g, " ")}
+                      </span>
+                      <span className="font-bold text-purple-700">
+                        ₹
+                        {Number(val).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               </section>
               {/* Earnings */}
@@ -2515,24 +2535,24 @@ const HRSalaryManagement = () => {
                   Target Details
                 </h4>
                 <ul className="space-y-2">
-                  {Object.entries(existingSalaryRecord.monthly_business_info || {}).map(
-                    ([key, val]) => (
-                      <li
-                        key={key}
-                        className="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100 hover:border-blue-200 transition-colors">
-                        <span className="capitalize text-slate-700 font-medium">
-                          {key.replace(/_/g, " ")}
-                        </span>
-                        <span className="font-bold text-blue-700">
-                          ₹
-                          {Number(val).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </li>
-                    )
-                  )}
+                  {Object.entries(
+                    existingSalaryRecord.monthly_business_info || {}
+                  ).map(([key, val]) => (
+                    <li
+                      key={key}
+                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100 hover:border-blue-200 transition-colors">
+                      <span className="capitalize text-slate-700 font-medium">
+                        {key.replace(/_/g, " ")}
+                      </span>
+                      <span className="font-bold text-blue-700">
+                        ₹
+                        {Number(val).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               </section>
               {/* Advance Payments */}
@@ -2589,8 +2609,7 @@ const HRSalaryManagement = () => {
                   </ul>
                 </section>
               )}
-              {/* Additional Deductions */
-              }
+              {/* Additional Deductions */}
               {existingSalaryRecord.additional_deductions?.length > 0 && (
                 <section className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl shadow-md border border-orange-200 hover:shadow-lg transition-shadow">
                   <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
@@ -2630,17 +2649,22 @@ const HRSalaryManagement = () => {
                     <span className="text-slate-700 font-medium">
                       Calculated Incentive:
                     </span>
-                    <span className={`font-bold ml-2 ${
-                      existingSalaryRecord.calculated_incentive > 0 
-                        ? "text-green-700" 
-                        : "text-red-700"
-                    }`}>
+                    <span
+                      className={`font-bold ml-2 ${
+                        existingSalaryRecord.calculated_incentive > 0
+                          ? "text-green-700"
+                          : "text-red-700"
+                      }`}>
                       ₹
-                      {Math.abs(existingSalaryRecord.calculated_incentive).toLocaleString("en-IN", {
+                      {Math.abs(
+                        existingSalaryRecord.calculated_incentive
+                      ).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
-                      {existingSalaryRecord.calculated_incentive > 0 ? " (Bonus)" : " (Deduction)"}
+                      {existingSalaryRecord.calculated_incentive > 0
+                        ? " (Bonus)"
+                        : " (Deduction)"}
                     </span>
                   </div>
                 </section>
@@ -2659,7 +2683,8 @@ const HRSalaryManagement = () => {
                     <span className="text-slate-900 font-semibold text-lg">
                       ₹
                       {Number(
-                       existingSalaryRecord?.attendance_details?.calculated_salary
+                        existingSalaryRecord?.attendance_details
+                          ?.calculated_salary
                       ).toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -2728,17 +2753,22 @@ const HRSalaryManagement = () => {
                       <span className="text-slate-700 font-medium">
                         Incentive Adjustment:
                       </span>
-                      <span className={`font-semibold text-lg ${
-                        existingSalaryRecord.calculated_incentive > 0 
-                          ? "text-green-700" 
-                          : "text-red-700"
-                      }`}>
+                      <span
+                        className={`font-semibold text-lg ${
+                          existingSalaryRecord.calculated_incentive > 0
+                            ? "text-green-700"
+                            : "text-red-700"
+                        }`}>
                         ₹
-                        {Math.abs(existingSalaryRecord.calculated_incentive).toLocaleString("en-IN", {
+                        {Math.abs(
+                          existingSalaryRecord.calculated_incentive
+                        ).toLocaleString("en-IN", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
-                        {existingSalaryRecord.calculated_incentive > 0 ? "" : " (Deduction)"}
+                        {existingSalaryRecord.calculated_incentive > 0
+                          ? ""
+                          : " (Deduction)"}
                       </span>
                     </div>
                   )}

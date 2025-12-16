@@ -38,6 +38,7 @@ const SalaryPayment = () => {
   const [updateForm] = Form.useForm();
   const [alreadyPaidModalOpen, setAlreadyPaidModalOpen] = useState(false);
   const [existingSalaryRecord, setExistingSalaryRecord] = useState(null);
+  const [dataTableLoading,setDataTableLoading] = useState(false);
   const [updateFormData, setUpdateFormData] = useState({
     employee_id: "",
     month: "",
@@ -568,7 +569,7 @@ const SalaryPayment = () => {
           <h1 className="text-2xl font-semibold">Salary Payment</h1>
           <div className="mt-6 mb-8">
             <div className="mb-10"></div>
-            <DataTable columns={columns} data={allSalaryPayments} />
+          {allSalaryPayments.length  <DataTable columns={columns} data={allSalaryPayments} />}
           </div>
         </div>
         <Drawer
@@ -1274,7 +1275,6 @@ const SalaryPayment = () => {
                   </ul>
                 </section>
               )}
-              {/* Advance Payments */}
               {existingSalaryRecord.advance_payments?.length > 0 && (
                 <section className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                   <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
@@ -1298,7 +1298,6 @@ const SalaryPayment = () => {
                   </ul>
                 </section>
               )}
-              {/* Incentive Adjustment */}
               {existingSalaryRecord.calculated_incentive !== 0 && (
                 <section className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
                   <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
@@ -1319,7 +1318,6 @@ const SalaryPayment = () => {
                   </div>
                 </section>
               )}
-              {/* Payment Summary */}
               <section className="bg-gradient-to-r from-amber-50 to-white border border-amber-200 p-5 rounded-lg shadow-sm">
                 <h4 className="font-bold text-gray-900 mb-3 flex items-center text-base">
                   Payment Summary
