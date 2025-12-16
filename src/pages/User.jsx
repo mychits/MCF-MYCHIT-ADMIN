@@ -12,7 +12,7 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import handleEnrollmentRequestPrint from "../components/printFormats/enrollmentRequestPrint";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { fieldSize } from "../data/fieldSize";
-
+import dayjs from "dayjs"
 const User = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -150,6 +150,7 @@ const User = () => {
           // referral_code: group?.referral_code,
           collection_area: group.collection_area?.route_name,
           progressValue: group?.percentage,
+          dob:group?.dateofbirth ? dayjs(group?.dateofbirth).format("YYYY-MM-DD") : "" ,
           progress: (
             <div className="flex flex-col items-center justify-center">
               <div
@@ -479,6 +480,7 @@ const User = () => {
     { key: "referral_type", header: "Referred Type" },
     { key: "referredBy", header: "Referred By" },
     { key: "trackSource", header: "Track Source" },
+    { key: "dob", header: "DOB" },
     //  {key: "referral_code", header: "Referral Code"},
     { key: "collection_area", header: "Area" },
     { key: "progressValue", header: "Progress" },
