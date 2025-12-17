@@ -1,292 +1,277 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
-import Modal from "../components/modals/Modal";
+import Navbar from "../components/layouts/Navbar";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Select, Dropdown, Drawer, Form, Input, Button, DatePicker, InputNumber } from "antd";
-import { IoMdMore } from "react-icons/io";
-import Navbar from "../components/layouts/Navbar";
-import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
-import { fieldSize } from "../data/fieldSize";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
-import dayjs from "dayjs";
+import filterOption from "../helpers/filterOption";
+import { Drawer, Form, Input, Button, Select, InputNumber } from "antd";
 
-const SalaryIncentive = () => {
-  const [salaries, setSalaries] = useState([]);
-  const [tableSalaries, setTableSalaries] = useState([]);
+const AllEmployeeIncentives = () => {
+  const [tableData, setTableData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const [currentSalary, setCurrentSalary] = useState(null);
-  const [reloadTrigger, setReloadTrigger] = useState(0);
+  const [reload, setReload] = useState(0);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const [form] = Form.useForm();
 
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
-    message: "Something went wrong!",
+    message: "",
     type: "info",
   });
 
   const onGlobalSearchChangeHandler = (e) => {
-    const { value } = e.target;
-    setSearchText(value);
+    setSearchText(e.target.value);
   };
 
+  /* ---------------- FETCH DATA ---------------- */
   useEffect(() => {
-    const fetchSalaries = async () => {
+    const fetchAllIncentives = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/employee/salaries/pending-incentives");
-        setSalaries(response.data);
-        
-        const formattedData = response.data.map((salary, index) => ({
-          _id: salary?._id,
-          id: index + 1,
-          employee_name: salary?.employee_id?.name || "N/A",
-          employee_id: salary?.employee_id?.employee_id || "N/A",
-          salary_month: salary?.salary_month,
-          salary_year: salary?.salary_year,
-          calculated_incentive: salary?.calculated_incentive || 0,
-          incentive_status: salary?.incentive_status || "Pending",
-          payment_method: salary?.incentive_payment_method || "Not Selected",
-          action: (
-            <div className="flex justify-center gap-2">
-              <Button
-                type="primary"
-                size="small"
-                onClick={() => handleEditIncentive(salary._id)}
-              >
-                Edit Incentive
-              </Button>
-            </div>
-          ),
-        }));
-        setTableSalaries(formattedData);
+
+        const response = await api.get(
+          "/employee/incentives/all-time"
+        );
+
+        const apiData = response.data.data || [];
+        let rows = [];
+        let index = 1;
+
+        apiData.forEach((emp) => {
+          emp.records.forEach((record) => {
+            rows.push({
+              _id: record.salary_id, // IMPORTANT
+              id: index++,
+              employee_name: emp.employee.name,
+              employee_code: emp.employee.employee_code,
+              salary_month: record.period.month,
+              salary_year: record.period.year,
+              target_amount: record.target.target_amount,
+              actual_closed: record.target.actual_closed,
+              incentive_earned: record.incentive.earned,
+              incentive_paid: record.incentive.paid,
+              incentive_remaining: record.incentive.remaining,
+              incentive_status: record.incentive.status,
+              target_status: record.target.is_achieved
+                ? "Achieved"
+                : "Not Achieved",
+              action: (
+                <Button
+                  type="primary"
+                  size="small"
+                  disabled={record.incentive.remaining <= 0}
+                  onClick={() =>
+                    openDrawer({
+                      salary_id: record.salary_id,
+                      employee_name: emp.employee.name,
+                      employee_code: emp.employee.employee_code,
+                      month: record.period.month,
+                      year: record.period.year,
+                      remaining: record.incentive.remaining,
+                    })
+                  }
+                >
+                  Pay Incentive
+                </Button>
+              ),
+            });
+          });
+        });
+
+        setTableData(rows);
       } catch (error) {
-        console.error("Error fetching salary data:", error);
+        console.error(error);
         setAlertConfig({
           visibility: true,
-          message: "Error fetching salary data",
+          message: "Failed to fetch incentive data",
           type: "error",
         });
       } finally {
         setIsLoading(false);
       }
     };
-    fetchSalaries();
-  }, [reloadTrigger]);
 
-  const handleEditIncentive = async (salaryId) => {
-    try {
-      const response = await api.get(`/employee/salaries/${salaryId}`);
-      const salaryData = response.data;
-      setCurrentSalary(salaryData);
-      
-      // Set form values
-      form.setFieldsValue({
-        calculated_incentive: salaryData.calculated_incentive || 0,
-        incentive_payment_method: salaryData.incentive_payment_method || "",
-        incentive_status: salaryData.incentive_status || "Pending",
-      });
-      
-      setDrawerVisible(true);
-    } catch (error) {
-      console.error("Error fetching salary details:", error);
-      setAlertConfig({
-        visibility: true,
-        message: "Error fetching salary details",
-        type: "error",
-      });
-    }
+    fetchAllIncentives();
+  }, [reload]);
+
+  /* ---------------- DRAWER ---------------- */
+  const openDrawer = (data) => {
+    setSelectedRow(data);
+    form.setFieldsValue({
+      incentive_paid_amount: data.remaining,
+      incentive_payment_method: "",
+    });
+    setDrawerOpen(true);
   };
 
-  const handleUpdateIncentive = async (values) => {
-    try {
-      await api.put(`/employee/salaries/${currentSalary._id}/incentive`, values);
-      setAlertConfig({
-        visibility: true,
-        message: "Incentive updated successfully",
-        type: "success",
-      });
-      setDrawerVisible(false);
-      setReloadTrigger((prev) => prev + 1);
-    } catch (error) {
-      console.error("Error updating incentive:", error);
-      setAlertConfig({
-        visibility: true,
-        message: "Error updating incentive",
-        type: "error",
-      });
-    }
-  };
-
-  const onCloseDrawer = () => {
-    setDrawerVisible(false);
-    setCurrentSalary(null);
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+    setSelectedRow(null);
     form.resetFields();
   };
 
+  /* ---------------- PAY INCENTIVE ---------------- */
+  const handlePayIncentive = async (values) => {
+    try {
+      await api.put(
+        `/employee/salaries/${selectedRow.salary_id}/pay-incentive`,
+        values
+      );
+
+      setAlertConfig({
+        visibility: true,
+        message: "Incentive paid successfully",
+        type: "success",
+      });
+
+      closeDrawer();
+      setReload((p) => p + 1);
+    } catch (err) {
+      setAlertConfig({
+        visibility: true,
+        message:
+          err.response?.data?.message || "Failed to pay incentive",
+        type: "error",
+      });
+    }
+  };
+
+  /* ---------------- TABLE ---------------- */
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "employee_name", header: "Employee Name" },
-    { key: "employee_id", header: "Employee ID" },
-    { key: "salary_month", header: "Salary Month" },
-    { key: "salary_year", header: "Salary Year" },
-    { key: "calculated_incentive", header: "Calculated Incentive" },
+ 
+    { key: "salary_month", header: "Month" },
+    { key: "salary_year", header: "Year" },
+    { key: "target_amount", header: "Target (₹)" },
+    { key: "actual_closed", header: "Business Closed (₹)" },
+    { key: "target_status", header: "Target Status" },
+    { key: "incentive_earned", header: "Incentive Earned (₹)" },
+    { key: "incentive_paid", header: "Paid (₹)" },
+    { key: "incentive_remaining", header: "Remaining (₹)" },
     { key: "incentive_status", header: "Incentive Status" },
-    { key: "payment_method", header: "Payment Method" },
     { key: "action", header: "Action" },
   ];
 
   return (
     <>
-      <div>
-        <Navbar
-          visibility={true}
-          onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
-        />
+      <Navbar
+        visibility={true}
+        onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+      />
 
-        <CustomAlertDialog
-          type={alertConfig.type}
-          isVisible={alertConfig.visibility}
-          message={alertConfig.message}
-          onClose={() =>
-            setAlertConfig((prev) => ({ ...prev, visibility: false }))
-          }
-        />
-        <div className="flex mt-20">
-          <Sidebar />
+      <CustomAlertDialog
+        type={alertConfig.type}
+        isVisible={alertConfig.visibility}
+        message={alertConfig.message}
+        onClose={() =>
+          setAlertConfig((prev) => ({ ...prev, visibility: false }))
+        }
+      />
 
-          <div className="flex-grow p-7">
-            <div className="mt-6 mb-8">
-              <div className="flex justify-between items-center w-full">
-                <h1 className="text-2xl font-semibold">Salary Incentives</h1>
-              </div>
-            </div>
+      <div className="flex mt-20">
+        <Sidebar />
 
-            {tableSalaries.length > 0 && !isLoading ? (
-              <DataTable
-                catcher="_id"
-                data={filterOption(tableSalaries, searchText)}
-                columns={columns}
-                exportedPdfName={`Salary Incentives`}
-                exportedFileName={`Salary Incentives.csv`}
-              />
-            ) : (
-              <CircularLoader
-                isLoading={isLoading}
-                failure={tableSalaries.length <= 0}
-                data={"Salary Incentive Data"}
-              />
-            )}
+        <div className="flex-grow p-7">
+          <div className="mt-6 mb-8">
+            <h1 className="text-2xl font-semibold">
+              All Employees – Incentive & Target Report
+            </h1>
           </div>
-        </div>
 
-        <Drawer
-          title="Edit Incentive Details"
-          placement="right"
-          onClose={onCloseDrawer}
-          open={drawerVisible}
-          width={500}
-        >
-          {currentSalary && (
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleUpdateIncentive}
-              initialValues={{
-                calculated_incentive: currentSalary.calculated_incentive || 0,
-                incentive_payment_method: currentSalary.incentive_payment_method || "",
-                incentive_status: currentSalary.incentive_status || "Pending",
-              }}
-            >
-              <Form.Item
-                label="Employee Name"
-                name="employee_name"
-              >
-                <Input disabled value={currentSalary.employee_id?.name || "N/A"} />
-              </Form.Item>
-
-              <Form.Item
-                label="Employee ID"
-                name="employee_id"
-              >
-                <Input disabled value={currentSalary.employee_id?.employee_id || "N/A"} />
-              </Form.Item>
-
-              <Form.Item
-                label="Salary Month"
-                name="salary_month"
-              >
-                <Input disabled value={currentSalary.salary_month} />
-              </Form.Item>
-
-              <Form.Item
-                label="Salary Year"
-                name="salary_year"
-              >
-                <Input disabled value={currentSalary.salary_year} />
-              </Form.Item>
-
-              <Form.Item
-                label="Calculated Incentive"
-                name="calculated_incentive"
-                rules={[{ required: true, message: 'Please enter calculated incentive' }]}
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  formatter={value => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={value => value.replace(/₹\s?|(,*)/g, '')}
-                  min={0}
-                  precision={2}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Incentive Status"
-                name="incentive_status"
-                rules={[{ required: true, message: 'Please select incentive status' }]}
-              >
-                <Select placeholder="Select Incentive Status">
-                  <Select.Option value="Pending">Pending</Select.Option>
-                  <Select.Option value="Processed">Processed</Select.Option>
-                  <Select.Option value="Paid">Paid</Select.Option>
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                label="Payment Method"
-                name="incentive_payment_method"
-                rules={[{ required: true, message: 'Please select payment method' }]}
-              >
-                <Select placeholder="Select Payment Method">
-                  <Select.Option value="Cash">Cash</Select.Option>
-                  <Select.Option value="Online/UPI">Online/UPI</Select.Option>
-                  <Select.Option value="Online/NEFT">Online/NEFT</Select.Option>
-                  <Select.Option value="Online/IMPS">Online/IMPS</Select.Option>
-                  <Select.Option value="Online/RTGS">Online/RTGS</Select.Option>
-                  <Select.Option value="Bank Transfer">Bank Transfer</Select.Option>
-                  <Select.Option value="Cheque">Cheque</Select.Option>
-                  <Select.Option value="Direct Deposit">Direct Deposit</Select.Option>
-                </Select>
-              </Form.Item>
-
-              <Form.Item>
-                <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
-                  Update Incentive
-                </Button>
-                <Button onClick={onCloseDrawer}>
-                  Cancel
-                </Button>
-              </Form.Item>
-            </Form>
+          {!isLoading ? (
+            <DataTable
+              catcher="_id"
+              data={filterOption(tableData, searchText)}
+              columns={columns}
+              exportedPdfName="All Employee Incentives"
+              exportedFileName="All_Employee_Incentives.csv"
+            />
+          ) : (
+            <CircularLoader isLoading={true} />
           )}
-        </Drawer>
+        </div>
       </div>
+
+      {/* ---------------- PAY DRAWER ---------------- */}
+      <Drawer
+        title="Pay Incentive"
+        placement="right"
+        width={420}
+        open={drawerOpen}
+        onClose={closeDrawer}
+      >
+        {selectedRow && (
+          <Form
+            layout="vertical"
+            form={form}
+            onFinish={handlePayIncentive}
+          >
+            <Form.Item label="Employee">
+              <Input
+                disabled
+                value={`${selectedRow.employee_name} (${selectedRow.employee_code})`}
+              />
+            </Form.Item>
+
+            <Form.Item label="Period">
+              <Input
+                disabled
+                value={`${selectedRow.month} ${selectedRow.year}`}
+              />
+            </Form.Item>
+
+            <Form.Item label="Remaining Incentive">
+              <Input disabled value={`₹ ${selectedRow.remaining}`} />
+            </Form.Item>
+
+            <Form.Item
+              label="Pay Amount"
+              name="incentive_paid_amount"
+              rules={[
+                { required: true },
+                {
+                  validator: (_, value) =>
+                    value > selectedRow.remaining
+                      ? Promise.reject(
+                          new Error("Amount exceeds remaining incentive")
+                        )
+                      : Promise.resolve(),
+                },
+              ]}
+            >
+              <InputNumber min={1} style={{ width: "100%" }} />
+            </Form.Item>
+
+            <Form.Item
+              label="Payment Method"
+              name="incentive_payment_method"
+              rules={[{ required: true }]}
+            >
+              <Select placeholder="Select payment method">
+                <Select.Option value="Cash">Cash</Select.Option>
+                <Select.Option value="UPI">UPI</Select.Option>
+                <Select.Option value="NEFT">NEFT</Select.Option>
+                <Select.Option value="IMPS">IMPS</Select.Option>
+                <Select.Option value="RTGS">RTGS</Select.Option>
+                <Select.Option value="Cheque">Cheque</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Button type="primary" htmlType="submit" block>
+              Pay Incentive
+            </Button>
+          </Form>
+        )}
+      </Drawer>
     </>
   );
 };
 
-export default SalaryIncentive;
+export default AllEmployeeIncentives;
