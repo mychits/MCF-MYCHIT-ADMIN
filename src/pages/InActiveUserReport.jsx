@@ -618,7 +618,6 @@ const InActiveUserReport = () => {
   const handleEnrollGroup = (event) => {
     const value = event.target.value;
 
-    
     if (value) {
       const [groupId, ticket] = value.split("|");
       setEnrollGroupId({ groupId, ticket });
@@ -717,12 +716,12 @@ const InActiveUserReport = () => {
     if (groupId) {
       try {
         const response = await api.post(
-          `/enroll/get-user-refer-report/${groupId}`
+          `/enroll/get-inactive-report/${groupId}`
         );
 
         if (response.data && response.data.length > 0) {
           setFilteredAuction(response.data);
-          console.log(response.data, "resienns");
+        
 
           const formattedData = response.data
             .map((group, index) => {
@@ -772,7 +771,8 @@ const InActiveUserReport = () => {
                       totalPaidAmount,
                 referred_type: group?.enrollment?.referred_type || "N/A",
                 referrer_name: group?.enrollment?.referrer_name || "N/A",
-                chit_asking_month: group?.enrollment?.chit_asking_month || "N/A",
+                chit_asking_month:
+                  group?.enrollment?.chit_asking_month || "N/A",
                 customer_status: group?.enrollment?.customer_status || "N/A",
                 removal_reason: group?.enrollment?.removal_reason || "N/A",
                 isPrized:
@@ -783,10 +783,8 @@ const InActiveUserReport = () => {
             })
             .filter((item) => item !== null)
             .filter((item) => item.customer_status === "In Active");
-
           setTableAuctions(formattedData);
           setCommission(0);
-          console.info(formattedData, "test");
           const totalToBePaidAmount = formattedData
             .filter((summary) => summary.customer_status === "In Active")
             .reduce((sum, group) => {
@@ -837,7 +835,7 @@ const InActiveUserReport = () => {
     { key: "ticket", header: "Ticket" },
     { key: "referred_type", header: "Referrer Type" },
     { key: "referrer_name", header: "Referred By" },
-    {key: "chit_asking_month", header: "Chit Asking Month"},
+    { key: "chit_asking_month", header: "Chit Asking Month" },
     { key: "isPrized", header: "Is Prized" },
     { key: "totalBePaid", header: "Amount to be Paid" },
     { key: "profit", header: "Profit" },
@@ -1051,9 +1049,8 @@ const InActiveUserReport = () => {
                   <div className="mb-2">
                     <label
                       className="block text-lg text-gray-500 text-center  font-semibold mb-2"
-                      htmlFor={"SS"}
-                    >
-                     In Active Customer
+                      htmlFor={"SS"}>
+                      In Active Customer
                     </label>
                     <Select
                       id="SS"
@@ -1068,8 +1065,7 @@ const InActiveUserReport = () => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      style={{ height: "50px", width: "600px" }}
-                    >
+                      style={{ height: "50px", width: "600px" }}>
                       {groups.map((group) => (
                         <option key={group._id} value={group._id}>
                           {group.full_name} - {group.phone_number}
@@ -1090,8 +1086,7 @@ const InActiveUserReport = () => {
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
                         }`}
-                        onClick={() => handleTabChange("groupDetails")}
-                      >
+                        onClick={() => handleTabChange("groupDetails")}>
                         Customer Details
                       </button>
                       <button
@@ -1100,8 +1095,7 @@ const InActiveUserReport = () => {
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
                         }`}
-                        onClick={() => handleTabChange("basicReport")}
-                      >
+                        onClick={() => handleTabChange("basicReport")}>
                         Customer Ledger
                       </button>
 
@@ -1111,8 +1105,7 @@ const InActiveUserReport = () => {
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
                         }`}
-                        onClick={() => handleTabChange("disbursement")}
-                      >
+                        onClick={() => handleTabChange("disbursement")}>
                         PayOut | Disbursement
                       </button>
                     </div>
@@ -1134,8 +1127,7 @@ const InActiveUserReport = () => {
                             customerTransactions
                           )
                         }
-                        className="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded shadow"
-                      >
+                        className="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded shadow">
                         <IoMdDownload size={20} />
                         Download Full Report
                       </button>
@@ -1210,8 +1202,7 @@ const InActiveUserReport = () => {
                                         results.map(({ item }) => (
                                           <div
                                             key={item.key}
-                                            className="p-1 border-b"
-                                          >
+                                            className="p-1 border-b">
                                             <strong>{item.key}</strong> →{" "}
                                             {item.value || "-"}
                                           </div>
@@ -1240,8 +1231,7 @@ const InActiveUserReport = () => {
             ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
             : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
         }
-      `}
-                                >
+      `}>
                                   {visibleRows.row1
                                     ? "✓ Hide Basic Info"
                                     : "Show Basic Info"}
@@ -1260,8 +1250,7 @@ const InActiveUserReport = () => {
             ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
             : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
         }
-      `}
-                                >
+      `}>
                                   {visibleRows.row2
                                     ? "✓ Hide Address Info"
                                     : "Show Address Info"}
@@ -1280,8 +1269,7 @@ const InActiveUserReport = () => {
             ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
             : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
         }
-      `}
-                                >
+      `}>
                                   {visibleRows.row3
                                     ? "✓ Hide Regional Info"
                                     : "Show Regional Info"}
@@ -1300,8 +1288,7 @@ const InActiveUserReport = () => {
             ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
             : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
         }
-      `}
-                                >
+      `}>
                                   {visibleRows.row4
                                     ? "✓ Hide Referral, Nominee & Bank Details"
                                     : "Show Referral, Nominee & Bank Details"}
@@ -1824,19 +1811,20 @@ const InActiveUserReport = () => {
                                     : ""
                                 }
                                 onChange={handleEnrollGroup}
-                                className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
-                              >
+                                className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md">
                                 <option value="">Select Group | Ticket</option>
 
                                 {/* ✅ CHIT Groups */}
                                 {filteredAuction.map((group) => {
-                                    
-                                  if (group?.enrollment?.group && group?.enrollment?.customer_status === "In Active") {
+                                  if (
+                                    group?.enrollment?.group &&
+                                    group?.enrollment?.customer_status ===
+                                      "In Active"
+                                  ) {
                                     return (
                                       <option
                                         key={group.enrollment.group._id}
-                                        value={`${group.enrollment.group._id}|${group.enrollment.tickets}`}
-                                      >
+                                        value={`${group.enrollment.group._id}|${group.enrollment.tickets}`}>
                                         {group.enrollment.group.group_name} |{" "}
                                         {group.enrollment.tickets}
                                       </option>
@@ -1854,8 +1842,7 @@ const InActiveUserReport = () => {
                                         }
                                         value={`Loan|${
                                           loan?.loan_details?.loan?._id || index
-                                        }`}
-                                      >
+                                        }`}>
                                         {loan?.loan_details?.loan?.loan_id ||
                                           "N/A"}{" "}
                                         | ₹{loan?.loan_value || 0}
@@ -1874,8 +1861,7 @@ const InActiveUserReport = () => {
                                         value={`Pigme|${
                                           pigme?.pigme_details?.pigme?._id ||
                                           index
-                                        }`}
-                                      >
+                                        }`}>
                                         {pigme?.pigme_details?.pigme
                                           ?.pigme_id || "N/A"}{" "}
                                         | ₹{pigme?.total_deposited_amount || 0}

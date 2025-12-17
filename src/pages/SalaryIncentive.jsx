@@ -29,24 +29,24 @@ const AllEmployeeIncentives = () => {
     setSearchText(e.target.value);
   };
 
-  /* ---------------- FETCH DATA ---------------- */
+ 
   useEffect(() => {
     const fetchAllIncentives = async () => {
       try {
         setIsLoading(true);
 
         const response = await api.get(
-          "/employee/incentives/all-time"
+          "/employee/incentives/pending"
         );
 
-        const apiData = response.data.data || [];
+        const apiData = response.data?.data || [];
         let rows = [];
         let index = 1;
 
         apiData.forEach((emp) => {
           emp.records.forEach((record) => {
             rows.push({
-              _id: record.salary_id, // IMPORTANT
+              _id: record._id, // IMPORTANT
               id: index++,
               employee_name: emp.employee.name,
               employee_code: emp.employee.employee_code,
@@ -100,7 +100,7 @@ const AllEmployeeIncentives = () => {
     fetchAllIncentives();
   }, [reload]);
 
-  /* ---------------- DRAWER ---------------- */
+  
   const openDrawer = (data) => {
     setSelectedRow(data);
     form.setFieldsValue({
@@ -116,8 +116,9 @@ const AllEmployeeIncentives = () => {
     form.resetFields();
   };
 
-  /* ---------------- PAY INCENTIVE ---------------- */
+  
   const handlePayIncentive = async (values) => {
+    console.log(selectedRow,"selectRow")
     try {
       await api.put(
         `/employee/salaries/${selectedRow.salary_id}/pay-incentive`,
@@ -142,7 +143,7 @@ const AllEmployeeIncentives = () => {
     }
   };
 
-  /* ---------------- TABLE ---------------- */
+
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "employee_name", header: "Employee Name" },
@@ -199,7 +200,7 @@ const AllEmployeeIncentives = () => {
         </div>
       </div>
 
-      {/* ---------------- PAY DRAWER ---------------- */}
+      
       <Drawer
         title="Pay Incentive"
         placement="right"
