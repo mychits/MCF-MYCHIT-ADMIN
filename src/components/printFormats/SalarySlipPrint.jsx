@@ -3357,8 +3357,6 @@ const SalarySlipPrint = () => {
         0
       );
 
-  
-
       // ================= TOTAL EARNINGS =================
       const fixedEarningsTotal =
         monthlySalary +
@@ -3381,26 +3379,25 @@ const SalarySlipPrint = () => {
           : 0;
       const totalDeductions =
         incomeTax + esi + epf + professionalTax + salaryAdvance + lop;
-      const paidAmount = Number(payment?.paid_amount || 0);
+      // let paidAmount = Number(payment?.paid_amount || 0);
 
-      if(paidAmount > (fixedEarningsTotal - totalDeductions) ){
-       paidAmount = fixedEarningsTotal - totalDeductions
-      }
-       
-      
+      // if(paidAmount > (fixedEarningsTotal - totalDeductions) ){
+      //  paidAmount = fixedEarningsTotal - totalDeductions
+      // }
 
-       const additionalDeductionsTotal = additionalDeductions.reduce(
+      const originalPaidAmount = Number(payment?.paid_amount || 0);
+      const netSalary = totalEarnings - totalDeductions;
+
+      // Amount actually considered as salary payment
+      const paidAmount = Math.min(originalPaidAmount, netSalary);
+
+      // Excess paid amount (advance / adjustment)
+      const excessPaid = Math.max(originalPaidAmount - netSalary, 0);
+
+      const additionalDeductionsTotal = additionalDeductions.reduce(
         (sum, d) => sum + Number(d.value || 0),
         0
       );
-
-     
-
-   
-      
-     
-
-      
 
       // ================= UTIL =================
       const formatDate = (date) => {
@@ -3539,28 +3536,14 @@ const SalarySlipPrint = () => {
   <td>₹${otherAllowances.toFixed(2)}</td>
   <td>Others</td>
  <td>
-  ₹${(() => {
-    const additionalTotal = additionalDeductions.reduce(
-      (sum, p) => sum + parseFloat(p.value || 0),
-      0
-    );
+₹${(() => {
+  const additionalTotal = additionalDeductions.reduce(
+    (sum, d) => sum + Number(d.value || 0),
+    0
+  );
 
-    const difference = Math.abs(paidAmount - (totalEarnings - totalDeductions));
-
-    // If additional deductions are zero, just show the difference
-    if (additionalTotal === 0) {
-      return difference.toFixed(2);
-    }
-
-    // If paidAmount is greater, show only additional deductions
-    if (paidAmount > (totalEarnings - totalDeductions)) {
-      return (additionalTotal + difference).toFixed(2);
-    }
-
-    // Otherwise add difference to additional deductions
-    return additionalTotal.toFixed(2);
-    
-  })()}
+  return (additionalTotal + excessPaid).toFixed(2);
+})()}
 </td>
 
 </tr>
@@ -3574,9 +3557,11 @@ const SalarySlipPrint = () => {
     <td>Others</td>
     <td>
 
-  ₹${additionalPayments
-    .reduce((sum, p) => sum + parseFloat(p.value || 0), 0)
-    .toFixed(2) || 0}
+  ₹${
+    additionalPayments
+      .reduce((sum, p) => sum + parseFloat(p.value || 0), 0)
+      .toFixed(2) || 0
+  }
 
 </td>
     </tr>
@@ -3775,7 +3760,7 @@ const SalarySlipPrint = () => {
 
       const netPayable = parseFloat(payment.net_payable || 0);
 
-     // const lop = totalEarnings - netPayable - totalDeductions;
+      // const lop = totalEarnings - netPayable - totalDeductions;
 
       const formatDate = (date) => {
         if (!date) return "N/A";
@@ -4160,7 +4145,6 @@ const SalarySlipPrint = () => {
         </div>
       </Card>
 
-    
       <Card
         title={`Preview: ${
           formatButtons.find((f) => f.key === printFormat)?.label
