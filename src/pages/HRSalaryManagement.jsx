@@ -84,7 +84,7 @@ const HRSalaryManagement = () => {
       target: 0,
       total_business_closed: 0,
     },
-    status:""
+    status: "",
   });
   const thisYear = dayjs().format("YYYY");
   const earningsObject = {
@@ -159,7 +159,7 @@ const HRSalaryManagement = () => {
     calculated_incentive: 0,
     total_salary_payable: 0,
     paid_amount: 0,
-    payment_method: "Cash",
+    payment_method: "",
     transaction_id: "",
     target: 0,
     incentive: 0,
@@ -421,8 +421,8 @@ const HRSalaryManagement = () => {
             target: 0,
             total_business_closed: 0,
           },
-          status:salaryData?.status,
-          payment_method:salaryData?.payment_method
+          status: salaryData?.status,
+          payment_method: salaryData?.payment_method,
         };
         setUpdateFormData(formData);
         updateForm.setFieldsValue(formData);
@@ -920,15 +920,10 @@ const HRSalaryManagement = () => {
         remaining_balance: remainingBalance,
         total_salary_payable: totalSalaryPayable,
         payment_method: formData.payment_method,
-        transaction_id:
-          formData.payment_method === "Cash"
-            ? null
-            : formData.transaction_id || null,
-        status: remainingBalance <= 0 ? "Paid" : "Pending",
+        status: "Pending",
         attendance_details: attendanceDetails,
         monthly_business_info: monthlyTargetIncentive,
       };
-      console.log(salaryData, "this is salary data");
       await API.post("/salary-payment/", salaryData);
       message.success("Salary added successfully");
       setIsOpenAddModal(false);
@@ -2362,7 +2357,7 @@ const HRSalaryManagement = () => {
                     className="!bg-gray-100 !text-gray-800 !cursor-default"
                   />
                 </div>
-                { (
+                {
                   <div className="form-group">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Payment Method
@@ -2373,7 +2368,7 @@ const HRSalaryManagement = () => {
                       className="!bg-gray-100 !text-gray-800 !cursor-default"
                     />
                   </div>
-                )}
+                }
                 {updateFormData.transaction_id && (
                   <div className="form-group">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2391,9 +2386,7 @@ const HRSalaryManagement = () => {
                     Status
                   </label>
                   <Input
-                    value={
-                      (updateFormData.status)
-                    }
+                    value={updateFormData.status}
                     readOnly
                     className="!bg-gray-100 !text-gray-800 !cursor-default"
                   />

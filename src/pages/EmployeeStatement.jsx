@@ -18,7 +18,6 @@ import moment from "moment";
 
 const { Text, Title } = Typography;
 
-// Helper to safely sum array of values (defensive against non-array input)
 const sumValues = (arr) => {
   if (!Array.isArray(arr)) return 0;
   return arr.reduce((sum, item) => sum + (item?.value || 0), 0);
@@ -73,45 +72,46 @@ const EmployeeStatement = () => {
       setIsLoading(true);
       const response = await api.get(`/employee/ledgertest/${employeeId}`);
       console.log("Ledger API Response:", response.data);
-      const ledger = response.data.ledger || [];
-      const summary = response.data.overall_summary;
+      const ledger = response.data?.ledger || [];
+      const summary = response.data?.overall_summary;
 
       const formattedData = ledger.map((item, index) => {
-        const netPosition = item.company_books.net_position;
-        const balanceColor = netPosition >= 0 ? "text-green-600" : "text-red-600";
+        const netPosition = item?.company_books?.net_position;
+        const balanceColor =
+          netPosition >= 0 ? "text-green-600" : "text-red-600";
 
         return {
           id: index + 1,
-          month: item.period.label,
-          calculatedSalary: item.salary.total_salary_payable,
-          targetAmount: item.business.target,
-          businessClosed: item.business.total_business_closed,
-          isTargetAchieved: item.business.target_achieved ? "Yes" : "No",
-          incentiveEarned: item.incentive.earned,
+          month: item?.period?.label,
+          calculatedSalary: item?.salary?.total_salary_payable,
+          targetAmount: item?.business?.target,
+          businessClosed: item?.business?.total_business_closed,
+          isTargetAchieved: item?.business?.target_achieved ? "Yes" : "No",
+          incentiveEarned: item?.incentive.earned,
 
-          salaryStatus: getStatusTag(item.salary.status),
-          incentiveStatus: getStatusTag(item.incentive.status),
+          salaryStatus: getStatusTag(item?.salary.status),
+          incentiveStatus: getStatusTag(item?.incentive.status),
 
-          advanceGiven: item.advance.given,
+          advanceGiven: item?.advance?.given,
 
           debit:
-            item.company_books.debit > 0
-              ? item.company_books.debit.toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })
+            item?.company_books?.debit > 0
+              ? item?.company_books?.debit?.toLocaleString("en-IN", {
+                  style: "currency",
+                  currency: "INR",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
               : "-",
 
           credit:
-            item.company_books.credit > 0
-              ? item.company_books.credit.toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })
+            item?.company_books?.credit > 0
+              ? item?.company_books?.credit?.toLocaleString("en-IN", {
+                  style: "currency",
+                  currency: "INR",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
               : "-",
 
           balance: (
@@ -128,15 +128,13 @@ const EmployeeStatement = () => {
           action: (
             <button
               className="text-blue-600 hover:text-blue-800 font-medium flex items-center"
-              onClick={() => showDetailsModal(item)}
-            >
+              onClick={() => showDetailsModal(item)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 mr-1"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
+                stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -198,7 +196,6 @@ const EmployeeStatement = () => {
 
     { key: "salaryStatus", header: "Salary Status" },
     { key: "incentiveStatus", header: "Incentive Status" },
-
 
     {
       key: "debit",
@@ -266,8 +263,6 @@ const EmployeeStatement = () => {
     }
   };
 
-
-
   return (
     <>
       <div>
@@ -311,8 +306,9 @@ const EmployeeStatement = () => {
                     }
                     options={employees.map((emp) => ({
                       value: emp._id,
-                      label: `${emp.name} (${emp.phone_number}) ${emp.employeeCode ? `– ${emp.employeeCode}` : ""
-                        }`,
+                      label: `${emp.name} (${emp.phone_number}) ${
+                        emp.employeeCode ? `– ${emp.employeeCode}` : ""
+                      }`,
                       employee: emp,
                     }))}
                   />
@@ -368,10 +364,9 @@ const EmployeeStatement = () => {
                         </Text>
                         <Title
                           level={3}
-                          className="text-green-600 mb-0 mt-1 flex items-center"
-                        >
+                          className="text-green-600 mb-0 mt-1 flex items-center">
                           <PlusCircleOutlined className="mr-2" />
-                          {overallSummary.company_books.credit.toLocaleString(
+                          {overallSummary?.company_books?.credit?.toLocaleString(
                             "en-IN",
                             {
                               style: "currency",
@@ -388,10 +383,9 @@ const EmployeeStatement = () => {
                         </Text>
                         <Title
                           level={3}
-                          className="text-red-600 mb-0 mt-1 flex items-center"
-                        >
+                          className="text-red-600 mb-0 mt-1 flex items-center">
                           <MinusCircleOutlined className="mr-2" />
-                          {overallSummary.company_books.debit.toLocaleString(
+                          {overallSummary?.company_books?.debit?.toLocaleString(
                             "en-IN",
                             {
                               style: "currency",
@@ -408,18 +402,18 @@ const EmployeeStatement = () => {
                         </Text>
                         <Title
                           level={3}
-                          className={`mb-0 mt-1 flex items-center ${overallSummary.company_books.net_position >= 0
+                          className={`mb-0 mt-1 flex items-center ${
+                            overallSummary?.company_books?.net_position >= 0
                               ? "text-green-600"
                               : "text-red-600"
-                            }`}
-                        >
-                          {overallSummary.company_books.net_position >= 0 ? (
+                          }`}>
+                          {overallSummary?.company_books?.net_position >= 0 ? (
                             <PlusCircleOutlined className="mr-2" />
                           ) : (
                             <MinusCircleOutlined className="mr-2" />
                           )}
                           {Math.abs(
-                            overallSummary.company_books.net_position
+                            overallSummary?.company_books?.net_position
                           ).toLocaleString("en-IN", {
                             style: "currency",
                             currency: "INR",
@@ -473,8 +467,7 @@ const EmployeeStatement = () => {
                 className="h-6 w-6 text-blue-600 mr-2"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
+                stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -491,8 +484,7 @@ const EmployeeStatement = () => {
           onClose={closeDrawer}
           visible={drawerVisible}
           bodyStyle={{ paddingBottom: 80 }}
-          footer={null}
-        >
+          footer={null}>
           {currentDetails && (
             <div className="space-y-6">
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
@@ -500,12 +492,11 @@ const EmployeeStatement = () => {
                   <Descriptions.Item label="Status">
                     <Tag
                       color={
-                        currentDetails.company_books.net_position >= 0
+                        currentDetails?.company_books?.net_position >= 0
                           ? "green"
                           : "red"
-                      }
-                    >
-                      {currentDetails.company_books.net_position >= 0
+                      }>
+                      {currentDetails?.company_books?.net_position >= 0
                         ? "Credit Balance (Company owes)"
                         : "Debit Balance (Company overpaid)"}
                     </Tag>
@@ -514,12 +505,11 @@ const EmployeeStatement = () => {
                     <Title
                       level={4}
                       className={
-                        currentDetails.company_books.net_position >= 0
+                        currentDetails?.company_books?.net_position >= 0
                           ? "text-green-600"
                           : "text-red-600"
-                      }
-                    >
-                      {currentDetails.company_books.net_position.toLocaleString(
+                      }>
+                      {currentDetails?.company_books?.net_position?.toLocaleString(
                         "en-IN",
                         {
                           style: "currency",
@@ -536,7 +526,7 @@ const EmployeeStatement = () => {
               <Descriptions title="Salary Components" column={1} bordered>
                 <Descriptions.Item label="Base Salary">
                   <Text strong>
-                    {currentDetails.salary.total_salary_payable.toLocaleString(
+                    {currentDetails?.salary?.total_salary_payable?.toLocaleString(
                       "en-IN",
                       {
                         style: "currency",
@@ -550,20 +540,20 @@ const EmployeeStatement = () => {
                 <Descriptions.Item label="Other Payments">
                   <Text type="success" strong>
                     + ₹
-                    {sumValues(currentDetails.earnings).toLocaleString() || "0"}
+                    {sumValues(currentDetails?.earnings).toLocaleString() || "0"}
                   </Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="Other Deductions">
                   <Text type="danger" strong>
                     - ₹
-                    {sumValues(currentDetails.deductions).toLocaleString() ||
+                    {sumValues(currentDetails?.deductions).toLocaleString() ||
                       "0"}
                   </Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="Incentive Adjustment">
                   {getIncentiveTag(
-                    currentDetails.incentive.earned -
-                    currentDetails.incentive.paid
+                    currentDetails?.incentive.earned -
+                      currentDetails?.incentive.paid
                   )}
                 </Descriptions.Item>
               </Descriptions>
@@ -571,13 +561,13 @@ const EmployeeStatement = () => {
               <Descriptions title="Business Performance" column={1} bordered>
                 <Descriptions.Item label="Target Achievement">
                   {getTargetAchievementTag(
-                    currentDetails.business.target,
-                    currentDetails.business.total_business_closed
+                    currentDetails?.business?.target,
+                    currentDetails?.business?.total_business_closed
                   )}
                 </Descriptions.Item>
                 <Descriptions.Item label="Business Closed">
                   <Text strong>
-                    {currentDetails.business.total_business_closed.toLocaleString(
+                    {currentDetails?.business?.total_business_closed?.toLocaleString(
                       "en-IN",
                       {
                         style: "currency",
@@ -590,7 +580,7 @@ const EmployeeStatement = () => {
                 </Descriptions.Item>
                 <Descriptions.Item label="Target">
                   <Text type="secondary">
-                    {currentDetails.business.target.toLocaleString("en-IN", {
+                    {currentDetails?.business?.target?.toLocaleString("en-IN", {
                       style: "currency",
                       currency: "INR",
                       minimumFractionDigits: 0,
@@ -600,11 +590,11 @@ const EmployeeStatement = () => {
                 </Descriptions.Item>
               </Descriptions>
               <Descriptions.Item label="Salary Status">
-                {getStatusTag(currentDetails.salary.status)}
+                {getStatusTag(currentDetails?.salary?.status)}
               </Descriptions.Item>
 
               <Descriptions.Item label="Incentive Status">
-                {getStatusTag(currentDetails.incentive.status)}
+                {getStatusTag(currentDetails?.incentive?.status)}
               </Descriptions.Item>
 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -614,8 +604,7 @@ const EmployeeStatement = () => {
                     className="h-5 w-5 mr-2 text-gray-600"
                     fill="none"
                     viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                    stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -628,33 +617,34 @@ const EmployeeStatement = () => {
                 <div className="space-y-2 text-gray-700">
                   <p>
                     <span className="font-medium">Base Salary:</span> ₹
-                    {currentDetails.salary.total_salary_payable.toLocaleString()}
+                    {currentDetails?.salary?.total_salary_payable?.toLocaleString()}
                   </p>
                   <p>
                     <span className="font-medium">+ Other Payments:</span> ₹
-                    {sumValues(currentDetails.earnings).toLocaleString() || "0"}
+                    {sumValues(currentDetails?.earnings).toLocaleString() || "0"}
                   </p>
                   <p>
                     <span className="font-medium">+ Incentive Earned:</span> ₹
-                    {currentDetails.incentive.earned.toLocaleString()}
+                    {currentDetails?.incentive?.earned?.toLocaleString()}
                   </p>
                   <p>
                     <span className="font-medium">- Other Deductions:</span> ₹
-                    {sumValues(currentDetails.deductions).toLocaleString() || "0"}
+                    {sumValues(currentDetails?.deductions).toLocaleString() ||
+                      "0"}
                   </p>
                   <p>
                     <span className="font-medium">- Advance Recovered:</span> ₹
-                    {currentDetails.advance.recovered.toLocaleString()}
+                    {currentDetails?.advance?.recovered?.toLocaleString()}
                   </p>
                   <div className="border-t pt-2 mt-2">
                     <p className="font-semibold">
                       Net Position:{" "}
-                      {currentDetails.company_books.net_position >= 0
+                      {currentDetails?.company_books?.net_position >= 0
                         ? "+"
                         : "-"}
                       ₹
                       {Math.abs(
-                        currentDetails.company_books.net_position
+                        currentDetails?.company_books?.net_position
                       ).toLocaleString()}
                     </p>
                   </div>

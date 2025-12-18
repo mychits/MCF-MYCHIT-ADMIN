@@ -33,8 +33,6 @@ const SalaryPayment = () => {
   const [allSalaryPayments, setAllSalarypayments] = useState([]);
   const [employeeDetailsLoading, setEmployeeDetailsLoading] = useState(false);
   const [currentSalaryId, setCurrentSalaryId] = useState(null);
-  const [calculatedSalary, setCalculatedSalary] = useState(null);
-  const [showAdditionalPayments, setShowAdditionalPayments] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [form] = Form.useForm();
@@ -306,51 +304,11 @@ const SalaryPayment = () => {
   const handleUpdateSubmit = async () => {
     try {
       setUpdateLoading(true);
-      const totalEarnings = Object.values(updateFormData.earnings).reduce(
-        (sum, value) => sum + Number(value),
-        0
-      );
-      const totalDeductions = Object.values(updateFormData.deductions).reduce(
-        (sum, value) => sum + Number(value),
-        0
-      );
-
-      // Calculate additional payments total
-      const additionalPaymentsTotal = updateFormData.additional_payments.reduce(
-        (sum, payment) => sum + Number(payment.value),
-        0
-      );
-
-      // Calculate additional deductions total
-      const additionalDeductionsTotal =
-        updateFormData.additional_deductions.reduce(
-          (sum, deduction) => sum + Number(deduction.value),
-          0
-        );
-
-      // Calculate advance payments total
-      const advanceTotal = updateFormData.advance_payments.reduce(
-        (sum, a) => sum + Number(a.value || 0),
-        0
-      );
-
-      // Calculate net payable including all components
-      const netPayable =
-        totalEarnings -
-        totalDeductions +
-        additionalPaymentsTotal -
-        additionalDeductionsTotal +
-        advanceTotal +
-        updateFormData.calculated_incentive;
-
+      
       const updateData = {
         ...updateFormData,
-        earnings: updateFormData.earnings,
-        deductions: updateFormData.deductions,
-        net_payable: netPayable,
-        total_salary_payable: netPayable,
-        remaining_balance: netPayable - (updateFormData.paid_amount || 0),
       };
+      
 
       await API.put(`/salary-payment/${currentSalaryId}`, updateData);
       message.success("Salary updated successfully");
@@ -476,43 +434,7 @@ const SalaryPayment = () => {
       fetchSalaryDetails();
     }
   }, [formData?.employee_id, formData.month, formData.month]);
-  const handleChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (["employee_id", "month", "year"].includes(name)) {
-      setCalculatedSalary(null);
-      setShowAdditionalPayments(false);
-      setFormData((prev) => ({
-        ...prev,
-        paid_amount: 0,
-        transaction_id: "",
-        payment_method: "",
-      }));
-    }
-  };
-  const handleDeductionsChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      earnings: { ...prev.earnings },
-      deductions: { ...prev.deductions, [name]: value },
-      paid_amount: 0,
-      transaction_id: "",
-      payment_method: "",
-    }));
-    setCalculatedSalary(null);
-    setShowAdditionalPayments(false);
-  };
-  const handleEarningsChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      earnings: { ...prev.earnings, [name]: value },
-      deductions: { ...prev.deductions },
-      paid_amount: 0,
-      transaction_id: "",
-      payment_method: "",
-    }));
-    setCalculatedSalary(null);
-    setShowAdditionalPayments(false);
-  };
+
   const updateTotalEarnings = useMemo(() => {
     const earnings = updateFormData?.earnings || {};
     return Object.values(earnings).reduce((sum, v) => sum + Number(v || 0), 0);
@@ -816,21 +738,7 @@ const SalaryPayment = () => {
                 <h3 className="text-lg font-semibold text-indigo-800">
                   Advance Payments
                 </h3>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    const currentPayments =
-                      updateForm.getFieldValue("advance_payments") || [];
-                    updateForm.setFieldsValue({
-                      advance_payments: [
-                        ...currentPayments,
-                        { name: "", value: 0 },
-                      ],
-                    });
-                  }}>
-                  Add Advance
-                </Button>
+                
               </div>
               <Form.List name="advance_payments">
                 {(fields, { add, remove }) => (
@@ -877,21 +785,7 @@ const SalaryPayment = () => {
                 <h3 className="text-lg font-semibold text-purple-800">
                   Additional Payments
                 </h3>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    const currentPayments =
-                      updateForm.getFieldValue("additional_payments") || [];
-                    updateForm.setFieldsValue({
-                      additional_payments: [
-                        ...currentPayments,
-                        { name: "", value: 0 },
-                      ],
-                    });
-                  }}>
-                  Add Payment
-                </Button>
+                
               </div>
               <Form.List name="additional_payments">
                 {(fields, { add, remove }) => (
@@ -937,22 +831,7 @@ const SalaryPayment = () => {
                 <h3 className="text-lg font-semibold text-orange-800">
                   Additional Deductions
                 </h3>
-                <Button
-                  type="primary"
-                  danger
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    const currentDeductions =
-                      updateForm.getFieldValue("additional_deductions") || [];
-                    updateForm.setFieldsValue({
-                      additional_deductions: [
-                        ...currentDeductions,
-                        { name: "", value: 0 },
-                      ],
-                    });
-                  }}>
-                  Add Deduction
-                </Button>
+                
               </div>
               <Form.List name="additional_deductions">
                 {(fields, { remove }) => (
@@ -1001,9 +880,9 @@ const SalaryPayment = () => {
                 <Form.Item
                   name="total_salary_payable"
                   label="Total Salary Payable">
-                  <Input type="number" />
+                  <Input type="number" disabled/>
                 </Form.Item>
-                <Form.Item name="paid_amount" label="Paid Amount">
+                <Form.Item name="paid_amount" label="Payable Amount">
                   <Input type="number" />
                 </Form.Item>
               </div>

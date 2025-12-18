@@ -159,9 +159,10 @@ const PigmySummaryReport = () => {
     { key: "pigmyStartDate", header: "Start Date" },
     { key: "Duration", header: "Duration (months)" },
     {key: "amount", header: "Daily Pay"},
+    {key: "totalpigmyAmount", header: "Amount Paid"},
     { key: "referredType", header: "Referred Type" },
     { key: "referredBy", header: "Referred By" },
-    { key: "totalpigmyAmount", header: "Total Paid Amount" },
+  
   ];
 
   const StatCard = ({ icon: Icon, label, value, color, suffix = "" }) => (
@@ -186,8 +187,8 @@ const PigmySummaryReport = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="w-fit bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="w-fit mx-auto">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -378,7 +379,7 @@ const PigmySummaryReport = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-2">
+            <div className="w-fit">
               <DataTable
                 columns={PigmyReportColumns}
                 data={filteredPigmyReport}
