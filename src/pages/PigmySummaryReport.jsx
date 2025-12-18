@@ -187,8 +187,8 @@ const PigmySummaryReport = () => {
   );
 
   return (
-    <div className="w-fit bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="w-fit mx-auto">
+    <div className="">
+      <div className="max-w-screen">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -379,7 +379,7 @@ const PigmySummaryReport = () => {
               </div>
             </div>
 
-            <div className="w-fit">
+            <div className="max-w-screen">
               <DataTable
                 columns={PigmyReportColumns}
                 data={filteredPigmyReport}

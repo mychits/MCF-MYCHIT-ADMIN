@@ -152,8 +152,8 @@ const CustomerLoanReport = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="max-w-screen">
+      <div className=" mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -262,7 +262,7 @@ const CustomerLoanReport = () => {
             </div>
 
             {/* TABLE */}
-            <div className="bg-white rounded-xl shadow-sm border p-2">
+            <div className="max-w-screen">
               <DataTable
                 columns={loanReportColumns}
                 data={filteredLoanReport}
