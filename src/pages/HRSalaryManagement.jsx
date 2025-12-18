@@ -78,12 +78,13 @@ const HRSalaryManagement = () => {
     additional_deductions: [],
     advance_payments: [],
     calculated_incentive: 0,
-    payment_method: "Cash",
+    payment_method: "",
     transaction_id: "",
     monthly_business_info: {
       target: 0,
       total_business_closed: 0,
     },
+    status:""
   });
   const thisYear = dayjs().format("YYYY");
   const earningsObject = {
@@ -182,7 +183,7 @@ const HRSalaryManagement = () => {
   async function getSalaryById(id) {
     try {
       const response = await API.get(`/salary-payment/${id}`);
-      return response.data.data;
+      return response?.data?.data;
     } catch (error) {
       console.error("Error fetching salary by ID:", error);
       return null;
@@ -420,6 +421,8 @@ const HRSalaryManagement = () => {
             target: 0,
             total_business_closed: 0,
           },
+          status:salaryData?.status,
+          payment_method:salaryData?.payment_method
         };
         setUpdateFormData(formData);
         updateForm.setFieldsValue(formData);
@@ -551,7 +554,7 @@ const HRSalaryManagement = () => {
         label: (
           <div
             key={salaryPayment?._id}
-            className="text-green-600"
+            className="text-blue-600"
             onClick={() => handlePrint(salaryPayment?._id)}>
             Print
           </div>
@@ -2365,7 +2368,7 @@ const HRSalaryManagement = () => {
                       Payment Method
                     </label>
                     <Input
-                      value={updateFormData.payment_method}
+                      value={updateFormData?.payment_method || "N/A"}
                       readOnly
                       className="!bg-gray-100 !text-gray-800 !cursor-default"
                     />
@@ -2389,9 +2392,7 @@ const HRSalaryManagement = () => {
                   </label>
                   <Input
                     value={
-                      (updateFormData.remaining_balance || 0) <= 0
-                        ? "Paid"
-                        : "Pending"
+                      (updateFormData.status)
                     }
                     readOnly
                     className="!bg-gray-100 !text-gray-800 !cursor-default"
