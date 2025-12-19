@@ -64,6 +64,7 @@ const EmployeeMonthlyReport = () => {
           key: rec._id || index,
           date: rec?.date ? rec.date.split("T")[0] : "",
           time: rec?.time || "",
+          outTime: rec?.logout_time || "",
           day: rec?.date
             ? new Date(rec.date).toLocaleDateString("en-US", { weekday: "short" })
             : "",
@@ -115,7 +116,8 @@ const EmployeeMonthlyReport = () => {
   const individualColumns = [
     { header: "Sl No", key: "slNo" },
     { header: "Date", key: "date" },
-    { header: "Time", key: "time" },
+    { header: "in-Time", key: "time" },
+    {header: "out-Time", key: "logout_time"},
     { header: "Day", key: "day" },
     {header: "Note", key: "Note"},
     {

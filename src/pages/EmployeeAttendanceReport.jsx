@@ -2407,6 +2407,7 @@ const EmployeeAttendanceReport = () => {
             ApprovalStatus: details?.approval_status || "Pending",
             Date: details?.date ? formatDateForDisplay(details.date) : "-",
             Time: details?.time || "-",
+            OutTime: details?.logout_time || "-",
             Note: details?.note || "",
             attendanceId: details?._id,
             Approved: isApproved,
@@ -2688,6 +2689,7 @@ const EmployeeAttendanceReport = () => {
     { key: "ApprovalStatus", header: "Approval Status" },
     { key: "Date", header: "Date" },
     { key: "Time", header: "Time" },
+    {key: "OutTime", header: "Out-Time"},
     { key: "Note", header: "Reason" },
     { key: "checkBox", header: "Actions" },
   ];
