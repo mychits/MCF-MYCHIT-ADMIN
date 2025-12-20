@@ -802,7 +802,7 @@ const HRSalaryManagement = () => {
       // Apply business condition: if total business achieved * 100 is less than target
       if (incentive * 100 < target) {
         calculatedIncentive = 0;
-      } else if (target > 0) {
+      } else if (target >= 0) {
         const incentiveValue = incentive * 100;
         calculatedIncentive = (incentiveValue - target) / 100;
       }
