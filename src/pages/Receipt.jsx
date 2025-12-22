@@ -690,14 +690,14 @@ const Receipt = () => {
                         setSelectedPaymentMode(modes);
                       }}
                       filterOption={(input, option) =>
-                        option.children
+                        option.label
                           .toString()
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
                       className="w-full"
                       style={{ height: "44px" }}
-                      defaultValue={["a10", "c12"]}
+                    
                       options={[
                         { label: "Cash", value: "cash" },
                         { label: "Online", value: "online" },
