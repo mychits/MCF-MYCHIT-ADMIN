@@ -142,6 +142,7 @@ import EmployeeSalaryReport from "../pages/EmployeeSalaryReport"
 import HRSalaryManagement from "../pages/HRSalaryManagement";
 import EmployeeStatement from "../pages/EmployeeStatement";
 import SalaryIncentive from "../pages/SalaryIncentive";
+import UnapprovedLoans from "../pages/UnapprovedLoans";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -316,6 +317,15 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <UnApprovedCustomer />
+      </ProtectedRoute>
+    ),
+  },
+
+   {
+    path: "/approval-menu/un-approved-loans",
+    element: (
+      <ProtectedRoute>
+        <UnapprovedLoans />
       </ProtectedRoute>
     ),
   },

@@ -27,6 +27,17 @@ const AdminApprovalMenu = () => {
       href: "/approval-menu/mobile-app-enroll",
       stats: "InActive Enrollments",
     },
+        {
+      id: 3,
+      title: "Unapproved Loans",
+      description: "Manage Mobile Enrollments",
+      icon: <Briefcase className="w-8 h-8" />,
+      color: "from-red-600 to-red-700",
+      lightColor: "bg-red-50",
+      borderColor: "border-red-200",
+      href: "/approval-menu/un-approved-loans",
+      stats: "Unapproved Loans",
+    },
   ];
 
   return (
