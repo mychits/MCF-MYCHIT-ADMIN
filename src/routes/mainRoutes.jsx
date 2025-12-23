@@ -143,6 +143,7 @@ import HRSalaryManagement from "../pages/HRSalaryManagement";
 import EmployeeStatement from "../pages/EmployeeStatement";
 import SalaryIncentive from "../pages/SalaryIncentive";
 import UnapprovedLoans from "../pages/UnapprovedLoans";
+import EmployeeDeductionReport from "../pages/EmployeeDeductionReport";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -789,6 +790,10 @@ const mainRoutes = createBrowserRouter([
    {path: "converted-lead-report", element: <ConvertedLead/>},
    {path: "employee-salary-report", element: <EmployeeSalaryReport/>},
     {path: "user-registration-source-summary-report", element: <UserRegistrationSourceSummaryReport/>},
+      {
+        path: "employee-deduction-report",
+        element: <EmployeeDeductionReport />,
+      },
     ],
   },
 

@@ -41,6 +41,7 @@ import { BsCalculator } from "react-icons/bs";
 import { LiaPeopleCarrySolid } from "react-icons/lia";
 import { MdPersonOff } from "react-icons/md";
 import { FaMobileAlt } from "react-icons/fa";
+import { PiMoneyDuotone } from "react-icons/pi";
 const subMenus = [
   {
     id:"1",
@@ -327,6 +328,15 @@ const subMenus = [
    Icon: HiOutlineBanknotes,
    color: "from-blue-500 to-blue-600",
    isNew: false,
+  },
+   {
+    id: "39",
+    title: "Employee Deduction report",
+    link: "/reports/employee-deduction-report",
+    category: "Employee",
+    Icon: PiMoneyDuotone,
+    color: "from-blue-500 to-blue-600",
+    isNew: false,
   },
   
 ];
