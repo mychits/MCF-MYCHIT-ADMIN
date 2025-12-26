@@ -27,6 +27,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import moment from "moment";
 const SalaryPayment = () => {
   const navigate = useNavigate();
+  const [adjustmentAmount, setAdjustmentAmount] = useState(0);
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -73,8 +74,8 @@ const SalaryPayment = () => {
       target: 0,
       total_business_closed: 0,
       previous_remaining_target: 0,
-      current_remaining_target: 0
-    }
+      current_remaining_target: 0,
+    },
   });
   const thisYear = dayjs().format("YYYY");
   const earningsObject = {
@@ -200,6 +201,11 @@ const SalaryPayment = () => {
       return 0;
     }
   };
+  useEffect(() => {
+    if (!isOpenUpdateModal) {
+      setAdjustmentAmount(0);
+    }
+  }, [isOpenUpdateModal]);
   const getValidMonths = (joiningDateStr, selectedYear) => {
     if (!joiningDateStr || !selectedYear) {
       return months.map((m) => ({ ...m, disabled: true }));
@@ -250,10 +256,16 @@ const SalaryPayment = () => {
     try {
       setUpdateLoading(true);
       setIsOpenUpdateModal(true);
+      setAdjustmentAmount(0); // Reset adjustment amount
       const salaryData = await getSalaryById(id);
       if (salaryData) {
         setCurrentSalaryId(id);
         const yearAsDayjs = dayjs(salaryData.salary_year, "YYYY");
+
+        // Ensure paid_amount defaults to total_salary_payable if not set
+        const paidAmount =
+          salaryData.paid_amount || salaryData.total_salary_payable || 0;
+
         const formData = {
           employee_id: salaryData?.employee_id?._id,
           month: salaryData?.salary_month,
@@ -265,7 +277,7 @@ const SalaryPayment = () => {
           advance_payments: salaryData?.advance_payments || [],
           calculated_incentive: salaryData?.calculated_incentive || 0,
           total_salary_payable: salaryData?.total_salary_payable || 0,
-          paid_amount: salaryData?.paid_amount || 0,
+          paid_amount: paidAmount, // Use the defaulted value
           payment_method: salaryData?.payment_method || "Cash",
           transaction_id: salaryData?.transaction_id || "",
           pay_date: salaryData?.pay_date
@@ -276,11 +288,12 @@ const SalaryPayment = () => {
             target: 0,
             total_business_closed: 0,
             previous_remaining_target: 0,
-            current_remaining_target: 0
+            current_remaining_target: 0,
           },
           status: "Paid",
-          is_salary_paid: true
+          is_salary_paid: true,
         };
+
         setUpdateFormData(formData);
         updateForm.setFieldsValue(formData);
       }
@@ -316,7 +329,9 @@ const SalaryPayment = () => {
   const handleUpdateSubmit = async () => {
     try {
       setUpdateLoading(true);
-       const remaining_balance = Number(updateFormData.total_salary_payable || 0) - Number(updateFormData.paid_amount || 0) ;
+      const remaining_balance =
+        Number(updateFormData.total_salary_payable || 0) -
+        Number(updateFormData.paid_amount || 0);
       const updateData = {
         ...updateFormData,
         remaining_balance,
@@ -324,8 +339,8 @@ const SalaryPayment = () => {
           target: 0,
           total_business_closed: 0,
           previous_remaining_target: 0,
-          current_remaining_target: 0
-        }
+          current_remaining_target: 0,
+        },
       };
       await API.put(`/salary-payment/${currentSalaryId}`, updateData);
       message.success("Salary updated successfully");
@@ -510,12 +525,17 @@ const SalaryPayment = () => {
         <Sidebar />
         <div className="flex-grow p-7">
           <div className="mb-8">
-            <h1 className="text-lg text-black font-bold font-mono p-2">Quick Navigator</h1>
+            <h1 className="text-lg text-black font-bold font-mono p-2">
+              Quick Navigator
+            </h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link
                 to="/hr-menu/salary-management"
                 className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group">
-                <RiMoneyRupeeCircleFill className="text-blue-600 group-hover:scale-110 transition-transform" size={24} />
+                <RiMoneyRupeeCircleFill
+                  className="text-blue-600 group-hover:scale-110 transition-transform"
+                  size={24}
+                />
                 <span className="font-medium text-gray-700 group-hover:text-blue-600">
                   HR / Salary Management
                 </span>
@@ -747,7 +767,10 @@ const SalaryPayment = () => {
                   </Form.Item>
                   <Form.Item
                     label="Previous Remaining Target (₹)"
-                    name={["monthly_business_info", "previous_remaining_target"]}>
+                    name={[
+                      "monthly_business_info",
+                      "previous_remaining_target",
+                    ]}>
                     <Input type="number" disabled />
                   </Form.Item>
                   <Form.Item
@@ -912,75 +935,159 @@ const SalaryPayment = () => {
                 )}
               </Form.List>
             </div>
-            <div className="bg-blue-50 p-4 rounded-lg mb-4">
-              <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                Payment Details
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Form.Item
-                  name="total_salary_payable"
-                  label="Total Salary Payable">
-                  <Input type="number" disabled />
-                </Form.Item>
-                <Form.Item name="paid_amount" label="Payable Amount">
-                  <Input type="number" />
-                </Form.Item>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-sm border border-blue-200 mb-6">
+      <h3 className="text-xl font-bold text-blue-900 mb-6 pb-3 border-b border-blue-300">
+        Payment Details
+      </h3>
+      
+      <div className="space-y-6">
+        {/* Salary Information Section */}
+        <div className="bg-white p-5 rounded-lg shadow-sm">
+          <h4 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
+            Salary Information
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Form.Item
+              name="total_salary_payable"
+              label={<span className="font-medium text-gray-700">Total Salary Payable</span>}
+              className="mb-0"
+            >
+              <Input 
+                type="number" 
+                disabled 
+                className="bg-gray-50 font-semibold"
+                prefix="₹"
+              />
+            </Form.Item>
+            
+            <Form.Item
+              name="paid_amount"
+              label={<span className="font-medium text-gray-700">Payable Amount</span>}
+              rules={[
+                { required: true, message: "Please enter payable amount" },
+              ]}
+              className="mb-0"
+            >
+              <Input
+                type="number"
+                prefix="₹"
+                className="font-semibold"
+                onChange={(e) => {
+                  const totalPayable =
+                    updateForm.getFieldValue("total_salary_payable") || 0;
+                  const newPaidAmount = Number(e.target.value || 0);
+                  const newAdjustment = newPaidAmount - totalPayable;
+                  setAdjustmentAmount(newAdjustment);
+                }}
+              />
+            </Form.Item>
+            
+            <Form.Item 
+              label={<span className="font-medium text-gray-700">Adjustment Amount</span>}
+              className="mb-0"
+            >
+              <Input
+                type="number"
+                value={adjustmentAmount}
+                prefix="₹"
+                className="font-semibold"
+                onChange={(e) => {
+                  const value =
+                    e.target.value === "" ? 0 : Number(e.target.value);
+                  setAdjustmentAmount(value);
+                  const totalPayable =
+                    updateForm.getFieldValue("total_salary_payable") || 0;
+                  const newPayableAmount = Number(totalPayable) + value;
+                  updateForm.setFieldsValue({
+                    paid_amount: newPayableAmount,
+                  });
+                }}
+                placeholder="Enter adjustment amount"
+              />
+              <div className="text-xs text-amber-600 mt-2 flex items-start gap-1 bg-amber-50 p-2 rounded border border-amber-200">
+                <span className="text-amber-600 font-bold">ⓘ</span>
+                <span>This amount will be added to the payable amount </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-                <Form.Item
-                  name="payment_method"
-                  label="Payment Mode"
-                  rules={[
-                    { required: true, message: "Please select payment mode" },
-                  ]}>
-                  <Select
-                    placeholder="Select payment mode"
-                    options={[
-                      { label: "Cash", value: "Cash" },
-                      { label: "Online / UPI", value: "Online/UPI" },
-                      { label: "Online / NEFT", value: "Online/NEFT" },
-                      { label: "Online / IMPS", value: "Online/IMPS" },
-                      { label: "Online / RTGS", value: "Online/RTGS" },
-                      { label: "Bank Transfer", value: "Bank Transfer" },
-                      { label: "Cheque", value: "Cheque" },
-                      { label: "Direct Deposit", value: "Direct Deposit" },
-                    ]}
-                  />
-                </Form.Item>
-                {updateForm.getFieldValue("payment_method") !== "Cash" && (
-                  <Form.Item
-                    name="transaction_id"
-                    label="Transaction ID"
-                    rules={[
-                      {
-                        required:
-                          updateForm.getFieldValue("payment_method") !== "Cash",
-                        message: "Transaction ID is required",
-                      },
-                    ]}>
-                    <Input placeholder="Enter transaction reference" />
-                  </Form.Item>
-                )}
-                <Form.Item
-                  name="pay_date"
-                  label="Pay Date"
-                  rules={[
-                    { required: true, message: "Please select pay date" },
-                  ]}
-                  getValueProps={(value) => ({
-                    value: value ? dayjs(value) : null,
-                  })}
-                  getValueFromEvent={(date) => (date ? date.toDate() : null)}>
-                  <DatePicker
-                    style={{ width: "100%" }}
-                    format="DD MMM YYYY"
-                    disabledDate={(current) =>
-                      current && current.isAfter(dayjs().endOf("day"))
-                    }
-                  />
-                </Form.Item>
-              </div>
-            </div>
+            </Form.Item>
+          </div>
+        </div>
+
+        {/* Payment Transaction Section */}
+        <div className="bg-white p-5 rounded-lg shadow-sm">
+          <h4 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
+            Transaction Details
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Form.Item
+              name="payment_method"
+              label={<span className="font-medium text-gray-700">Payment Mode</span>}
+              rules={[
+                { required: true, message: "Please select payment mode" },
+              ]}
+              className="mb-0"
+            >
+              <Select
+                placeholder="Select payment mode"
+                size="large"
+                options={[
+                  { label: "Cash", value: "Cash" },
+                  { label: "Online / UPI", value: "Online/UPI" },
+                  { label: "Online / NEFT", value: "Online/NEFT" },
+                  { label: "Online / IMPS", value: "Online/IMPS" },
+                  { label: "Online / RTGS", value: "Online/RTGS" },
+                  { label: "Bank Transfer", value: "Bank Transfer" },
+                  { label: "Cheque", value: "Cheque" },
+                  { label: "Direct Deposit", value: "Direct Deposit" },
+                ]}
+              />
+            </Form.Item>
+            
+            {updateForm.getFieldValue("payment_method") !== "Cash" && (
+              <Form.Item
+                name="transaction_id"
+                label={<span className="font-medium text-gray-700">Transaction ID</span>}
+                rules={[
+                  {
+                    required:
+                      updateForm.getFieldValue("payment_method") !== "Cash",
+                    message: "Transaction ID is required",
+                  },
+                ]}
+                className="mb-0"
+              >
+                <Input 
+                  placeholder="Enter transaction reference" 
+                  size="large"
+                  className="font-mono"
+                />
+              </Form.Item>
+            )}
+            
+            <Form.Item
+              name="pay_date"
+              label={<span className="font-medium text-gray-700">Pay Date</span>}
+              rules={[
+                { required: true, message: "Please select pay date" },
+              ]}
+              getValueProps={(value) => ({
+                value: value ? dayjs(value) : null,
+              })}
+              getValueFromEvent={(date) => (date ? date.toDate() : null)}
+              className="mb-0"
+            >
+              <DatePicker
+                style={{ width: "100%" }}
+                size="large"
+                format="DD MMM YYYY"
+                disabledDate={(current) =>
+                  current && current.isAfter(dayjs().endOf("day"))
+                }
+              />
+            </Form.Item>
+          </div>
+        </div>
+      </div>
+    </div>
           </Form>
         </Drawer>
         <Modal
@@ -1111,16 +1218,31 @@ const SalaryPayment = () => {
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
                   <div>
-                    <strong>Total Target:</strong> ₹{Number(existingSalaryRecord.monthly_business_info?.target || 0).toLocaleString('en-IN')}
+                    <strong>Total Target:</strong> ₹
+                    {Number(
+                      existingSalaryRecord.monthly_business_info?.target || 0
+                    ).toLocaleString("en-IN")}
                   </div>
                   <div>
-                    <strong>Previous Remaining Target:</strong> ₹{Number(existingSalaryRecord.monthly_business_info?.previous_remaining_target || 0).toLocaleString('en-IN')}
+                    <strong>Previous Remaining Target:</strong> ₹
+                    {Number(
+                      existingSalaryRecord.monthly_business_info
+                        ?.previous_remaining_target || 0
+                    ).toLocaleString("en-IN")}
                   </div>
                   <div>
-                    <strong>Total Business Closed:</strong> ₹{Number(existingSalaryRecord.monthly_business_info?.total_business_closed || 0).toLocaleString('en-IN')}
+                    <strong>Total Business Closed:</strong> ₹
+                    {Number(
+                      existingSalaryRecord.monthly_business_info
+                        ?.total_business_closed || 0
+                    ).toLocaleString("en-IN")}
                   </div>
                   <div>
-                    <strong>Current Remaining Target:</strong> ₹{Number(existingSalaryRecord.monthly_business_info?.current_remaining_target || 0).toLocaleString('en-IN')}
+                    <strong>Current Remaining Target:</strong> ₹
+                    {Number(
+                      existingSalaryRecord.monthly_business_info
+                        ?.current_remaining_target || 0
+                    ).toLocaleString("en-IN")}
                   </div>
                 </div>
               </section>

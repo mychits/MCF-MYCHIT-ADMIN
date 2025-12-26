@@ -203,78 +203,113 @@ const HRSalaryManagement = () => {
 
   // Confirm Pay as Salary
   // Confirm Pay as Salary
-  const confirmPayAsSalary = () => {
-    const totalTarget = Number(
-      formData.monthly_business_info.total_target || 0
-    );
-    const currentRemainingTarget = Number(
-      formData.monthly_business_info.current_remaining_target || 0
-    );
+  // const confirmPayAsSalary = () => {
+  //   const totalTarget = Number(
+  //     formData.monthly_business_info.total_target || 0
+  //   );
+  //   const currentRemainingTarget = Number(
+  //     formData.monthly_business_info.current_remaining_target || 0
+  //   );
 
-    // Calculate incentive using formula
-    const incentiveDiff = (totalTarget - currentRemainingTarget) / 100;
-    const incentiveAmount =
-      incentiveDiff > 0
-        ? currentRemainingTarget / 100
-        : Math.abs(incentiveDiff);
+  //   // Calculate incentive using formula
+  //   const incentiveDiff = (totalTarget - currentRemainingTarget) / 100;
+  //   const incentiveAmount =
+  //     incentiveDiff > 0
+  //       ? currentRemainingTarget / 100
+  //       : Math.abs(incentiveDiff);
 
-    // Handle current_remaining_target based on requirement
-    // If currentRemainingTarget < 0, set to 0; else, keep as is
-    const updatedRemainingTarget =
-      currentRemainingTarget < 0 ? 0 : currentRemainingTarget;
+  //   // Handle current_remaining_target based on requirement
+  //   // If currentRemainingTarget < 0, set to 0; else, keep as is
+  //   const updatedRemainingTarget =
+  //     currentRemainingTarget < 0 ? 0 : currentRemainingTarget;
 
-    setFormData((prev) => ({
-      ...prev,
-      additional_payments: [
-        ...prev.additional_payments,
-        {
-          name: "Salary Payable",
-          value: incentiveAmount,
-        },
-      ],
-      monthly_business_info: {
-        ...prev.monthly_business_info,
-        current_remaining_target: updatedRemainingTarget,
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     additional_payments: [
+  //       ...prev.additional_payments,
+  //       {
+  //         name: "Salary Payable",
+  //         value: incentiveAmount,
+  //       },
+  //     ],
+  //     monthly_business_info: {
+  //       ...prev.monthly_business_info,
+  //       current_remaining_target: updatedRemainingTarget,
+  //     },
+  //   }));
+
+  //   message.success("Salary payable amount added successfully");
+  //   setPayAsSalaryModalOpen(false);
+  // };
+const confirmPayAsSalary = () => {
+  const totalTarget = Number(formData.monthly_business_info.total_target || 0);
+  const totalBusinessClosed = Number(formData.monthly_business_info.total_business_closed || 0);
+  const currentRemainingTarget = Number(formData.monthly_business_info.current_remaining_target || 0);
+  
+  // Calculate raw incentive as per requirements
+  const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
+  
+  let incentiveAmount = 0;
+  if (rawIncentive > 0) {
+    // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
+    incentiveAmount = totalBusinessClosed / 100;
+  } else if (rawIncentive < 0) {
+    // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
+    incentiveAmount = Math.abs(rawIncentive);
+  }
+  
+  // Handle current_remaining_target based on requirement
+  // If currentRemainingTarget < 0, set to 0; else, keep as is
+  const updatedRemainingTarget = currentRemainingTarget < 0 ? 0 : currentRemainingTarget;
+      
+  setFormData((prev) => ({
+    ...prev,
+    additional_payments: [
+      ...prev.additional_payments,
+      {
+        name: "Salary Payable",
+        value: incentiveAmount,
       },
-    }));
-
-    message.success("Salary payable amount added successfully");
-    setPayAsSalaryModalOpen(false);
-  };
-
+    ],
+    monthly_business_info: {
+      ...prev.monthly_business_info,
+      current_remaining_target: updatedRemainingTarget,
+    },
+    calculated_incentive: 0, // Reset calculated incentive
+  }));
+  
+  message.success("Salary payable amount added successfully");
+  setPayAsSalaryModalOpen(false);
+};
   // Confirm Pay as Incentive
-  const confirmPayAsIncentive = () => {
-    const totalTarget = Number(
-      formData.monthly_business_info.total_target || 0
-    );
-    const totalBusinessClosed = Number(
-      formData.monthly_business_info.total_business_closed || 0
-    );
-
-    // Calculate raw incentive
-    const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
-    let incentiveAmount = 0;
-
-    if (rawIncentive > 0) {
-      // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
-      incentiveAmount = totalBusinessClosed / 100;
-    } else if (rawIncentive < 0) {
-      // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
-      incentiveAmount = Math.abs(rawIncentive);
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      calculated_incentive: incentiveAmount,
-      monthly_business_info: {
-        ...prev.monthly_business_info,
-        current_remaining_target: 0,
-      },
-    }));
-
-    message.success("Incentive payable amount added successfully");
-    setPayAsIncentiveModalOpen(false);
-  };
+const confirmPayAsIncentive = () => {
+  const totalTarget = Number(formData.monthly_business_info.total_target || 0);
+  const totalBusinessClosed = Number(formData.monthly_business_info.total_business_closed || 0);
+  
+  // Calculate raw incentive
+  const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
+  let incentiveAmount = 0;
+  
+  if (rawIncentive > 0) {
+    // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
+    incentiveAmount = totalBusinessClosed / 100;
+  } else if (rawIncentive < 0) {
+    // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
+    incentiveAmount = Math.abs(rawIncentive);
+  }
+  
+  setFormData((prev) => ({
+    ...prev,
+    calculated_incentive: incentiveAmount,
+    monthly_business_info: {
+      ...prev.monthly_business_info,
+      current_remaining_target: 0,
+    },
+  }));
+  
+  message.success("Incentive payable amount added successfully");
+  setPayAsIncentiveModalOpen(false);
+};
 
   async function fetchEmployees() {
     try {
@@ -584,19 +619,32 @@ const HRSalaryManagement = () => {
     }
   }, [formData?.employee_id]);
 
-  const handleChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+const handleChange = (name, value) => {
+  setFormData((prev) => {
+    let updatedFormData = { ...prev, [name]: value };
+    
+    // Reset calculated_incentive when month changes
+    if (name === "month") {
+      updatedFormData = {
+        ...updatedFormData,
+        calculated_incentive: 0
+      };
+    }
+    
     if (["employee_id", "month", "year", "target"].includes(name)) {
       setCalculatedSalary(null);
       setShowComponents(false);
-      setFormData((prev) => ({
-        ...prev,
+      updatedFormData = {
+        ...updatedFormData,
         paid_amount: 0,
         transaction_id: "",
         payment_method: "",
-      }));
+      };
     }
-  };
+    
+    return updatedFormData;
+  });
+};
 
   const handleDeductionsChange = (name, value) => {
     setFormData((prev) => ({
