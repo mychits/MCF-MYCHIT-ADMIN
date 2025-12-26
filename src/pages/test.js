@@ -3210,15 +3210,11 @@ const HRSalaryManagement = () => {
 export default HRSalaryManagement;
 
 
-
-
 // Implement a clear and deterministic Salary vs Incentive payment flow with only two actions:
 
 // Pay as Salary
 
 // Pay as Incentive
-
-// No other payment buttons should exist.
 
 // 1. Incentive Calculation Logic
 
@@ -3234,15 +3230,21 @@ export default HRSalaryManagement;
 
 // total_payable = 0
 
+// Calculated Incentive must always be 0 unless “Pay as Incentive” is confirmed. if pressed calculated incentive will be added to calculated incentive
+
+// Salary Payable must always be 0 unless “Pay as Incentive” is confirmed. if pressed calculated incentive will be added to salary Payable
+
 // If rawIncentive < 0
 
 // calculatedIncentive = abs(rawIncentive)
 
 // calculatedIncentive = calculatedIncentive / 100
 
-// salary_payable = calculated salary from attendance details
+// Total Salary Payable = calculated salary from attendance details
 
-// total_payable = 0
+// Calculated Incentive must always be 0 unless “Pay as Incentive” is confirmed. if pressed calculated incentive will be added to calculated incentive
+
+// Salary Payable must always be  calculated salary from attendance details  unless “Pay as Incentive” is confirmed. if pressed calculated incentive will be added to salary Payable
 
 // If rawIncentive === 0
 
@@ -3252,7 +3254,7 @@ export default HRSalaryManagement;
 
 // total_payable = salary_payable
 
-// ⚠️ Calculated Incentive must always be 0 unless “Pay as Incentive” is confirmed.
+// Calculated Incentive must always be 0 unless “Pay as Incentive” is confirmed.
 
 // 2. Button Visibility Rules
 
@@ -3274,7 +3276,7 @@ export default HRSalaryManagement;
 
 // On modal confirm:
 
-// Set current_remaining_target = 0
+// on pressing pay on salary if Current Remaining Target < 0 then make it as zero if current Remainig Target >0 then keep as it is
 
 // Add previous incentive amount to salary_payable
 
@@ -3364,3 +3366,4 @@ export default HRSalaryManagement;
 // UI must remain largely unchanged
 
 // Logic must be explicit, isolated, and non-overlapping
+

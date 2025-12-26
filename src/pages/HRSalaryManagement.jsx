@@ -34,7 +34,6 @@ import utc from "dayjs/plugin/utc";
 import { LoadingOutlined } from "@ant-design/icons";
 import { MdOutlineMan } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
-
 dayjs.extend(utc);
 
 const HRSalaryManagement = () => {
@@ -95,10 +94,14 @@ const HRSalaryManagement = () => {
     status: "",
   });
 
-  // New state for business as salary confirmation modal
-  const [addBusinessAsSalaryModalOpen, setAddBusinessAsSalaryModalOpen] = useState(false);
+  // New state for confirmation modals
+  const [payAsSalaryModalOpen, setPayAsSalaryModalOpen] = useState(false);
+  const [payAsIncentiveModalOpen, setPayAsIncentiveModalOpen] = useState(false);
+  const [previousMonthRemainingBalance, setPreviousMonthRemainingBalance] =
+    useState(0);
 
   const thisYear = dayjs().format("YYYY");
+
   const earningsObject = {
     basic: 0,
     hra: 0,
@@ -109,12 +112,14 @@ const HRSalaryManagement = () => {
     other_allowances: 0,
     conveyance: 0,
   };
+
   const deductionsObject = {
     income_tax: 0,
     esi: 0,
     epf: 0,
     professional_tax: 0,
   };
+
   const columns = [
     { key: "siNo", header: "SL. NO" },
     { key: "employeeName", header: "Employee Name" },
@@ -126,6 +131,7 @@ const HRSalaryManagement = () => {
     { key: "status", header: "Payment Status" },
     { key: "action", header: "Action" },
   ];
+
   const months = [
     { label: "January", value: "January", disabled: false },
     { label: "February", value: "February", disabled: false },
@@ -144,7 +150,9 @@ const HRSalaryManagement = () => {
     { label: "November", value: "November", disabled: false },
     { label: "December", value: "December", disabled: false },
   ];
+
   const previousMonth = months[dayjs().subtract(2, "month").format("MM")].label;
+
   const [formData, setFormData] = useState({
     employee_id: "",
     month: previousMonth,
@@ -183,58 +191,89 @@ const HRSalaryManagement = () => {
     total_salary: 0,
   });
 
-  // Handler for Salary Payable button
-  const handleAddSalaryPayable = () => {
-    const totalTarget = Number(formData.monthly_business_info.total_target || 0);
-    const currentRemainingTarget = Number(formData.monthly_business_info.current_remaining_target || 0);
-    const previousRemainingTarget = Number(formData.monthly_business_info.previous_remaining_target || 0);
-    
-    // Calculate the salary payable amount
-    const salaryPayable = Math.abs(totalTarget - currentRemainingTarget) / 100;
-    
-    // Add the previous remaining target as well
-    const totalAmount = salaryPayable + previousRemainingTarget;
-    
-    // Add as an additional payment
-    setFormData(prev => ({
+  // Handler for Pay as Salary button
+  const handlePayAsSalary = () => {
+    setPayAsSalaryModalOpen(true);
+  };
+
+  // Handler for Pay as Incentive button
+  const handlePayAsIncentive = () => {
+    setPayAsIncentiveModalOpen(true);
+  };
+
+  // Confirm Pay as Salary
+  // Confirm Pay as Salary
+  const confirmPayAsSalary = () => {
+    const totalTarget = Number(
+      formData.monthly_business_info.total_target || 0
+    );
+    const currentRemainingTarget = Number(
+      formData.monthly_business_info.current_remaining_target || 0
+    );
+
+    // Calculate incentive using formula
+    const incentiveDiff = (totalTarget - currentRemainingTarget) / 100;
+    const incentiveAmount =
+      incentiveDiff > 0
+        ? currentRemainingTarget / 100
+        : Math.abs(incentiveDiff);
+
+    // Handle current_remaining_target based on requirement
+    // If currentRemainingTarget < 0, set to 0; else, keep as is
+    const updatedRemainingTarget =
+      currentRemainingTarget < 0 ? 0 : currentRemainingTarget;
+
+    setFormData((prev) => ({
       ...prev,
       additional_payments: [
         ...prev.additional_payments,
         {
           name: "Salary Payable",
-          value: totalAmount
-        }
+          value: incentiveAmount,
+        },
       ],
-      // Set current_remaining_target to 0
       monthly_business_info: {
         ...prev.monthly_business_info,
-        current_remaining_target: 0
-      }
+        current_remaining_target: updatedRemainingTarget,
+      },
     }));
-    
+
     message.success("Salary payable amount added successfully");
+    setPayAsSalaryModalOpen(false);
   };
-  
-  // Handler for Incentive Payable button
-  const handleAddIncentivePayable = () => {
-    const totalTarget = Number(formData.monthly_business_info.total_target || 0);
-    const currentRemainingTarget = Number(formData.monthly_business_info.current_remaining_target || 0);
-    
-    // Calculate the incentive payable amount
-    const incentivePayable = Math.abs(totalTarget - currentRemainingTarget) / 100;
-    
-    // Update the calculated_incentive field
-    setFormData(prev => ({
+
+  // Confirm Pay as Incentive
+  const confirmPayAsIncentive = () => {
+    const totalTarget = Number(
+      formData.monthly_business_info.total_target || 0
+    );
+    const totalBusinessClosed = Number(
+      formData.monthly_business_info.total_business_closed || 0
+    );
+
+    // Calculate raw incentive
+    const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
+    let incentiveAmount = 0;
+
+    if (rawIncentive > 0) {
+      // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
+      incentiveAmount = totalBusinessClosed / 100;
+    } else if (rawIncentive < 0) {
+      // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
+      incentiveAmount = Math.abs(rawIncentive);
+    }
+
+    setFormData((prev) => ({
       ...prev,
-      calculated_incentive: incentivePayable,
-      // Set current_remaining_target to 0
+      calculated_incentive: incentiveAmount,
       monthly_business_info: {
         ...prev.monthly_business_info,
-        current_remaining_target: 0
-      }
+        current_remaining_target: 0,
+      },
     }));
-    
+
     message.success("Incentive payable amount added successfully");
+    setPayAsIncentiveModalOpen(false);
   };
 
   async function fetchEmployees() {
@@ -249,9 +288,11 @@ const HRSalaryManagement = () => {
       setEmployees([]);
     }
   }
+
   useEffect(() => {
     fetchEmployees();
   }, []);
+
   async function getSalaryById(id) {
     try {
       const response = await API.get(`/salary-payment/${id}`);
@@ -261,6 +302,7 @@ const HRSalaryManagement = () => {
       return null;
     }
   }
+
   const fetchEmployeeTarget = async (employeeId, start_date, end_date) => {
     try {
       const response = await API.get(`/target/employees/${employeeId}`, {
@@ -272,18 +314,19 @@ const HRSalaryManagement = () => {
       return 0;
     }
   };
+
   const fetchPreviousRemainingTarget = async (employeeId) => {
     try {
       const response = await API.get(
         `/salary-payment/employees/${employeeId}?month=${formData.month}&year=${formData.year}`
       );
-      console.log(response.data?.data);
       return response.data?.data.remainingTarget || 0;
     } catch (err) {
       console.error("Failed to fetch Remaining Target:", err);
       return 0;
     }
   };
+
   const fetchEmployeeBusinessClosed = async (
     employeeId,
     start_date,
@@ -300,6 +343,7 @@ const HRSalaryManagement = () => {
       return 0;
     }
   };
+
   const getValidMonths = (joiningDateStr, selectedYear) => {
     if (!joiningDateStr || !selectedYear) {
       return months.map((m) => ({ ...m, disabled: true }));
@@ -322,6 +366,7 @@ const HRSalaryManagement = () => {
       return { ...month, disabled };
     });
   };
+
   useEffect(() => {
     if (
       formData.employee_id &&
@@ -346,6 +391,7 @@ const HRSalaryManagement = () => {
       }
     }
   }, [formData.year, formData.employee_id, employeeDetails?.joining_date]);
+
   const handleEdit = async (id) => {
     try {
       setUpdateLoading(true);
@@ -391,6 +437,7 @@ const HRSalaryManagement = () => {
       setUpdateLoading(false);
     }
   };
+
   const handleDeleteConfirm = async (id) => {
     try {
       setDeleteLoading(true);
@@ -404,9 +451,11 @@ const HRSalaryManagement = () => {
       setDeleteLoading(false);
     }
   };
+
   const handlePrint = (salaryPaymentId) => {
     navigate("/salary-slip-print/" + salaryPaymentId);
   };
+
   const dropDownItems = (salaryPayment) => {
     const dropDownItemList = [
       {
@@ -448,6 +497,7 @@ const HRSalaryManagement = () => {
     ];
     return dropDownItemList;
   };
+
   async function fetchSalaryDetails() {
     try {
       setEmployeeDetailsLoading(true);
@@ -475,12 +525,15 @@ const HRSalaryManagement = () => {
       setEmployeeDetailsLoading(false);
     }
   }
+
   useEffect(() => {
     if (formData.employee_id && formData.month && formData.year) {
       loadTargetAndIncentive();
       fetchSalaryDetails();
+      fetchPreviousMonthRemainingBalance();
     }
   }, [formData.employee_id, formData.month, formData.year]);
+
   const loadTargetAndIncentive = async () => {
     try {
       const monthIndex = moment().month(formData.month).month();
@@ -521,15 +574,16 @@ const HRSalaryManagement = () => {
         },
       }));
     } catch (err) {
-      console.log("hello this sis ");
       console.error("Failed to auto-load target & incentive", err);
     }
   };
+
   useEffect(() => {
     if (formData.employee_id) {
       fetchSalaryDetails();
     }
   }, [formData?.employee_id]);
+
   const handleChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (["employee_id", "month", "year", "target"].includes(name)) {
@@ -543,6 +597,7 @@ const HRSalaryManagement = () => {
       }));
     }
   };
+
   const handleDeductionsChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -555,6 +610,7 @@ const HRSalaryManagement = () => {
     setCalculatedSalary(null);
     setShowComponents(false);
   };
+
   const handleEarningsChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -567,28 +623,33 @@ const HRSalaryManagement = () => {
     setCalculatedSalary(null);
     setShowComponents(false);
   };
+
   const handleAdvancePaymentChange = (index, field, value) => {
     const updatedPayments = [...formData.advance_payments];
     updatedPayments[index] = { ...updatedPayments[index], [field]: value };
     setFormData((prev) => ({ ...prev, advance_payments: updatedPayments }));
   };
+
   const addAdvancePayment = () => {
     setFormData((prev) => ({
       ...prev,
       advance_payments: [...prev.advance_payments, { name: "", value: 0 }],
     }));
   };
+
   const removeAdvancePayment = (index) => {
     const updatedPayments = formData.advance_payments.filter(
       (_, i) => i !== index
     );
     setFormData((prev) => ({ ...prev, advance_payments: updatedPayments }));
   };
+
   const handleAdditionalPaymentChange = (index, field, value) => {
     const updatedPayments = [...formData.additional_payments];
     updatedPayments[index] = { ...updatedPayments[index], [field]: value };
     setFormData((prev) => ({ ...prev, additional_payments: updatedPayments }));
   };
+
   const addAdditionalPayment = () => {
     setFormData((prev) => ({
       ...prev,
@@ -598,12 +659,14 @@ const HRSalaryManagement = () => {
       ],
     }));
   };
+
   const removeAdditionalPayment = (index) => {
     const updatedPayments = formData.additional_payments.filter(
       (_, i) => i !== index
     );
     setFormData((prev) => ({ ...prev, additional_payments: updatedPayments }));
   };
+
   const handleAdditionalDeductionChange = (index, field, value) => {
     const updatedDeductions = [...formData.additional_deductions];
     updatedDeductions[index] = { ...updatedDeductions[index], [field]: value };
@@ -612,6 +675,7 @@ const HRSalaryManagement = () => {
       additional_deductions: updatedDeductions,
     }));
   };
+
   const addAdditionalDeduction = () => {
     setFormData((prev) => ({
       ...prev,
@@ -621,6 +685,7 @@ const HRSalaryManagement = () => {
       ],
     }));
   };
+
   const removeAdditionalDeduction = (index) => {
     const updatedDeductions = formData.additional_deductions.filter(
       (_, i) => i !== index
@@ -630,10 +695,12 @@ const HRSalaryManagement = () => {
       additional_deductions: updatedDeductions,
     }));
   };
+
   const updateTotalEarnings = useMemo(() => {
     const earnings = updateFormData?.earnings || {};
     return Object.values(earnings).reduce((sum, v) => sum + Number(v || 0), 0);
   }, [updateFormData]);
+
   const updateTotalDeductions = useMemo(() => {
     const deductions = updateFormData?.deductions || {};
     const base = Object.values(deductions).reduce(
@@ -642,6 +709,7 @@ const HRSalaryManagement = () => {
     );
     return base;
   }, [updateFormData]);
+
   async function handleCalculateSalary() {
     try {
       setCalculateLoading(true);
@@ -662,16 +730,10 @@ const HRSalaryManagement = () => {
       });
       const calculated = response.data.data;
       setCalculatedSalary(calculated);
-
-      // NEW INCENTIVE CALCULATION LOGIC
-      // Calculate incentive as absolute of (total_target - current_remaining_target)
-      const totalTarget = Number(formData.monthly_business_info.total_target || 0);
-      const currentRemainingTarget = Number(formData.monthly_business_info.current_remaining_target || 0);
-      const calculatedIncentive = Math.abs(totalTarget - currentRemainingTarget) / 100;
-
+      // Set previous month remaining balance
+      setPreviousMonthRemainingBalance(calculated.remaining_balance || 0);
       setFormData((prev) => ({
         ...prev,
-        calculated_incentive: calculatedIncentive,
         total_salary_payable: calculated.calculated_salary,
       }));
       setShowComponents(true);
@@ -695,6 +757,7 @@ const HRSalaryManagement = () => {
       setCalculateLoading(false);
     }
   }
+
   async function handleAddSalary() {
     try {
       const baseSalary = calculatedSalary
@@ -707,6 +770,7 @@ const HRSalaryManagement = () => {
             (sum, v) => sum + Number(v || 0),
             0
           );
+
       const advanceTotal = formData.advance_payments.reduce(
         (sum, a) => sum + Number(a.value || 0),
         0
@@ -720,37 +784,61 @@ const HRSalaryManagement = () => {
         0
       );
 
-      // Apply business condition
+      // Apply business condition - New logic according to requirements
       let totalSalaryPayable = 0;
-      let finalCalculatedIncentive = 0;
-      const target = Number(formData.monthly_business_info.target || 0);
-      const monthlyBusinessClosed = Number(
+      let finalCalculatedIncentive = formData.calculated_incentive || 0;
+
+      const totalTarget = Number(
+        formData.monthly_business_info.total_target || 0
+      );
+      const totalBusinessClosed = Number(
         formData.monthly_business_info.total_business_closed || 0
       );
 
-      // NEW INCENTIVE LOGIC FOR SALARY CALCULATION
-      const totalTarget = Number(formData.monthly_business_info.total_target || 0);
-      const currentRemainingTarget = Number(formData.monthly_business_info.current_remaining_target || 0);
-      finalCalculatedIncentive = Math.abs(totalTarget - currentRemainingTarget) / 100;
+      // Calculate raw incentive
+      const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
 
-      if (monthlyBusinessClosed < target) {
-        totalSalaryPayable =
-          advanceTotal + additionalPaymentsTotal - additionalDeductionsTotal;
+      if (rawIncentive > 0) {
+        // If rawIncentive > 0
+        // total_payable = 0 (unless Pay as Salary is confirmed)
+        totalSalaryPayable = 0;
+
+        // Add previous month balance and advance payments
+        totalSalaryPayable += previousMonthRemainingBalance + advanceTotal;
+
+        // Add additional payments minus deductions
+        totalSalaryPayable +=
+          additionalPaymentsTotal - additionalDeductionsTotal;
+      } else if (rawIncentive < 0) {
+        // If rawIncentive < 0
+        // total_payable = calculated salary from attendance details
+        totalSalaryPayable = baseSalary;
+
+        // Add previous month balance and advance payments
+        totalSalaryPayable += previousMonthRemainingBalance + advanceTotal;
+
+        // Add additional payments minus deductions
+        totalSalaryPayable +=
+          additionalPaymentsTotal - additionalDeductionsTotal;
       } else {
-        totalSalaryPayable =
-          baseSalary -
-          Object.values(formData.deductions).reduce(
-            (sum, v) => sum + Number(v || 0),
-            0
-          ) +
-          advanceTotal +
-          additionalPaymentsTotal -
-          additionalDeductionsTotal +
-          finalCalculatedIncentive;
+        // If rawIncentive === 0
+        // total_payable = calculated salary from attendance details
+        totalSalaryPayable = baseSalary;
+
+        // Add previous month balance and advance payments
+        totalSalaryPayable += previousMonthRemainingBalance + advanceTotal;
+
+        // Add additional payments minus deductions
+        totalSalaryPayable +=
+          additionalPaymentsTotal - additionalDeductionsTotal;
       }
+
+      // Add calculated incentive if it's been set (Pay as Incentive was confirmed)
+      totalSalaryPayable += finalCalculatedIncentive;
 
       const paidAmount = Number(formData.paid_amount || 0);
       const remainingBalance = totalSalaryPayable - paidAmount;
+
       const attendanceDetails = calculatedSalary
         ? {
             total_days: calculatedSalary.total_days,
@@ -766,6 +854,7 @@ const HRSalaryManagement = () => {
             salary_to_date: calculatedSalary.salary_to_date,
           }
         : {};
+
       const monthlyTargetIncentive = {
         target: Number(formData.monthly_business_info.target || 0),
         total_business_closed: Number(
@@ -777,7 +866,7 @@ const HRSalaryManagement = () => {
         current_remaining_target:
           formData.monthly_business_info.current_remaining_target,
       };
-      console.log(monthlyTargetIncentive, "this is monthly");
+
       const salaryData = {
         employee_id: formData?.employee_id,
         salary_from_date: calculatedSalary
@@ -805,6 +894,7 @@ const HRSalaryManagement = () => {
         attendance_details: attendanceDetails,
         monthly_business_info: monthlyTargetIncentive,
       };
+
       await API.post("/salary-payment/", salaryData);
       message.success("Salary added successfully");
       setIsOpenAddModal(false);
@@ -813,9 +903,10 @@ const HRSalaryManagement = () => {
       getAllSalary();
     } catch (error) {
       console.error("Error adding salary:", error);
-      message.error("Failed to add salary");
+      message.error(error?.response?.data?.message ?? "Failed to add Salary");
     }
   }
+
   async function getAllSalary() {
     try {
       setDataTableLoading(true);
@@ -852,15 +943,18 @@ const HRSalaryManagement = () => {
       setDataTableLoading(false);
     }
   }
+
   useEffect(() => {
     getAllSalary();
   }, []);
+
   const totalEarningsExcludingSalary = useMemo(() => {
     const earnings = formData.earnings || {};
     return Object.keys(earnings)
       .filter((key) => key !== "salary")
       .reduce((sum, key) => sum + (Number(earnings[key]) || 0), 0);
   }, [formData.earnings]);
+
   const totalDeductions = useMemo(() => {
     const baseDeductions = formData.deductions || {};
     const baseTotal = Object.values(baseDeductions).reduce(
@@ -870,28 +964,36 @@ const HRSalaryManagement = () => {
     return baseTotal;
   }, [formData.deductions]);
 
-  // Incentive calculation logic
+  // Updated incentive calculation logic according to requirements
   const calculatedIncentive = useMemo(() => {
-    const totalTarget = Number(formData.monthly_business_info.total_target || 0);
-    const totalBusinessClosed = Number(formData.monthly_business_info.total_business_closed || 0);
-    const diff = totalTarget - totalBusinessClosed;
-    
-    if (diff > 0) {
+    const totalTarget = Number(
+      formData.monthly_business_info.total_target || 0
+    );
+    const totalBusinessClosed = Number(
+      formData.monthly_business_info.total_business_closed || 0
+    );
+
+    // Calculate raw incentive as per requirements
+    const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
+
+    if (rawIncentive > 0) {
+      // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
       return totalBusinessClosed / 100;
-    } else if (diff < 0) {
-      return Math.abs(diff) / 100;
+    } else if (rawIncentive < 0) {
+      // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
+      return Math.abs(rawIncentive);
     } else {
+      // If rawIncentive === 0, calculatedIncentive = 0
       return 0;
     }
-  }, [formData.monthly_business_info.total_target, formData.monthly_business_info.total_business_closed]);
-
-  // Previous month remaining balance
-  const [previousMonthRemainingBalance, setPreviousMonthRemainingBalance] = useState(0);
+  }, [
+    formData.monthly_business_info.total_target,
+    formData.monthly_business_info.total_business_closed,
+  ]);
 
   const fetchPreviousMonthRemainingBalance = async () => {
     try {
       if (!formData.employee_id || !formData.month || !formData.year) return;
-      
       const monthIndex = moment().month(formData.month).month();
       const prevMonthStart = moment()
         .year(formData.year)
@@ -903,11 +1005,11 @@ const HRSalaryManagement = () => {
         .month(monthIndex - 1)
         .endOf("month")
         .format("YYYY-MM-DD");
-      
       const response = await API.get(
-        `/salary-payment/employees/${formData.employee_id}?month=${moment().month(monthIndex - 1).format('MMMM')}&year=${formData.year}`
+        `/salary-payment/employees/${formData.employee_id}?month=${moment()
+          .month(monthIndex - 1)
+          .format("MMMM")}&year=${formData.year}`
       );
-      
       if (response.data?.data?.remaining_balance) {
         setPreviousMonthRemainingBalance(response.data.data.remaining_balance);
       } else {
@@ -918,10 +1020,6 @@ const HRSalaryManagement = () => {
       setPreviousMonthRemainingBalance(0);
     }
   };
-
-  useEffect(() => {
-    fetchPreviousMonthRemainingBalance();
-  }, [formData.employee_id, formData.month, formData.year]);
 
   return (
     <div>
@@ -980,186 +1078,770 @@ const HRSalaryManagement = () => {
             )}
           </div>
         </div>
-        <Drawer
-          title="Add New Salary"
-          width={"87%"}
-          className="payment-drawer"
-          open={isOpenAddModal}
-          onClose={() => {
-            setIsOpenAddModal(false);
-            setCalculatedSalary(null);
-            setShowComponents(false);
-          }}
-          closable={true}
-          footer={
-            <div className="flex justify-end gap-2">
-              <Button
-                onClick={() => setIsOpenAddModal(false)}
-                className="bg-red-600 hover:bg-red-700 text-white">
-                Cancel
+      </div>
+      <Drawer
+        title="Add New Salary"
+        width={"87%"}
+        className="payment-drawer"
+        open={isOpenAddModal}
+        onClose={() => {
+          setIsOpenAddModal(false);
+          setCalculatedSalary(null);
+          setShowComponents(false);
+        }}
+        closable={true}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              onClick={() => setIsOpenAddModal(false)}
+              className="bg-red-600 hover:bg-red-700 text-white">
+              Cancel
+            </Button>
+            {calculatedSalary && (
+              <Button type="primary" onClick={handleAddSalary}>
+                Save Salary
               </Button>
-              {calculatedSalary && (
-                <Button type="primary" onClick={handleAddSalary}>
-                  Save Salary
-                </Button>
-              )}
-            </div>
-          }>
-          <div className="space-y-6">
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Employee <span className="text-red-600">*</span>
-              </label>
-              <Select
-                showSearch
-                optionFilterProp="label"
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                filterSort={(optionA, optionB) =>
-                  (optionA?.label ?? "")
-                    .toLowerCase()
-                    .localeCompare((optionB?.label ?? "").toLowerCase())
-                }
-                style={{ width: "100%" }}
-                placeholder="Search to Select Employee"
-                options={employees}
-                onChange={(value) => handleChange("employee_id", value)}
-              />
-            </div>
-            {!employeeDetailsLoading ? (
-              formData.employee_id &&
-              Object.values(employeeDetails).length > 0 && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            )}
+          </div>
+        }>
+        <div className="space-y-6">
+          <div className="form-group">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Employee <span className="text-red-600">*</span>
+            </label>
+            <Select
+              showSearch
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              filterSort={(optionA, optionB) =>
+                (optionA?.label ?? "")
+                  .toLowerCase()
+                  .localeCompare((optionB?.label ?? "").toLowerCase())
+              }
+              style={{ width: "100%" }}
+              placeholder="Search to Select Employee"
+              options={employees}
+              onChange={(value) => handleChange("employee_id", value)}
+            />
+          </div>
+          {!employeeDetailsLoading ? (
+            formData.employee_id &&
+            Object.values(employeeDetails).length > 0 && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Year <span className="text-red-600">*</span>
+                    </label>
+                    <DatePicker
+                      value={
+                        formData.year ? dayjs(formData.year, "YYYY") : null
+                      }
+                      onChange={(date, dateString) =>
+                        handleChange("year", dateString)
+                      }
+                      picker="year"
+                      style={{ width: "100%" }}
+                      disabledDate={(current) => {
+                        if (!employeeDetails?.joining_date) return false;
+                        const joinYear = dayjs(
+                          employeeDetails.joining_date
+                        ).year();
+                        const currentYear = dayjs().year();
+                        const year = current ? current.year() : null;
+                        return year < joinYear || year > currentYear;
+                      }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Month <span className="text-red-600">*</span>
+                    </label>
+                    <Segmented
+                      className="[&_.ant-segmented-item-selected]:!bg-green-600 [&_.ant-segmented-item-selected]:!text-white"
+                      value={formData.month}
+                      options={getValidMonths(
+                        employeeDetails?.joining_date,
+                        formData.year
+                      )}
+                      onChange={(value) => handleChange("month", value)}
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    Employee Details
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="form-group">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select Year <span className="text-red-600">*</span>
+                        Name
                       </label>
-                      <DatePicker
-                        value={
-                          formData.year ? dayjs(formData.year, "YYYY") : null
-                        }
-                        onChange={(date, dateString) =>
-                          handleChange("year", dateString)
-                        }
-                        picker="year"
-                        style={{ width: "100%" }}
-                        disabledDate={(current) => {
-                          if (!employeeDetails?.joining_date) return false;
-                          const joinYear = dayjs(
-                            employeeDetails.joining_date
-                          ).year();
-                          const currentYear = dayjs().year();
-                          const year = current ? current.year() : null;
-                          return year < joinYear || year > currentYear;
-                        }}
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        placeholder="Name"
+                        value={employeeDetails?.name}
+                        disabled
                       />
                     </div>
                     <div className="form-group">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select Month <span className="text-red-600">*</span>
+                        Email
                       </label>
-                      <Segmented
-                        className="[&_.ant-segmented-item-selected]:!bg-green-600 [&_.ant-segmented-item-selected]:!text-white"
-                        value={formData.month}
-                        options={getValidMonths(
-                          employeeDetails?.joining_date,
-                          formData.year
-                        )}
-                        onChange={(value) => handleChange("month", value)}
-                        style={{ width: "100%" }}
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        placeholder="Email"
+                        value={employeeDetails?.email}
+                        disabled
                       />
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        placeholder="Phone Number"
+                        value={employeeDetails?.phone_number}
+                        disabled
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Joining Date
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        placeholder="Joining Date"
+                        value={employeeDetails?.joining_date?.split("T")[0]}
+                        disabled
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Employee ID
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        placeholder="Employee Id"
+                        value={employeeDetails?.employeeCode}
+                        disabled
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Total Salary
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        placeholder="Enter Total Salary"
+                        value={formData.total_salary}
+                        disabled
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(formData.total_salary || 0)}
+                      </span>
                     </div>
                   </div>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Employee Details
+                </div>
+                <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 shadow-sm">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
+                        <BarChart3 className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-xl text-gray-900">
+                        Monthly Target & Incentive
+                      </h3>
+                    </div>
+                    <div className="flex gap-2">
+                      {calculatedIncentive > 0 && (
+                        <>
+                          <Button
+                            type="primary"
+                            onClick={handlePayAsSalary}
+                            className="bg-blue-600 hover:bg-blue-700">
+                            Pay as Salary
+                          </Button>
+                          <Button
+                            type="primary"
+                            onClick={handlePayAsIncentive}
+                            className="bg-purple-600 hover:bg-purple-700">
+                            Pay as Incentive
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {/* Metrics Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Monthly Target */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4 text-blue-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Monthly Target
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        value={formData?.monthly_business_info?.target || 0}
+                        disabled
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-blue-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-blue-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info?.target ?? 0
+                        )}
+                      </span>
+                    </div>
+                    {/* Remaining Target */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-amber-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Remaining Target
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        value={
+                          formData?.monthly_business_info
+                            ?.previous_remaining_target || 0
+                        }
+                        disabled
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-amber-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-amber-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info
+                            ?.previous_remaining_target ?? 0
+                        )}
+                      </span>
+                    </div>
+                    {/* Total Target */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4 text-purple-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Total Target
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        value={
+                          formData?.monthly_business_info?.total_target || 0
+                        }
+                        disabled
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-purple-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-purple-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info?.total_target ?? 0
+                        )}
+                      </span>
+                    </div>
+                    {/* Total Business Closed */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Total Business Closed
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        value={
+                          formData?.monthly_business_info
+                            ?.total_business_closed ?? 0
+                        }
+                        readOnly
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-emerald-50 cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-emerald-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info
+                            ?.total_business_closed || 0
+                        )}
+                      </span>
+                    </div>
+                    {/* Current Remaining Target */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4 text-red-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Current Remaining Target
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        value={
+                          formData?.monthly_business_info
+                            ?.current_remaining_target || 0
+                        }
+                        disabled
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-red-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-red-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info
+                            ?.current_remaining_target ?? 0
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-green-800 mb-4">
+                    Earnings
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Fixed Salary
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        value={formData?.earnings?.salary || 0}
+                        disabled
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Basic Salary
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter Basic Salary"
+                        onChange={(e) =>
+                          handleEarningsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="basic"
+                        id="basic"
+                        value={formData?.earnings?.basic}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(formData?.earnings?.basic || 0)}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        House Rent Allowance (HRA)
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter House Rent Allowance"
+                        onChange={(e) =>
+                          handleEarningsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        name="hra"
+                        id="hra"
+                        value={formData?.earnings?.hra}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(formData?.earnings?.hra || 0)}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Travel Allowance
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter Travel Allowance"
+                        onChange={(e) =>
+                          handleEarningsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="travel_allowance"
+                        id="travel_allowance"
+                        value={formData?.earnings?.travel_allowance}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(
+                          formData?.earnings?.travel_allowance || 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Medical Allowance
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter Medical Allowance"
+                        onChange={(e) =>
+                          handleEarningsChange(e.target.name, e.target.value)
+                        }
+                        type="text"
+                        name="medical_allowance"
+                        id="medical_allowance"
+                        value={formData?.earnings?.medical_allowance}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(
+                          formData?.earnings?.medical_allowance || 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Basket of Benefits
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter Basket Of Benefits"
+                        onChange={(e) =>
+                          handleEarningsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="basket_of_benifits"
+                        id="basket_of_benifits"
+                        value={formData?.earnings?.basket_of_benifits}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(
+                          formData?.earnings?.basket_of_benifits || 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Performance Bonus
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter Performance Bonus"
+                        onChange={(e) =>
+                          handleEarningsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="performance_bonus"
+                        id="performance_bonus"
+                        value={formData?.earnings?.performance_bonus}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(
+                          formData?.earnings?.performance_bonus || 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Other Allowances
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter Other Allowances"
+                        onChange={(e) =>
+                          handleEarningsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="other_allowances"
+                        id="other_allowances"
+                        value={formData?.earnings?.other_allowances}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(
+                          formData?.earnings?.other_allowances || 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Conveyance
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Enter Conveyance"
+                        onChange={(e) =>
+                          handleEarningsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="conveyance"
+                        id="conveyance"
+                        value={formData?.earnings?.conveyance}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(
+                          formData?.earnings?.conveyance || 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-group mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Total Earnings
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        value={totalEarningsExcludingSalary.toFixed(2)}
+                        disabled
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(totalEarningsExcludingSalary)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-red-800 mb-4">
+                    Deductions
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Income Tax
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Enter Income Tax"
+                        onChange={(e) =>
+                          handleDeductionsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="income_tax"
+                        id="income_tax"
+                        value={formData?.deductions?.income_tax}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(
+                          formData?.deductions?.income_tax || 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        ESI (Employee State Insurance)
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Enter ESI"
+                        onChange={(e) =>
+                          handleDeductionsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="esi"
+                        id="esi"
+                        value={formData?.deductions?.esi}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(formData?.deductions?.esi || 0)}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        EPF (Employee Provident Fund)
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Enter EPF"
+                        onChange={(e) =>
+                          handleDeductionsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="epf"
+                        id="epf"
+                        value={formData?.deductions?.epf}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(formData?.deductions?.epf || 0)}
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Professional Tax
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Enter Professional Tax"
+                        onChange={(e) =>
+                          handleDeductionsChange(e.target.name, e.target.value)
+                        }
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        name="professional_tax"
+                        id="professional_tax"
+                        value={formData?.deductions?.professional_tax}
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(
+                          formData?.deductions?.professional_tax || 0
+                        )}
+                      </span>
+                    </div>
+                    <div className="form-group mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Total Deductions
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                        value={totalDeductions.toFixed(2)}
+                        disabled
+                      />
+                      <span className="ml-2 font-medium font-mono text-blue-600">
+                        {numberToIndianWords(totalDeductions.toFixed(2))}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {/* Previous Month Remaining Balance */}
+
+                {/* Calculate Button */}
+                <div className="flex justify-end pt-4">
+                  <Button
+                    type="primary"
+                    onClick={handleCalculateSalary}
+                    size="large"
+                    className="px-8"
+                    loading={calculateLoading}
+                    disabled={
+                      !formData.employee_id || !formData.month || !formData.year
+                    }
+                    style={{
+                      backgroundColor: "#16a34a",
+                    }}>
+                    Continue
+                  </Button>
+                </div>
+                {/* Calculated Salary Display */}
+                {calculatedSalary && (
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">
+                      Attendance Details
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Name
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          placeholder="Name"
-                          value={employeeDetails?.name}
-                          disabled
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          placeholder="Email"
-                          value={employeeDetails?.email}
-                          disabled
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone Number
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          placeholder="Phone Number"
-                          value={employeeDetails?.phone_number}
-                          disabled
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Joining Date
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          placeholder="Joining Date"
-                          value={employeeDetails?.joining_date?.split("T")[0]}
-                          disabled
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Employee ID
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          placeholder="Employee Id"
-                          value={employeeDetails?.employeeCode}
-                          disabled
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Total Salary
+                          Total Days
                         </label>
                         <input
                           type="number"
+                          onWheel={(e) => e.target.blur()}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          placeholder="Enter Total Salary"
-                          value={formData.total_salary}
+                          value={calculatedSalary.total_days}
                           disabled
                         />
                         <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(formData.total_salary || 0)}
+                          {numberToIndianWords(
+                            calculatedSalary.total_days || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Present Days
+                        </label>
+                        <input
+                          type="number"
+                          onWheel={(e) => e.target.blur()}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={calculatedSalary.present_days}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            calculatedSalary.present_days || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Paid Days
+                        </label>
+                        <input
+                          type="number"
+                          onWheel={(e) => e.target.blur()}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={calculatedSalary.paid_days}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(calculatedSalary.paid_days || 0)}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          LOP Days
+                        </label>
+                        <input
+                          type="number"
+                          onWheel={(e) => e.target.blur()}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={calculatedSalary.lop_days}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(calculatedSalary.lop_days || 0)}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Per Day Salary
+                        </label>
+                        <input
+                          type="number"
+                          onWheel={(e) => e.target.blur()}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={calculatedSalary.per_day_salary.toFixed(2)}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            calculatedSalary.per_day_salary.toFixed(2) || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Calculated Salary
+                        </label>
+                        <input
+                          type="number"
+                          onWheel={(e) => e.target.blur()}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={calculatedSalary.calculated_salary.toFixed(2)}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            calculatedSalary.calculated_salary.toFixed(2) || 0
+                          )}
                         </span>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 shadow-sm">
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
+                    <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 shadow-sm">
+                      {/* Header */}
+                      <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
                           <BarChart3 className="w-6 h-6 text-white" />
                         </div>
@@ -1167,1515 +1849,1042 @@ const HRSalaryManagement = () => {
                           Monthly Target & Incentive
                         </h3>
                       </div>
-                      <div className="flex gap-2">
-                        {calculatedIncentive > 0 && (
-                          <>
-                            <Button 
-                              type="primary" 
-                              onClick={() => setAddBusinessAsSalaryModalOpen(true)}
-                              className="bg-blue-600 hover:bg-blue-700"
-                              disabled={!formData.monthly_business_info?.total_business_closed}
-                            >
-                              Pay as Salary
-                            </Button>
-                            <Button 
-                              type="primary" 
-                              onClick={handleAddIncentivePayable}
-                              className="bg-purple-600 hover:bg-purple-700"
-                              disabled={formData.monthly_business_info?.current_remaining_target === 0}
-                            >
-                              Pay as Incentive
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    {/* Metrics Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {/* Monthly Target */}
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Target className="w-4 h-4 text-blue-600" />
-                          <label className="font-semibold text-gray-700 text-sm">
-                            Monthly Target
-                          </label>
+                      {/* Metrics Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Monthly Target */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="w-4 h-4 text-blue-600" />
+                            <label className="font-semibold text-gray-700 text-sm">
+                              Monthly Target
+                            </label>
+                          </div>
+                          <input
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={formData?.monthly_business_info?.target || 0}
+                            disabled
+                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-blue-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                          />
+                          <span className="mt-2 font-medium font-mono text-blue-600 text-sm">
+                            {numberToIndianWords(
+                              formData?.monthly_business_info?.target ?? 0
+                            )}
+                          </span>
                         </div>
-                        <input
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          value={formData?.monthly_business_info?.target || 0}
-                          disabled
-                          className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-blue-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                        />
-                        <span className="mt-2 font-medium font-mono text-blue-600 text-sm">
-                          {numberToIndianWords(
-                            formData?.monthly_business_info?.target ?? 0
-                          )}
-                        </span>
-                      </div>
-                      {/* Remaining Target */}
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 mb-2">
-                          <TrendingUp className="w-4 h-4 text-amber-600" />
-                          <label className="font-semibold text-gray-700 text-sm">
-                            Remaining Target
-                          </label>
+                        {/* Remaining Target */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <TrendingUp className="w-4 h-4 text-amber-600" />
+                            <label className="font-semibold text-gray-700 text-sm">
+                              Remaining Target
+                            </label>
+                          </div>
+                          <input
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={
+                              formData?.monthly_business_info
+                                ?.previous_remaining_target || 0
+                            }
+                            disabled
+                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-amber-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                          />
+                          <span className="mt-2 font-medium font-mono text-amber-600 text-sm">
+                            {numberToIndianWords(
+                              formData?.monthly_business_info
+                                ?.previous_remaining_target ?? 0
+                            )}
+                          </span>
                         </div>
-                        <input
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          value={
-                            formData?.monthly_business_info
-                              ?.previous_remaining_target || 0
-                          }
-                          disabled
-                          className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-amber-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                        />
-                        <span className="mt-2 font-medium font-mono text-amber-600 text-sm">
-                          {numberToIndianWords(
-                            formData?.monthly_business_info
-                              ?.previous_remaining_target ?? 0
-                          )}
-                        </span>
-                      </div>
-                      {/* Total Target */}
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Target className="w-4 h-4 text-purple-600" />
-                          <label className="font-semibold text-gray-700 text-sm">
-                            Total Target
-                          </label>
+                        {/* Total Target */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="w-4 h-4 text-purple-600" />
+                            <label className="font-semibold text-gray-700 text-sm">
+                              Total Target
+                            </label>
+                          </div>
+                          <input
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={
+                              formData?.monthly_business_info?.total_target || 0
+                            }
+                            disabled
+                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-purple-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                          />
+                          <span className="mt-2 font-medium font-mono text-purple-600 text-sm">
+                            {numberToIndianWords(
+                              formData?.monthly_business_info?.total_target ?? 0
+                            )}
+                          </span>
                         </div>
-                        <input
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          value={
-                            formData?.monthly_business_info?.total_target || 0
-                          }
-                          disabled
-                          className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-purple-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                        />
-                        <span className="mt-2 font-medium font-mono text-purple-600 text-sm">
-                          {numberToIndianWords(
-                            formData?.monthly_business_info?.total_target ?? 0
-                          )}
-                        </span>
-                      </div>
-                      {/* Total Business Closed */}
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle className="w-4 h-4 text-emerald-600" />
-                          <label className="font-semibold text-gray-700 text-sm">
-                            Total Business Closed
-                          </label>
+                        {/* Total Business Closed */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <CheckCircle className="w-4 h-4 text-emerald-600" />
+                            <label className="font-semibold text-gray-700 text-sm">
+                              Total Business Closed
+                            </label>
+                          </div>
+                          <input
+                            type="number"
+                            value={
+                              formData?.monthly_business_info
+                                ?.total_business_closed ?? 0
+                            }
+                            readOnly
+                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-emerald-50 cursor-not-allowed"
+                          />
+                          <span className="mt-2 font-medium font-mono text-emerald-600 text-sm">
+                            {numberToIndianWords(
+                              formData?.monthly_business_info
+                                ?.total_business_closed || 0
+                            )}
+                          </span>
                         </div>
-                        <input
-                          type="number"
-                          value={
-                            formData?.monthly_business_info
-                              ?.total_business_closed ?? 0
-                          }
-                          readOnly
-                          className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-emerald-50 cursor-not-allowed"
-                        />
-                        <span className="mt-2 font-medium font-mono text-emerald-600 text-sm">
-                          {numberToIndianWords(
-                            formData?.monthly_business_info
-                              ?.total_business_closed || 0
-                          )}
-                        </span>
-                      </div>
-                      {/* Current Remaining Target */}
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Target className="w-4 h-4 text-red-600" />
-                          <label className="font-semibold text-gray-700 text-sm">
-                            Current Remaining Target
-                          </label>
-                        </div>
-                        <input
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          value={
-                            formData?.monthly_business_info?.current_remaining_target || 0
-                          }
-                          disabled
-                          className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-red-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                        />
-                        <span className="mt-2 font-medium font-mono text-red-600 text-sm">
-                          {numberToIndianWords(
-                            formData?.monthly_business_info?.current_remaining_target ?? 0
-                          )}
-                        </span>
                       </div>
                     </div>
                   </div>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-green-800 mb-4">
-                      Earnings
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Fixed Salary
-                        </label>
-                        <input
-                          type="number"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          value={formData?.earnings?.salary || 0}
-                          disabled
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Basic Salary
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="Enter Basic Salary"
-                          onChange={(e) =>
-                            handleEarningsChange(e.target.name, e.target.value)
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="basic"
-                          id="basic"
-                          value={formData?.earnings?.basic}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(formData?.earnings?.basic || 0)}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          House Rent Allowance (HRA)
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="Enter House Rent Allowance"
-                          onChange={(e) =>
-                            handleEarningsChange(e.target.name, e.target.value)
-                          }
-                          type="number"
-                          name="hra"
-                          id="hra"
-                          value={formData?.earnings?.hra}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(formData?.earnings?.hra || 0)}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Travel Allowance
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="Enter Travel Allowance"
-                          onChange={(e) =>
-                            handleEarningsChange(e.target.name, e.target.value)
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="travel_allowance"
-                          id="travel_allowance"
-                          value={formData?.earnings?.travel_allowance}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(
-                            formData?.earnings?.travel_allowance || 0
-                          )}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Medical Allowance
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="Enter Medical Allowance"
-                          onChange={(e) =>
-                            handleEarningsChange(e.target.name, e.target.value)
-                          }
-                          type="text"
-                          name="medical_allowance"
-                          id="medical_allowance"
-                          value={formData?.earnings?.medical_allowance}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(
-                            formData?.earnings?.medical_allowance || 0
-                          )}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Basket of Benefits
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="Enter Basket Of Benefits"
-                          onChange={(e) =>
-                            handleEarningsChange(e.target.name, e.target.value)
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="basket_of_benifits"
-                          id="basket_of_benifits"
-                          value={formData?.earnings?.basket_of_benifits}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(
-                            formData?.earnings?.basket_of_benifits || 0
-                          )}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Performance Bonus
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="Enter Performance Bonus"
-                          onChange={(e) =>
-                            handleEarningsChange(e.target.name, e.target.value)
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="performance_bonus"
-                          id="performance_bonus"
-                          value={formData?.earnings?.performance_bonus}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(
-                            formData?.earnings?.performance_bonus || 0
-                          )}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Other Allowances
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="Enter Other Allowances"
-                          onChange={(e) =>
-                            handleEarningsChange(e.target.name, e.target.value)
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="other_allowances"
-                          id="other_allowances"
-                          value={formData?.earnings?.other_allowances}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(
-                            formData?.earnings?.other_allowances || 0
-                          )}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Conveyance
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="Enter Conveyance"
-                          onChange={(e) =>
-                            handleEarningsChange(e.target.name, e.target.value)
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="conveyance"
-                          id="conveyance"
-                          value={formData?.earnings?.conveyance}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(
-                            formData?.earnings?.conveyance || 0
-                          )}
-                        </span>
-                      </div>
-                      <div className="form-group mt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Total Earnings
-                        </label>
-                        <input
-                          type="number"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          value={totalEarningsExcludingSalary.toFixed(2)}
-                          disabled
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(totalEarningsExcludingSalary)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-red-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-red-800 mb-4">
-                      Deductions
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Income Tax
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="Enter Income Tax"
-                          onChange={(e) =>
-                            handleDeductionsChange(
-                              e.target.name,
-                              e.target.value
-                            )
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="income_tax"
-                          id="income_tax"
-                          value={formData?.deductions?.income_tax}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(
-                            formData?.deductions?.income_tax || 0
-                          )}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          ESI (Employee State Insurance)
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="Enter ESI"
-                          onChange={(e) =>
-                            handleDeductionsChange(
-                              e.target.name,
-                              e.target.value
-                            )
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="esi"
-                          id="esi"
-                          value={formData?.deductions?.esi}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(formData?.deductions?.esi || 0)}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          EPF (Employee Provident Fund)
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="Enter EPF"
-                          onChange={(e) =>
-                            handleDeductionsChange(
-                              e.target.name,
-                              e.target.value
-                            )
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="epf"
-                          id="epf"
-                          value={formData?.deductions?.epf}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(formData?.deductions?.epf || 0)}
-                        </span>
-                      </div>
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Professional Tax
-                        </label>
-                        <input
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="Enter Professional Tax"
-                          onChange={(e) =>
-                            handleDeductionsChange(
-                              e.target.name,
-                              e.target.value
-                            )
-                          }
-                          type="number"
-                          onWheel={(e) => e.target.blur()}
-                          name="professional_tax"
-                          id="professional_tax"
-                          value={formData?.deductions?.professional_tax}
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(
-                            formData?.deductions?.professional_tax || 0
-                          )}
-                        </span>
-                      </div>
-                      <div className="form-group mt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Total Deductions
-                        </label>
-                        <input
-                          type="number"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                          value={totalDeductions.toFixed(2)}
-                          disabled
-                        />
-                        <span className="ml-2 font-medium font-mono text-blue-600">
-                          {numberToIndianWords(totalDeductions.toFixed(2))}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Previous Month Remaining Balance */}
-                  <div className="bg-yellow-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold text-yellow-800 mb-4">
-                      Previous Month Remaining Balance
+                )}
+                {/* Incentive Adjustment Display */}
+                {calculatedSalary && (
+                  <div className="bg-blue-50 p-4 rounded-lg mt-4">
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">
+                      Incentive Payable
                     </h3>
                     <div className="form-group">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Remaining Balance from Previous Month
+                        Calculated Incentive
                       </label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                        value={previousMonthRemainingBalance.toFixed(2)}
-                        disabled
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(previousMonthRemainingBalance.toFixed(2))}
-                      </span>
+                      {(() => {
+                        const incentiveValue = calculatedIncentive;
+                        const isPositive = formData.calculated_incentive >= 0;
+                        const displayValue =
+                          Math.abs(incentiveValue).toFixed(2);
+                        return (
+                          <>
+                            <input
+                              type="text"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800 font-medium"
+                              value={
+                                isPositive
+                                  ? `+ ${Number(formData.calculated_incentive).toLocaleString(
+                                      "en-IN",
+                                      {
+                                        minimumFractionDigits: 2,
+                                      }
+                                    )}`
+                                  : `- ${Number(
+                                      Math.abs(formData.calculated_incentive)
+                                    ).toLocaleString("en-IN", {
+                                      minimumFractionDigits: 2,
+                                    })}`
+                              }
+                              disabled
+                            />
+                            <span className="ml-2 font-medium font-mono text-blue-600">
+                              {numberToIndianWords(displayValue)}
+                              {isPositive ? " (Bonus)" : " (Deduction)"}
+                            </span>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
-                  {/* Calculate Button */}
-                  <div className="flex justify-end pt-4">
-                    <Button
-                      type="primary"
-                      onClick={handleCalculateSalary}
-                      size="large"
-                      className="px-8"
-                      loading={calculateLoading}
-                      disabled={
-                        !formData.employee_id ||
-                        !formData.month ||
-                        !formData.year
-                      }
-                      style={{
-                        backgroundColor: "#16a34a",
-                      }}>
-                      Continue
-                    </Button>
-                  </div>
-                  {/* Calculated Salary Display */}
-                  {calculatedSalary && (
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                        Attendance Details
+                )}
+                {showComponents && (
+                  <div className="bg-indigo-50 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold text-indigo-800">
+                        Advance Payments
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={addAdvancePayment}>
+                        Add Advance
+                      </Button>
+                    </div>
+                    {formData.advance_payments.map((payment, index) => (
+                      <div
+                        key={`advance-${index}`}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Total Days
+                            Advance Name
                           </label>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.total_days}
-                            disabled
+                          <Input
+                            placeholder="e.g., Diwali Advance"
+                            value={payment.name}
+                            onChange={(e) =>
+                              handleAdvancePaymentChange(
+                                index,
+                                "name",
+                                e.target.value
+                              )
+                            }
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">
-                            {numberToIndianWords(
-                              calculatedSalary.total_days || 0
-                            )}
-                          </span>
                         </div>
-                        <div className="form-group">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Present Days
-                          </label>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.present_days}
-                            disabled
+                        <div className="form-group flex items-end gap-2">
+                          <div className="flex-grow">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Amount
+                            </label>
+                            <Input
+                              type="number"
+                              placeholder="Enter amount"
+                              value={payment.value}
+                              onChange={(e) =>
+                                handleAdvancePaymentChange(
+                                  index,
+                                  "value",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <span className="ml-2 font-medium font-mono text-blue-600">
+                              {numberToIndianWords(payment.value || 0)}
+                            </span>
+                          </div>
+                          <Button
+                            type="primary"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => removeAdvancePayment(index)}
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">
-                            {numberToIndianWords(
-                              calculatedSalary.present_days || 0
-                            )}
-                          </span>
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {showComponents && (
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold text-purple-800">
+                        Additional Payments
+                      </h3>
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={addAdditionalPayment}>
+                        Add Payment
+                      </Button>
+                    </div>
+                    {formData.additional_payments.map((payment, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Paid Days
+                            Payment Name
                           </label>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.paid_days}
-                            disabled
+                          <Input
+                            placeholder="Enter payment name"
+                            value={payment.name}
+                            onChange={(e) =>
+                              handleAdditionalPaymentChange(
+                                index,
+                                "name",
+                                e.target.value
+                              )
+                            }
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">
-                            {numberToIndianWords(
-                              calculatedSalary.paid_days || 0
-                            )}
-                          </span>
                         </div>
-                        <div className="form-group">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            LOP Days
-                          </label>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.lop_days}
-                            disabled
+                        <div className="form-group flex items-end gap-2">
+                          <div className="flex-grow">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Amount
+                            </label>
+                            <Input
+                              type="number"
+                              placeholder="Enter amount"
+                              value={payment.value}
+                              onChange={(e) =>
+                                handleAdditionalPaymentChange(
+                                  index,
+                                  "value",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <span className="ml-2 font-medium font-mono text-blue-600">
+                              {numberToIndianWords(payment.value || 0)}
+                            </span>
+                          </div>
+                          <Button
+                            type="primary"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => removeAdditionalPayment(index)}
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">
-                            {numberToIndianWords(
-                              calculatedSalary.lop_days || 0
-                            )}
-                          </span>
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {showComponents && (
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold text-orange-800">
+                        Additional Deductions
+                      </h3>
+                      <Button
+                        type="primary"
+                        danger
+                        icon={<PlusOutlined />}
+                        onClick={addAdditionalDeduction}>
+                        Add Deduction
+                      </Button>
+                    </div>
+                    {formData.additional_deductions.map((deduction, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Per Day Salary
+                            Deduction Name
                           </label>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.per_day_salary.toFixed(2)}
-                            disabled
+                          <Input
+                            placeholder="Enter deduction name"
+                            value={deduction.name}
+                            onChange={(e) =>
+                              handleAdditionalDeductionChange(
+                                index,
+                                "name",
+                                e.target.value
+                              )
+                            }
                           />
-                          <span className="ml-2 font-medium font-mono text-blue-600">
-                            {numberToIndianWords(
-                              calculatedSalary.per_day_salary.toFixed(2) || 0
-                            )}
-                          </span>
                         </div>
+                        <div className="form-group flex items-end gap-2">
+                          <div className="flex-grow">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Amount
+                            </label>
+                            <Input
+                              type="number"
+                              placeholder="Enter amount"
+                              onWheel={(e) => e.target.blur()}
+                              value={deduction.value}
+                              onChange={(e) =>
+                                handleAdditionalDeductionChange(
+                                  index,
+                                  "value",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <span className="ml-2 font-medium font-mono text-green-600">
+                              {numberToIndianWords(
+                                Number(deduction.value || 0).toFixed(2)
+                              )}
+                            </span>
+                          </div>
+                          <Button
+                            type="primary"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => removeAdditionalDeduction(index)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {calculatedSalary && showComponents && (
+                  <div className="bg-blue-50 p-4 rounded-lg mt-4">
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">
+                      Transaction Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div >
+                        
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Calculated Salary
+                            Previous Month Remaining Balance
                           </label>
                           <input
                             type="number"
-                            onWheel={(e) => e.target.blur()}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={calculatedSalary.calculated_salary.toFixed(
-                              2
-                            )}
+                            value={previousMonthRemainingBalance.toFixed(2)}
                             disabled
                           />
                           <span className="ml-2 font-medium font-mono text-blue-600">
                             {numberToIndianWords(
-                              calculatedSalary.calculated_salary.toFixed(2) || 0
+                              previousMonthRemainingBalance.toFixed(2)
                             )}
                           </span>
                         </div>
                       </div>
-                      <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 shadow-sm">
-                        {/* Header */}
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
-                            <BarChart3 className="w-6 h-6 text-white" />
-                          </div>
-                          <h3 className="font-semibold text-xl text-gray-900">
-                            Monthly Target & Incentive
-                          </h3>
-                        </div>
-                        {/* Metrics Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                          {/* Monthly Target */}
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Target className="w-4 h-4 text-blue-600" />
-                              <label className="font-semibold text-gray-700 text-sm">
-                                Monthly Target
-                              </label>
-                            </div>
-                            <input
-                              type="number"
-                              onWheel={(e) => e.target.blur()}
-                              value={
-                                formData?.monthly_business_info?.target || 0
-                              }
-                              disabled
-                              className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-blue-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                            />
-                            <span className="mt-2 font-medium font-mono text-blue-600 text-sm">
-                              {numberToIndianWords(
-                                formData?.monthly_business_info?.target ?? 0
-                              )}
-                            </span>
-                          </div>
-                          {/* Remaining Target */}
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2 mb-2">
-                              <TrendingUp className="w-4 h-4 text-amber-600" />
-                              <label className="font-semibold text-gray-700 text-sm">
-                                Remaining Target
-                              </label>
-                            </div>
-                            <input
-                              type="number"
-                              onWheel={(e) => e.target.blur()}
-                              value={
-                                formData?.monthly_business_info
-                                  ?.previous_remaining_target || 0
-                              }
-                              disabled
-                              className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-amber-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                            />
-                            <span className="mt-2 font-medium font-mono text-amber-600 text-sm">
-                              {numberToIndianWords(
-                                formData?.monthly_business_info
-                                  ?.previous_remaining_target ?? 0
-                              )}
-                            </span>
-                          </div>
-                          {/* Total Target */}
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Target className="w-4 h-4 text-purple-600" />
-                              <label className="font-semibold text-gray-700 text-sm">
-                                Total Target
-                              </label>
-                            </div>
-                            <input
-                              type="number"
-                              onWheel={(e) => e.target.blur()}
-                              value={
-                                formData?.monthly_business_info?.total_target ||
-                                0
-                              }
-                              disabled
-                              className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-purple-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                            />
-                            <span className="mt-2 font-medium font-mono text-purple-600 text-sm">
-                              {numberToIndianWords(
-                                formData?.monthly_business_info?.total_target ??
-                                  0
-                              )}
-                            </span>
-                          </div>
-                          {/* Total Business Closed */}
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2 mb-2">
-                              <CheckCircle className="w-4 h-4 text-emerald-600" />
-                              <label className="font-semibold text-gray-700 text-sm">
-                                Total Business Closed
-                              </label>
-                            </div>
-                            <input
-                              type="number"
-                              value={
-                                formData?.monthly_business_info
-                                  ?.total_business_closed ?? 0
-                              }
-                              readOnly
-                              className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-emerald-50 cursor-not-allowed"
-                            />
-                            <span className="mt-2 font-medium font-mono text-emerald-600 text-sm">
-                              {numberToIndianWords(
-                                formData?.monthly_business_info
-                                  ?.total_business_closed || 0
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {/* Incentive Adjustment Display */}
-                  {calculatedSalary && (
-                    <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                      <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                        Incentive Payable
-                      </h3>
+
                       <div className="form-group">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Calculated Incentive
+                          Total Salary Payable
                         </label>
                         {(() => {
-                          const incentiveValue = calculatedIncentive;
-                          const isPositive = incentiveValue >= 0;
-                          const displayValue =
-                            Math.abs(incentiveValue).toFixed(2);
+                          let total = 0;
+                          const totalTarget = Number(
+                            formData.monthly_business_info.total_target || 0
+                          );
+                          const totalBusinessClosed = Number(
+                            formData.monthly_business_info
+                              .total_business_closed || 0
+                          );
+
+                          // Calculate raw incentive as per requirements
+                          const rawIncentive =
+                            (totalTarget - totalBusinessClosed) / 100;
+
+                          if (rawIncentive > 0) {
+                            // If rawIncentive > 0, total_payable = 0 (unless Pay as Salary is confirmed)
+                            total = 0;
+
+                            // Add previous month balance, advance payments, and additional payments
+                            const advanceTotal =
+                              formData.advance_payments.reduce(
+                                (sum, p) => sum + Number(p.value || 0),
+                                0
+                              );
+                            const addPayments =
+                              formData.additional_payments.reduce(
+                                (sum, p) => sum + Number(p.value || 0),
+                                0
+                              );
+                            const addDeductions =
+                              formData.additional_deductions.reduce(
+                                (sum, d) => sum + Number(d.value || 0),
+                                0
+                              );
+                            total =
+                              advanceTotal +
+                              addPayments -
+                              addDeductions +
+                              previousMonthRemainingBalance;
+                          } else if (rawIncentive < 0) {
+                            // If rawIncentive < 0, total_payable = calculated salary from attendance details
+                            total = calculatedSalary?.calculated_salary || 0;
+
+                            // Add previous month balance, advance payments, and additional payments
+                            const advanceTotal =
+                              formData.advance_payments.reduce(
+                                (sum, p) => sum + Number(p.value || 0),
+                                0
+                              );
+                            const addPayments =
+                              formData.additional_payments.reduce(
+                                (sum, p) => sum + Number(p.value || 0),
+                                0
+                              );
+                            const addDeductions =
+                              formData.additional_deductions.reduce(
+                                (sum, d) => sum + Number(d.value || 0),
+                                0
+                              );
+                            total =
+                              total +
+                              advanceTotal +
+                              addPayments -
+                              addDeductions +
+                              previousMonthRemainingBalance;
+                          } else {
+                            // If rawIncentive === 0, total_payable = calculated salary from attendance details
+                            total = calculatedSalary?.calculated_salary || 0;
+
+                            // Add previous month balance, advance payments, and additional payments
+                            const advanceTotal =
+                              formData.advance_payments.reduce(
+                                (sum, p) => sum + Number(p.value || 0),
+                                0
+                              );
+                            const addPayments =
+                              formData.additional_payments.reduce(
+                                (sum, p) => sum + Number(p.value || 0),
+                                0
+                              );
+                            const addDeductions =
+                              formData.additional_deductions.reduce(
+                                (sum, d) => sum + Number(d.value || 0),
+                                0
+                              );
+                            total =
+                              total +
+                              advanceTotal +
+                              addPayments -
+                              addDeductions +
+                              previousMonthRemainingBalance;
+                          }
+
+                          // Add calculated incentive if it's been set (Pay as Incentive was confirmed)
+                          total += formData.calculated_incentive || 0;
+
                           return (
                             <>
                               <input
-                                type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800 font-medium"
-                                value={
-                                  isPositive
-                                    ? `+ ${Number(
-                                        incentiveValue
-                                      ).toLocaleString("en-IN", {
-                                        minimumFractionDigits: 2,
-                                      })}`
-                                    : `- ${Number(
-                                        Math.abs(incentiveValue)
-                                      ).toLocaleString("en-IN", {
-                                        minimumFractionDigits: 2,
-                                      })}`
-                                }
+                                type="number"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                                value={total.toFixed(2)}
                                 disabled
                               />
                               <span className="ml-2 font-medium font-mono text-blue-600">
-                                {numberToIndianWords(displayValue)}
-                                {isPositive ? " (Bonus)" : " (Deduction)"}
+                                {numberToIndianWords(total.toFixed(2))}
                               </span>
                             </>
                           );
                         })()}
                       </div>
                     </div>
-                  )}
-                  {showComponents && (
-                    <div className="bg-indigo-50 p-4 rounded-lg">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold text-indigo-800">
-                          Advance Payments
-                        </h3>
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={addAdvancePayment}>
-                          Add Advance
-                        </Button>
-                      </div>
-                      {formData.advance_payments.map((payment, index) => (
-                        <div
-                          key={`advance-${index}`}
-                          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="form-group">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Advance Name
-                            </label>
-                            <Input
-                              placeholder="e.g., Diwali Advance"
-                              value={payment.name}
-                              onChange={(e) =>
-                                handleAdvancePaymentChange(
-                                  index,
-                                  "name",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="form-group flex items-end gap-2">
-                            <div className="flex-grow">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Amount
-                              </label>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                value={payment.value}
-                                onChange={(e) =>
-                                  handleAdvancePaymentChange(
-                                    index,
-                                    "value",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <span className="ml-2 font-medium font-mono text-blue-600">
-                                {numberToIndianWords(payment.value || 0)}
-                              </span>
-                            </div>
-                            <Button
-                              type="primary"
-                              danger
-                              icon={<DeleteOutlined />}
-                              onClick={() => removeAdvancePayment(index)}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {showComponents && (
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold text-purple-800">
-                          Additional Payments
-                        </h3>
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={addAdditionalPayment}>
-                          Add Payment
-                        </Button>
-                      </div>
-                      {formData.additional_payments.map((payment, index) => (
-                        <div
-                          key={index}
-                          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="form-group">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Payment Name
-                            </label>
-                            <Input
-                              placeholder="Enter payment name"
-                              value={payment.name}
-                              onChange={(e) =>
-                                handleAdditionalPaymentChange(
-                                  index,
-                                  "name",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="form-group flex items-end gap-2">
-                            <div className="flex-grow">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Amount
-                              </label>
-                              <Input
-                                type="number"
-                                placeholder="Enter amount"
-                                value={payment.value}
-                                onChange={(e) =>
-                                  handleAdditionalPaymentChange(
-                                    index,
-                                    "value",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <span className="ml-2 font-medium font-mono text-blue-600">
-                                {numberToIndianWords(payment.value || 0)}
-                              </span>
-                            </div>
-                            <Button
-                              type="primary"
-                              danger
-                              icon={<DeleteOutlined />}
-                              onClick={() => removeAdditionalPayment(index)}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {showComponents && (
-                    <div className="bg-orange-50 p-4 rounded-lg">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold text-orange-800">
-                          Additional Deductions
-                        </h3>
-                        <Button
-                          type="primary"
-                          danger
-                          icon={<PlusOutlined />}
-                          onClick={addAdditionalDeduction}>
-                          Add Deduction
-                        </Button>
-                      </div>
-                      {formData.additional_deductions.map(
-                        (deduction, index) => (
-                          <div
-                            key={index}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div className="form-group">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Deduction Name
-                              </label>
-                              <Input
-                                placeholder="Enter deduction name"
-                                value={deduction.name}
-                                onChange={(e) =>
-                                  handleAdditionalDeductionChange(
-                                    index,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="form-group flex items-end gap-2">
-                              <div className="flex-grow">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                  Amount
-                                </label>
-                                <Input
-                                  type="number"
-                                  placeholder="Enter amount"
-                                  onWheel={(e) => e.target.blur()}
-                                  value={deduction.value}
-                                  onChange={(e) =>
-                                    handleAdditionalDeductionChange(
-                                      index,
-                                      "value",
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                                <span className="ml-2 font-medium font-mono text-green-600">
-                                  {numberToIndianWords(
-                                    Number(deduction.value || 0).toFixed(2)
-                                  )}
-                                </span>
-                              </div>
-                              <Button
-                                type="primary"
-                                danger
-                                icon={<DeleteOutlined />}
-                                onClick={() =>
-                                  removeAdditionalDeduction(index)
-                                }
-                              />
-                            </div>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  )}
-                  {calculatedSalary && showComponents && (
-                    <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                      <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                        Transaction Details
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div className="form-group">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Total Salary Payable
-                          </label>
-                          {(() => {
-                            let total = 0;
-                            const target = Number(
-                              formData.monthly_business_info.target || 0
-                            );
-                            const incentive = Number(
-                              formData.monthly_business_info
-                                .total_business_closed || 0
-                            );
-                            if (incentive < target) {
-                              // If condition met: zero base salary + additional pay - addition deduction + advance pay
-                              const advanceTotal =
-                                formData.advance_payments.reduce(
-                                  (sum, p) => sum + Number(p.value || 0),
-                                  0
-                                );
-                              const addPayments =
-                                formData.additional_payments.reduce(
-                                  (sum, p) => sum + Number(p.value || 0),
-                                  0
-                                );
-                              const addDeductions =
-                                formData.additional_deductions.reduce(
-                                  (sum, d) => sum + Number(d.value || 0),
-                                  0
-                                );
-                              total =
-                                advanceTotal + addPayments - addDeductions + previousMonthRemainingBalance;
-                            } else {
-                              // Normal calculation
-                              const base =
-                                calculatedSalary?.calculated_salary || 0;
-                              const advanceTotal =
-                                formData.advance_payments.reduce(
-                                  (sum, p) => sum + Number(p.value || 0),
-                                  0
-                                );
-                              const addPayments =
-                                formData.additional_payments.reduce(
-                                  (sum, p) => sum + Number(p.value || 0),
-                                  0
-                                );
-                              const addDeductions =
-                                formData.additional_deductions.reduce(
-                                  (sum, d) => sum + Number(d.value || 0),
-                                  0
-                                );
-                              total =
-                                base +
-                                advanceTotal +
-                                addPayments -
-                                addDeductions +
-                                previousMonthRemainingBalance;
-                            }
-                            return (
-                              <>
-                                <input
-                                  type="number"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                                  value={total.toFixed(2)}
-                                  disabled
-                                />
-                                <span className="ml-2 font-medium font-mono text-blue-600">
-                                  {numberToIndianWords(total.toFixed(2))}
-                                </span>
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )
-            ) : (
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                  <p className="mt-4 text-gray-600">
-                    Loading employee details...
-                  </p>
-                </div>
+                  </div>
+                )}
+              </>
+            )
+          ) : (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                <p className="mt-4 text-gray-600">
+                  Loading employee details...
+                </p>
               </div>
-            )}
-          </div>
-        </Drawer>
-        <Drawer
-          title="View Salary Details"
-          width={"80%"}
-          className="payment-drawer"
-          open={isOpenUpdateModal}
-          onClose={() => setIsOpenUpdateModal(false)}
-          closable={true}
-          footer={
-            <div className="flex justify-end">
-              <Button onClick={() => setIsOpenUpdateModal(false)}>Close</Button>
             </div>
-          }>
-          <div className="space-y-6">
-            {/* Employee Info */}
+          )}
+        </div>
+      </Drawer>
+
+      {/* Pay as Salary Confirmation Modal */}
+      <Modal
+        title="Confirm Pay as Salary"
+        open={payAsSalaryModalOpen}
+        onCancel={() => setPayAsSalaryModalOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setPayAsSalaryModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="confirm" type="primary" onClick={confirmPayAsSalary}>
+            Confirm
+          </Button>,
+        ]}>
+        <p className="text-lg font-medium mb-4">
+          Are you sure you want to add the incentive amount as salary?
+        </p>
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-medium text-gray-700">Incentive Amount:</span>
+            <span className="font-bold text-blue-700 text-lg">
+              ₹{Number(calculatedIncentive).toLocaleString("en-IN")}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-gray-700">
+              This amount will be added to the salary payable
+            </span>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Pay as Incentive Confirmation Modal */}
+      <Modal
+        title="Confirm Pay as Incentive"
+        open={payAsIncentiveModalOpen}
+        onCancel={() => setPayAsIncentiveModalOpen(false)}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => setPayAsIncentiveModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="confirm" type="primary" onClick={confirmPayAsIncentive}>
+            Confirm
+          </Button>,
+        ]}>
+        <p className="text-lg font-medium mb-4">
+          Are you sure you want to add the incentive amount as incentive
+          payable?
+        </p>
+        <div className="bg-purple-50 p-4 rounded-lg">
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-medium text-gray-700">Incentive Amount:</span>
+            <span className="font-bold text-purple-700 text-lg">
+              ₹{Number(calculatedIncentive).toLocaleString("en-IN")}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-gray-700">
+              This amount will be added to the incentive payable
+            </span>
+          </div>
+        </div>
+      </Modal>
+
+      <Drawer
+        title="View Salary Details"
+        width={"80%"}
+        className="payment-drawer"
+        open={isOpenUpdateModal}
+        onClose={() => setIsOpenUpdateModal(false)}
+        closable={true}
+        footer={
+          <div className="flex justify-end">
+            <Button onClick={() => setIsOpenUpdateModal(false)}>Close</Button>
+          </div>
+        }>
+        <div className="space-y-6">
+          {/* Employee Info */}
+          <div className="form-group">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Employee
+            </label>
+            <Input
+              value={
+                employees.find((e) => e.value === updateFormData.employee_id)
+                  ?.label || "—"
+              }
+              readOnly
+              className="!bg-gray-100 !text-gray-800 !cursor-default"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="form-group">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Employee
+                Month
+              </label>
+              <Input
+                value={updateFormData.month || "—"}
+                readOnly
+                className="!bg-gray-100 !text-gray-800 !cursor-default"
+              />
+            </div>
+            <div className="form-group">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Year
               </label>
               <Input
                 value={
-                  employees.find((e) => e.value === updateFormData.employee_id)
-                    ?.label || "—"
+                  dayjs.isDayjs(updateFormData.year)
+                    ? updateFormData.year.format("YYYY")
+                    : updateFormData.year || "—"
                 }
                 readOnly
                 className="!bg-gray-100 !text-gray-800 !cursor-default"
               />
             </div>
+          </div>
+          {/* Earnings */}
+          <div className="bg-green-50 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-green-800 mb-4">
+              Earnings
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(updateFormData.earnings || {}).map(
+                ([key, value]) => (
+                  <div key={key} className="form-group">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {key
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </label>
+                    <Input
+                      value={Number(value || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                      readOnly
+                      className="!bg-gray-100 !text-gray-800 !cursor-default"
+                    />
+                  </div>
+                )
+              )}
+            </div>
+            <div className="form-group mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Total Earnings
+              </label>
+              <Input
+                value={updateTotalEarnings.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+                readOnly
+                className="!bg-gray-100 !text-gray-800 !cursor-default font-semibold"
+              />
+            </div>
+          </div>
+          {/* Deductions */}
+          <div className="bg-red-50 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-red-800 mb-4">
+              Deductions
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(updateFormData.deductions || {}).map(
+                ([key, value]) => (
+                  <div key={key} className="form-group">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {key
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </label>
+                    <Input
+                      value={Number(value || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                      readOnly
+                      className="!bg-gray-100 !text-gray-800 !cursor-default"
+                    />
+                  </div>
+                )
+              )}
+            </div>
+            <div className="form-group mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Total Deductions
+              </label>
+              <Input
+                value={updateTotalDeductions.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+                readOnly
+                className="!bg-gray-100 !text-gray-800 !cursor-default font-semibold"
+              />
+            </div>
+          </div>
+          {/* Monthly Business Info */}
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-blue-800 mb-4">
+              Monthly Business Info
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-group">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Month
+                  Target
                 </label>
                 <Input
-                  value={updateFormData.month || "—"}
+                  value={Number(
+                    updateFormData.monthly_business_info?.target || 0
+                  ).toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                  })}
                   readOnly
                   className="!bg-gray-100 !text-gray-800 !cursor-default"
                 />
               </div>
               <div className="form-group">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year
+                  Total Business Closed
                 </label>
                 <Input
-                  value={
-                    dayjs.isDayjs(updateFormData.year)
-                      ? updateFormData.year.format("YYYY")
-                      : updateFormData.year || "—"
-                  }
+                  value={Number(
+                    updateFormData.monthly_business_info
+                      ?.total_business_closed || 0
+                  ).toLocaleString("en-IN", {
+                    minimumFractionDigits: 2,
+                  })}
                   readOnly
                   className="!bg-gray-100 !text-gray-800 !cursor-default"
                 />
               </div>
             </div>
-            {/* Earnings */}
-            <div className="bg-green-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-green-800 mb-4">
-                Earnings
+          </div>
+          {/* Incentive */}
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-blue-800 mb-4">
+              Calculated Incentive
+            </h3>
+            <Input
+              value={Number(
+                updateFormData.calculated_incentive || 0
+              ).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
+              readOnly
+              className="!bg-gray-100 !text-gray-800 !cursor-default font-semibold text-lg"
+            />
+          </div>
+          {/* Advance Payments */}
+          {updateFormData.advance_payments?.length > 0 && (
+            <div className="bg-indigo-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-indigo-800 mb-4">
+                Advance Payments
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(updateFormData.earnings || {}).map(
-                  ([key, value]) => (
-                    <div key={key} className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {key
-                          .replace(/_/g, " ")
-                          .replace(/\b\w/g, (l) => l.toUpperCase())}
-                      </label>
-                      <Input
-                        value={Number(value || 0).toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                        readOnly
-                        className="!bg-gray-100 !text-gray-800 !cursor-default"
-                      />
-                    </div>
-                  )
-                )}
-              </div>
-              <div className="form-group mt-4">
+              {updateFormData.advance_payments.map((pay, i) => (
+                <div key={i} className="flex gap-4 mb-2">
+                  <Input
+                    value={pay.name || "Advance"}
+                    readOnly
+                    className="!bg-gray-100 !text-gray-800 !cursor-default flex-1"
+                  />
+                  <Input
+                    value={`₹${Number(pay.value).toLocaleString("en-IN")}`}
+                    readOnly
+                    className="!bg-gray-100 !text-gray-800 !cursor-default w-40 text-right"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Additional Payments */}
+          {updateFormData.additional_payments?.length > 0 && (
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-purple-800 mb-4">
+                Additional Payments
+              </h3>
+              {updateFormData.additional_payments.map((pay, i) => (
+                <div key={i} className="flex gap-4 mb-2">
+                  <Input
+                    value={pay.name || "Payment"}
+                    readOnly
+                    className="!bg-gray-100 !text-gray-800 !cursor-default flex-1"
+                  />
+                  <Input
+                    value={`₹${Number(pay.value).toLocaleString("en-IN")}`}
+                    readOnly
+                    className="!bg-gray-100 !text-gray-800 !cursor-default w-40 text-right"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Additional Deductions */}
+          {updateFormData.additional_deductions?.length > 0 && (
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-orange-800 mb-4">
+                Additional Deductions
+              </h3>
+              {updateFormData.additional_deductions.map((ded, i) => (
+                <div key={i} className="flex gap-4 mb-2">
+                  <Input
+                    value={ded.name || "Deduction"}
+                    readOnly
+                    className="!bg-gray-100 !text-gray-800 !cursor-default flex-1"
+                  />
+                  <Input
+                    value={`₹${Number(ded.value).toLocaleString("en-IN")}`}
+                    readOnly
+                    className="!bg-gray-100 !text-gray-800 !cursor-default w-40 text-right"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Total Payable */}
+          <div className="bg-gray-100 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Total Salary Payable
+            </h3>
+            <Input
+              value={Number(
+                updateFormData.total_salary_payable || 0
+              ).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
+              readOnly
+              className="!bg-gray-100 !text-gray-800 !cursor-default font-bold text-xl"
+            />
+          </div>
+          {/* Payment Info */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Payment Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-group">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Total Earnings
+                  Paid Amount
                 </label>
                 <Input
-                  value={updateTotalEarnings.toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  value={Number(updateFormData.paid_amount || 0).toLocaleString(
+                    "en-IN",
+                    {
+                      minimumFractionDigits: 2,
+                    }
+                  )}
                   readOnly
-                  className="!bg-gray-100 !text-gray-800 !cursor-default font-semibold"
+                  className="!bg-gray-100 !text-gray-800 !cursor-default"
                 />
               </div>
-            </div>
-            {/* Deductions */}
-            <div className="bg-red-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-red-800 mb-4">
-                Deductions
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(updateFormData.deductions || {}).map(
-                  ([key, value]) => (
-                    <div key={key} className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {key
-                          .replace(/_/g, " ")
-                          .replace(/\b\w/g, (l) => l.toUpperCase())}
-                      </label>
-                      <Input
-                        value={Number(value || 0).toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                        readOnly
-                        className="!bg-gray-100 !text-gray-800 !cursor-default"
-                      />
-                    </div>
-                  )
-                )}
-              </div>
-              <div className="form-group mt-4">
+              <div className="form-group">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Total Deductions
+                  Payment Method
                 </label>
                 <Input
-                  value={updateTotalDeductions.toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  value={updateFormData?.payment_method || "N/A"}
                   readOnly
-                  className="!bg-gray-100 !text-gray-800 !cursor-default font-semibold"
+                  className="!bg-gray-100 !text-gray-800 !cursor-default"
                 />
               </div>
-            </div>
-            {/* Monthly Business Info */}
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                Monthly Business Info
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {updateFormData.transaction_id && (
                 <div className="form-group">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Target
+                    Transaction ID
                   </label>
                   <Input
-                    value={Number(
-                      updateFormData.monthly_business_info?.target || 0
-                    ).toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                    })}
+                    value={updateFormData.transaction_id}
                     readOnly
-                    className="!bg-gray-100 !text-gray-800 !cursor-default"
+                    className="!bg-gray-100 !text-gray-800 !cursor-default font-mono"
                   />
                 </div>
-                <div className="form-group">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Total Business Closed
-                  </label>
-                  <Input
-                    value={Number(
-                      updateFormData.monthly_business_info
-                        ?.total_business_closed || 0
-                    ).toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                    })}
-                    readOnly
-                    className="!bg-gray-100 !text-gray-800 !cursor-default"
-                  />
-                </div>
-              </div>
-            </div>
-            {/* Incentive */}
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                Calculated Incentive
-              </h3>
-              <Input
-                value={Number(
-                  updateFormData.calculated_incentive || 0
-                ).toLocaleString("en-IN", {
-                  minimumFractionDigits: 2,
-                })}
-                readOnly
-                className="!bg-gray-100 !text-gray-800 !cursor-default font-semibold text-lg"
-              />
-            </div>
-            {/* Advance Payments */}
-            {updateFormData.advance_payments?.length > 0 && (
-              <div className="bg-indigo-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-indigo-800 mb-4">
-                  Advance Payments
-                </h3>
-                {updateFormData.advance_payments.map((pay, i) => (
-                  <div key={i} className="flex gap-4 mb-2">
-                    <Input
-                      value={pay.name || "Advance"}
-                      readOnly
-                      className="!bg-gray-100 !text-gray-800 !cursor-default flex-1"
-                    />
-                    <Input
-                      value={`₹${Number(pay.value).toLocaleString("en-IN")}`}
-                      readOnly
-                      className="!bg-gray-100 !text-gray-800 !cursor-default w-40 text-right"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            {/* Additional Payments */}
-            {updateFormData.additional_payments?.length > 0 && (
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-purple-800 mb-4">
-                  Additional Payments
-                </h3>
-                {updateFormData.additional_payments.map((pay, i) => (
-                  <div key={i} className="flex gap-4 mb-2">
-                    <Input
-                      value={pay.name || "Payment"}
-                      readOnly
-                      className="!bg-gray-100 !text-gray-800 !cursor-default flex-1"
-                    />
-                    <Input
-                      value={`₹${Number(pay.value).toLocaleString("en-IN")}`}
-                      readOnly
-                      className="!bg-gray-100 !text-gray-800 !cursor-default w-40 text-right"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            {/* Additional Deductions */}
-            {updateFormData.additional_deductions?.length > 0 && (
-              <div className="bg-orange-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-orange-800 mb-4">
-                  Additional Deductions
-                </h3>
-                {updateFormData.additional_deductions.map((ded, i) => (
-                  <div key={i} className="flex gap-4 mb-2">
-                    <Input
-                      value={ded.name || "Deduction"}
-                      readOnly
-                      className="!bg-gray-100 !text-gray-800 !cursor-default flex-1"
-                    />
-                    <Input
-                      value={`₹${Number(ded.value).toLocaleString("en-IN")}`}
-                      readOnly
-                      className="!bg-gray-100 !text-gray-800 !cursor-default w-40 text-right"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            {/* Total Payable */}
-            <div className="bg-gray-100 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Total Salary Payable
-              </h3>
-              <Input
-                value={Number(
-                  updateFormData.total_salary_payable || 0
-                ).toLocaleString("en-IN", {
-                  minimumFractionDigits: 2,
-                })}
-                readOnly
-                className="!bg-gray-100 !text-gray-800 !cursor-default font-bold text-xl"
-              />
-            </div>
-            {/* Payment Info */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Payment Details
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="form-group">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Paid Amount
-                  </label>
-                  <Input
-                    value={Number(
-                      updateFormData.paid_amount || 0
-                    ).toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                    })}
-                    readOnly
-                    className="!bg-gray-100 !text-gray-800 !cursor-default"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Method
-                  </label>
-                  <Input
-                    value={updateFormData?.payment_method || "N/A"}
-                    readOnly
-                    className="!bg-gray-100 !text-gray-800 !cursor-default"
-                  />
-                </div>
-                {updateFormData.transaction_id && (
-                  <div className="form-group">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Transaction ID
-                    </label>
-                    <Input
-                      value={updateFormData.transaction_id}
-                      readOnly
-                      className="!bg-gray-100 !text-gray-800 !cursor-default font-mono"
-                    />
-                  </div>
-                )}
-                <div className="form-group">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <Input
-                    value={updateFormData.status}
-                    readOnly
-                    className="!bg-gray-100 !text-gray-800 !cursor-default"
-                  />
-                </div>
+              )}
+              <div className="form-group">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <Input
+                  value={updateFormData.status}
+                  readOnly
+                  className="!bg-gray-100 !text-gray-800 !cursor-default"
+                />
               </div>
             </div>
           </div>
-        </Drawer>
-        <Modal
-          title="Delete Salary"
-          open={deleteModalOpen}
-          onCancel={() => setDeleteModalOpen(false)}
-          footer={[
-            <Button key="cancel" onClick={() => setDeleteModalOpen(false)}>
-              Cancel
-            </Button>,
+        </div>
+      </Drawer>
+
+      <Modal
+        title="Delete Salary"
+        open={deleteModalOpen}
+        onCancel={() => setDeleteModalOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setDeleteModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="delete"
+            type="primary"
+            danger
+            loading={deleteLoading}
+            onClick={() => handleDeleteConfirm(deleteId)}>
+            Delete
+          </Button>,
+        ]}>
+        <p>
+          Are you sure you want to delete this salary ? This action cannot be
+          undone.
+        </p>
+      </Modal>
+
+      <Modal
+        title={
+          <div className="flex items-center gap-3">
+            <span className="text-amber-800 text-lg font-semibold flex items-center">
+              Salary Already Processed
+            </span>
+          </div>
+        }
+        open={alreadyPaidModalOpen}
+        onCancel={() => setAlreadyPaidModalOpen(false)}
+        width={920}
+        footer={[
+          <Button key="close" onClick={() => setAlreadyPaidModalOpen(false)}>
+            Close
+          </Button>,
+          existingSalaryRecord?.status === "Pending" && (
             <Button
-              key="delete"
+              key="edit"
               type="primary"
-              danger
-              loading={deleteLoading}
-              onClick={() => handleDeleteConfirm(deleteId)}>
-              Delete
-            </Button>,
-          ]}>
-          <p>
-            Are you sure you want to delete this salary ? This action cannot be
-            undone.
-          </p>
-        </Modal>
-        <Modal
-          title={
-            <div className="flex items-center gap-3">
-              <span className="text-amber-800 text-lg font-semibold flex items-center">
-                Salary Already Processed
-              </span>
-            </div>
-          }
-          open={alreadyPaidModalOpen}
-          onCancel={() => setAlreadyPaidModalOpen(false)}
-          width={920}
-          footer={[
-            <Button key="close" onClick={() => setAlreadyPaidModalOpen(false)}>
-              Close
-            </Button>,
-            existingSalaryRecord?.status === "Pending" && (
-              <Button
-                key="edit"
-                type="primary"
-                style={{
-                  backgroundColor: "#D4AF37",
-                  borderColor: "#B8860B",
-                  color: "#000",
-                }}
-                onClick={() => {
-                  handleEdit(existingSalaryRecord._id);
-                  setAlreadyPaidModalOpen(false);
-                }}>
-                Edit Record
-              </Button>
-            ),
-          ]}
-          style={{
-            padding: "24px",
-            maxHeight: "70vh",
-            overflowY: "auto",
-            backgroundColor: "#fafafa",
-          }}>
-          {existingSalaryRecord ? (
-            <div className="space-y-5">
-              {/* Salary Period */}
-              <section className="bg-gradient-to-br from-white to-slate-50 p-6 rounded-xl shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                  <span className="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
-                  Salary Period
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                      Month
-                    </p>
-                    <p className="text-slate-900 font-semibold text-base">
-                      {existingSalaryRecord.salary_month}{" "}
-                      {existingSalaryRecord.salary_year}
-                    </p>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                      From
-                    </p>
-                    <p className="text-slate-900 font-semibold text-base">
-                      {dayjs
-                        .utc(existingSalaryRecord.salary_from_date)
-                        .format("DD MMM YYYY")}
-                    </p>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
-                      To
-                    </p>
-                    <p className="text-slate-900 font-semibold text-base">
-                      {dayjs
-                        .utc(existingSalaryRecord.salary_to_date)
-                        .format("DD MMM YYYY")}
-                    </p>
-                  </div>
+              style={{
+                backgroundColor: "#D4AF37",
+                borderColor: "#B8860B",
+                color: "#000",
+              }}
+              onClick={() => {
+                handleEdit(existingSalaryRecord._id);
+                setAlreadyPaidModalOpen(false);
+              }}>
+              Edit Record
+            </Button>
+          ),
+        ]}
+        style={{
+          padding: "24px",
+          maxHeight: "70vh",
+          overflowY: "auto",
+          backgroundColor: "#fafafa",
+        }}>
+        {existingSalaryRecord ? (
+          <div className="space-y-5">
+            {/* Salary Period */}
+            <section className="bg-gradient-to-br from-white to-slate-50 p-6 rounded-xl shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+              <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                <span className="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
+                Salary Period
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+                    Month
+                  </p>
+                  <p className="text-slate-900 font-semibold text-base">
+                    {existingSalaryRecord.salary_month}{" "}
+                    {existingSalaryRecord.salary_year}
+                  </p>
                 </div>
-              </section>
-              {/* Attendance Summary */}
-              <section className="bg-gradient-to-br from-purple-50 to-purple-50 p-6 rounded-xl shadow-md border border-purple-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                  <span className="w-1 h-6 bg-purple-600 rounded-full mr-3"></span>
-                  Attendance Details
-                </h4>
-                <ul className="space-y-2">
-                  {Object.entries(
-                    existingSalaryRecord.attendance_details || {}
-                  ).map(([key, val]) => (
+                <div className="bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+                    From
+                  </p>
+                  <p className="text-slate-900 font-semibold text-base">
+                    {dayjs
+                      .utc(existingSalaryRecord.salary_from_date)
+                      .format("DD MMM YYYY")}
+                  </p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+                    To
+                  </p>
+                  <p className="text-slate-900 font-semibold text-base">
+                    {dayjs
+                      .utc(existingSalaryRecord.salary_to_date)
+                      .format("DD MMM YYYY")}
+                  </p>
+                </div>
+              </div>
+            </section>
+            {/* Attendance Summary */}
+            <section className="bg-gradient-to-br from-purple-50 to-purple-50 p-6 rounded-xl shadow-md border border-purple-200 hover:shadow-lg transition-shadow">
+              <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                <span className="w-1 h-6 bg-purple-600 rounded-full mr-3"></span>
+                Attendance Details
+              </h4>
+              <ul className="space-y-2">
+                {Object.entries(
+                  existingSalaryRecord.attendance_details || {}
+                ).map(([key, val]) => (
+                  <li
+                    key={key}
+                    className="flex justify-between items-center bg-white p-4 rounded-lg border border-purple-100 hover:border-purple-200 transition-colors">
+                    <span className="capitalize text-slate-700 font-medium">
+                      {key.replace(/_/g, " ")}
+                    </span>
+                    <span className="font-bold text-purple-700">
+                      ₹
+                      {Number(val).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            {/* Earnings */}
+            <section className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-md border border-green-200 hover:shadow-lg transition-shadow">
+              <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                <span className="w-1 h-6 bg-green-600 rounded-full mr-3"></span>
+                Earnings
+              </h4>
+              <ul className="space-y-2">
+                {Object.entries(existingSalaryRecord.earnings || {}).map(
+                  ([key, val]) => (
                     <li
                       key={key}
-                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-purple-100 hover:border-purple-200 transition-colors">
+                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-green-100 hover:border-green-200 transition-colors">
                       <span className="capitalize text-slate-700 font-medium">
                         {key.replace(/_/g, " ")}
                       </span>
-                      <span className="font-bold text-purple-700">
+                      <span className="font-bold text-green-700">
                         ₹
                         {Number(val).toLocaleString("en-IN", {
                           minimumFractionDigits: 2,
@@ -2683,81 +2892,81 @@ const HRSalaryManagement = () => {
                         })}
                       </span>
                     </li>
-                  ))}
-                </ul>
-              </section>
-              {/* Earnings */}
-              <section className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-md border border-green-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                  <span className="w-1 h-6 bg-green-600 rounded-full mr-3"></span>
-                  Earnings
-                </h4>
-                <ul className="space-y-2">
-                  {Object.entries(existingSalaryRecord.earnings || {}).map(
-                    ([key, val]) => (
-                      <li
-                        key={key}
-                        className="flex justify-between items-center bg-white p-4 rounded-lg border border-green-100 hover:border-green-200 transition-colors">
-                        <span className="capitalize text-slate-700 font-medium">
-                          {key.replace(/_/g, " ")}
-                        </span>
-                        <span className="font-bold text-green-700">
-                          ₹
-                          {Number(val).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </section>
-              {/* Deductions */}
-              <section className="bg-gradient-to-br from-red-50 to-rose-50 p-6 rounded-xl shadow-md border border-red-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                  <span className="w-1 h-6 bg-red-600 rounded-full mr-3"></span>
-                  Deductions
-                </h4>
-                <ul className="space-y-2">
-                  {Object.entries(existingSalaryRecord.deductions || {}).map(
-                    ([key, val]) => (
-                      <li
-                        key={key}
-                        className="flex justify-between items-center bg-white p-4 rounded-lg border border-red-100 hover:border-red-200 transition-colors">
-                        <span className="capitalize text-slate-700 font-medium">
-                          {key.replace(/_/g, " ")}
-                        </span>
-                        <span className="font-bold text-red-700">
-                          ₹
-                          {Number(val).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </section>
-              <section className="bg-gradient-to-br from-blue-50 to-blue-50 p-6 rounded-xl shadow-md border border-blue-200 hover:shadow-lg transition-shadow">
-                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                  <span className="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
-                  Target Details
-                </h4>
-                <ul className="space-y-2">
-                  {Object.entries(
-                    existingSalaryRecord.monthly_business_info || {}
-                  ).map(([key, val]) => (
+                  )
+                )}
+              </ul>
+            </section>
+            {/* Deductions */}
+            <section className="bg-gradient-to-br from-red-50 to-rose-50 p-6 rounded-xl shadow-md border border-red-200 hover:shadow-lg transition-shadow">
+              <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                <span className="w-1 h-6 bg-red-600 rounded-full mr-3"></span>
+                Deductions
+              </h4>
+              <ul className="space-y-2">
+                {Object.entries(existingSalaryRecord.deductions || {}).map(
+                  ([key, val]) => (
                     <li
                       key={key}
-                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100 hover:border-blue-200 transition-colors">
+                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-red-100 hover:border-red-200 transition-colors">
                       <span className="capitalize text-slate-700 font-medium">
                         {key.replace(/_/g, " ")}
+                      </span>
+                      <span className="font-bold text-red-700">
+                        ₹
+                        {Number(val).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </li>
+                  )
+                )}
+              </ul>
+            </section>
+            <section className="bg-gradient-to-br from-blue-50 to-blue-50 p-6 rounded-xl shadow-md border border-blue-200 hover:shadow-lg transition-shadow">
+              <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                <span className="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
+                Target Details
+              </h4>
+              <ul className="space-y-2">
+                {Object.entries(
+                  existingSalaryRecord.monthly_business_info || {}
+                ).map(([key, val]) => (
+                  <li
+                    key={key}
+                    className="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100 hover:border-blue-200 transition-colors">
+                    <span className="capitalize text-slate-700 font-medium">
+                      {key.replace(/_/g, " ")}
+                    </span>
+                    <span className="font-bold text-blue-700">
+                      ₹
+                      {Number(val).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            {/* Advance Payments */}
+            {existingSalaryRecord.advance_payments?.length > 0 && (
+              <section className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl shadow-md border border-blue-200 hover:shadow-lg transition-shadow">
+                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                  <span className="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
+                  Advance Payments
+                </h4>
+                <ul className="space-y-2">
+                  {existingSalaryRecord.advance_payments.map((pay, i) => (
+                    <li
+                      key={i}
+                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100 hover:border-blue-200 transition-colors">
+                      <span className="text-slate-700 font-medium">
+                        {pay.name || "Advance Payment"}
                       </span>
                       <span className="font-bold text-blue-700">
                         ₹
-                        {Number(val).toLocaleString("en-IN", {
+                        {Number(pay.value).toLocaleString("en-IN", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
@@ -2766,102 +2975,178 @@ const HRSalaryManagement = () => {
                   ))}
                 </ul>
               </section>
-              {/* Advance Payments */}
-              {existingSalaryRecord.advance_payments?.length > 0 && (
-                <section className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl shadow-md border border-blue-200 hover:shadow-lg transition-shadow">
-                  <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                    <span className="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
-                    Advance Payments
-                  </h4>
-                  <ul className="space-y-2">
-                    {existingSalaryRecord.advance_payments.map((pay, i) => (
-                      <li
-                        key={i}
-                        className="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100 hover:border-blue-200 transition-colors">
-                        <span className="text-slate-700 font-medium">
-                          {pay.name || "Advance Payment"}
-                        </span>
-                        <span className="font-bold text-blue-700">
-                          ₹
-                          {Number(pay.value).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-              {/* Additional Payments */}
-              {existingSalaryRecord.additional_payments?.length > 0 && (
-                <section className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl shadow-md border border-blue-200 hover:shadow-lg transition-shadow">
-                  <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                    <span className="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
-                    Additional Payments
-                  </h4>
-                  <ul className="space-y-2">
-                    {existingSalaryRecord.additional_payments.map((pay, i) => (
-                      <li
-                        key={i}
-                        className="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100 hover:border-blue-200 transition-colors">
-                        <span className="text-slate-700 font-medium">
-                          {pay.name || "Payment"}
-                        </span>
-                        <span className="font-bold text-blue-700">
-                          ₹
-                          {Number(pay.value).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
-              {/* Additional Deductions */}
-              {existingSalaryRecord.additional_deductions?.length > 0 && (
-                <section className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl shadow-md border border-orange-200 hover:shadow-lg transition-shadow">
-                  <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                    <span className="w-1 h-6 bg-orange-600 rounded-full mr-3"></span>
-                    Additional Deductions
-                  </h4>
-                  <ul className="space-y-2">
-                    {existingSalaryRecord.additional_deductions.map(
-                      (ded, i) => (
-                        <li
-                          key={i}
-                          className="flex justify-between items-center bg-white p-4 rounded-lg border border-orange-100 hover:border-orange-200 transition-colors">
-                          <span className="text-slate-700 font-medium">
-                            {ded.name || "Deduction"}
-                          </span>
-                          <span className="font-bold text-orange-700">
-                            ₹
-                            {Number(ded.value).toLocaleString("en-IN", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </li>
-                      )
-                    )}
-                  </ul>
-                </section>
-              )}
-              {/* Incentive Adjustment */}
-              {existingSalaryRecord.calculated_incentive !== 0 && (
-                <section className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl shadow-md border border-amber-200 hover:shadow-lg transition-shadow">
-                  <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                    <span className="w-1 h-6 bg-amber-600 rounded-full mr-3"></span>
-                    Incentive Adjustment
-                  </h4>
-                  <div className="bg-white p-4 rounded-lg border border-amber-100 hover:border-amber-200 transition-colors">
+            )}
+            {/* Additional Payments */}
+            {existingSalaryRecord.additional_payments?.length > 0 && (
+              <section className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl shadow-md border border-blue-200 hover:shadow-lg transition-shadow">
+                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                  <span className="w-1 h-6 bg-blue-600 rounded-full mr-3"></span>
+                  Additional Payments
+                </h4>
+                <ul className="space-y-2">
+                  {existingSalaryRecord.additional_payments.map((pay, i) => (
+                    <li
+                      key={i}
+                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-blue-100 hover:border-blue-200 transition-colors">
+                      <span className="text-slate-700 font-medium">
+                        {pay.name || "Payment"}
+                      </span>
+                      <span className="font-bold text-blue-700">
+                        ₹
+                        {Number(pay.value).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {/* Additional Deductions */}
+            {existingSalaryRecord.additional_deductions?.length > 0 && (
+              <section className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl shadow-md border border-orange-200 hover:shadow-lg transition-shadow">
+                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                  <span className="w-1 h-6 bg-orange-600 rounded-full mr-3"></span>
+                  Additional Deductions
+                </h4>
+                <ul className="space-y-2">
+                  {existingSalaryRecord.additional_deductions.map((ded, i) => (
+                    <li
+                      key={i}
+                      className="flex justify-between items-center bg-white p-4 rounded-lg border border-orange-100 hover:border-orange-200 transition-colors">
+                      <span className="text-slate-700 font-medium">
+                        {ded.name || "Deduction"}
+                      </span>
+                      <span className="font-bold text-orange-700">
+                        ₹
+                        {Number(ded.value).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {/* Incentive Adjustment */}
+            {existingSalaryRecord.calculated_incentive !== 0 && (
+              <section className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-xl shadow-md border border-amber-200 hover:shadow-lg transition-shadow">
+                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                  <span className="w-1 h-6 bg-amber-600 rounded-full mr-3"></span>
+                  Incentive Adjustment
+                </h4>
+                <div className="bg-white p-4 rounded-lg border border-amber-100 hover:border-amber-200 transition-colors">
+                  <span className="text-slate-700 font-medium">
+                    Calculated Incentive:
+                  </span>
+                  <span
+                    className={`font-bold ml-2 ${
+                      existingSalaryRecord.calculated_incentive > 0
+                        ? "text-green-700"
+                        : "text-red-700"
+                    }`}>
+                    ₹
+                    {Math.abs(
+                      existingSalaryRecord.calculated_incentive
+                    ).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    {existingSalaryRecord.calculated_incentive > 0
+                      ? " (Bonus)"
+                      : " (Deduction)"}
+                  </span>
+                </div>
+              </section>
+            )}
+            {/* Payment Summary */}
+            <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 rounded-xl shadow-lg border-2 border-indigo-200">
+              <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
+                <span className="w-1 h-6 bg-indigo-600 rounded-full mr-3"></span>
+                Payment Summary
+              </h4>
+              <div className="space-y-3 bg-white p-5 rounded-lg border border-slate-200">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-700 font-medium">
+                    Calculated Salary
+                  </span>
+                  <span className="text-slate-900 font-semibold text-lg">
+                    ₹
+                    {Number(
+                      existingSalaryRecord?.attendance_details
+                        ?.calculated_salary
+                    ).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                {existingSalaryRecord.advance_payments?.length > 0 && (
+                  <div className="flex justify-between items-center py-2">
                     <span className="text-slate-700 font-medium">
-                      Calculated Incentive:
+                      Advance Payments:
+                    </span>
+                    <span className="text-green-700 font-semibold text-lg">
+                      ₹
+                      {Number(
+                        existingSalaryRecord.advance_payments.reduce(
+                          (sum, p) => sum + Number(p.value),
+                          0
+                        )
+                      ).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                )}
+                {existingSalaryRecord.additional_payments?.length > 0 && (
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-slate-700 font-medium">
+                      Additional Payments:
+                    </span>
+                    <span className="text-green-700 font-semibold text-lg">
+                      ₹
+                      {Number(
+                        existingSalaryRecord.additional_payments.reduce(
+                          (sum, p) => sum + Number(p.value),
+                          0
+                        )
+                      ).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                )}
+                {existingSalaryRecord.additional_deductions?.length > 0 && (
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-slate-700 font-medium">
+                      Additional Deductions:
+                    </span>
+                    <span className="text-red-700 font-semibold text-lg">
+                      ₹
+                      {Number(
+                        existingSalaryRecord.additional_deductions.reduce(
+                          (sum, d) => sum + Number(d.value),
+                          0
+                        )
+                      ).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                )}
+                {existingSalaryRecord.calculated_incentive !== 0 && (
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-slate-700 font-medium">
+                      Incentive Adjustment:
                     </span>
                     <span
-                      className={`font-bold ml-2 ${
+                      className={`font-semibold text-lg ${
                         existingSalaryRecord.calculated_incentive > 0
                           ? "text-green-700"
                           : "text-red-700"
@@ -2874,255 +3159,100 @@ const HRSalaryManagement = () => {
                         maximumFractionDigits: 2,
                       })}
                       {existingSalaryRecord.calculated_incentive > 0
-                        ? " (Bonus)"
+                        ? ""
                         : " (Deduction)"}
                     </span>
                   </div>
-                </section>
-              )}
-              {/* Payment Summary */}
-              <section className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 rounded-xl shadow-lg border-2 border-indigo-200">
-                <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                  <span className="w-1 h-6 bg-indigo-600 rounded-full mr-3"></span>
-                  Payment Summary
-                </h4>
-                <div className="space-y-3 bg-white p-5 rounded-lg border border-slate-200">
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-slate-700 font-medium">
-                      Calculated Salary
-                    </span>
-                    <span className="text-slate-900 font-semibold text-lg">
-                      ₹
-                      {Number(
-                        existingSalaryRecord?.attendance_details
-                          ?.calculated_salary
-                      ).toLocaleString("en-IN", {
+                )}
+                <div className="flex justify-between items-center py-3 border-t-2 border-slate-300 mt-3">
+                  <span className="text-slate-900 font-bold text-lg">
+                    Net Payable:
+                  </span>
+                  <span className="text-indigo-700 font-bold text-2xl">
+                    ₹
+                    {Number(existingSalaryRecord.net_payable).toLocaleString(
+                      "en-IN",
+                      {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                  {existingSalaryRecord.advance_payments?.length > 0 && (
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-700 font-medium">
-                        Advance Payments:
-                      </span>
-                      <span className="text-green-700 font-semibold text-lg">
-                        ₹
-                        {Number(
-                          existingSalaryRecord.advance_payments.reduce(
-                            (sum, p) => sum + Number(p.value),
-                            0
-                          )
-                        ).toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                  )}
-                  {existingSalaryRecord.additional_payments?.length > 0 && (
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-700 font-medium">
-                        Additional Payments:
-                      </span>
-                      <span className="text-green-700 font-semibold text-lg">
-                        ₹
-                        {Number(
-                          existingSalaryRecord.additional_payments.reduce(
-                            (sum, p) => sum + Number(p.value),
-                            0
-                          )
-                        ).toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                  )}
-                  {existingSalaryRecord.additional_deductions?.length > 0 && (
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-700 font-medium">
-                        Additional Deductions:
-                      </span>
-                      <span className="text-red-700 font-semibold text-lg">
-                        ₹
-                        {Number(
-                          existingSalaryRecord.additional_deductions.reduce(
-                            (sum, d) => sum + Number(d.value),
-                            0
-                          )
-                        ).toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </span>
-                    </div>
-                  )}
-                  {existingSalaryRecord.calculated_incentive !== 0 && (
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-700 font-medium">
-                        Incentive Adjustment:
-                      </span>
-                      <span
-                        className={`font-semibold text-lg ${
-                          existingSalaryRecord.calculated_incentive > 0
-                            ? "text-green-700"
-                            : "text-red-700"
-                        }`}>
-                        ₹
-                        {Math.abs(
-                          existingSalaryRecord.calculated_incentive
-                        ).toLocaleString("en-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                        {existingSalaryRecord.calculated_incentive > 0
-                          ? ""
-                          : " (Deduction)"}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center py-3 border-t-2 border-slate-300 mt-3">
-                    <span className="text-slate-900 font-bold text-lg">
-                      Net Payable:
-                    </span>
-                    <span className="text-indigo-700 font-bold text-2xl">
-                      ₹
-                      {Number(existingSalaryRecord.net_payable).toLocaleString(
-                        "en-IN",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-slate-700 font-medium">
-                      Paid Amount:
-                    </span>
-                    <span className="text-slate-900 font-semibold text-lg">
-                      ₹
-                      {Number(existingSalaryRecord.paid_amount).toLocaleString(
-                        "en-IN",
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-slate-700 font-medium">
-                      Remaining Balance:
-                    </span>
-                    <span
-                      className={`font-bold text-lg ${
-                        Number(existingSalaryRecord.remaining_balance) > 0
-                          ? "text-red-600"
-                          : "text-green-600"
-                      }`}>
-                      ₹
-                      {Number(
-                        existingSalaryRecord.remaining_balance
-                      ).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 mt-3 pt-3 border-t border-slate-200">
-                    <span className="text-slate-700 font-medium">Status:</span>
-                    <span
-                      className={`px-4 py-1 rounded-full font-semibold text-sm ${
-                        existingSalaryRecord.status === "Paid"
-                          ? "bg-green-100 text-green-800 border border-green-300"
-                          : "bg-amber-100 text-amber-800 border border-amber-300"
-                      }`}>
-                      {existingSalaryRecord.status}
-                    </span>
-                  </div>
-                  {existingSalaryRecord.transaction_id && (
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-700 font-medium">
-                        Transaction ID:
-                      </span>
-                      <span className="text-slate-900 font-mono text-sm bg-slate-100 px-3 py-1 rounded">
-                        {existingSalaryRecord.transaction_id}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-slate-700 font-medium">
-                      Payment Method:
-                    </span>
-                    <span className="text-slate-900 font-medium">
-                      {existingSalaryRecord.payment_method || "N/A"}
-                    </span>
-                  </div>
+                      }
+                    )}
+                  </span>
                 </div>
-              </section>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-32 text-gray-500">
-              Loading salary details...
-            </div>
-          )}
-        </Modal>
-        
-        {/* Business as Salary Confirmation Modal */}
-        <Modal
-          title="Confirm Add Business as Salary"
-          open={addBusinessAsSalaryModalOpen}
-          onCancel={() => setAddBusinessAsSalaryModalOpen(false)}
-          footer={[
-            <Button key="cancel" onClick={() => setAddBusinessAsSalaryModalOpen(false)}>
-              Cancel
-            </Button>,
-            <Button 
-              key="confirm" 
-              type="primary" 
-              onClick={() => {
-                const businessAmount = formData.monthly_business_info.total_business_closed || 0;
-                
-                // Add as an additional payment
-                setFormData(prev => ({
-                  ...prev,
-                  additional_payments: [
-                    ...prev.additional_payments,
-                    {
-                      name: "Business as Salary",
-                      value: businessAmount
-                    }
-                  ]
-                }));
-                
-                message.success("Business amount added to salary successfully");
-                setAddBusinessAsSalaryModalOpen(false);
-              }}
-              danger
-            >
-              Confirm
-            </Button>
-          ]}
-        >
-          <p className="text-lg font-medium mb-4">Are you sure you want to add the total business amount as salary?</p>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-medium text-gray-700">Total Business Closed:</span>
-              <span className="font-bold text-blue-700 text-lg">
-                ₹{Number(formData.monthly_business_info.total_business_closed || 0).toLocaleString('en-IN')}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-700">This amount will be added to the total salary payable</span>
-            </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-700 font-medium">
+                    Paid Amount:
+                  </span>
+                  <span className="text-slate-900 font-semibold text-lg">
+                    ₹
+                    {Number(existingSalaryRecord.paid_amount).toLocaleString(
+                      "en-IN",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-700 font-medium">
+                    Remaining Balance:
+                  </span>
+                  <span
+                    className={`font-bold text-lg ${
+                      Number(existingSalaryRecord.remaining_balance) > 0
+                        ? "text-red-600"
+                        : "text-green-600"
+                    }`}>
+                    ₹
+                    {Number(
+                      existingSalaryRecord.remaining_balance
+                    ).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 mt-3 pt-3 border-t border-slate-200">
+                  <span className="text-slate-700 font-medium">Status:</span>
+                  <span
+                    className={`px-4 py-1 rounded-full font-semibold text-sm ${
+                      existingSalaryRecord.status === "Paid"
+                        ? "bg-green-100 text-green-800 border border-green-300"
+                        : "bg-amber-100 text-amber-800 border border-amber-300"
+                    }`}>
+                    {existingSalaryRecord.status}
+                  </span>
+                </div>
+                {existingSalaryRecord.transaction_id && (
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-slate-700 font-medium">
+                      Transaction ID:
+                    </span>
+                    <span className="text-slate-900 font-mono text-sm bg-slate-100 px-3 py-1 rounded">
+                      {existingSalaryRecord.transaction_id}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-700 font-medium">
+                    Payment Method:
+                  </span>
+                  <span className="text-slate-900 font-medium">
+                    {existingSalaryRecord.payment_method || "N/A"}
+                  </span>
+                </div>
+              </div>
+            </section>
           </div>
-        </Modal>
-        
-      </div>
+        ) : (
+          <div className="flex items-center justify-center h-32 text-gray-500">
+            Loading salary details...
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
+
 export default HRSalaryManagement;
