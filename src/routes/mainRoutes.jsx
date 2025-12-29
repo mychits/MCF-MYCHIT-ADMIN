@@ -144,6 +144,18 @@ import EmployeeStatement from "../pages/EmployeeStatement";
 import SalaryIncentive from "../pages/SalaryIncentive";
 import UnapprovedLoans from "../pages/UnapprovedLoans";
 import EmployeeDeductionReport from "../pages/EmployeeDeductionReport";
+import MarketingMenu from "../pages/MarketingMenu"
+import EmailMarketingMenu from "../pages/EmailMarketingMenu"
+import PaymentLinkMarketingMenu from "../pages/PaymentLinkMarketingMenu"
+import WhatsappMarketingMenu from "../pages/WhatsappMarketingMenu";
+import DueWhatsappMessageMenu from "../pages/DueWhatsappMessageMenu";
+import LeadWhatsappMessageMenu from "../pages/LeadWhatsappMessageMenu"
+import CustomerWhatsappMessageMenu from "../pages/CustomerWhatsappMessageMenu";
+import AuctionWhatsappMessageMenu from "../pages/AuctionWhatsappMessageMenu";
+import PromotionWhatsappMessageMenu from "../pages/PromotionWhatsappMessageMenu"
+import DueEmailMenu from "../pages/DueEmailMenu"
+import RCSMarketingMenu from "../pages/RCSMarketingMenu";
+import SMSMarketingMenu from "../pages/SMSMarketingMenu";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -827,37 +839,159 @@ const mainRoutes = createBrowserRouter([
     element: <SalarySlipPrint />,
   },
   {
-    path: "/marketing",
+    path: "/marketing-menu",
     element: (
       <ProtectedRoute>
-        <Navbar />
-        <Marketing />
+        <MarketingMenu />
       </ProtectedRoute>
     ),
-    children: [
-      { path: "what-add", element: <WhatsappAdd /> },
-      { path: "failed-whatuser", element: <WhatsappFailed /> },
-      { path: "due-message", element: <DueMessage /> },
+  },
+  {
+    path: "/market-menu/email-marketing",
+    element: (
+      <ProtectedRoute>
+        <EmailMarketingMenu />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/market-menu/payment-link-marketing",
+    element: (
+      <ProtectedRoute>
+        <PaymentLinkMarketingMenu />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/market-menu/whatsapp-marketing",
+    element: (
+      <ProtectedRoute>
+        <WhatsappMarketingMenu />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/market-menu/whatsapp-marketing/due-whatsapp-marketing",
+    element: (
+      <ProtectedRoute>
+        <DueWhatsappMessageMenu />
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/market-menu/whatsapp-marketing/lead-whatsapp-marketing",
+    element: (
+      <ProtectedRoute>
+        <LeadWhatsappMessageMenu />
+      </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/market-menu/whatsapp-marketing/customer-whatsapp-marketing",
+    element: (
+      <ProtectedRoute>
+        <CustomerWhatsappMessageMenu />
+      </ProtectedRoute>
+    ),
+  },
+
+    {
+    path: "/market-menu/whatsapp-marketing/auction-whatsapp-marketing",
+    element: (
+      <ProtectedRoute>
+        <AuctionWhatsappMessageMenu />
+      </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/market-menu/whatsapp-marketing/promo-whatsapp-marketing",
+    element: (
+      <ProtectedRoute>
+        <PromotionWhatsappMessageMenu />
+      </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/market-menu/email-marketing/due-email-marketing",
+    element: (
+      <ProtectedRoute>
+        <DueEmailMenu />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/market-menu/sms-marketing",
+    element: (
+      <ProtectedRoute>
+        <SMSMarketingMenu />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/market-menu/rcs-marketing",
+    element: (
+      <ProtectedRoute>
+        <RCSMarketingMenu />
+      </ProtectedRoute>
+    ),
+  },
+  
+      { path: "/market-menu/email-marketing/due-email-marketing/due-email", element: <DueEmail /> },
+      { path: "/market-menu/email-marketing/due-email-marketing/over-due-email", element: <OverDueEmail /> },
+       { path: "/market-menu/whatsapp-marketing/what-add", element: <WhatsappAdd /> },
+      { path: "/market-menu/whatsapp-marketing/failed-whatuser", element: <WhatsappFailed /> },
+      { path: "/market-menu/whatsapp-marketing/due-whatsapp-marketing/due-message", element: <DueMessage /> },
       {
-        path: "auction-intimation-message",
+        path: "/market-menu/whatsapp-marketing/auction-whatsapp-marketing/auction-intimation-message",
         element: <AuctionIntemationMessage />,
       },
-      { path: "over-due-message", element: <OverDueMessage /> },
-      { path: "due-email", element: <DueEmail /> },
-      { path: "over-due-email", element: <OverDueEmail /> },
-      { path: "what-promo", element: <WhatsappPromo /> },
-      { path: "bid-winner", element: <BidWinner /> },
-      { path: "payment-link", element: <PaymentLink /> },
-       {path: "bid-status", element: <AuctionBidStatus/>},
-      {path: "auction-info", element: <AuctionInformation/>},
-      {path: "winner-document", element: <AuctionWinnerDocuments/>},
-      {path: "auction-terms-condition", element: <AuctionTermsandCondition/>},
-      {path: "lead-welcome-message", element: <LeadWhatsappWelcomeMessage/>},
-      {path: "lead-referredby-message", element: <LeadReferredByWhatsappMessage/>},
-      {path: "customer-welcome-message", element: <CustomerWelcomeWhatsappMessage/>},
-      {path: "customer-chitplan-message", element: <CustomerChitPlanWhatsappMessage/>},
+      { path: "/market-menu/whatsapp-marketing/due-whatsapp-marketing/over-due-message", element: <OverDueMessage /> },
+       { path: "/market-menu/whatsapp-marketing/promo-whatsapp-marketing/what-promo", element: <WhatsappPromo /> },
+      { path: "/market-menu/whatsapp-marketing/auction-whatsapp-marketing/bid-winner", element: <BidWinner /> },
+      { path: "/market-menu/payment-link-marketing/payment-link", element: <PaymentLink /> },
+       {path: "/market-menu/whatsapp-marketing/auction-whatsapp-marketing/bid-status", element: <AuctionBidStatus/>},
+      {path: "/market-menu/whatsapp-marketing/auction-whatsapp-marketing/auction-info", element: <AuctionInformation/>},
+      {path: "/market-menu/whatsapp-marketing/auction-whatsapp-marketing/winner-document", element: <AuctionWinnerDocuments/>},
+      {path: "/market-menu/whatsapp-marketing/auction-whatsapp-marketing/auction-terms-condition", element: <AuctionTermsandCondition/>},
+      {path: "/market-menu/whatsapp-marketing/lead-whatsapp-marketing/lead-welcome-message", element: <LeadWhatsappWelcomeMessage/>},
+      {path: "/market-menu/whatsapp-marketing/lead-whatsapp-marketing/lead-referredby-message", element: <LeadReferredByWhatsappMessage/>},
+      {path: "/market-menu/whatsapp-marketing/customer-whatsapp-marketing/customer-welcome-message", element: <CustomerWelcomeWhatsappMessage/>},
+      {path: "/market-menu/whatsapp-marketing/customer-whatsapp-marketing/customer-chitplan-message", element: <CustomerChitPlanWhatsappMessage/>},
+   
+  
+
+  // {
+  //   path: "/marketing",
+  //   element: (
+  //     <ProtectedRoute>
+  //       <Navbar />
+  //       <Marketing />
+  //     </ProtectedRoute>
+  //   ),
+  //   children: [
+  //     { path: "what-add", element: <WhatsappAdd /> },
+  //     { path: "failed-whatuser", element: <WhatsappFailed /> },
+  //     { path: "due-message", element: <DueMessage /> },
+  //     {
+  //       path: "auction-intimation-message",
+  //       element: <AuctionIntemationMessage />,
+  //     },
+  //     { path: "over-due-message", element: <OverDueMessage /> },
+  //     // { path: "due-email", element: <DueEmail /> },
+  //     // { path: "over-due-email", element: <OverDueEmail /> },
+  //     { path: "what-promo", element: <WhatsappPromo /> },
+  //     { path: "bid-winner", element: <BidWinner /> },
+  //     { path: "payment-link", element: <PaymentLink /> },
+  //      {path: "bid-status", element: <AuctionBidStatus/>},
+  //     {path: "auction-info", element: <AuctionInformation/>},
+  //     {path: "winner-document", element: <AuctionWinnerDocuments/>},
+  //     {path: "auction-terms-condition", element: <AuctionTermsandCondition/>},
+  //     {path: "lead-welcome-message", element: <LeadWhatsappWelcomeMessage/>},
+  //     {path: "lead-referredby-message", element: <LeadReferredByWhatsappMessage/>},
+  //     {path: "customer-welcome-message", element: <CustomerWelcomeWhatsappMessage/>},
+  //     {path: "customer-chitplan-message", element: <CustomerChitPlanWhatsappMessage/>},
       
-    ],
-  },
+  //   ],
+  // },
 ]);
 export default mainRoutes;

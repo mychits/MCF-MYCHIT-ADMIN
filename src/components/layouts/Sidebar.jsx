@@ -272,7 +272,7 @@ const MenuSidebar = [
     id: ids.fourteen,
     title: "Marketing",
     icon: <GoGraph />,
-    link: "/marketing",
+    link: "/marketing-menu",
   },
 
   {

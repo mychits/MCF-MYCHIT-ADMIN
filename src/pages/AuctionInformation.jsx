@@ -8,6 +8,9 @@ import filterOption from "../helpers/filterOption";
 import { FaWhatsapp } from "react-icons/fa";
 import { notification } from "antd";
 import { Ticket } from "lucide-react";
+import Sidebar from "../components/layouts/Sidebar";
+import { FaUsers, FaCheckCircle } from "react-icons/fa";
+
 
 const AuctionInformation = () => {
   const [searchText, setSearchText] = useState("");
@@ -240,19 +243,47 @@ const AuctionInformation = () => {
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}
         />
-        {isLoading ? (
+        <Sidebar/>
+       
+          <div className="flex-grow p-7">
+            <h1 className="text-2xl font-bold text-center mt-32">
+              Auction Information
+            </h1>
+
+
+
+
+            {contextHolder}
+            <div className="mt-6 mb-8">
+              <div className="flex justify-start border-b border-gray-300 mb-4"></div>
+               {isLoading ? (
           <div className="w-full">
             <CircularLoader color="text-green-600" />
           </div>
         ) : (
-          <div className="flex-grow p-7">
-            <h1 className="text-2xl font-bold text-center">
-              Auction Information
-            </h1>
-            {contextHolder}
-            <div className="mt-6 mb-8">
-              <div className="flex justify-start border-b border-gray-300 mb-4"></div>
               <div className="mt-10">
+                {/* ===== SUMMARY SECTION ===== */}
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 mb-6">
+  <div className="bg-blue-100 rounded-xl p-6 shadow flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-600">Total Customers</p>
+      <p className="text-3xl font-bold text-blue-700">
+        {filteredUsers.length}
+      </p>
+    </div>
+    <FaUsers className="text-blue-600 text-4xl" />
+  </div>
+
+  <div className="bg-green-100 rounded-xl p-6 shadow flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-600">Selected Customers</p>
+      <p className="text-3xl font-bold text-green-700">
+        {visibleSelectedCount}
+      </p>
+    </div>
+    <FaCheckCircle className="text-green-600 text-4xl" />
+  </div>
+</div>
                 <div className="flex flex-wrap items-center gap-4 mb-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -339,9 +370,10 @@ const AuctionInformation = () => {
                   exportedFileName={`Auction Information.csv`}
                 />
               </div>
+               )}
             </div>
           </div>
-        )}
+       
       </div>
     </div>
   );

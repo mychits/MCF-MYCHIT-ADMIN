@@ -7,6 +7,9 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { FaWhatsapp } from "react-icons/fa";
 import { notification } from "antd";
+import Sidebar from "../components/layouts/Sidebar";
+import { FaUsers, FaCheckCircle } from "react-icons/fa";
+
 
 const LeadWhatsappWelcomeMessage = () => {
   const [searchText, setSearchText] = useState("");
@@ -48,7 +51,7 @@ const LeadWhatsappWelcomeMessage = () => {
   //     const matchToDate = toDate ? enrollmentDate <= new Date(toDate) : true;
   //     return matchGroup && matchFromDate && matchToDate && filterEnrollDate;
   //   });
- 
+
   //   return filtered.map((user, index) => {
   //     const isSelected = !!activeUserData[user._id]?.info?.status;
 
@@ -88,29 +91,28 @@ const LeadWhatsappWelcomeMessage = () => {
   //   selectedDate
   // ]);
 
-
   const filteredUsers = useMemo(() => {
     const filtered = usersData.filter((u) => {
       const matchGroup = groupFilter ? u.groupName === groupFilter : true;
-  
+
       const matchSingleDate = selectedDate
         ? new Date(u.enrollDate).toISOString().split("T")[0] === selectedDate
         : true;
-  
+
       const matchFromDate = fromDate
         ? new Date(u.enrollDate) >= new Date(fromDate)
         : true;
-  
+
       const matchToDate = toDate
         ? new Date(u.enrollDate) <= new Date(toDate)
         : true;
-  
+
       return matchGroup && matchFromDate && matchToDate && matchSingleDate;
     });
-  
+
     return filtered.map((user, index) => {
       const isSelected = !!activeUserData[user._id]?.info?.status;
-  
+
       return {
         ...user,
         sl_no: index + 1,
@@ -127,7 +129,7 @@ const LeadWhatsappWelcomeMessage = () => {
                     leadPhone: user.leadPhone,
                     groupName: user.groupName,
                     leadName: user.leadName,
-                   // referredBy: user.referredBy,
+                    // referredBy: user.referredBy,
                   },
                 },
               }));
@@ -138,80 +140,79 @@ const LeadWhatsappWelcomeMessage = () => {
       };
     });
   }, [usersData, groupFilter, fromDate, toDate, selectedDate, activeUserData]);
-  
 
-const handleSelectFilter = (value) => {
-  setSelectedLabel(value);
+  const handleSelectFilter = (value) => {
+    setSelectedLabel(value);
 
-  const today = new Date();
-  const formatDate = (date) => date.toLocaleDateString("en-CA");
+    const today = new Date();
+    const formatDate = (date) => date.toLocaleDateString("en-CA");
 
-  if (value === "Today") {
-    setSelectedDate(formatDate(today));
-    setFromDate("");
-    setToDate("");
-  } else if (value === "Yesterday") {
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    setSelectedDate(formatDate(yesterday));
-    setFromDate("");
-    setToDate("");
-  } else if (value === "TwoDaysAgo") {
-    const twoDaysAgo = new Date(today);
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    setSelectedDate(formatDate(twoDaysAgo));
-    setFromDate("");
-    setToDate("");
-  } else if (value === "ThisWeek") {
-    const day = today.getDay(); // Sunday=0, Monday=1, ...
-    const diffToMonday = day === 0 ? 6 : day - 1; // adjust if today is Sunday
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - diffToMonday);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    setFromDate(formatDate(monday));
-    setToDate(formatDate(sunday));
-    setSelectedDate("");
-  } else if (value === "LastWeek") {
-    const day = today.getDay();
-    const diffToMonday = day === 0 ? 6 : day - 1;
-    const thisMonday = new Date(today);
-    thisMonday.setDate(today.getDate() - diffToMonday);
-    const lastMonday = new Date(thisMonday);
-    lastMonday.setDate(thisMonday.getDate() - 7);
-    const lastSunday = new Date(lastMonday);
-    lastSunday.setDate(lastMonday.getDate() + 6);
-    setFromDate(formatDate(lastMonday));
-    setToDate(formatDate(lastSunday));
-    setSelectedDate("");
-  } else if (value === "ThisMonth") {
-    const start = new Date(today.getFullYear(), today.getMonth(), 1);
-    const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    setFromDate(formatDate(start));
-    setToDate(formatDate(end));
-    setSelectedDate("");
-  } else if (value === "LastMonth") {
-    const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const end = new Date(today.getFullYear(), today.getMonth(), 0);
-    setFromDate(formatDate(start));
-    setToDate(formatDate(end));
-    setSelectedDate("");
-  } else if (value === "ThisYear") {
-    const start = new Date(today.getFullYear(), 0, 1);
-    const end = new Date(today.getFullYear(), 11, 31);
-    setFromDate(formatDate(start));
-    setToDate(formatDate(end));
-    setSelectedDate("");
-  } else if (value === "All") {
-    const start = new Date(2000, 0, 1);
-    const end = today;
-    setFromDate(formatDate(start));
-    setToDate(formatDate(end));
-    setSelectedDate("");
-  } else if (value === "Custom") {
-    // user selects manually → don’t override
-  }
-};
+    if (value === "Today") {
+      setSelectedDate(formatDate(today));
+      setFromDate("");
+      setToDate("");
+    } else if (value === "Yesterday") {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      setSelectedDate(formatDate(yesterday));
+      setFromDate("");
+      setToDate("");
+    } else if (value === "TwoDaysAgo") {
+      const twoDaysAgo = new Date(today);
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+      setSelectedDate(formatDate(twoDaysAgo));
+      setFromDate("");
+      setToDate("");
+    } else if (value === "ThisWeek") {
+      const day = today.getDay(); // Sunday=0, Monday=1, ...
+      const diffToMonday = day === 0 ? 6 : day - 1; // adjust if today is Sunday
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - diffToMonday);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      setFromDate(formatDate(monday));
+      setToDate(formatDate(sunday));
+      setSelectedDate("");
+    } else if (value === "LastWeek") {
+      const day = today.getDay();
+      const diffToMonday = day === 0 ? 6 : day - 1;
+      const thisMonday = new Date(today);
+      thisMonday.setDate(today.getDate() - diffToMonday);
+      const lastMonday = new Date(thisMonday);
+      lastMonday.setDate(thisMonday.getDate() - 7);
+      const lastSunday = new Date(lastMonday);
+      lastSunday.setDate(lastMonday.getDate() + 6);
+      setFromDate(formatDate(lastMonday));
+      setToDate(formatDate(lastSunday));
+      setSelectedDate("");
+    } else if (value === "ThisMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      setFromDate(formatDate(start));
+      setToDate(formatDate(end));
+      setSelectedDate("");
+    } else if (value === "LastMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const end = new Date(today.getFullYear(), today.getMonth(), 0);
+      setFromDate(formatDate(start));
+      setToDate(formatDate(end));
+      setSelectedDate("");
+    } else if (value === "ThisYear") {
+      const start = new Date(today.getFullYear(), 0, 1);
+      const end = new Date(today.getFullYear(), 11, 31);
+      setFromDate(formatDate(start));
+      setToDate(formatDate(end));
+      setSelectedDate("");
+    } else if (value === "All") {
+      const start = new Date(2000, 0, 1);
+      const end = today;
+      setFromDate(formatDate(start));
+      setToDate(formatDate(end));
+      setSelectedDate("");
+    } else if (value === "Custom") {
+      // user selects manually → don’t override
+    }
+  };
 
   useEffect(() => {
     handleSelectFilter("All");
@@ -354,19 +355,43 @@ const handleSelectFilter = (value) => {
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}
         />
-        {isLoading ? (
-          <div className="w-full">
-            <CircularLoader color="text-green-600" />
-          </div>
-        ) : (
-          <div className="flex-grow p-7">
-            <h1 className="text-2xl font-bold text-center">
-              Lead Welcome Message
-            </h1>
-            {contextHolder}
-            <div className="mt-6 mb-8">
-              <div className="flex justify-start border-b border-gray-300 mb-4"></div>
+        <Sidebar />
+
+        <div className="flex-grow p-7">
+          <h1 className="text-2xl font-bold text-center mt-32">
+            Lead Welcome Message
+          </h1>
+          {contextHolder}
+
+          <div className="mt-6 mb-8">
+            <div className="flex justify-start border-b border-gray-300 mb-4"></div>
+            {isLoading ? (
+              <div className="w-full">
+                <CircularLoader color="text-green-600" />
+              </div>
+            ) : (
               <div className="mt-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 mb-6">
+  <div className="bg-blue-100 rounded-xl p-6 shadow flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-600">Total Customers</p>
+      <p className="text-3xl font-bold text-blue-700">
+        {filteredUsers.length}
+      </p>
+    </div>
+    <FaUsers className="text-blue-600 text-4xl" />
+  </div>
+
+  <div className="bg-green-100 rounded-xl p-6 shadow flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-600">Selected Customers</p>
+      <p className="text-3xl font-bold text-green-700">
+        {visibleSelectedCount}
+      </p>
+    </div>
+    <FaCheckCircle className="text-green-600 text-4xl" />
+  </div>
+</div>
                 <div className="flex flex-wrap items-center gap-4 mb-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -482,9 +507,9 @@ const handleSelectFilter = (value) => {
                   exportedFileName={`Bid Winner.csv`}
                 />
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

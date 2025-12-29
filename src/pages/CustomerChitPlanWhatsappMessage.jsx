@@ -7,6 +7,8 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import { FaWhatsapp } from "react-icons/fa";
 import { notification } from "antd";
+import Sidebar from "../components/layouts/Sidebar";
+import { FaUsers, FaCheckCircle } from "react-icons/fa";
 
 // const CustomerChitPlanWhatsappMessage = () => {
 //   const [searchText, setSearchText] = useState("");
@@ -732,135 +734,164 @@ const CustomerChitPlanWhatsappMessage = () => {
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}
         />
-        {isLoading ? (
+        <Sidebar />
+        
+          <div className="flex-grow p-7">
+            <h1 className="text-2xl font-bold text-center mb-6 mt-32">
+              Customer Chit Plan Message
+            </h1>
+            {contextHolder}
+           {isLoading ? (
           <div className="w-full">
             <CircularLoader color="text-green-600" />
           </div>
         ) : (
-          <div className="flex-grow p-7">
-            <h1 className="text-2xl font-bold text-center mb-6">
-              Customer Chit Plan Message
-            </h1>
-            {contextHolder}
+            <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 mb-6">
+  <div className="bg-blue-100 rounded-xl p-6 shadow flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-600">Total Customers</p>
+      <p className="text-3xl font-bold text-blue-700">
+        {filteredUsers.length}
+      </p>
+    </div>
+    <FaUsers className="text-blue-600 text-4xl" />
+  </div>
 
-            {/* 🔹 Filters */}
-            <div className="flex flex-wrap items-end gap-6 mb-8 border-b border-gray-200 pb-4">
-              {/* Group Filter */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Select Group
-                </label>
-                <Select
-                  style={{ width: 200 }}
-                  allowClear
-                  placeholder="--All Groups--"
-                  onChange={(v) => setGroupFilter(v)}
-                  value={groupFilter || undefined}
-                >
-                  {groupOptions.map((g) => (
-                    <Select.Option key={g} value={g}>
-                      {g}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
+  <div className="bg-green-100 rounded-xl p-6 shadow flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-600">Selected Customers</p>
+      <p className="text-3xl font-bold text-green-700">
+        {visibleSelectedCount}
+      </p>
+    </div>
+    <FaCheckCircle className="text-green-600 text-4xl" />
+  </div>
+</div>
+              {/* 🔹 Filters */}
+              <div className="w-full">
 
-              {/* Date Range Filter */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Date Filter
-                </label>
-                <select
-                  className="border p-2 rounded text-sm"
-                  value={selectedLabel}
-                  onChange={(e) => handleSelectFilter(e.target.value)}
-                >
-                  <option value="Today">Today</option>
-                  <option value="Yesterday">Yesterday</option>
-                  <option value="TwoDaysAgo">Two Days Ago</option>
-                  <option value="ThisWeek">This Week</option>
-                  <option value="LastWeek">Last Week</option>
-                  <option value="ThisMonth">This Month</option>
-                  <option value="LastMonth">Last Month</option>
-                  <option value="ThisYear">This Year</option>
-                  <option value="All">All</option>
-                </select>
-              </div>
-
-              {/* Date Picker */}
-              {selectedLabel && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">Date</label>
-                  <Input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="border rounded px-3 py-1 text-sm"
-                  />
-                </div>
-              )}
-
-              {/* Select All */}
-              <div className="flex items-center mt-5">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 mr-2"
-                  checked={selectAll}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setSelectAll(checked);
-                    const updated = { ...activeUserData };
-                    filteredUsers.forEach((user) => {
-                      updated[user._id] = {
-                        info: {
-                          status: checked,
-                          userPhone: user.userPhone,
-                          groupName: user.groupName,
-                          userName: user.userName,
-                          groupValue: user.groupValue,
-                          groupMembers: user.groupMembers,
-                          monthlyInstallment: user.monthlyInstallment,
-                        },
-                      };
-                    });
-                    setActiveUserData(updated);
-                  }}
-                />
-                <label className="text-sm font-medium">Select All</label>
-              </div>
-            </div>
-
-            {/* 🔹 Send Button */}
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={sendWhatsapp}
-                className="relative bg-green-600 text-white px-5 py-2 rounded shadow-md hover:bg-green-700 transition duration-200 flex items-center"
-              >
-                {visibleSelectedCount > 0 && (
-                  <div
-                    className="min-w-6 h-6 absolute -right-3 -top-2 shadow-lg hover:bg-red-600 bg-red-400 rounded-full text-white flex items-center justify-center text-xs"
-                    title={`Message will be sent to ${visibleSelectedCount} customers`}
-                  >
-                    <span>{visibleSelectedCount}</span>
+                <div className="flex flex-wrap items-end gap-6 mb-8 border-b border-gray-200 pb-4">
+                  {/* Group Filter */}
+                  <div className="w-full"></div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Select Group
+                    </label>
+                    <Select
+                      style={{ width: 200 }}
+                      allowClear
+                      placeholder="--All Groups--"
+                      onChange={(v) => setGroupFilter(v)}
+                      value={groupFilter || undefined}
+                    >
+                      {groupOptions.map((g) => (
+                        <Select.Option key={g} value={g}>
+                          {g}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </div>
-                )}
-                <FaWhatsapp className="mr-2" size={20} />
-                WhatsApp
-              </button>
-            </div>
 
-            {/* 🔹 Data Table */}
-            <DataTable
-              data={filteredUsers}
-              columns={Auctioncolumns}
-              catcher="_id"
-              exportedPdfName="Customer Chit Plan"
-              printHeaderKeys={["Group"]}
-              printHeaderValues={[groupFilter]}
-              exportedFileName="CustomerChitPlan.csv"
-            />
+                  {/* Date Range Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Date Filter
+                    </label>
+                    <select
+                      className="border p-2 rounded text-sm"
+                      value={selectedLabel}
+                      onChange={(e) => handleSelectFilter(e.target.value)}
+                    >
+                      <option value="Today">Today</option>
+                      <option value="Yesterday">Yesterday</option>
+                      <option value="TwoDaysAgo">Two Days Ago</option>
+                      <option value="ThisWeek">This Week</option>
+                      <option value="LastWeek">Last Week</option>
+                      <option value="ThisMonth">This Month</option>
+                      <option value="LastMonth">Last Month</option>
+                      <option value="ThisYear">This Year</option>
+                      <option value="All">All</option>
+                    </select>
+                  </div>
+
+                  {/* Date Picker */}
+                  {selectedLabel && (
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Date</label>
+                      <Input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="border rounded px-3 py-1 text-sm"
+                      />
+                    </div>
+                  )}
+
+                  {/* Select All */}
+                  <div className="flex items-center mt-5">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 mr-2"
+                      checked={selectAll}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setSelectAll(checked);
+                        const updated = { ...activeUserData };
+                        filteredUsers.forEach((user) => {
+                          updated[user._id] = {
+                            info: {
+                              status: checked,
+                              userPhone: user.userPhone,
+                              groupName: user.groupName,
+                              userName: user.userName,
+                              groupValue: user.groupValue,
+                              groupMembers: user.groupMembers,
+                              monthlyInstallment: user.monthlyInstallment,
+                            },
+                          };
+                        });
+                        setActiveUserData(updated);
+                      }}
+                    />
+                    <label className="text-sm font-medium">Select All</label>
+                  </div>
+                </div>
+
+                {/* 🔹 Send Button */}
+                <div className="flex justify-end mb-4">
+                  <button
+                    onClick={sendWhatsapp}
+                    className="relative bg-green-600 text-white px-5 py-2 rounded shadow-md hover:bg-green-700 transition duration-200 flex items-center"
+                  >
+                    {visibleSelectedCount > 0 && (
+                      <div
+                        className="min-w-6 h-6 absolute -right-3 -top-2 shadow-lg hover:bg-red-600 bg-red-400 rounded-full text-white flex items-center justify-center text-xs"
+                        title={`Message will be sent to ${visibleSelectedCount} customers`}
+                      >
+                        <span>{visibleSelectedCount}</span>
+                      </div>
+                    )}
+                    <FaWhatsapp className="mr-2" size={20} />
+                    WhatsApp
+                  </button>
+                </div>
+
+                {/* 🔹 Data Table */}
+                <DataTable
+                  data={filteredUsers}
+                  columns={Auctioncolumns}
+                  catcher="_id"
+                  exportedPdfName="Customer Chit Plan"
+                  printHeaderKeys={["Group"]}
+                  printHeaderValues={[groupFilter]}
+                  exportedFileName="CustomerChitPlan.csv"
+                />
+              </div>
+            </div>
+          )}
           </div>
-        )}
+        
       </div>
     </div>
   );

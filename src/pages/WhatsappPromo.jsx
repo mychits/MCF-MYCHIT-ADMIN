@@ -9,6 +9,8 @@ import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import whatsappApi from "../instance/WhatsappInstance";
 import CircularLoader from "../components/loaders/CircularLoader";
 import moment from "moment";
+import Navbar from "../components/layouts/Navbar";
+
 const WhatsappPromo = () => {
   const [TableUsers, setTableUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -591,7 +593,12 @@ const WhatsappPromo = () => {
   return (
     <>
       <div className="w-screen">
-        <div className="flex mt-20">
+        <div className="flex mt-30">
+          <Navbar
+                    onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
+                    visibility={true}
+                  />
+                  <Sidebar/>
           <CustomAlertDialog
             type={alertConfig.type}
             isVisible={alertConfig.visibility}
@@ -601,7 +608,11 @@ const WhatsappPromo = () => {
             }
           />
 
-          <div className="flex-grow p-1">
+          <div className="flex-grow p-7">
+           <h1 className="text-2xl font-bold text-center mt-32">
+              Whatsapp Promotion Message
+            </h1>
+            <div>
             <div className="mt-2 mb-2">
               <div className="flex justify-between items-center w-full">
                 <div className="flex flex-col space-y-4">
@@ -810,6 +821,7 @@ const WhatsappPromo = () => {
                 data={"Group Data"}
               />
             )}
+            </div>
           </div>
         </div>
         <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
