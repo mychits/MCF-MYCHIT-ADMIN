@@ -1340,7 +1340,7 @@ const handleChange = (name, value) => {
                       <div className="flex items-center gap-2 mb-2">
                         <Target className="w-4 h-4 text-blue-600" />
                         <label className="font-semibold text-gray-700 text-sm">
-                          Monthly Target
+                         Current Month Target
                         </label>
                       </div>
                       <input
@@ -1361,7 +1361,7 @@ const handleChange = (name, value) => {
                       <div className="flex items-center gap-2 mb-2">
                         <TrendingUp className="w-4 h-4 text-amber-600" />
                         <label className="font-semibold text-gray-700 text-sm">
-                          Remaining Target
+                          Previous Remaining Target
                         </label>
                       </div>
                       <input
@@ -1409,7 +1409,7 @@ const handleChange = (name, value) => {
                       <div className="flex items-center gap-2 mb-2">
                         <CheckCircle className="w-4 h-4 text-emerald-600" />
                         <label className="font-semibold text-gray-700 text-sm">
-                          Total Business Closed
+                          Total Business Closed (Current Month)
                         </label>
                       </div>
                       <input
@@ -1433,7 +1433,7 @@ const handleChange = (name, value) => {
                       <div className="flex items-center gap-2 mb-2">
                         <Target className="w-4 h-4 text-red-600" />
                         <label className="font-semibold text-gray-700 text-sm">
-                          Current Remaining Target
+                          Pending Target 
                         </label>
                       </div>
                       <input
@@ -1887,113 +1887,158 @@ const handleChange = (name, value) => {
                         </span>
                       </div>
                     </div>
-                    <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 shadow-sm">
-                      {/* Header */}
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
-                          <BarChart3 className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-xl text-gray-900">
-                          Monthly Target & Incentive
-                        </h3>
+                     <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 shadow-sm">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
+                        <BarChart3 className="w-6 h-6 text-white" />
                       </div>
-                      {/* Metrics Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {/* Monthly Target */}
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Target className="w-4 h-4 text-blue-600" />
-                            <label className="font-semibold text-gray-700 text-sm">
-                              Monthly Target
-                            </label>
-                          </div>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            value={formData?.monthly_business_info?.target || 0}
-                            disabled
-                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-blue-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                          />
-                          <span className="mt-2 font-medium font-mono text-blue-600 text-sm">
-                            {numberToIndianWords(
-                              formData?.monthly_business_info?.target ?? 0
-                            )}
-                          </span>
-                        </div>
-                        {/* Remaining Target */}
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2 mb-2">
-                            <TrendingUp className="w-4 h-4 text-amber-600" />
-                            <label className="font-semibold text-gray-700 text-sm">
-                              Remaining Target
-                            </label>
-                          </div>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            value={
-                              formData?.monthly_business_info
-                                ?.previous_remaining_target || 0
-                            }
-                            disabled
-                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-amber-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                          />
-                          <span className="mt-2 font-medium font-mono text-amber-600 text-sm">
-                            {numberToIndianWords(
-                              formData?.monthly_business_info
-                                ?.previous_remaining_target ?? 0
-                            )}
-                          </span>
-                        </div>
-                        {/* Total Target */}
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Target className="w-4 h-4 text-purple-600" />
-                            <label className="font-semibold text-gray-700 text-sm">
-                              Total Target
-                            </label>
-                          </div>
-                          <input
-                            type="number"
-                            onWheel={(e) => e.target.blur()}
-                            value={
-                              formData?.monthly_business_info?.total_target || 0
-                            }
-                            disabled
-                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-purple-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                          />
-                          <span className="mt-2 font-medium font-mono text-purple-600 text-sm">
-                            {numberToIndianWords(
-                              formData?.monthly_business_info?.total_target ?? 0
-                            )}
-                          </span>
-                        </div>
-                        {/* Total Business Closed */}
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2 mb-2">
-                            <CheckCircle className="w-4 h-4 text-emerald-600" />
-                            <label className="font-semibold text-gray-700 text-sm">
-                              Total Business Closed
-                            </label>
-                          </div>
-                          <input
-                            type="number"
-                            value={
-                              formData?.monthly_business_info
-                                ?.total_business_closed ?? 0
-                            }
-                            readOnly
-                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-emerald-50 cursor-not-allowed"
-                          />
-                          <span className="mt-2 font-medium font-mono text-emerald-600 text-sm">
-                            {numberToIndianWords(
-                              formData?.monthly_business_info
-                                ?.total_business_closed || 0
-                            )}
-                          </span>
-                        </div>
-                      </div>
+                      <h3 className="font-semibold text-xl text-gray-900">
+                        Monthly Target & Incentive
+                      </h3>
                     </div>
+                    <div className="flex gap-2">
+                      {calculatedIncentive > 0 && (
+                        <>
+                          <Button
+                            type="primary"
+                            onClick={handlePayAsSalary}
+                            className="bg-blue-600 hover:bg-blue-700">
+                            Pay as Salary
+                          </Button>
+                          <Button
+                            type="primary"
+                            onClick={handlePayAsIncentive}
+                            className="bg-purple-600 hover:bg-purple-700">
+                            Pay as Incentive
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {/* Metrics Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Monthly Target */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4 text-blue-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                         Current Month Target
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        value={formData?.monthly_business_info?.target || 0}
+                        disabled
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-blue-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-blue-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info?.target ?? 0
+                        )}
+                      </span>
+                    </div>
+                    {/* Remaining Target */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-amber-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Previous Remaining Target
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        value={
+                          formData?.monthly_business_info
+                            ?.previous_remaining_target || 0
+                        }
+                        disabled
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-amber-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-amber-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info
+                            ?.previous_remaining_target ?? 0
+                        )}
+                      </span>
+                    </div>
+                    {/* Total Target */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4 text-purple-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Total Target
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        value={
+                          formData?.monthly_business_info?.total_target || 0
+                        }
+                        disabled
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-purple-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-purple-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info?.total_target ?? 0
+                        )}
+                      </span>
+                    </div>
+                    {/* Total Business Closed */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Total Business Closed (Current Month)
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        value={
+                          formData?.monthly_business_info
+                            ?.total_business_closed ?? 0
+                        }
+                        readOnly
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-emerald-50 cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-emerald-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info
+                            ?.total_business_closed || 0
+                        )}
+                      </span>
+                    </div>
+                    {/* Current Remaining Target */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4 text-red-600" />
+                        <label className="font-semibold text-gray-700 text-sm">
+                          Pending Target 
+                        </label>
+                      </div>
+                      <input
+                        type="number"
+                        onWheel={(e) => e.target.blur()}
+                        value={
+                          formData?.monthly_business_info
+                            ?.current_remaining_target || 0
+                        }
+                        disabled
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-red-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                      />
+                      <span className="mt-2 font-medium font-mono text-red-600 text-sm">
+                        {numberToIndianWords(
+                          formData?.monthly_business_info
+                            ?.current_remaining_target ?? 0
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
                   </div>
                 )}
                 {/* Incentive Adjustment Display */}
