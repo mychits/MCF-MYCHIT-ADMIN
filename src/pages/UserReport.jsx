@@ -234,8 +234,8 @@ const UserReport = () => {
             setRegistrationDate(
               registrationFees[0]?.createdAt
                 ? new Date(registrationFees[0].createdAt).toLocaleDateString(
-                    "en-GB"
-                  )
+                  "en-GB"
+                )
                 : null
             );
           }
@@ -617,7 +617,7 @@ const UserReport = () => {
   const handleEnrollGroup = (event) => {
     const value = event.target.value;
 
-    
+
     if (value) {
       const [groupId, ticket] = value.split("|");
       setEnrollGroupId({ groupId, ticket });
@@ -711,118 +711,212 @@ const UserReport = () => {
     { key: "total_deposited_amount", header: "Total Deposited Amount" },
   ];
 
-  const handleGroupAuctionChange = async (groupId) => {
-    setFilteredAuction([]);
-    if (groupId) {
-      try {
-        const response = await api.post(
-          `/enroll/account/${groupId}`
-        );
+  // const handleGroupAuctionChange = async (groupId) => {
+  //   setFilteredAuction([]);
+  //   if (groupId) {
+  //     try {
+  //       const response = await api.post(
+  //         `/enroll/account/${groupId}`
+  //       );
 
-        if (response.data && response.data.length > 0) {
-          setFilteredAuction(response.data);
-          console.log(response.data, "resienns");
+  //       if (response.data && response.data.length > 0) {
+  //         setFilteredAuction(response.data);
+  //         console.log(response.data, "resienns");
 
-          const formattedData = response.data
-            .map((group, index) => {
-              const groupName = group?.enrollment?.group?.group_name || "";
-              const tickets = group?.enrollment?.tickets || "";
-              const groupType = group?.enrollment?.group?.group_type;
-              const groupInstall =
-                parseInt(group?.enrollment?.group?.group_install) || 0;
-              const auctionCount = parseInt(group?.auction?.auctionCount) || 0;
-              const totalPaidAmount = group?.payments?.totalPaidAmount || 0;
-              const totalProfit = group?.profit?.totalProfit || 0;
-              const totalPayable = group?.payable?.totalPayable || 0;
-              const firstDividentHead =
-                group?.firstAuction?.firstDividentHead || 0;
+  //         const formattedData = response.data
+  //           .map((group, index) => {
+  //             const groupName = group?.enrollment?.group?.group_name || "";
+  //             const tickets = group?.enrollment?.tickets || "";
+  //             const groupType = group?.enrollment?.group?.group_type;
+  //             const groupInstall =
+  //               parseInt(group?.enrollment?.group?.group_install) || 0;
+  //             const auctionCount = parseInt(group?.auction?.auctionCount) || 0;
+  //             const totalPaidAmount = group?.payments?.totalPaidAmount || 0;
+  //             const totalProfit = group?.profit?.totalProfit || 0;
+  //             const totalPayable = group?.payable?.totalPayable || 0;
+  //             const firstDividentHead =
+  //               group?.firstAuction?.firstDividentHead || 0;
 
-              if (!group?.enrollment?.group) {
-                return null;
-              }
+  //             if (!group?.enrollment?.group) {
+  //               return null;
+  //             }
 
-              return {
-                id: index + 1,
-                group: groupName,
-                ticket: tickets,
+  //             return {
+  //               id: index + 1,
+  //               group: groupName,
+  //               ticket: tickets,
 
-                totalBePaid:
-                  groupType === "double"
-                    ? groupInstall * auctionCount + groupInstall
-                    : totalPayable + groupInstall + totalProfit,
+  //               totalBePaid:
+  //                 groupType === "double"
+  //                   ? groupInstall * auctionCount + groupInstall
+  //                   : totalPayable + groupInstall + totalProfit,
 
-                profit: totalProfit,
+  //               profit: totalProfit,
 
-                toBePaidAmount:
-                  groupType === "double"
-                    ? groupInstall * auctionCount + groupInstall
-                    : totalPayable + groupInstall + firstDividentHead,
+  //               toBePaidAmount:
+  //                 groupType === "double"
+  //                   ? groupInstall * auctionCount + groupInstall
+  //                   : totalPayable + groupInstall + firstDividentHead,
 
-                paidAmount: totalPaidAmount,
+  //               paidAmount: totalPaidAmount,
 
-                balance:
-                  groupType === "double"
-                    ? groupInstall * auctionCount +
-                      groupInstall -
-                      totalPaidAmount
-                    : totalPayable +
-                      groupInstall +
-                      firstDividentHead -
-                      totalPaidAmount,
-                referred_type: group?.enrollment?.referred_type || "N/A",
-                referrer_name: group?.enrollment?.referrer_name || "N/A",
-                chit_asking_month: group?.enrollment?.chit_asking_month || "N/A",
-                customer_status: group?.enrollment?.customer_status || "N/A",
-                removal_reason: group?.enrollment?.removal_reason || "N/A",
-                isPrized:
-                  group?.enrollment?.isPrized === true
-                    ? "Prized"
-                    : "Un Prized" || "N/A",
-              };
-            })
-            .filter((item) => item !== null)
-            .filter((item) => item.customer_status === "Active");
+  //               balance:
+  //                 groupType === "double"
+  //                   ? groupInstall * auctionCount +
+  //                   groupInstall -
+  //                   totalPaidAmount
+  //                   : totalPayable +
+  //                   groupInstall +
+  //                   firstDividentHead -
+  //                   totalPaidAmount,
+  //               referred_type: group?.enrollment?.referred_type || "N/A",
+  //               referrer_name: group?.enrollment?.referrer_name || "N/A",
+  //               chit_asking_month: group?.enrollment?.chit_asking_month || "N/A",
+  //               customer_status: group?.enrollment?.customer_status || "N/A",
+  //               removal_reason: group?.enrollment?.removal_reason || "N/A",
+  //               isPrized:
+  //                 group?.enrollment?.isPrized === true
+  //                   ? "Prized"
+  //                   : "Un Prized" || "N/A",
+  //             };
+  //           })
+  //           .filter((item) => item !== null)
+  //           .filter((item) => item.customer_status === "Active");
 
-          setTableAuctions(formattedData);
-          setCommission(0);
-          console.info(formattedData, "test");
-          const totalToBePaidAmount = formattedData
-            .filter((summary) => summary.customer_status === "Active")
-            .reduce((sum, group) => {
-              return sum + (group?.totalBePaid || 0);
-            }, 0);
-          setTotalToBePaid(totalToBePaidAmount);
+  //         setTableAuctions(formattedData);
+  //         setCommission(0);
+  //         console.info(formattedData, "test");
+  //         const totalToBePaidAmount = formattedData
+  //           .filter((summary) => summary.customer_status === "Active")
+  //           .reduce((sum, group) => {
+  //             return sum + (group?.totalBePaid || 0);
+  //           }, 0);
+  //         setTotalToBePaid(totalToBePaidAmount);
 
-          const totalNetToBePaidAmount = formattedData
-            .filter((summary) => summary.customer_status === "Active")
-            .reduce((sum, group) => {
-              return sum + (group?.toBePaidAmount || 0);
-            }, 0);
-          setNetTotalProfit(totalNetToBePaidAmount);
+  //         const totalNetToBePaidAmount = formattedData
+  //           .filter((summary) => summary.customer_status === "Active")
+  //           .reduce((sum, group) => {
+  //             return sum + (group?.toBePaidAmount || 0);
+  //           }, 0);
+  //         setNetTotalProfit(totalNetToBePaidAmount);
 
-          const totalPaidAmount = formattedData
-            .filter((summary) => summary.customer_status === "Active")
-            .reduce((sum, group) => sum + (group?.paidAmount || 0), 0);
-          setTotalPaid(totalPaidAmount);
+  //         const totalPaidAmount = formattedData
+  //           .filter((summary) => summary.customer_status === "Active")
+  //           .reduce((sum, group) => sum + (group?.paidAmount || 0), 0);
+  //         setTotalPaid(totalPaidAmount);
 
-          const totalProfit = formattedData
-            .filter((summary) => summary.customer_status === "Active")
-            .reduce((sum, group) => sum + (group?.profit || 0), 0);
-          setTotalProfit(totalProfit);
-        } else {
-          setFilteredAuction([]);
-          setCommission(0);
-        }
-      } catch (error) {
-        console.error("Error fetching enrollment data:", error);
-        setFilteredAuction([]);
-        setCommission(0);
-      }
-    } else {
-      setFilteredAuction([]);
-      setCommission(0);
-    }
-  };
+  //         const totalProfit = formattedData
+  //           .filter((summary) => summary.customer_status === "Active")
+  //           .reduce((sum, group) => sum + (group?.profit || 0), 0);
+  //         setTotalProfit(totalProfit);
+  //       } else {
+  //         setFilteredAuction([]);
+  //         setCommission(0);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching enrollment data:", error);
+  //       setFilteredAuction([]);
+  //       setCommission(0);
+  //     }
+  //   } else {
+  //     setFilteredAuction([]);
+  //     setCommission(0);
+  //   }
+  // };
+  
+    const handleGroupAuctionChange = async (userId) => {
+  // 🔴 Clear old data immediately (prevents old data flash)
+  setFilteredAuction([]);
+  setTableAuctions([]);
+  setCommission(0);
+  setTotalToBePaid(0);
+  setNetTotalProfit(0);
+  setTotalPaid(0);
+  setTotalProfit(0);
+
+  if (!userId) return;
+
+  // 🔐 Request guard to avoid stale response updates
+  const currentRequestId = Date.now();
+  handleGroupAuctionChange.latestRequest = currentRequestId;
+
+  try {
+    const response = await api.post(`/enroll/account/${userId}`);
+
+    // ❌ Ignore old API responses
+    if (handleGroupAuctionChange.latestRequest !== currentRequestId) return;
+
+    if (!response?.data?.length) return;
+
+    setFilteredAuction(response.data);
+
+    const formattedData = response.data
+      .map((group, index) => {
+        const enrollment = group?.enrollment;
+        const grp = enrollment?.group;
+        if (!grp || enrollment?.customer_status !== "Active") return null;
+
+        const groupInstall = Number(grp.group_install) || 0;
+        const auctionCount = Number(group?.auction?.auctionCount) || 0;
+        const totalPaid = Number(group?.payments?.totalPaidAmount) || 0;
+        const profit = Number(group?.profit?.totalProfit) || 0;
+        const payable = Number(group?.payable?.totalPayable) || 0;
+        const firstDividend = Number(group?.firstAuction?.firstDividentHead) || 0;
+
+        const isDouble = grp.group_type === "double";
+
+        const totalBePaid = isDouble
+          ? groupInstall * auctionCount + groupInstall
+          : payable + groupInstall + profit;
+
+        const toBePaidAmount = isDouble
+          ? totalBePaid
+          : payable + groupInstall + firstDividend;
+
+        return {
+          id: index + 1,
+          group: grp.group_name || "",
+          ticket: enrollment.tickets || "",
+          totalBePaid,
+          profit,
+          toBePaidAmount,
+          paidAmount: totalPaid,
+          balance: toBePaidAmount - totalPaid,
+          referred_type: enrollment.referred_type || "N/A",
+          referrer_name: enrollment.referrer_name || "N/A",
+          chit_asking_month: enrollment.chit_asking_month || "N/A",
+          customer_status: enrollment.customer_status,
+          removal_reason: enrollment.removal_reason || "N/A",
+          isPrized: enrollment.isPrized ? "Prized" : "Un Prized",
+        };
+      })
+      .filter(Boolean);
+
+    setTableAuctions(formattedData);
+
+    // 📊 Totals
+    setTotalToBePaid(
+      formattedData.reduce((sum, row) => sum + row.totalBePaid, 0)
+    );
+
+    setNetTotalProfit(
+      formattedData.reduce((sum, row) => sum + row.toBePaidAmount, 0)
+    );
+
+    setTotalPaid(
+      formattedData.reduce((sum, row) => sum + row.paidAmount, 0)
+    );
+
+    setTotalProfit(
+      formattedData.reduce((sum, row) => sum + row.profit, 0)
+    );
+
+  } catch (error) {
+    console.error("Error fetching enrollment data:", error);
+  }
+};
+
+
   useEffect(() => {
     if (userId) {
       handleGroupAuctionChange(userId);
@@ -836,7 +930,7 @@ const UserReport = () => {
     { key: "ticket", header: "Ticket" },
     { key: "referred_type", header: "Referrer Type" },
     { key: "referrer_name", header: "Referred By" },
-    {key: "chit_asking_month", header: "Chit Asking Month"},
+    { key: "chit_asking_month", header: "Chit Asking Month" },
     { key: "isPrized", header: "Is Prized" },
     { key: "totalBePaid", header: "Amount to be Paid" },
     { key: "profit", header: "Profit" },
@@ -1084,32 +1178,29 @@ const UserReport = () => {
                   <div className="mt-6 mb-8">
                     <div className="flex justify-start border-b border-gray-300 mb-4">
                       <button
-                        className={`px-6 py-2 font-medium ${
-                          activeTab === "groupDetails"
+                        className={`px-6 py-2 font-medium ${activeTab === "groupDetails"
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
-                        }`}
+                          }`}
                         onClick={() => handleTabChange("groupDetails")}
                       >
                         Customer Details
                       </button>
                       <button
-                        className={`px-6 py-2 font-medium ${
-                          activeTab === "basicReport"
+                        className={`px-6 py-2 font-medium ${activeTab === "basicReport"
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
-                        }`}
+                          }`}
                         onClick={() => handleTabChange("basicReport")}
                       >
                         Customer Ledger
                       </button>
 
                       <button
-                        className={`px-6 py-2 font-medium ${
-                          activeTab === "disbursement"
+                        className={`px-6 py-2 font-medium ${activeTab === "disbursement"
                             ? "border-b-2 border-blue-500 text-blue-500"
                             : "text-gray-500"
-                        }`}
+                          }`}
                         onClick={() => handleTabChange("disbursement")}
                       >
                         PayOut | Disbursement
@@ -1234,11 +1325,10 @@ const UserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${
-          visibleRows.row1
-            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-        }
+        ${visibleRows.row1
+                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+                                    }
       `}
                                 >
                                   {visibleRows.row1
@@ -1254,11 +1344,10 @@ const UserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${
-          visibleRows.row2
-            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-        }
+        ${visibleRows.row2
+                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+                                    }
       `}
                                 >
                                   {visibleRows.row2
@@ -1274,11 +1363,10 @@ const UserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${
-          visibleRows.row3
-            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-        }
+        ${visibleRows.row3
+                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+                                    }
       `}
                                 >
                                   {visibleRows.row3
@@ -1294,11 +1382,10 @@ const UserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${
-          visibleRows.row4
-            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-        }
+        ${visibleRows.row4
+                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+                                    }
       `}
                                 >
                                   {visibleRows.row4
@@ -1359,8 +1446,8 @@ const UserReport = () => {
                                       value={
                                         group.dateofbirth
                                           ? new Date(group.dateofbirth)
-                                              .toISOString()
-                                              .split("T")[0]
+                                            .toISOString()
+                                            .split("T")[0]
                                           : ""
                                       }
                                     />
@@ -1429,8 +1516,8 @@ const UserReport = () => {
                                       value={
                                         group.nominee_dateofbirth
                                           ? new Date(group.nominee_dateofbirth)
-                                              .toISOString()
-                                              .split("T")[0]
+                                            .toISOString()
+                                            .split("T")[0]
                                           : ""
                                       }
                                     />
@@ -1471,78 +1558,81 @@ const UserReport = () => {
                               <h3 className="text-lg font-medium mb-4">
                                 Enrolled Groups
                               </h3>
-                              {/* Changed conditional to check TableAuctions directly, as it's the formatted data */}
+                          
                               {TableAuctions &&
-                              TableAuctions.length > 0 &&
-                              !isLoading ? (
-                                <div className="mt-5">
-                                  <DataTable
-                                    data={filterOption(
-                                      TableAuctions, // Use TableAuctions for display
-                                      searchText
-                                    )}
-                                    columns={Auctioncolumns}
-                                    exportedPdfName={`Customer Report`}
-                                    printHeaderKeys={[
-                                      "Customer Name",
-                                      "Phone Number",
-                                      "Total Amount To Be Paid",
-                                      "Total Profit",
-                                      "Total Net To be Paid",
-                                      "Total Balance",
-                                    ]}
-                                    printHeaderValues={[
-                                      group.full_name,
-                                      group?.phone_number,
-                                      TotalToBepaid,
-                                      Totalprofit,
-                                      NetTotalprofit,
-                                      NetTotalprofit && Totalpaid
-                                        ? NetTotalprofit - Totalpaid
-                                        : "",
-                                    ]}
-                                    exportedFileName={`CustomerReport-${
-                                      TableAuctions.length > 0
-                                        ? TableAuctions[0].date +
-                                          " to " +
-                                          TableAuctions[
-                                            TableAuctions.length - 1
-                                          ].date
-                                        : "empty"
-                                    }.csv`}
-                                  />
-                                  {/* yes you can */}
-                                  {filteredBorrowerData.length > 0 && (
-                                    <div className="mt-10">
-                                      <h3 className="text-lg font-medium mb-4">
-                                        Loan Details
-                                      </h3>
-                                      <DataTable
-                                        data={filteredBorrowerData}
-                                        columns={loanColumns}
-                                        exportedFileName={`CustomerReport.csv`}
-                                      />
-                                    </div>
-                                  )}
+                                TableAuctions.length > 0 &&
+                                !isLoading && (
+                                  <div className="mt-5">
+                                    <DataTable
+                                      data={filterOption(TableAuctions, searchText)}
+                                      columns={Auctioncolumns}
+                                      exportedPdfName="Customer Report"
+                                      printHeaderKeys={[
+                                        "Customer Name",
+                                        "Phone Number",
+                                        "Total Amount To Be Paid",
+                                        "Total Profit",
+                                        "Total Net To be Paid",
+                                        "Total Balance",
+                                      ]}
+                                      printHeaderValues={[
+                                        group.full_name,
+                                        group?.phone_number,
+                                        TotalToBepaid,
+                                        Totalprofit,
+                                        NetTotalprofit,
+                                        NetTotalprofit && Totalpaid
+                                          ? NetTotalprofit - Totalpaid
+                                          : "",
+                                      ]}
+                                      exportedFileName={`CustomerChitReport.csv`}
+                                    />
+                                  </div>
+                                )}
 
-                                  {filteredPigmeData.length > 0 && (
-                                    <div className="mt-10">
-                                      <h3 className="text-lg font-medium mb-4">
-                                        Pigme Details
-                                      </h3>
-                                      <DataTable
-                                        data={filteredPigmeData}
-                                        columns={pigmeColumns}
-                                        exportedFileName={`PigmeCustomerReport.csv`}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <CircularLoader isLoading={isLoading} />
-                              )}
 
-                              {/* Display "No Data" if not loading and TableAuctions is empty */}
+                              {filteredBorrowerData &&
+                                filteredBorrowerData.length > 0 &&
+                                !isLoading && (
+                                  <div className="mt-10">
+                                    <h3 className="text-lg font-medium mb-4">Loan Details</h3>
+                                    <DataTable
+                                      data={filteredBorrowerData}
+                                      columns={loanColumns}
+                                      exportedFileName="CustomerLoanReport.csv"
+                                    />
+                                  </div>
+                                )}
+
+
+                              {filteredPigmeData &&
+                                filteredPigmeData.length > 0 &&
+                                !isLoading && (
+                                  <div className="mt-10">
+                                    <h3 className="text-lg font-medium mb-4">Pigme Details</h3>
+                                    <DataTable
+                                      data={filteredPigmeData}
+                                      columns={pigmeColumns}
+                                      exportedFileName="PigmeCustomerReport.csv"
+                                    />
+                                  </div>
+                                )}
+
+
+                              {!isLoading &&
+                                TableAuctions.length === 0 &&
+                                filteredBorrowerData.length === 0 &&
+                                filteredPigmeData.length === 0 && (
+                                  <div className="p-20 w-full flex justify-center items-center text-gray-500">
+                                    No Chit Group, Loan, or Pigme data found for this customer
+                                  </div>
+                                )}
+
+
+                              {isLoading && <CircularLoader isLoading={isLoading} />}
+
+
+
                               {!isLoading && TableAuctions.length === 0 && (
                                 <div className="p-40 w-full flex justify-center items-center">
                                   No Enrolled Group Data Found
@@ -1850,9 +1940,8 @@ const UserReport = () => {
                                         key={
                                           loan?.loan_details?.loan?._id || index
                                         }
-                                        value={`Loan|${
-                                          loan?.loan_details?.loan?._id || index
-                                        }`}
+                                        value={`Loan|${loan?.loan_details?.loan?._id || index
+                                          }`}
                                       >
                                         {loan?.loan_details?.loan?.loan_id ||
                                           "N/A"}{" "}
@@ -1869,10 +1958,9 @@ const UserReport = () => {
                                           pigme?.pigme_details?.pigme?._id ||
                                           index
                                         }
-                                        value={`Pigme|${
-                                          pigme?.pigme_details?.pigme?._id ||
+                                        value={`Pigme|${pigme?.pigme_details?.pigme?._id ||
                                           index
-                                        }`}
+                                          }`}
                                       >
                                         {pigme?.pigme_details?.pigme
                                           ?.pigme_id || "N/A"}{" "}
@@ -1887,9 +1975,8 @@ const UserReport = () => {
                           <div className="mt-6 flex justify-center gap-8 flex-wrap">
                             <input
                               type="text"
-                              value={`Registration Fee: ₹${
-                                registrationAmount || 0
-                              }`}
+                              value={`Registration Fee: ₹${registrationAmount || 0
+                                }`}
                               readOnly
                               className="px-4 py-2 border rounded font-semibold w-60 text-center bg-green-100 text-green-800 border-green-400"
                             />
@@ -1901,10 +1988,9 @@ const UserReport = () => {
                             />
                             <input
                               type="text"
-                              value={`Total: ₹${
-                                Number(finalPaymentBalance) +
+                              value={`Total: ₹${Number(finalPaymentBalance) +
                                 Number(registrationAmount || 0)
-                              }`}
+                                }`}
                               readOnly
                               className="px-4 py-2 border rounded font-semibold w-60 text-center bg-purple-100 text-purple-800 border-purple-400"
                             />
@@ -1914,7 +2000,7 @@ const UserReport = () => {
                           {(TableEnrolls?.length > 0 ||
                             borrowersData?.length > 0 ||
                             pigmeCustomerData?.length > 0) &&
-                          !basicLoading ? (
+                            !basicLoading ? (
                             <div className="mt-10">
                               <DataTable
                                 exportedPdfName="Customer Ledger Report"
@@ -1926,25 +2012,25 @@ const UserReport = () => {
                                   "Group Name",
                                 ]}
                                 printHeaderValues={[
-                                  group.full_name,
-                                  group.customer_id,
-                                  group.phone_number,
-                                  EnrollGroupId.ticket,
-                                  groupDetails.group_name,
+                                  group?.full_name,
+                                  group?.customer_id,
+                                  group?.phone_number,
+                                  EnrollGroupId?.ticket,
+                                  groupDetails?.group_name,
                                 ]}
                                 data={
-                                  EnrollGroupId.groupId === "Loan"
+                                  EnrollGroupId?.groupId === "Loan"
                                     ? borrowersData
-                                    : EnrollGroupId.groupId === "Pigme"
-                                    ? pigmeCustomerData
-                                    : TableEnrolls
+                                    : EnrollGroupId?.groupId === "Pigme"
+                                      ? pigmeCustomerData
+                                      : TableEnrolls
                                 }
                                 columns={
-                                  EnrollGroupId.groupId === "Loan"
+                                  EnrollGroupId?.groupId === "Loan"
                                     ? BasicLoanColumns
-                                    : EnrollGroupId.groupId === "Pigme"
-                                    ? BasicPigmeColumns
-                                    : Basiccolumns
+                                    : EnrollGroupId?.groupId === "Pigme"
+                                      ? BasicPigmeColumns
+                                      : Basiccolumns
                                 }
                               />
                             </div>
