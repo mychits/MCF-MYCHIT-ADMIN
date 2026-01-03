@@ -256,13 +256,12 @@ const SalaryPayment = () => {
     try {
       setUpdateLoading(true);
       setIsOpenUpdateModal(true);
-      setAdjustmentAmount(0); // Reset adjustment amount
+      setAdjustmentAmount(0);
       const salaryData = await getSalaryById(id);
       if (salaryData) {
         setCurrentSalaryId(id);
         const yearAsDayjs = dayjs(salaryData.salary_year, "YYYY");
 
-        // Ensure paid_amount defaults to total_salary_payable if not set
         const paidAmount =
           salaryData.paid_amount || salaryData.total_salary_payable || 0;
 
@@ -326,41 +325,41 @@ const SalaryPayment = () => {
       ...allValues,
     });
   };
- const handleUpdateSubmit = async () => {
-  try {
-    setUpdateLoading(true);
+  const handleUpdateSubmit = async () => {
+    try {
+      setUpdateLoading(true);
 
-    // Get latest values from form
-    const formValues = updateForm.getFieldsValue();
-    const totalPayable = Number(formValues.total_salary_payable || 0);
-    const adjAmount = adjustmentAmount; // Use your state
-    const computedPaidAmount = totalPayable + adjAmount;
+      // Get latest values from form
+      const formValues = updateForm.getFieldsValue();
+      const totalPayable = Number(formValues.total_salary_payable || 0);
+      const adjAmount = adjustmentAmount; // Use your state
+      const computedPaidAmount = totalPayable + adjAmount;
 
-    const remaining_balance = totalPayable - computedPaidAmount;
+      const remaining_balance = totalPayable - computedPaidAmount;
 
-    const updateData = {
-      ...formValues,
-      paid_amount: computedPaidAmount,
-      remaining_balance,
-      monthly_business_info: formValues.monthly_business_info || {
-        target: 0,
-        total_business_closed: 0,
-        previous_remaining_target: 0,
-        current_remaining_target: 0,
-      },
-    };
+      const updateData = {
+        ...formValues,
+        paid_amount: computedPaidAmount,
+        remaining_balance,
+        monthly_business_info: formValues.monthly_business_info || {
+          target: 0,
+          total_business_closed: 0,
+          previous_remaining_target: 0,
+          current_remaining_target: 0,
+        },
+      };
 
-    await API.put(`/salary-payment/${currentSalaryId}`, updateData);
-    message.success("Salary updated successfully");
-    setIsOpenUpdateModal(false);
-    getAllSalary();
-  } catch (error) {
-    console.error("Error updating salary:", error);
-    message.error("Failed to update salary");
-  } finally {
-    setUpdateLoading(false);
-  }
-};
+      await API.put(`/salary-payment/${currentSalaryId}`, updateData);
+      message.success("Salary updated successfully");
+      setIsOpenUpdateModal(false);
+      getAllSalary();
+    } catch (error) {
+      console.error("Error updating salary:", error);
+      message.error("Failed to update salary");
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
   const handlePrint = (salaryPaymentId) => {
     navigate("/salary-slip-print/" + salaryPaymentId);
   };

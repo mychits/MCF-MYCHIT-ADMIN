@@ -15,7 +15,14 @@ import Navbar from "../components/layouts/Navbar";
 import Sidebar from "../components/layouts/Sidebar";
 import DataTable from "../components/layouts/Datatable";
 import { useEffect, useState, useMemo } from "react";
-import { TrendingUp, Target, CheckCircle, BarChart3 } from "lucide-react";
+import {
+  TrendingUp,
+  Target,
+  CheckCircle,
+  BarChart3,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import API from "../instance/TokenInstance";
 import dayjs from "dayjs";
 import {
@@ -40,7 +47,7 @@ const HRSalaryManagement = () => {
   const navigate = useNavigate();
   const [isOpenAddModal, setIsOpenAddModal] = useState(false);
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
-  const [updateLoading, setUpdateLoading] = useState(false);  
+  const [updateLoading, setUpdateLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [calculateLoading, setCalculateLoading] = useState(false);
   const [employees, setEmployees] = useState([]);
@@ -97,8 +104,6 @@ const HRSalaryManagement = () => {
   // New state for confirmation modals
   const [payAsSalaryModalOpen, setPayAsSalaryModalOpen] = useState(false);
   const [payAsIncentiveModalOpen, setPayAsIncentiveModalOpen] = useState(false);
-  const [previousMonthRemainingBalance, setPreviousMonthRemainingBalance] =
-    useState(0);
 
   const thisYear = dayjs().format("YYYY");
 
@@ -202,114 +207,87 @@ const HRSalaryManagement = () => {
   };
 
   // Confirm Pay as Salary
-  // Confirm Pay as Salary
-  // const confirmPayAsSalary = () => {
-  //   const totalTarget = Number(
-  //     formData.monthly_business_info.total_target || 0
-  //   );
-  //   const currentRemainingTarget = Number(
-  //     formData.monthly_business_info.current_remaining_target || 0
-  //   );
+  const confirmPayAsSalary = () => {
+    const totalTarget = Number(
+      formData.monthly_business_info.total_target || 0
+    );
+    const totalBusinessClosed = Number(
+      formData.monthly_business_info.total_business_closed || 0
+    );
+    const currentRemainingTarget = Number(
+      formData.monthly_business_info.current_remaining_target || 0
+    );
 
-  //   // Calculate incentive using formula
-  //   const incentiveDiff = (totalTarget - currentRemainingTarget) / 100;
-  //   const incentiveAmount =
-  //     incentiveDiff > 0
-  //       ? currentRemainingTarget / 100
-  //       : Math.abs(incentiveDiff);
+    // Calculate raw incentive as per requirements
+    const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
 
-  //   // Handle current_remaining_target based on requirement
-  //   // If currentRemainingTarget < 0, set to 0; else, keep as is
-  //   const updatedRemainingTarget =
-  //     currentRemainingTarget < 0 ? 0 : currentRemainingTarget;
+    let incentiveAmount = 0;
+    if (rawIncentive > 0) {
+      // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
+      incentiveAmount = totalBusinessClosed / 100;
+    } else if (rawIncentive < 0) {
+      // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
+      incentiveAmount = Math.abs(rawIncentive);
+    }
 
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     additional_payments: [
-  //       ...prev.additional_payments,
-  //       {
-  //         name: "Salary Payable",
-  //         value: incentiveAmount,
-  //       },
-  //     ],
-  //     monthly_business_info: {
-  //       ...prev.monthly_business_info,
-  //       current_remaining_target: updatedRemainingTarget,
-  //     },
-  //   }));
+    // Handle current_remaining_target based on requirement
+    // If currentRemainingTarget < 0, set to 0; else, keep as is
+    const updatedRemainingTarget =
+      currentRemainingTarget < 0 ? 0 : currentRemainingTarget;
 
-  //   message.success("Salary payable amount added successfully");
-  //   setPayAsSalaryModalOpen(false);
-  // };
-const confirmPayAsSalary = () => {
-  const totalTarget = Number(formData.monthly_business_info.total_target || 0);
-  const totalBusinessClosed = Number(formData.monthly_business_info.total_business_closed || 0);
-  const currentRemainingTarget = Number(formData.monthly_business_info.current_remaining_target || 0);
-  
-  // Calculate raw incentive as per requirements
-  const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
-  
-  let incentiveAmount = 0;
-  if (rawIncentive > 0) {
-    // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
-    incentiveAmount = totalBusinessClosed / 100;
-  } else if (rawIncentive < 0) {
-    // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
-    incentiveAmount = Math.abs(rawIncentive);
-  }
-  
-  // Handle current_remaining_target based on requirement
-  // If currentRemainingTarget < 0, set to 0; else, keep as is
-  const updatedRemainingTarget = currentRemainingTarget < 0 ? 0 : currentRemainingTarget;
-      
-  setFormData((prev) => ({
-    ...prev,
-    additional_payments: [
-      ...prev.additional_payments,
-      {
-        name: "Salary Payable",
-        value: incentiveAmount,
+    setFormData((prev) => ({
+      ...prev,
+      additional_payments: [
+        ...prev.additional_payments,
+        {
+          name: "Salary Payable",
+          value: incentiveAmount,
+        },
+      ],
+      monthly_business_info: {
+        ...prev.monthly_business_info,
+        current_remaining_target: updatedRemainingTarget,
       },
-    ],
-    monthly_business_info: {
-      ...prev.monthly_business_info,
-      current_remaining_target: updatedRemainingTarget,
-    },
-    calculated_incentive: 0, // Reset calculated incentive
-  }));
-  
-  message.success("Salary payable amount added successfully");
-  setPayAsSalaryModalOpen(false);
-};
+      calculated_incentive: 0, // Reset calculated incentive
+    }));
+
+    message.success("Salary payable amount added successfully");
+    setPayAsSalaryModalOpen(false);
+  };
+
   // Confirm Pay as Incentive
-const confirmPayAsIncentive = () => {
-  const totalTarget = Number(formData.monthly_business_info.total_target || 0);
-  const totalBusinessClosed = Number(formData.monthly_business_info.total_business_closed || 0);
-  
-  // Calculate raw incentive
-  const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
-  let incentiveAmount = 0;
-  
-  if (rawIncentive > 0) {
-    // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
-    incentiveAmount = totalBusinessClosed / 100;
-  } else if (rawIncentive < 0) {
-    // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
-    incentiveAmount = Math.abs(rawIncentive);
-  }
-  
-  setFormData((prev) => ({
-    ...prev,
-    calculated_incentive: incentiveAmount,
-    monthly_business_info: {
-      ...prev.monthly_business_info,
-      current_remaining_target: 0,
-    },
-  }));
-  
-  message.success("Incentive payable amount added successfully");
-  setPayAsIncentiveModalOpen(false);
-};
+  const confirmPayAsIncentive = () => {
+    const totalTarget = Number(
+      formData.monthly_business_info.total_target || 0
+    );
+    const totalBusinessClosed = Number(
+      formData.monthly_business_info.total_business_closed || 0
+    );
+
+    // Calculate raw incentive
+    const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
+    let incentiveAmount = 0;
+
+    if (rawIncentive > 0) {
+      // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
+      incentiveAmount = totalBusinessClosed / 100;
+    } else if (rawIncentive < 0) {
+      // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
+      incentiveAmount = Math.abs(rawIncentive);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      calculated_incentive: incentiveAmount,
+      monthly_business_info: {
+        ...prev.monthly_business_info,
+        current_remaining_target: 0,
+      },
+    }));
+
+    message.success("Incentive payable amount added successfully");
+    setPayAsIncentiveModalOpen(false);
+  };
 
   async function fetchEmployees() {
     try {
@@ -565,7 +543,6 @@ const confirmPayAsIncentive = () => {
     if (formData.employee_id && formData.month && formData.year) {
       loadTargetAndIncentive();
       fetchSalaryDetails();
-      fetchPreviousMonthRemainingBalance();
     }
   }, [formData.employee_id, formData.month, formData.year]);
 
@@ -619,32 +596,32 @@ const confirmPayAsIncentive = () => {
     }
   }, [formData?.employee_id]);
 
-const handleChange = (name, value) => {
-  setFormData((prev) => {
-    let updatedFormData = { ...prev, [name]: value };
-    
-    // Reset calculated_incentive when month changes
-    if (name === "month") {
-      updatedFormData = {
-        ...updatedFormData,
-        calculated_incentive: 0
-      };
-    }
-    
-    if (["employee_id", "month", "year", "target"].includes(name)) {
-      setCalculatedSalary(null);
-      setShowComponents(false);
-      updatedFormData = {
-        ...updatedFormData,
-        paid_amount: 0,
-        transaction_id: "",
-        payment_method: "",
-      };
-    }
-    
-    return updatedFormData;
-  });
-};
+  const handleChange = (name, value) => {
+    setFormData((prev) => {
+      let updatedFormData = { ...prev, [name]: value };
+
+      // Reset calculated_incentive when month changes
+      if (name === "month") {
+        updatedFormData = {
+          ...updatedFormData,
+          calculated_incentive: 0,
+        };
+      }
+
+      if (["employee_id", "month", "year", "target"].includes(name)) {
+        setCalculatedSalary(null);
+        setShowComponents(false);
+        updatedFormData = {
+          ...updatedFormData,
+          paid_amount: 0,
+          transaction_id: "",
+          payment_method: "",
+        };
+      }
+
+      return updatedFormData;
+    });
+  };
 
   const handleDeductionsChange = (name, value) => {
     setFormData((prev) => ({
@@ -779,7 +756,7 @@ const handleChange = (name, value) => {
       const calculated = response.data.data;
       setCalculatedSalary(calculated);
       // Set previous month remaining balance
-      setPreviousMonthRemainingBalance(calculated.remaining_balance || 0);
+
       setFormData((prev) => ({
         ...prev,
         total_salary_payable: calculated.calculated_salary,
@@ -847,36 +824,19 @@ const handleChange = (name, value) => {
       const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
 
       if (rawIncentive > 0) {
-        // If rawIncentive > 0
-        // total_payable = 0 (unless Pay as Salary is confirmed)
         totalSalaryPayable = 0;
-
-        // Add previous month balance and advance payments
-        totalSalaryPayable += previousMonthRemainingBalance + advanceTotal;
-
-        // Add additional payments minus deductions
+        totalSalaryPayable += advanceTotal;
         totalSalaryPayable +=
           additionalPaymentsTotal - additionalDeductionsTotal;
+        totalSalaryPayable -= totalDeductions;
       } else if (rawIncentive < 0) {
-        // If rawIncentive < 0
-        // total_payable = calculated salary from attendance details
         totalSalaryPayable = baseSalary;
-
-        // Add previous month balance and advance payments
-        totalSalaryPayable += previousMonthRemainingBalance + advanceTotal;
-
-        // Add additional payments minus deductions
+        totalSalaryPayable += advanceTotal;
         totalSalaryPayable +=
           additionalPaymentsTotal - additionalDeductionsTotal;
       } else {
-        // If rawIncentive === 0
-        // total_payable = calculated salary from attendance details
         totalSalaryPayable = baseSalary;
-
-        // Add previous month balance and advance payments
-        totalSalaryPayable += previousMonthRemainingBalance + advanceTotal;
-
-        // Add additional payments minus deductions
+        totalSalaryPayable += advanceTotal;
         totalSalaryPayable +=
           additionalPaymentsTotal - additionalDeductionsTotal;
       }
@@ -1012,7 +972,6 @@ const handleChange = (name, value) => {
     return baseTotal;
   }, [formData.deductions]);
 
-  // Updated incentive calculation logic according to requirements
   const calculatedIncentive = useMemo(() => {
     const totalTarget = Number(
       formData.monthly_business_info.total_target || 0
@@ -1021,53 +980,19 @@ const handleChange = (name, value) => {
       formData.monthly_business_info.total_business_closed || 0
     );
 
-    // Calculate raw incentive as per requirements
     const rawIncentive = (totalTarget - totalBusinessClosed) / 100;
 
     if (rawIncentive > 0) {
-      // If rawIncentive > 0, calculatedIncentive = totalBusinessClosed / 100
       return totalBusinessClosed / 100;
     } else if (rawIncentive < 0) {
-      // If rawIncentive < 0, calculatedIncentive = abs(rawIncentive)
       return Math.abs(rawIncentive);
     } else {
-      // If rawIncentive === 0, calculatedIncentive = 0
       return 0;
     }
   }, [
     formData.monthly_business_info.total_target,
     formData.monthly_business_info.total_business_closed,
   ]);
-
-  const fetchPreviousMonthRemainingBalance = async () => {
-    try {
-      if (!formData.employee_id || !formData.month || !formData.year) return;
-      const monthIndex = moment().month(formData.month).month();
-      const prevMonthStart = moment()
-        .year(formData.year)
-        .month(monthIndex - 1)
-        .startOf("month")
-        .format("YYYY-MM-DD");
-      const prevMonthEnd = moment()
-        .year(formData.year)
-        .month(monthIndex - 1)
-        .endOf("month")
-        .format("YYYY-MM-DD");
-      const response = await API.get(
-        `/salary-payment/employees/${formData.employee_id}?month=${moment()
-          .month(monthIndex - 1)
-          .format("MMMM")}&year=${formData.year}`
-      );
-      if (response.data?.data?.remaining_balance) {
-        setPreviousMonthRemainingBalance(response.data.data.remaining_balance);
-      } else {
-        setPreviousMonthRemainingBalance(0);
-      }
-    } catch (error) {
-      console.error("Failed to fetch previous month remaining balance:", error);
-      setPreviousMonthRemainingBalance(0);
-    }
-  };
 
   return (
     <div>
@@ -1286,20 +1211,228 @@ const handleChange = (name, value) => {
                         disabled
                       />
                     </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Total Salary
-                      </label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                        placeholder="Enter Total Salary"
-                        value={formData.total_salary}
-                        disabled
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(formData.total_salary || 0)}
-                      </span>
+                  </div>
+
+                  {/* === Earnings Subsection (Inside Employee Details) === */}
+                  <div className="mt-6 pt-4 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold mb-4">Earnings</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Gross Salary
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.salary || 0}
+                          disabled
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Basic Salary
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.basic || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(formData?.earnings?.basic || 0)}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          House Rent Allowance (HRA)
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.hra || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(formData?.earnings?.hra || 0)}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Travel Allowance
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.travel_allowance || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.travel_allowance || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Medical Allowance
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.medical_allowance || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.medical_allowance || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Basket of Benefits
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.basket_of_benifits || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.basket_of_benifits || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Performance Bonus
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.performance_bonus || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.performance_bonus || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Other Allowances
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.other_allowances || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.other_allowances || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Conveyance
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.earnings?.conveyance || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.earnings?.conveyance || 0
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* === Deductions Subsection (Inside Employee Details) === */}
+                  <div className="mt-6 pt-4 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold  mb-4">Deductions</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Income Tax
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.deductions?.income_tax || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.deductions?.income_tax || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          ESI (Employee State Insurance)
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.deductions?.esi || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(formData?.deductions?.esi || 0)}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          EPF (Employee Provident Fund)
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.deductions?.epf || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(formData?.deductions?.epf || 0)}
+                        </span>
+                      </div>
+                      <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Professional Tax
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={formData?.deductions?.professional_tax || 0}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(
+                            formData?.deductions?.professional_tax || 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="form-group mt-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Total Deductions
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={totalDeductions.toFixed(2)}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(totalDeductions.toFixed(2))}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1314,24 +1447,6 @@ const handleChange = (name, value) => {
                         Monthly Target & Incentive
                       </h3>
                     </div>
-                    <div className="flex gap-2">
-                      {calculatedIncentive > 0 && (
-                        <>
-                          <Button
-                            type="primary"
-                            onClick={handlePayAsSalary}
-                            className="bg-blue-600 hover:bg-blue-700">
-                            Pay as Salary
-                          </Button>
-                          <Button
-                            type="primary"
-                            onClick={handlePayAsIncentive}
-                            className="bg-purple-600 hover:bg-purple-700">
-                            Pay as Incentive
-                          </Button>
-                        </>
-                      )}
-                    </div>
                   </div>
                   {/* Metrics Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1340,7 +1455,7 @@ const handleChange = (name, value) => {
                       <div className="flex items-center gap-2 mb-2">
                         <Target className="w-4 h-4 text-blue-600" />
                         <label className="font-semibold text-gray-700 text-sm">
-                         Current Month Target
+                          Current Month Target
                         </label>
                       </div>
                       <input
@@ -1429,341 +1544,76 @@ const handleChange = (name, value) => {
                       </span>
                     </div>
                     {/* Current Remaining Target */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-red-600" />
-                        <label className="font-semibold text-gray-700 text-sm">
-                          Pending Target 
-                        </label>
-                      </div>
-                      <input
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        value={
-                          formData?.monthly_business_info
-                            ?.current_remaining_target || 0
-                        }
-                        disabled
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-red-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                      />
-                      <span className="mt-2 font-medium font-mono text-red-600 text-sm">
-                        {numberToIndianWords(
-                          formData?.monthly_business_info
-                            ?.current_remaining_target ?? 0
-                        )}
-                      </span>
-                    </div>
                   </div>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-semibold text-green-800 mb-4">
-                    Earnings
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Fixed Salary
-                      </label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                        value={formData?.earnings?.salary || 0}
-                        disabled
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Basic Salary
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Enter Basic Salary"
-                        onChange={(e) =>
-                          handleEarningsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="basic"
-                        id="basic"
-                        value={formData?.earnings?.basic}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(formData?.earnings?.basic || 0)}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        House Rent Allowance (HRA)
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Enter House Rent Allowance"
-                        onChange={(e) =>
-                          handleEarningsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        name="hra"
-                        id="hra"
-                        value={formData?.earnings?.hra}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(formData?.earnings?.hra || 0)}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Travel Allowance
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Enter Travel Allowance"
-                        onChange={(e) =>
-                          handleEarningsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="travel_allowance"
-                        id="travel_allowance"
-                        value={formData?.earnings?.travel_allowance}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(
-                          formData?.earnings?.travel_allowance || 0
-                        )}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Medical Allowance
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Enter Medical Allowance"
-                        onChange={(e) =>
-                          handleEarningsChange(e.target.name, e.target.value)
-                        }
-                        type="text"
-                        name="medical_allowance"
-                        id="medical_allowance"
-                        value={formData?.earnings?.medical_allowance}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(
-                          formData?.earnings?.medical_allowance || 0
-                        )}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Basket of Benefits
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Enter Basket Of Benefits"
-                        onChange={(e) =>
-                          handleEarningsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="basket_of_benifits"
-                        id="basket_of_benifits"
-                        value={formData?.earnings?.basket_of_benifits}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(
-                          formData?.earnings?.basket_of_benifits || 0
-                        )}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Performance Bonus
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Enter Performance Bonus"
-                        onChange={(e) =>
-                          handleEarningsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="performance_bonus"
-                        id="performance_bonus"
-                        value={formData?.earnings?.performance_bonus}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(
-                          formData?.earnings?.performance_bonus || 0
-                        )}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Other Allowances
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Enter Other Allowances"
-                        onChange={(e) =>
-                          handleEarningsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="other_allowances"
-                        id="other_allowances"
-                        value={formData?.earnings?.other_allowances}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(
-                          formData?.earnings?.other_allowances || 0
-                        )}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Conveyance
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Enter Conveyance"
-                        onChange={(e) =>
-                          handleEarningsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="conveyance"
-                        id="conveyance"
-                        value={formData?.earnings?.conveyance}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(
-                          formData?.earnings?.conveyance || 0
-                        )}
-                      </span>
-                    </div>
-                    <div className="form-group mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Total Earnings
-                      </label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                        value={totalEarningsExcludingSalary.toFixed(2)}
-                        disabled
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(totalEarningsExcludingSalary)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-semibold text-red-800 mb-4">
-                    Deductions
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Income Tax
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Enter Income Tax"
-                        onChange={(e) =>
-                          handleDeductionsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="income_tax"
-                        id="income_tax"
-                        value={formData?.deductions?.income_tax}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(
-                          formData?.deductions?.income_tax || 0
-                        )}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ESI (Employee State Insurance)
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Enter ESI"
-                        onChange={(e) =>
-                          handleDeductionsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="esi"
-                        id="esi"
-                        value={formData?.deductions?.esi}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(formData?.deductions?.esi || 0)}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        EPF (Employee Provident Fund)
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Enter EPF"
-                        onChange={(e) =>
-                          handleDeductionsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="epf"
-                        id="epf"
-                        value={formData?.deductions?.epf}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(formData?.deductions?.epf || 0)}
-                      </span>
-                    </div>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Professional Tax
-                      </label>
-                      <input
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Enter Professional Tax"
-                        onChange={(e) =>
-                          handleDeductionsChange(e.target.name, e.target.value)
-                        }
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        name="professional_tax"
-                        id="professional_tax"
-                        value={formData?.deductions?.professional_tax}
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(
-                          formData?.deductions?.professional_tax || 0
-                        )}
-                      </span>
-                    </div>
-                    <div className="form-group mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Total Deductions
-                      </label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                        value={totalDeductions.toFixed(2)}
-                        disabled
-                      />
-                      <span className="ml-2 font-medium font-mono text-blue-600">
-                        {numberToIndianWords(totalDeductions.toFixed(2))}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                {/* Previous Month Remaining Balance */}
 
+                  {/* === Target Achievement Badge === */}
+                  <div className="mt-4 flex justify-start">
+                    {(() => {
+                      const totalTarget = Number(
+                        formData.monthly_business_info.total_target || 0
+                      );
+                      const totalBusinessClosed = Number(
+                        formData.monthly_business_info.total_business_closed ||
+                          0
+                      );
+                      const variance = totalBusinessClosed - totalTarget;
+
+                      // Configuration for different status states
+                      const statusConfig = {
+                        exceeded: {
+                          icon: (
+                            <TrendingUp className="w-4 h-4 text-emerald-600" />
+                          ),
+                          container:
+                            "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm shadow-emerald-100/50",
+                          label: `Business Exceeded by ₹${variance.toLocaleString(
+                            "en-IN"
+                          )}`,
+                        },
+                        achieved: {
+                          icon: (
+                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                          ),
+                          container:
+                            "bg-green-50 text-green-700 border-green-200 shadow-sm shadow-blue-100/50",
+                          label: "Target Achieved",
+                        },
+                        shortfall: {
+                          icon: (
+                            <AlertCircle className="w-4 h-4 text-red-600" />
+                          ),
+                          container:
+                            "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100/50",
+                          label: `Business Shortfall: ₹${Math.abs(
+                            variance
+                          ).toLocaleString("en-IN")}`,
+                        },
+                      };
+
+                      let currentStatus = statusConfig.shortfall;
+                      if (variance > 0) currentStatus = statusConfig.exceeded;
+                      else if (variance === 0)
+                        currentStatus = statusConfig.achieved;
+
+                      return (
+                        <div
+                          className={`
+        inline-flex items-center gap-2.5 px-4 py-1.5 
+        rounded-xl border font-bold text-xs tracking-tight
+        transition-all duration-300 ease-in-out
+        ${currentStatus.container}
+      `}>
+                          <div className="flex items-center justify-center">
+                            {currentStatus.icon}
+                          </div>
+                          <span className="uppercase">
+                            {currentStatus.label}
+                          </span>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
                 {/* Calculate Button */}
                 <div className="flex justify-end pt-4">
                   <Button
@@ -1781,7 +1631,7 @@ const handleChange = (name, value) => {
                     Continue
                   </Button>
                 </div>
-                {/* Calculated Salary Display */}
+
                 {calculatedSalary && (
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h3 className="text-lg font-semibold text-blue-800 mb-4">
@@ -1887,271 +1737,205 @@ const handleChange = (name, value) => {
                         </span>
                       </div>
                     </div>
-                     <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 shadow-sm">
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
-                        <BarChart3 className="w-6 h-6 text-white" />
+                    <div className="mt-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-200 p-8 shadow-sm">
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
+                            <BarChart3 className="w-6 h-6 text-white" />
+                          </div>
+                          <h3 className="font-semibold text-xl text-gray-900">
+                            Monthly Target & Incentive
+                          </h3>
+                        </div>
+                        <div className="flex gap-2">
+                          {calculatedIncentive > 0 && (
+                            <>
+                              <Button
+                                type="primary"
+                                onClick={handlePayAsSalary}
+                                className="bg-blue-600 hover:bg-blue-700">
+                                Pay as Salary
+                              </Button>
+                              <Button
+                                type="primary"
+                                onClick={handlePayAsIncentive}
+                                className="bg-purple-600 hover:bg-purple-700">
+                                Pay as Incentive
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <h3 className="font-semibold text-xl text-gray-900">
-                        Monthly Target & Incentive
-                      </h3>
-                    </div>
-                    <div className="flex gap-2">
-                      {calculatedIncentive > 0 && (
-                        <>
-                          <Button
-                            type="primary"
-                            onClick={handlePayAsSalary}
-                            className="bg-blue-600 hover:bg-blue-700">
-                            Pay as Salary
-                          </Button>
-                          <Button
-                            type="primary"
-                            onClick={handlePayAsIncentive}
-                            className="bg-purple-600 hover:bg-purple-700">
-                            Pay as Incentive
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  {/* Metrics Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Monthly Target */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-blue-600" />
-                        <label className="font-semibold text-gray-700 text-sm">
-                         Current Month Target
-                        </label>
+                      {/* Metrics Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Monthly Target */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="w-4 h-4 text-blue-600" />
+                            <label className="font-semibold text-gray-700 text-sm">
+                              Current Month Target
+                            </label>
+                          </div>
+                          <input
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={formData?.monthly_business_info?.target || 0}
+                            disabled
+                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-blue-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                          />
+                          <span className="mt-2 font-medium font-mono text-blue-600 text-sm">
+                            {numberToIndianWords(
+                              formData?.monthly_business_info?.target ?? 0
+                            )}
+                          </span>
+                        </div>
+                        {/* Remaining Target */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <TrendingUp className="w-4 h-4 text-amber-600" />
+                            <label className="font-semibold text-gray-700 text-sm">
+                              Previous Remaining Target
+                            </label>
+                          </div>
+                          <input
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={
+                              formData?.monthly_business_info
+                                ?.previous_remaining_target || 0
+                            }
+                            disabled
+                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-amber-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                          />
+                          <span className="mt-2 font-medium font-mono text-amber-600 text-sm">
+                            {numberToIndianWords(
+                              formData?.monthly_business_info
+                                ?.previous_remaining_target ?? 0
+                            )}
+                          </span>
+                        </div>
+                        {/* Total Target */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="w-4 h-4 text-purple-600" />
+                            <label className="font-semibold text-gray-700 text-sm">
+                              Total Target
+                            </label>
+                          </div>
+                          <input
+                            type="number"
+                            onWheel={(e) => e.target.blur()}
+                            value={
+                              formData?.monthly_business_info?.total_target || 0
+                            }
+                            disabled
+                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-purple-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
+                          />
+                          <span className="mt-2 font-medium font-mono text-purple-600 text-sm">
+                            {numberToIndianWords(
+                              formData?.monthly_business_info?.total_target ?? 0
+                            )}
+                          </span>
+                        </div>
+                        {/* Total Business Closed */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <CheckCircle className="w-4 h-4 text-emerald-600" />
+                            <label className="font-semibold text-gray-700 text-sm">
+                              Total Business Closed (Current Month)
+                            </label>
+                          </div>
+                          <input
+                            type="number"
+                            value={
+                              formData?.monthly_business_info
+                                ?.total_business_closed ?? 0
+                            }
+                            readOnly
+                            className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-emerald-50 cursor-not-allowed"
+                          />
+                          <span className="mt-2 font-medium font-mono text-emerald-600 text-sm">
+                            {numberToIndianWords(
+                              formData?.monthly_business_info
+                                ?.total_business_closed || 0
+                            )}
+                          </span>
+                        </div>
                       </div>
-                      <input
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        value={formData?.monthly_business_info?.target || 0}
-                        disabled
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-blue-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                      />
-                      <span className="mt-2 font-medium font-mono text-blue-600 text-sm">
-                        {numberToIndianWords(
-                          formData?.monthly_business_info?.target ?? 0
-                        )}
-                      </span>
-                    </div>
-                    {/* Remaining Target */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <TrendingUp className="w-4 h-4 text-amber-600" />
-                        <label className="font-semibold text-gray-700 text-sm">
-                          Previous Remaining Target
-                        </label>
+
+                      {/* === Target Achievement Badge === */}
+                      <div className="mt-4 flex justify-start">
+                        {(() => {
+                          const totalTarget = Number(
+                            formData.monthly_business_info.total_target || 0
+                          );
+                          const totalBusinessClosed = Number(
+                            formData.monthly_business_info
+                              .total_business_closed || 0
+                          );
+                          const variance = totalBusinessClosed - totalTarget;
+
+                          // Configuration for different status states
+                          const statusConfig = {
+                            exceeded: {
+                              icon: (
+                                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                              ),
+                              container:
+                                "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm shadow-emerald-100/50",
+                              label: `Target Exceeded by ₹${variance.toLocaleString(
+                                "en-IN"
+                              )}`,
+                            },
+                            achieved: {
+                              icon: (
+                                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                              ),
+                              container:
+                                "bg-green-50 text-green-700 border-green-200 shadow-sm shadow-blue-100/50",
+                              label: "Target Achieved",
+                            },
+                            shortfall: {
+                              icon: (
+                                <AlertCircle className="w-4 h-4 text-red-600" />
+                              ),
+                              container:
+                                "bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-100/50",
+                              label: `Target Shortfall: ₹${Math.abs(
+                                variance
+                              ).toLocaleString("en-IN")}`,
+                            },
+                          };
+
+                          let currentStatus = statusConfig.shortfall;
+                          if (variance > 0)
+                            currentStatus = statusConfig.exceeded;
+                          else if (variance === 0)
+                            currentStatus = statusConfig.achieved;
+
+                          return (
+                            <div
+                              className={`
+        inline-flex items-center gap-2.5 px-4 py-1.5 
+        rounded-xl border font-bold text-xs tracking-tight
+        transition-all duration-300 ease-in-out
+        ${currentStatus.container}
+      `}>
+                              <div className="flex items-center justify-center">
+                                {currentStatus.icon}
+                              </div>
+                              <span className="uppercase">
+                                {currentStatus.label}
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </div>
-                      <input
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        value={
-                          formData?.monthly_business_info
-                            ?.previous_remaining_target || 0
-                        }
-                        disabled
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-amber-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                      />
-                      <span className="mt-2 font-medium font-mono text-amber-600 text-sm">
-                        {numberToIndianWords(
-                          formData?.monthly_business_info
-                            ?.previous_remaining_target ?? 0
-                        )}
-                      </span>
                     </div>
-                    {/* Total Target */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-purple-600" />
-                        <label className="font-semibold text-gray-700 text-sm">
-                          Total Target
-                        </label>
-                      </div>
-                      <input
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        value={
-                          formData?.monthly_business_info?.total_target || 0
-                        }
-                        disabled
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-purple-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                      />
-                      <span className="mt-2 font-medium font-mono text-purple-600 text-sm">
-                        {numberToIndianWords(
-                          formData?.monthly_business_info?.total_target ?? 0
-                        )}
-                      </span>
-                    </div>
-                    {/* Total Business Closed */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-600" />
-                        <label className="font-semibold text-gray-700 text-sm">
-                          Total Business Closed (Current Month)
-                        </label>
-                      </div>
-                      <input
-                        type="number"
-                        value={
-                          formData?.monthly_business_info
-                            ?.total_business_closed ?? 0
-                        }
-                        readOnly
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-emerald-50 cursor-not-allowed"
-                      />
-                      <span className="mt-2 font-medium font-mono text-emerald-600 text-sm">
-                        {numberToIndianWords(
-                          formData?.monthly_business_info
-                            ?.total_business_closed || 0
-                        )}
-                      </span>
-                    </div>
-                    {/* Current Remaining Target */}
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-red-600" />
-                        <label className="font-semibold text-gray-700 text-sm">
-                          Pending Target 
-                        </label>
-                      </div>
-                      <input
-                        type="number"
-                        onWheel={(e) => e.target.blur()}
-                        value={
-                          formData?.monthly_business_info
-                            ?.current_remaining_target || 0
-                        }
-                        disabled
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg text-gray-900 font-semibold bg-slate-50 focus:bg-white focus:border-red-300 focus:outline-none transition-colors disabled:cursor-not-allowed"
-                      />
-                      <span className="mt-2 font-medium font-mono text-red-600 text-sm">
-                        {numberToIndianWords(
-                          formData?.monthly_business_info
-                            ?.current_remaining_target ?? 0
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
                   </div>
                 )}
                 {/* Incentive Adjustment Display */}
-                {calculatedSalary && (
-                  <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                    <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                      Incentive Payable
-                    </h3>
-                    <div className="form-group">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Calculated Incentive
-                      </label>
-                      {(() => {
-                        const incentiveValue = calculatedIncentive;
-                        const isPositive = formData.calculated_incentive >= 0;
-                        const displayValue =
-                          Math.abs(incentiveValue).toFixed(2);
-                        return (
-                          <>
-                            <input
-                              type="text"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800 font-medium"
-                              value={
-                                isPositive
-                                  ? `+ ${Number(formData.calculated_incentive).toLocaleString(
-                                      "en-IN",
-                                      {
-                                        minimumFractionDigits: 2,
-                                      }
-                                    )}`
-                                  : `- ${Number(
-                                      Math.abs(formData.calculated_incentive)
-                                    ).toLocaleString("en-IN", {
-                                      minimumFractionDigits: 2,
-                                    })}`
-                              }
-                              disabled
-                            />
-                            <span className="ml-2 font-medium font-mono text-blue-600">
-                              {numberToIndianWords(displayValue)}
-                              {isPositive ? " (Bonus)" : " (Deduction)"}
-                            </span>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                )}
-                {showComponents && (
-                  <div className="bg-indigo-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold text-indigo-800">
-                        Advance Payments
-                      </h3>
-                      <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={addAdvancePayment}>
-                        Add Advance
-                      </Button>
-                    </div>
-                    {formData.advance_payments.map((payment, index) => (
-                      <div
-                        key={`advance-${index}`}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="form-group">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Advance Name
-                          </label>
-                          <Input
-                            placeholder="e.g., Diwali Advance"
-                            value={payment.name}
-                            onChange={(e) =>
-                              handleAdvancePaymentChange(
-                                index,
-                                "name",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="form-group flex items-end gap-2">
-                          <div className="flex-grow">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Amount
-                            </label>
-                            <Input
-                              type="number"
-                              placeholder="Enter amount"
-                              value={payment.value}
-                              onChange={(e) =>
-                                handleAdvancePaymentChange(
-                                  index,
-                                  "value",
-                                  e.target.value
-                                )
-                              }
-                            />
-                            <span className="ml-2 font-medium font-mono text-blue-600">
-                              {numberToIndianWords(payment.value || 0)}
-                            </span>
-                          </div>
-                          <Button
-                            type="primary"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => removeAdvancePayment(index)}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+
                 {showComponents && (
                   <div className="bg-purple-50 p-4 rounded-lg">
                     <div className="flex justify-between items-center mb-4">
@@ -2291,50 +2075,75 @@ const handleChange = (name, value) => {
                     <h3 className="text-lg font-semibold text-blue-800 mb-4">
                       Transaction Details
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div >
-                        
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
+                      {calculatedSalary && (
                         <div className="form-group">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Previous Month Remaining Balance
+                            Calculated Incentive
                           </label>
-                          <input
-                            type="number"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                            value={previousMonthRemainingBalance.toFixed(2)}
-                            disabled
-                          />
-                          <span className="ml-2 font-medium font-mono text-blue-600">
-                            {numberToIndianWords(
-                              previousMonthRemainingBalance.toFixed(2)
-                            )}
-                          </span>
+                          {(() => {
+                            const incentiveValue = calculatedIncentive;
+                            const isPositive =
+                              formData.calculated_incentive >= 0;
+                            const displayValue =
+                              Math.abs(incentiveValue).toFixed(2);
+                            return (
+                              <>
+                                <input
+                                  type="text"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800 font-medium"
+                                  value={
+                                    isPositive
+                                      ? `+ ${Number(
+                                          formData.calculated_incentive
+                                        ).toLocaleString("en-IN", {
+                                          minimumFractionDigits: 2,
+                                        })}`
+                                      : `- ${Number(
+                                          Math.abs(
+                                            formData.calculated_incentive
+                                          )
+                                        ).toLocaleString("en-IN", {
+                                          minimumFractionDigits: 2,
+                                        })}`
+                                  }
+                                  disabled
+                                />
+                                <span className="ml-2 font-medium font-mono text-blue-600">
+                                  {numberToIndianWords(displayValue)}
+                                  {isPositive ? " (Bonus)" : " (Deduction)"}
+                                </span>
+                              </>
+                            );
+                          })()}
                         </div>
-                      </div>
+                      )}
 
-                      <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Total Salary Payable
-                        </label>
-                        {(() => {
-                          let total = 0;
-                          const totalTarget = Number(
-                            formData.monthly_business_info.total_target || 0
-                          );
-                          const totalBusinessClosed = Number(
-                            formData.monthly_business_info
-                              .total_business_closed || 0
-                          );
+                      <div className=" gap-4 mb-4">
+                        <div className="form-group">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Total Salary Payable
+                          </label>
+                          {(() => {
+                            let total = 0;
+                            const totalTarget = Number(
+                              formData.monthly_business_info.total_target || 0
+                            );
+                            const totalBusinessClosed = Number(
+                              formData.monthly_business_info
+                                .total_business_closed || 0
+                            );
+                            const rawIncentive =
+                              (totalTarget - totalBusinessClosed) / 100;
 
-                          // Calculate raw incentive as per requirements
-                          const rawIncentive =
-                            (totalTarget - totalBusinessClosed) / 100;
+                            const totalStandardDeductions = Object.values(
+                              formData.deductions || {}
+                            ).reduce((sum, v) => {
+                              const val = Number(v);
 
-                          if (rawIncentive > 0) {
-                            // If rawIncentive > 0, total_payable = 0 (unless Pay as Salary is confirmed)
-                            total = 0;
+                              return sum + (isNaN(val) ? 0 : val);
+                            }, 0);
 
-                            // Add previous month balance, advance payments, and additional payments
                             const advanceTotal =
                               formData.advance_payments.reduce(
                                 (sum, p) => sum + Number(p.value || 0),
@@ -2350,82 +2159,40 @@ const handleChange = (name, value) => {
                                 (sum, d) => sum + Number(d.value || 0),
                                 0
                               );
-                            total =
-                              advanceTotal +
-                              addPayments -
-                              addDeductions +
-                              previousMonthRemainingBalance;
-                          } else if (rawIncentive < 0) {
-                            // If rawIncentive < 0, total_payable = calculated salary from attendance details
-                            total = calculatedSalary?.calculated_salary || 0;
 
-                            // Add previous month balance, advance payments, and additional payments
-                            const advanceTotal =
-                              formData.advance_payments.reduce(
-                                (sum, p) => sum + Number(p.value || 0),
-                                0
-                              );
-                            const addPayments =
-                              formData.additional_payments.reduce(
-                                (sum, p) => sum + Number(p.value || 0),
-                                0
-                              );
-                            const addDeductions =
-                              formData.additional_deductions.reduce(
-                                (sum, d) => sum + Number(d.value || 0),
-                                0
-                              );
-                            total =
-                              total +
-                              advanceTotal +
-                              addPayments -
-                              addDeductions +
-                              previousMonthRemainingBalance;
-                          } else {
-                            // If rawIncentive === 0, total_payable = calculated salary from attendance details
-                            total = calculatedSalary?.calculated_salary || 0;
+                            if (rawIncentive > 0) {
+                              total = 0;
+                              total +=
+                                advanceTotal + addPayments - addDeductions;
+                              total -= totalStandardDeductions;
+                            } else if (rawIncentive < 0) {
+                              total = calculatedSalary?.calculated_salary || 0;
+                              total +=
+                                advanceTotal + addPayments - addDeductions;
+                            } else {
+                              total = calculatedSalary?.calculated_salary || 0;
+                              total +=
+                                advanceTotal + addPayments - addDeductions;
+                            }
 
-                            // Add previous month balance, advance payments, and additional payments
-                            const advanceTotal =
-                              formData.advance_payments.reduce(
-                                (sum, p) => sum + Number(p.value || 0),
-                                0
-                              );
-                            const addPayments =
-                              formData.additional_payments.reduce(
-                                (sum, p) => sum + Number(p.value || 0),
-                                0
-                              );
-                            const addDeductions =
-                              formData.additional_deductions.reduce(
-                                (sum, d) => sum + Number(d.value || 0),
-                                0
-                              );
-                            total =
-                              total +
-                              advanceTotal +
-                              addPayments -
-                              addDeductions +
-                              previousMonthRemainingBalance;
-                          }
-
-                          // Add calculated incentive if it's been set (Pay as Incentive was confirmed)
-                          // total += formData.calculated_incentive || 0;
-
-                          return (
-                            <>
-                              <input
-                                type="number"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
-                                value={total.toFixed(2)}
-                                disabled
-                              />
-                              <span className="ml-2 font-medium font-mono text-blue-600">
-                                {numberToIndianWords(total.toFixed(2))}
-                              </span>
-                            </>
-                          );
-                        })()}
+                            return (
+                              <>
+                                <input
+                                  type="number"
+                                  min={-99999999}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                                  value={Number(total || 0).toFixed(2)}
+                                  disabled
+                                />
+                                <span className="ml-2 font-medium font-mono text-blue-600">
+                                  {numberToIndianWords(
+                                    Number(total || 0).toFixed(2)
+                                  )}
+                                </span>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2588,19 +2355,6 @@ const handleChange = (name, value) => {
                   </div>
                 )
               )}
-            </div>
-            <div className="form-group mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Total Earnings
-              </label>
-              <Input
-                value={updateTotalEarnings.toLocaleString("en-IN", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-                readOnly
-                className="!bg-gray-100 !text-gray-800 !cursor-default font-semibold"
-              />
             </div>
           </div>
           {/* Deductions */}
@@ -2936,32 +2690,46 @@ const handleChange = (name, value) => {
               </div>
             </section>
             {/* Attendance Summary */}
-            <section className="bg-gradient-to-br from-purple-50 to-purple-50 p-6 rounded-xl shadow-md border border-purple-200 hover:shadow-lg transition-shadow">
-              <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
-                <span className="w-1 h-6 bg-purple-600 rounded-full mr-3"></span>
-                Attendance Details
-              </h4>
-              <ul className="space-y-2">
-                {Object.entries(
-                  existingSalaryRecord.attendance_details || {}
-                ).map(([key, val]) => (
-                  <li
-                    key={key}
-                    className="flex justify-between items-center bg-white p-4 rounded-lg border border-purple-100 hover:border-purple-200 transition-colors">
-                    <span className="capitalize text-slate-700 font-medium">
-                      {key.replace(/_/g, " ")}
-                    </span>
-                    <span className="font-bold text-purple-700">
-                      ₹
-                      {Number(val).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+          {/* Added 'flex flex-col' so that 'gap-4' actually works */}
+<section className="flex flex-col gap-4 bg-gradient-to-br from-purple-50 to-purple-50 p-6 rounded-xl shadow-md border border-purple-200 hover:shadow-lg transition-shadow">
+  
+  <h4 className="font-bold text-slate-900 mb-2 flex items-center text-lg">
+    <span className="w-1 h-6 bg-purple-600 rounded-full mr-3"></span>
+    Attendance Details
+  </h4>
+
+  {Object.entries(existingSalaryRecord.attendance_details || {}).map(([key, val]) => {
+    const isCurrency = key.includes("salary") || key.includes("calculated");
+    const isDate = key.includes("date");
+
+    let displayValue;
+    if (isDate) {
+      // Improved dayjs safety check
+      displayValue = val ? dayjs(val).format("YYYY-MM-DD") : "N/A";
+    } else if (isCurrency) {
+      displayValue = `₹${Number(val).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    } else {
+      displayValue = val;
+    }
+
+    return (
+      <div // Changed to div for semantic correctness since we aren't using a <ul> wrapper
+        key={key}
+        className="flex justify-between items-center bg-white p-4 rounded-lg border border-purple-100 hover:border-purple-200 transition-colors"
+      >
+        <span className="capitalize text-slate-700 font-medium">
+          {key.replace(/_/g, " ")}
+        </span>
+        <span className={`font-bold ${isCurrency ? "text-purple-700" : "text-slate-600"}`}>
+          {displayValue}
+        </span>
+      </div>
+    );
+  })}
+</section>
             {/* Earnings */}
             <section className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-md border border-green-200 hover:shadow-lg transition-shadow">
               <h4 className="font-bold text-slate-900 mb-4 flex items-center text-lg">
