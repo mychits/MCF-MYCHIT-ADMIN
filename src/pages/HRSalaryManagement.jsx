@@ -853,6 +853,7 @@ const HRSalaryManagement = () => {
             present_days: calculatedSalary.present_days,
             paid_days: calculatedSalary.paid_days,
             lop_days: calculatedSalary.lop_days,
+            lop: calculatedSalary.lop,
             per_day_salary: calculatedSalary.per_day_salary,
             calculated_salary: calculatedSalary.calculated_salary,
             absent_days: calculatedSalary.absent_days || 0,
@@ -892,6 +893,7 @@ const HRSalaryManagement = () => {
         advance_payments: formData.advance_payments,
         calculated_incentive: finalCalculatedIncentive,
         paid_days: calculatedSalary ? calculatedSalary.paid_days : 30,
+        lop: calculatedSalary ? calculatedSalary.lop : 0,
         lop_days: calculatedSalary ? calculatedSalary.lop_days : 0,
         net_payable: totalSalaryPayable,
         paid_amount: paidAmount,
@@ -1696,6 +1698,22 @@ const HRSalaryManagement = () => {
                           onWheel={(e) => e.target.blur()}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
                           value={calculatedSalary.lop_days}
+                          disabled
+                        />
+                        <span className="ml-2 font-medium font-mono text-blue-600">
+                          {numberToIndianWords(calculatedSalary.lop_days || 0)}
+                        </span>
+                      </div>
+
+                        <div className="form-group">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          LOP 
+                        </label>
+                        <input
+                          type="number"
+                          onWheel={(e) => e.target.blur()}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
+                          value={(calculatedSalary.lop || 0).toFixed(2)}
                           disabled
                         />
                         <span className="ml-2 font-medium font-mono text-blue-600">
