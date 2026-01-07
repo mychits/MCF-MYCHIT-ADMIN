@@ -12,69 +12,133 @@ const AllUserReport = () => {
   const [screenLoading, setScreenLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usersData, setUsersData] = useState([]);
+  const [penaltyData, setPenaltyData] = useState([]);
   const [filters, setFilters] = useState({
     groupFilter: "",
     fromDate: "",
     toDate: "",
   });
 
-  const transformUserData = (userInfo, index) => {
+  // Updated transformUserData function to include penalty details
+  const transformUserData = (userInfo, index, penaltyInfo = null) => {
     const groupInstall = parseInt(userInfo?.group_id?.group_install) || 0;
     const groupType = userInfo?.group_id?.group_type;
-    const firstInstallment = userInfo?.group_id?.monthly_installment || 0;
-    const totalPaidAmount = userInfo?.payments?.totalPaidAmount || 0;
+    const firstInstallment = Number(
+      userInfo?.group_id?.monthly_installment || 0
+    );
+
+    // Chit payments only
+    const totalPaidAmount = Number(
+      userInfo?.payments?.totalPaidAmount || 0
+    );
+
+    // Registration fee kept separate
+    const registrationFee = Number(
+      userInfo?.registrationFee?.totalRegistrationFee || 0
+    );
+
     const auctionCount = parseInt(userInfo?.auctions?.counts) || 0;
-    const totalPayable = userInfo?.auctions?.payable || 0;
-    const totalProfit = userInfo?.auctions?.profit || 0;
-    const firstDividentHead = userInfo?.auctions?.firstDiv || 0;
+    const totalPayable = Number(userInfo?.auctions?.payable || 0);
+    const totalProfit = Number(userInfo?.auctions?.profit || 0);
+    const firstDividentHead = Number(userInfo?.auctions?.firstDiv || 0);
+
+    const totalToBePaid =
+      groupType === "double"
+        ? groupInstall * auctionCount + groupInstall
+        : totalPayable + groupInstall + totalProfit;
+
+    const toBePaidAmount =
+      groupType === "double"
+        ? groupInstall * auctionCount + groupInstall
+        : totalPayable + groupInstall + firstDividentHead;
+
+    const balance = toBePaidAmount - totalPaidAmount;
+
+    // Extract penalty information if available
+    let totalPenalty = 0;
+    let totalLateFee = 0;
+    let regularPenalty = 0;
+    let vcPenalty = 0;
+    let manualPenalty = 0;
+    let manualLateFee = 0;
+    let outstandingWithPenalty = balance;
+
+    if (penaltyInfo) {
+      totalPenalty = Number(penaltyInfo.summary?.total_penalty || 0);
+      totalLateFee = Number(penaltyInfo.summary?.total_late_payment_charges || 0);
+      regularPenalty = totalPenalty - Number(penaltyInfo.summary?.total_vacant_chit_penalty || 0) - Number(penaltyInfo.summary?.manual_penalty || 0);
+      vcPenalty = Number(penaltyInfo.summary?.total_vacant_chit_penalty || 0);
+      manualPenalty = Number(penaltyInfo.summary?.manual_penalty || 0);
+      manualLateFee = Number(penaltyInfo.summary?.manual_late_fee || 0);
+      outstandingWithPenalty = Number(penaltyInfo.summary?.grand_total_due_with_penalty || balance);
+    }
 
     return {
       sl_no: index + 1,
       _id: userInfo._id,
+
       userName: userInfo?.user_id?.full_name || "N/A",
-      firstInstallment,
       userPhone: userInfo?.user_id?.phone_number || "N/A",
       customerId: userInfo?.user_id?.customer_id || "N/A",
-      collectionArea: userInfo?.user_id?.collection_area?.route_name || "N/A",
+
+      firstInstallment,
+      registrationFee,
+
+      collectionArea:
+        userInfo?.user_id?.collection_area?.route_name || "N/A",
+
       collectionExecutive:
         userInfo?.user_id?.collection_area?.agent_id
           ?.map((agent) => agent.name)
           .join(" | ") || "N/A",
+
       amountPaid: totalPaidAmount,
+
       firstInstallmentStatus:
-        Number(totalPaidAmount) - Number(firstInstallment) > 0
-          ? "Paid"
-          : "Not Paid",
+        totalPaidAmount >= firstInstallment ? "Paid" : "Not Paid",
+
       paymentsTicket: userInfo?.tickets || "N/A",
+
       groupValue: userInfo?.group_id?.group_value || 0,
       groupName: userInfo?.group_id?.group_name || "N/A",
+      groupRegFee: userInfo?.group_id?.reg_fee || "N/A",
+
       profit: totalProfit,
+
       relationshipManager:
         userInfo?.group_id?.relationship_manager?.name || "N/A",
+
       reffered_by: userInfo?.agent
         ? userInfo.agent?.name
         : userInfo?.referred_customer
         ? userInfo?.referred_customer?.full_name
         : "N/A",
+
       payment_type: userInfo?.payment_type || "N/A",
       referred_type: userInfo?.referred_type || "N/A",
+
       enrollmentDate: userInfo?.createdAt
-        ? userInfo?.createdAt.split("T")[0]
+        ? userInfo.createdAt.split("T")[0]
         : "",
-      totalToBePaid:
-        groupType === "double"
-          ? groupInstall * auctionCount + groupInstall
-          : totalPayable + groupInstall + totalProfit,
-      toBePaidAmount:
-        groupType === "double"
-          ? groupInstall * auctionCount + groupInstall
-          : totalPayable + groupInstall + firstDividentHead,
-      balance:
-        groupType === "double"
-          ? groupInstall * auctionCount + groupInstall - totalPaidAmount
-          : totalPayable + groupInstall + firstDividentHead - totalPaidAmount,
+
+      totalToBePaid,
+      toBePaidAmount,
+      balance,
+
+      // New penalty fields
+      totalPenalty,
+      totalLateFee,
+      regularPenalty,
+      vcPenalty,
+      manualPenalty,
+      manualLateFee,
+      outstandingWithPenalty,
+
       chit_asking_month: userInfo?.chit_asking_month || "N/A",
-      status: userInfo?.auctions?.isPrized === "true" ? "Prized" : "Un Prized",
+
+      status:
+        userInfo?.auctions?.isPrized === "true" ? "Prized" : "Un Prized",
+
       statusDiv:
         userInfo?.auctions?.isPrized === "true" ? (
           <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-200">
@@ -148,6 +212,36 @@ const AllUserReport = () => {
       0
     );
 
+    // New penalty totals
+    const totalPenalty = filteredUsers.reduce(
+      (sum, u) => sum + (u.totalPenalty || 0),
+      0
+    );
+    const totalLateFee = filteredUsers.reduce(
+      (sum, u) => sum + (u.totalLateFee || 0),
+      0
+    );
+    const totalRegularPenalty = filteredUsers.reduce(
+      (sum, u) => sum + (u.regularPenalty || 0),
+      0
+    );
+    const totalVcPenalty = filteredUsers.reduce(
+      (sum, u) => sum + (u.vcPenalty || 0),
+      0
+    );
+    const totalManualPenalty = filteredUsers.reduce(
+      (sum, u) => sum + (u.manualPenalty || 0),
+      0
+    );
+    const totalManualLateFee = filteredUsers.reduce(
+      (sum, u) => sum + (u.manualLateFee || 0),
+      0
+    );
+    const totalOutstandingWithPenalty = filteredUsers.reduce(
+      (sum, u) => sum + (u.outstandingWithPenalty || 0),
+      0
+    );
+
     return {
       totalCustomers,
       totalGroups,
@@ -155,6 +249,13 @@ const AllUserReport = () => {
       totalProfit,
       totalPaid,
       totalBalance,
+      totalPenalty,
+      totalLateFee,
+      totalRegularPenalty,
+      totalVcPenalty,
+      totalManualPenalty,
+      totalManualLateFee,
+      totalOutstandingWithPenalty,
     };
   }, [filteredUsers, filters.groupFilter]);
 
@@ -168,10 +269,32 @@ const AllUserReport = () => {
         setScreenLoading(true);
         setError(null);
 
-        const reportResponse = await api.get("/user");
-        const reportData = reportResponse.data.data.map(transformUserData);
+        // Fetch both user data and penalty data
+        const [reportResponse, penaltyResponse] = await Promise.all([
+          api.get("/user"),
+          api.get("/penalty/get-penalty-report")
+        ]);
 
-        setUsersData(reportData);
+        // Transform user data
+        const reportData = reportResponse.data.data;
+        
+        // Create a map of penalty data for quick lookup
+        const penaltyMap = new Map();
+        if (penaltyResponse.data?.success && penaltyResponse.data?.data) {
+          penaltyResponse.data.data.forEach(penalty => {
+            const key = `${penalty.user_id}_${penalty.group_id}_${penalty.ticket_number}`;
+            penaltyMap.set(key, penalty);
+          });
+        }
+
+        // Transform user data and merge with penalty information
+        const transformedData = reportData.map((userInfo, index) => {
+          const key = `${userInfo.user_id?._id}_${userInfo.group_id?._id}_${userInfo.tickets}`;
+          const penaltyInfo = penaltyMap.get(key) || null;
+          return transformUserData(userInfo, index, penaltyInfo);
+        });
+
+        setUsersData(transformedData);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Failed to load data. Please try again later.");
@@ -191,6 +314,8 @@ const AllUserReport = () => {
     { key: "userPhone", header: "Phone Number" },
     { key: "groupName", header: "Group Name" },
     { key: "groupValue", header: "Group Value" },
+    {key: "groupRegFee", header: "Group Registration Fees"},
+    {key: "registrationFee", header: "Registration Fees Paid"},
     { key: "paymentsTicket", header: "Ticket" },
     { key: "enrollmentDate", header: "Enrollment Date" },
     { key: "referred_type", header: "Referred Type" },
@@ -203,6 +328,37 @@ const AllUserReport = () => {
     { key: "amountPaid", header: "Amount Paid" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
     { key: "balance", header: "Balance" },
+    // New penalty columns
+    { 
+      key: "totalPenalty", 
+      header: "Total Penalty",
+      render: (text) => (
+        <span className="font-semibold text-purple-600">
+          ₹{Number(text || 0).toFixed(2).toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    { 
+      key: "totalLateFee", 
+      header: "Total Late Fee",
+      render: (text) => (
+        <span className="font-semibold text-orange-600">
+          ₹{Number(text || 0).toFixed(2).toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    { 
+      key: "outstandingWithPenalty", 
+      header: "Outstanding with Penalty",
+      render: (text) => {
+        const amount = Number(text || 0);
+        return (
+          <span className={`font-semibold ${amount > 0 ? "text-red-600" : "text-green-600"}`}>
+            ₹{amount.toFixed(2).toLocaleString("en-IN")}
+          </span>
+        );
+      },
+    },
     { key: "collectionArea", header: "Collection Area" },
     { key: "collectionExecutive", header: "Collection Executive" },
     { key: "statusDiv", header: "Status" },
@@ -215,6 +371,8 @@ const AllUserReport = () => {
     { key: "userPhone", header: "Phone Number" },
     { key: "groupName", header: "Group Name" },
     { key: "groupValue", header: "Group Value" },
+    {key: "groupRegFee", header: "Group Registration Fees"},
+    {key: "registrationFee", header: "Registration Fees"},
     { key: "paymentsTicket", header: "Ticket" },
     { key: "enrollmentDate", header: "Enrollment Date" },
     { key: "referred_type", header: "Referred Type" },
@@ -225,6 +383,10 @@ const AllUserReport = () => {
     { key: "amountPaid", header: "Amount Paid" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
     { key: "balance", header: "Balance" },
+    // New penalty columns for Excel
+    { key: "totalPenalty", header: "Total Penalty" },
+    { key: "totalLateFee", header: "Total Late Fee" },
+    { key: "outstandingWithPenalty", header: "Outstanding with Penalty" },
     { key: "collectionArea", header: "Collection Area" },
     { key: "collectionExecutive", header: "Collection Executive" },
     { key: "status", header: "Status" },
@@ -372,7 +534,7 @@ const AllUserReport = () => {
               </div>
             </div>
 
-            {/* Statistics Cards */}
+            {/* Statistics Cards - Updated with penalty totals */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 mb-8">
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
                 <div className="flex items-center justify-between mb-2">
@@ -529,6 +691,165 @@ const AllUserReport = () => {
               </div>
             </div>
 
+            {/* New Penalty Statistics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 mb-8">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-sm font-medium opacity-90 block mb-1">
+                  Total Penalty
+                </span>
+                <span className="text-2xl font-bold">
+                  ₹{totals.totalPenalty.toLocaleString("en-IN")}
+                </span>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-sm font-medium opacity-90 block mb-1">
+                  Total Late Fee
+                </span>
+                <span className="text-2xl font-bold">
+                  ₹{totals.totalLateFee.toLocaleString("en-IN")}
+                </span>
+              </div>
+
+              <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-sm font-medium opacity-90 block mb-1">
+                  Regular Penalty
+                </span>
+                <span className="text-2xl font-bold">
+                  ₹{totals.totalRegularPenalty.toLocaleString("en-IN")}
+                </span>
+              </div>
+
+              <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-sm font-medium opacity-90 block mb-1">
+                  VC Penalty
+                </span>
+                <span className="text-2xl font-bold">
+                  ₹{totals.totalVcPenalty.toLocaleString("en-IN")}
+                </span>
+              </div>
+
+              <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-sm font-medium opacity-90 block mb-1">
+                  Manual Penalty
+                </span>
+                <span className="text-2xl font-bold">
+                  ₹{totals.totalManualPenalty.toLocaleString("en-IN")}
+                </span>
+              </div>
+
+              <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-sm font-medium opacity-90 block mb-1">
+                  Outstanding with Penalty
+                </span>
+                <span className="text-2xl font-bold">
+                  ₹{totals.totalOutstandingWithPenalty.toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+
             {/* Data Table Section */}
             <div>
               <DataTable
@@ -546,6 +867,9 @@ const AllUserReport = () => {
                   "Total Profit",
                   "Total Amount Paid",
                   "Total Balance",
+                  "Total Penalty",
+                  "Total Late Fee",
+                  "Outstanding with Penalty"
                 ]}
                 printHeaderValues={[
                   filters.fromDate
@@ -561,6 +885,9 @@ const AllUserReport = () => {
                   `₹${totals.totalProfit.toLocaleString("en-IN")}`,
                   `₹${totals.totalPaid.toLocaleString("en-IN")}`,
                   `₹${totals.totalBalance.toLocaleString("en-IN")}`,
+                  `₹${totals.totalPenalty.toLocaleString("en-IN")}`,
+                  `₹${totals.totalLateFee.toLocaleString("en-IN")}`,
+                  `₹${totals.totalOutstandingWithPenalty.toLocaleString("en-IN")}`
                 ]}
                 exportedFileName={`CustomerReport.csv`}
               />
