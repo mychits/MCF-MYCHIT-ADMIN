@@ -64,8 +64,8 @@ const AllUserReport = () => {
     let outstandingWithPenalty = balance;
 
     if (penaltyInfo) {
-      totalPenalty = Number(penaltyInfo.summary?.total_penalty || 0);
-      totalLateFee = Number(penaltyInfo.summary?.total_late_payment_charges || 0);
+      totalPenalty = Number(penaltyInfo.summary?.total_penalty || 0).toFixed(2);
+      totalLateFee = Number(penaltyInfo.summary?.total_late_payment_charges || 0).toFixed(2);
       regularPenalty = totalPenalty - Number(penaltyInfo.summary?.total_vacant_chit_penalty || 0) - Number(penaltyInfo.summary?.manual_penalty || 0);
       vcPenalty = Number(penaltyInfo.summary?.total_vacant_chit_penalty || 0);
       manualPenalty = Number(penaltyInfo.summary?.manual_penalty || 0);
@@ -214,11 +214,11 @@ const AllUserReport = () => {
 
     // New penalty totals
     const totalPenalty = filteredUsers.reduce(
-      (sum, u) => sum + (u.totalPenalty || 0),
+      (sum, u) => sum + (Number(u.totalPenalty) || 0),
       0
     );
     const totalLateFee = filteredUsers.reduce(
-      (sum, u) => sum + (u.totalLateFee || 0),
+      (sum, u) => sum + (Number(u.totalLateFee) || 0),
       0
     );
     const totalRegularPenalty = filteredUsers.reduce(
@@ -332,32 +332,17 @@ const AllUserReport = () => {
     { 
       key: "totalPenalty", 
       header: "Total Penalty",
-      render: (text) => (
-        <span className="font-semibold text-purple-600">
-          ₹{Number(text || 0).toFixed(2).toLocaleString("en-IN")}
-        </span>
-      ),
+      
     },
     { 
       key: "totalLateFee", 
       header: "Total Late Fee",
-      render: (text) => (
-        <span className="font-semibold text-orange-600">
-          ₹{Number(text || 0).toFixed(2).toLocaleString("en-IN")}
-        </span>
-      ),
+    
     },
     { 
       key: "outstandingWithPenalty", 
       header: "Outstanding with Penalty",
-      render: (text) => {
-        const amount = Number(text || 0);
-        return (
-          <span className={`font-semibold ${amount > 0 ? "text-red-600" : "text-green-600"}`}>
-            ₹{amount.toFixed(2).toLocaleString("en-IN")}
-          </span>
-        );
-      },
+    
     },
     { key: "collectionArea", header: "Collection Area" },
     { key: "collectionExecutive", header: "Collection Executive" },
@@ -741,7 +726,7 @@ const AllUserReport = () => {
                   Total Late Fee
                 </span>
                 <span className="text-2xl font-bold">
-                  ₹{totals.totalLateFee.toLocaleString("en-IN")}
+                 ₹{totals.totalPenalty.toLocaleString("en-IN")}
                 </span>
               </div>
 
