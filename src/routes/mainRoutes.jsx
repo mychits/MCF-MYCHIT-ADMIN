@@ -162,6 +162,7 @@ import PaymentWithPenalty from "../pages/PaymentWithPenalty";
 import PenaltyWhatsappMessageMenu from "../pages/PenaltyWhatsappMessageMenu";
 import EmployeeRewardPoints from "../pages/EmployeeRewardPoints";
 import RewardSettings from "../pages/RewardSettings";
+import AdvanceSalary from "../pages/AdvanceSalary"; 
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -605,6 +606,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <PayOutCommission />
+      </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/payment-menu/payment-in-out-menu/payment-out/advance-payment",
+    element: (
+      <ProtectedRoute>
+        <AdvanceSalary />
       </ProtectedRoute>
     ),
   },

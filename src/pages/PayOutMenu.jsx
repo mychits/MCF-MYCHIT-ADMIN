@@ -2,6 +2,7 @@ import Navbar from "../components/layouts/Navbar";
 import Sidebar from "../components/layouts/Sidebar";
 import { HiCurrencyRupee } from "react-icons/hi2";
 import { Banknote, Briefcase, TicketCheck, MoreHorizontal, ChevronRight,Zap } from "lucide-react";
+import { TbCash } from "react-icons/tb";
 import { Link } from "react-router-dom";
 
 const PayOutMenu = () => {
@@ -40,8 +41,22 @@ const PayOutMenu = () => {
        stats: "Employee Salary Out Information"
 
     },
-    {
+
+
+     {
       id: "#4",
+      title: "Advances",
+      description: "Manage Employee advance payment information.",
+      icon: <TbCash  size={28} className="text-purple-600" />,
+       color: "from-blue-600 to-blue-700",
+          lightColor: "bg-blue-50",
+          borderColor: "border-blue-200",
+       href:"/payment-menu/payment-in-out-menu/payment-out/advance-payment",
+       stats: "Employee Advance Payment Information"
+
+    },
+    {
+      id: "#5",
       title: "Petty Cash",
       description: "Manage Petty Cash information.",
       icon: <Banknote size={28} className="text-yellow-600" />,
@@ -53,7 +68,7 @@ const PayOutMenu = () => {
 
     },
     {
-      id: "#5",
+      id: "#6",
       title: "Others",
       description: "Manage Others information.",
       icon: <MoreHorizontal size={28} className="text-gray-600" />,

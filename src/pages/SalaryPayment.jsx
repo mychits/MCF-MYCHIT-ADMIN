@@ -383,7 +383,7 @@ const SalaryPayment = () => {
             key={salaryPayment?._id}
             className="text-green-600"
             onClick={() => handleEdit(salaryPayment._id)}>
-            Edit
+            Pay Now
           </div>
         ),
       },
