@@ -34,7 +34,7 @@ const AllUserReport = () => {
 
     // Registration fee kept separate
     const registrationFee = Number(
-      userInfo?.registrationFee?.totalRegistrationFee || 0
+      userInfo?.registration_fee || 0
     );
 
     const auctionCount = parseInt(userInfo?.auctions?.counts) || 0;
@@ -314,8 +314,8 @@ const AllUserReport = () => {
     { key: "userPhone", header: "Phone Number" },
     { key: "groupName", header: "Group Name" },
     { key: "groupValue", header: "Group Value" },
-    // {key: "groupRegFee", header: "Group Registration Fees"},
-    // {key: "registrationFee", header: "Registration Fees Paid"},
+    {key: "groupRegFee", header: "Group Registration Fees"},
+    {key: "registrationFee", header: "Registration Fees Paid"},
     { key: "paymentsTicket", header: "Ticket" },
     { key: "enrollmentDate", header: "Enrollment Date" },
     { key: "referred_type", header: "Referred Type" },
