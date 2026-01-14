@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Select, Tag, Space, Typography } from "antd";
+import { Select, Tag, Space, Typography, Table, Button } from "antd";
 import {
   DollarCircleOutlined,
   TeamOutlined,
@@ -9,6 +9,8 @@ import {
   CreditCardOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  DownOutlined,
+  UpOutlined,
 } from "@ant-design/icons";
 import { MdOutlineMan } from "react-icons/md";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
@@ -55,6 +57,13 @@ const formatLedgerData = (ledger) => {
   return ledger.map((item, index) => {
     const balance = item.financials?.current_running_balance ?? 0;
     const balanceColor = balance >= 0 ? "text-green-600" : "text-red-600";
+    const advanceAmount = item.financials?.advance_amount || 0;
+    const advanceCount = item.financials?.advance_count || 0;
+    
+    // Create a formatted advance string that shows amount and count
+    const advanceDisplay = advanceCount > 1 
+      ? `${formatCurrency(advanceAmount)}`
+      : formatCurrency(advanceAmount);
 
     return {
       id: index + 1,
@@ -65,6 +74,7 @@ const formatLedgerData = (ledger) => {
       businessClosed: formatCurrency(item.business?.totalBusinessClosed),
       achievement: getAchievementTag(item.business?.achievement),
       incentiveEarned: formatCurrency(item.business?.incentive_earned),
+      advance: advanceDisplay, // Use the formatted display string
 
       balance: (
         <span className={balanceColor + " font-bold"}>
@@ -73,7 +83,8 @@ const formatLedgerData = (ledger) => {
       ),
       netPayableRaw: item.financials?.net_payable,
       standardDeductions: item.financials?.standard_deductions,
-      advance: item.financials?.advance,
+      advanceRaw: advanceAmount, // Keep the raw amount for sorting/exporting
+      advanceCount: advanceCount, // Add count for potential use
       grossSalary: item.financials?.gross_salary,
       otherPayments: item.financials?.other_payments,
       paidAmountRaw: item.financials?.paid_amount,
@@ -112,6 +123,8 @@ const EmployeeStatement = () => {
     message: "",
     type: "info",
   });
+  const [advanceDetails, setAdvanceDetails] = useState([]);
+  const [showAdvanceDetails, setShowAdvanceDetails] = useState(false);
 
   const showAlert = (message, type = "error") => {
     setAlertConfig({ visibility: true, message, type });
@@ -126,15 +139,18 @@ const EmployeeStatement = () => {
     }
   };
 
+  // Modified function to fetch both ledger and advance data in a single call
   const fetchLedgerData = async (employeeId) => {
     try {
       setIsLoading(true);
       const response = await api.get(`/employee/ledgernew/${employeeId}`);
       const ledger = response.data?.ledger || [];
+      const advances = response.data?.advances || [];
 
       setOverallNetPosition(response.data?.overall_net_position);
       setTableData(formatLedgerData(ledger));
       setLedgerData(ledger);
+      setAdvanceDetails(advances); // Set advance details from the same response
     } catch (error) {
       showAlert(ALERT_MESSAGES.LEDGER_FETCH_ERROR);
     } finally {
@@ -147,11 +163,14 @@ const EmployeeStatement = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedEmployee) fetchLedgerData(selectedEmployee);
-    else {
+    if (selectedEmployee) {
+      fetchLedgerData(selectedEmployee);
+    } else {
       setLedgerData([]);
       setTableData([]);
       setOverallNetPosition(null);
+      setAdvanceDetails([]);
+      setShowAdvanceDetails(false);
     }
   }, [selectedEmployee]);
 
@@ -177,13 +196,40 @@ const EmployeeStatement = () => {
     { key: "businessClosedRaw", header: "Business Closed" },
     { key: "incentiveRaw", header: "Incentive" },
     { key: "achievementRaw", header: "Achievement" },
-    { key: "advance", header: "Advance" },
+    { key: "advanceRaw", header: "Advance" },
     { key: "netPayableRaw", header: "Net Payable" },
     { key: "standardDeductions", header: "Standard Deductions" },
     { key: "otherPayments", header: "Other Payments" },
     { key: "grossSalary", header: "Gross Salary" },
     { key: "paidAmountRaw", header: "Paid" },
     { key: "balanceRaw", header: "Balance" },
+  ];
+
+  // Columns for advance details table
+  const advanceColumns = [
+    {
+      title: "Date",
+      dataIndex: "pay_date",
+      key: "pay_date",
+      render: (text) => new Date(text).toLocaleDateString(),
+    },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      render: (text) => formatCurrency(text),
+    },
+    {
+      title: "Pay Type",
+      dataIndex: "pay_type",
+      key: "pay_type",
+    },
+    {
+      title: "Transaction ID",
+      dataIndex: "transaction_id",
+      key: "transaction_id",
+      render: (text) => text || "N/A",
+    },
   ];
 
   const selectedEmployeeName = employees.find(
@@ -257,6 +303,8 @@ const EmployeeStatement = () => {
                   data="Ledger Data"
                 />
               )}
+
+            
 
               {/* Updated Summary Section */}
               {overallNetPosition !== null && (
