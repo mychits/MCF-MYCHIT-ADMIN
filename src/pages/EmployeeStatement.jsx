@@ -74,6 +74,7 @@ const formatLedgerData = (ledger) => {
       businessClosed: formatCurrency(item.business?.totalBusinessClosed),
       achievement: getAchievementTag(item.business?.achievement),
       incentiveEarned: formatCurrency(item.business?.incentive_earned),
+      otherIncentives: formatCurrency(item.business?.other_incentives),
       advance: advanceDisplay, // Use the formatted display string
 
       balance: (
@@ -180,6 +181,7 @@ const EmployeeStatement = () => {
     { key: "targetAmount", header: "Target" },
     { key: "businessClosed", header: "Business Closed" },
     { key: "incentiveEarned", header: "Incentive" },
+    { key: "otherIncentives", header: "Other Incentives" },
     { key: "achievement", header: "Achievement" },
     { key: "advance", header: "Advance" },
     { key: "netPayable", header: "Net Payable" },
