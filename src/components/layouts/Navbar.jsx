@@ -280,7 +280,7 @@ const Navbar = ({
                 }`}>
                 <IoIosNotifications className="text-2xl" />
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">3</span>
+                  <span className="text-white text-xs font-bold">4</span>
                 </span>
               </button>
 
@@ -296,7 +296,7 @@ const Navbar = ({
                         </p>
                       </div>
                       <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                        <span className="text-sm font-bold">3</span>
+                        <span className="text-sm font-bold">4</span>
                       </div>
                     </div>
                   </div>
