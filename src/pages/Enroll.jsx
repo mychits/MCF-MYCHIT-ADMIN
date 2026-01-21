@@ -74,6 +74,7 @@ const Enroll = () => {
     referred_customer: "",
     agent: "",
     referred_lead: "",
+    enrollment_date: "",
     chit_asking_month: "",
     blocked_referral: false,
     blocked_referral_type: "",
@@ -127,6 +128,12 @@ const Enroll = () => {
     November: 0,
     December: 0,
   });
+
+
+    const formatDateForInput = (date) => {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  };
 
 
   const onGlobalSearchChangeHandler = (e) => {
@@ -200,8 +207,8 @@ const Enroll = () => {
               phone_number: group?.user_id?.phone_number,
               group_name: group?.group_id?.group_name,
               payment_type: group?.payment_type,
-              enrollment_date: group?.createdAt
-                ? group?.createdAt?.split("T")[0]
+              enrollments_date: group?.enrollment_date
+                ? group?.enrollment_date?.split("T")[0]
                 : "",
               chit_asking_month: group?.chit_asking_month,
               referred_type: group?.referred_type,
@@ -434,7 +441,9 @@ const Enroll = () => {
               phone_number: group?.user_id?.phone_number,
               group_name: group?.group_id?.group_name,
               payment_type: group?.payment_type,
-              enrollment_date: group?.createdAt.split("T")[0],
+
+              enrollments_date: group?.enrollment_date.split("T")[0],
+
               chit_asking_month: group?.chit_asking_month,
               referred_type: group?.referred_type,
               referred_by:
@@ -513,7 +522,7 @@ const Enroll = () => {
     { key: "ticket", header: "Ticket Number" },
     { key: "referred_type", header: "Referred Type" },
     { key: "payment_type", header: "Payment Type" },
-    { key: "enrollment_date", header: "Enrollment Date" },
+    { key: "enrollments_date", header: "Enrollment Date" },
     { key: "chit_asking_month", header: "Chit Asking Month" },
     { key: "referred_by", header: "Referred By" },
     { key: "action", header: "Action" }
@@ -671,6 +680,7 @@ const Enroll = () => {
         referred_lead: response.data?.referred_lead?._id || "",
         referred_type: response.data?.referred_type,
         chit_asking_month: response.data?.chit_asking_month || "",
+        enrollment_date: response.data?.enrollment_date || "",
         blocked_referral: response.data?.blocked_referral || false,
         blocked_referral_type: response.data?.blocked_referral_type || "",
         blocked_referral_customer:
@@ -723,13 +733,34 @@ const Enroll = () => {
     }
   };
 
-  const handleUpdate = async (e) => {
+  // const handleUpdate = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     await api.put(
+  //       `/enroll/update-enroll/${currentUpdateGroup._id}`,
+  //       updateFormData
+  //     );
+  //     setShowModalUpdate(false);
+
+  //     setAlertConfig({
+  //       visibility: true,
+  //       message: "Enrollment Updated Successfully",
+  //       type: "success",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error updating enroll:", error);
+  //   }
+  // };
+
+
+   const handleUpdate = async (e) => {
     e.preventDefault();
+    const payload = updateFormData;
+    if (!payload.enrollment_date) {
+      delete payload.enrollment_date;
+    }
     try {
-      await api.put(
-        `/enroll/update-enroll/${currentUpdateGroup._id}`,
-        updateFormData
-      );
+      await api.put(`/enroll/update-enroll/${currentUpdateGroup._id}`, payload);
       setShowModalUpdate(false);
 
       setAlertConfig({
@@ -741,6 +772,7 @@ const Enroll = () => {
       console.error("Error updating enroll:", error);
     }
   };
+
 
   useEffect(() => {
     if (selectedGroup) {
@@ -1497,7 +1529,8 @@ const Enroll = () => {
                   <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
                 )}
               </div>
-              <div className="w-full">
+              {/* <div className="w-full">
+              <div className="w-1/2">
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
                   htmlFor="payment_type"
@@ -1524,7 +1557,71 @@ const Enroll = () => {
                     </Select.Option>
                   ))}
                 </Select>
+                </div>
+                <div className="w-1/2">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="enrollmentdate"
+                >
+                  Enrollment Date 
+                </label>
+                <input
+                    type="date"
+                    name="enrollment_date"
+                    value={formatDateForInput(
+    updateFormData?.enrollment_date || updateFormData?.createdAt
+  )}
+                    id="enrollmentdate"
+                    onChange={handleInputChange}
+                    placeholder="Update Enrollment Date"
+                 
+                   
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full`}
+                  />
+                </div>
+              </div> */}
+              {/* ROW LAYOUT FIX */}
+              <div className="w-full flex gap-4">
+                {/* Payment Type */}
+                <div className="w-1/2">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Select Payment Type <span className="text-red-500">*</span>
+                  </label>
+
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 rounded-lg w-full"
+                    value={updateFormData?.payment_type || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("payment_type", value)
+                    }
+                  >
+                    {["Daily", "Weekly", "Monthly"].map((pType) => (
+                      <Select.Option key={pType} value={pType}>
+                        {pType}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+
+                {/* Enrollment Date */}
+                <div className="w-1/2">
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Enrollment Date
+                  </label>
+
+                  <input
+                    type="date"
+                    name="enrollment_date"
+                    value={formatDateForInput(
+                      updateFormData?.enrollment_date ||
+                        updateFormData?.createdAt
+                    )}
+                    onChange={handleInputChange}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} rounded-lg w-full`}
+                  />
+                </div>
               </div>
+
               <div className="w-full">
                 <label className="block mb-2 text-sm font-medium text-gray-900">
                   Chit Asking Month
@@ -1616,27 +1713,30 @@ const Enroll = () => {
               )}
               {updateFormData.referred_type === "Agent" && (
                 <div className="w-full">
-                  <label className="block mb-2 text-sm font-medium text-gray-900">Select Referred Agent{" "} <span className="text-red-500">*</span></label>
+                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                    Select Referred Agent{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
                   <Select
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full `}
-                  placeholder="Select or Search Referred Agent"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="agent"
-                  filterOption={(input,option) =>
-                    option.children.toString().toLowerCase().includes(input.toLowerCase())
-                  }
-                  value={updateFormData.agent || undefined}
-                  onChange={(value) => handleAntInputDSelect("agent", value)}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full `}
+                    placeholder="Select or Search Referred Agent"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="agent"
+                    filterOption={(input, option) =>
+                      option.children
+                        .toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    value={updateFormData.agent || undefined}
+                    onChange={(value) => handleAntInputDSelect("agent", value)}
                   >
                     {agents.map((agent) => (
                       <Select.Option key={agent._id} value={agent._id}>
                         {agent.name} | {agent.phone_number}
                       </Select.Option>
-                    ))
-
-                  }
-
+                    ))}
                   </Select>
                 </div>
               )}
