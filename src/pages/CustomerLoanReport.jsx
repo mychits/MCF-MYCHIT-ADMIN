@@ -43,6 +43,7 @@ const CustomerLoanReport = () => {
 
           loanServiceCharges: loan?.service_charges ?? 0,
           loanAmount: loan?.double_loan_amount ?? 0,
+          payableAmount: loan?.amount_payable ?? 0,
           totalLoanAmount: loan?.total_paid_amount ?? 0,
           loanBalance: loan?.balance ?? 0,
 
@@ -131,7 +132,8 @@ const CustomerLoanReport = () => {
     { key: "loanServiceCharges", header: "Service Charges" },
     {key: "daily_payment_amount", header: "Daily Payment"},
     { key: "loanAmount", header: "Loan Amount" },
-    { key: "totalLoanAmount", header: "Total Paid Loan Amount" },
+    { key: "payableAmount", header: "Loan Payable" },
+    { key: "totalLoanAmount", header: "Total Paid" },
     { key: "referredBy", header: "Referred By" },
 
     { key: "loanBalance", header: "Balance" },
