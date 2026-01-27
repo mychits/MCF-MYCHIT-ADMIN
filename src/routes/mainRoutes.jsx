@@ -166,6 +166,7 @@ import AdvanceSalary from "../pages/AdvanceSalary";
 import RewardMenu from "../pages/RewardsMenu";
 import PaymentLinkTransactions from "../pages/PaymentLinkTransactions";
 import CustomerRewardPoints from "../pages/CustomerRewards"
+import RedemptionPointsReport from "../pages/RedemptionPointsReport";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -875,6 +876,7 @@ const mainRoutes = createBrowserRouter([
         path: "employee-deduction-report",
         element: <EmployeeDeductionReport />,
       },
+      {path:"redemtion-points", element: <RedemptionPointsReport/>},
     ],
   },
 

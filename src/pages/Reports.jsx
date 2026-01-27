@@ -42,6 +42,7 @@ import { LiaPeopleCarrySolid } from "react-icons/lia";
 import { MdPersonOff } from "react-icons/md";
 import { FaMobileAlt } from "react-icons/fa";
 import { PiMoneyDuotone } from "react-icons/pi";
+import { TfiGift } from "react-icons/tfi";
 const subMenus = [
   {
     id:"1",
@@ -335,6 +336,15 @@ const subMenus = [
     link: "/reports/employee-deduction-report",
     category: "Employee",
     Icon: PiMoneyDuotone,
+    color: "from-blue-500 to-blue-600",
+    isNew: false,
+  },
+    {
+    id: "40",
+    title: "Redemption Points Report",
+    link: "/reports/redemtion-points",
+    category: "Employee",
+    Icon: TfiGift,
     color: "from-blue-500 to-blue-600",
     isNew: false,
   },

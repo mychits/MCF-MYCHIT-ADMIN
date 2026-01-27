@@ -347,7 +347,6 @@ import Sidebar from "../components/layouts/Sidebar";
 
 //         setReceivedReward(formattedData);
 
-       
 //         const activeMap = {};
 //         formattedData.forEach((item) => {
 //           activeMap[item._id] = {
@@ -448,7 +447,7 @@ import Sidebar from "../components/layouts/Sidebar";
 //     // { key: "groupInstallMent", header: "Installment" },
 //     {key: "TotalPaidAmount", header: "Total Paid Amount"},
 //     { key: "remainingInstallment", header: "Remaining Installment" },
-    
+
 //     { key: "releaseGift", header: "Release Gift" },
 //     { key: "checkBoxs", header: "Gift Received" },
 //   ];
@@ -564,16 +563,16 @@ const CustomerRewards = () => {
   /* ================= SUMMARY ================= */
   const [summary, setSummary] = useState({
     point_value: 1,
-  //  total_earned_points: 0,
+    //  total_earned_points: 0,
     total_earned_points: 0, // wallet earned (after redemption)
     total_redeemed_points: 0,
     balance_points: 0,
-     total_redeemed_amount: 0,
+    total_redeemed_amount: 0,
     sum_previous_earned_points: 0, // lifetime
     sum_previous_redeemed_points: 0,
   });
 
-    const handleAntInputDSelect = (field, value) => {
+  const handleAntInputDSelect = (field, value) => {
     setUpdateFormData((prevData) => ({
       ...prevData,
       [field]: value,
@@ -606,7 +605,7 @@ const CustomerRewards = () => {
   const fetchRewardSummary = async (custId) => {
     try {
       const res = await api.get(
-        `/customer-rewards/customer-reward-points/${custId}`
+        `/customer-rewards/customer-reward-points/${custId}`,
       );
       if (res.data?.success) {
         setSummary(res.data);
@@ -623,7 +622,7 @@ const CustomerRewards = () => {
     setIsLoading(true);
     try {
       const res = await api.get(
-        `/customer-rewards/customer-reward-list/${custId}`
+        `/customer-rewards/customer-reward-list/${custId}`,
       );
 
       const formatted = res.data?.data?.map((reward, index) => ({
@@ -676,9 +675,7 @@ const CustomerRewards = () => {
   /* ================= AUTO CALCULATE CASH ================= */
   useEffect(() => {
     if (redeemType === "Cash") {
-      setRedeemAmount(
-        Number(redeemPoints || 0) * summary.point_value
-      );
+      setRedeemAmount(Number(redeemPoints || 0) * summary.point_value);
     } else {
       setRedeemAmount(0);
     }
@@ -741,40 +738,37 @@ const CustomerRewards = () => {
           {/* ================= FILTER ================= */}
           <div className="flex flex-wrap gap-4 mb-6 items-end">
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Customer
-              </label>
+              <label className="block text-sm font-medium mb-1">Customer</label>
 
               <Select
-  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-64"
-  placeholder="Select Customer"
-  popupMatchSelectWidth={false}
-  showSearch
-  optionFilterProp="children"
-  filterOption={(input, option) =>
-    option.children
-      .toString()
-      .toLowerCase()
-      .includes(input.toLowerCase())
-  }
-  value={customerId || undefined}
-  onChange={(value) => {
-    setCustomerId(value);
-    setRewardTable([]);
+                className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-64"
+                placeholder="Select Customer"
+                popupMatchSelectWidth={false}
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  option.children
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                value={customerId || undefined}
+                onChange={(value) => {
+                  setCustomerId(value);
+                  setRewardTable([]);
 
-    if (value) {
-      fetchRewardSummary(value);
-      fetchRewardPoints(value);
-    }
-  }}
->
-  {customers.map((c) => (
-    <Select.Option key={c._id} value={c._id}>
-      {c.full_name} - {c.phone_number}
-    </Select.Option>
-  ))}
-</Select>
-
+                  if (value) {
+                    fetchRewardSummary(value);
+                    fetchRewardPoints(value);
+                  }
+                }}
+              >
+                {customers.map((c) => (
+                  <Select.Option key={c._id} value={c._id}>
+                    {c.full_name} - {c.phone_number}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
 
             <div>
