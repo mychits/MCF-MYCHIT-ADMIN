@@ -23,7 +23,7 @@ const CustomerLoanReport = () => {
     const fetchLoanReport = async () => {
       try {
         const response = await api.get(`/payment/customers/loan-report`);
-        console.info(response, " test fvdfhjdfgjhgf");
+
 
         const formattedData = response.data.loanReports.map((loan, index) => ({
           id: loan?._id,
@@ -40,7 +40,7 @@ const CustomerLoanReport = () => {
             : "N/A",
           // Store the original date for filtering
           loanStartDateObj: loan?.start_date ? new Date(loan.start_date) : null,
-
+          payableLoanDays: loan?.days_count,
           loanServiceCharges: loan?.service_charges ?? 0,
           loanAmount: loan?.double_loan_amount ?? 0,
           payableAmount: loan?.amount_payable ?? 0,
@@ -134,6 +134,7 @@ const CustomerLoanReport = () => {
     { key: "loanServiceCharges", header: "Service Charges" },
     {key: "daily_payment_amount", header: "Daily Payment"},
     { key: "loanAmount", header: "Loan Amount" },
+    {key: "payableLoanDays", header: "Loan Age (in Days)"},
     { key: "payableAmount", header: "Loan Payable" },
     { key: "totalLoanAmount", header: "Total Paid" },
     { key: "loanBalance", header: "OutStanding" },

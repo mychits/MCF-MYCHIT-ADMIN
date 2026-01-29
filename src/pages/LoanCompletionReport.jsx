@@ -66,6 +66,8 @@ const LoanCompletionReport = () => {
       ? new Date(loan.start_date).toLocaleDateString("en-GB")
       : "N/A",
     loanStartDateObj: loan?.start_date ? new Date(loan.start_date) : null,
+    // payableLoanDays: loan?.days_count && `${loan?.days_count || 0} Days`,
+    payableLoanDays: loan?.days_count,
 
     loanServiceCharges: loan?.service_charges ?? 0,
     loanAmount: loan?.double_loan_amount ?? 0,
@@ -158,6 +160,7 @@ const LoanCompletionReport = () => {
     { key: "loanServiceCharges", header: "Service Charges" },
     {key: "daily_payment_amount", header: "Daily Payment"},
     { key: "loanAmount", header: "Loan Amount" },
+    {key: "payableLoanDays", header :"Loan Age (in Days)"},
     { key: "payableAmount", header: "Loan Payable" },
     { key: "totalLoanAmount", header: "Total Paid" },
     {key: "status", header: "Status"},
