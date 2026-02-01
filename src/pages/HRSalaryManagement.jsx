@@ -156,7 +156,7 @@ const HRSalaryManagement = () => {
     { label: "December", value: "December", disabled: false },
   ];
 
-  const previousMonth = months[dayjs().subtract(2, "month").format("MM")].label;
+  const previousMonth = months[dayjs().subtract(2, "month").format("MM")]?.label;
 
   const [formData, setFormData] = useState({
     employee_id: "",
