@@ -7,6 +7,7 @@ import Navbar from "../components/layouts/Navbar";
 import { NavbarMenu } from "../data/menu";
 import { Users, IndianRupee, ChevronRight, Zap, ClipboardCheck } from "lucide-react";
 import DataTable from "../components/layouts/Datatable";
+import BaseURL from "../instance/BaseUrl";
 
 
 function Supports() {
@@ -924,7 +925,7 @@ function Supports() {
                                                     >
                                                         {/* IMAGE */}
                                                         <img
-                                                            src={`http://localhost:3000/api/complaints/${selectedComplaint._id}/attachment/${index}`}
+                                                            src={`${BaseURL}/complaints/${selectedComplaint._id}/attachment/${index}`}
                                                             alt={file.originalName}
                                                             className="h-32 object-contain rounded mb-2"
                                                         />
