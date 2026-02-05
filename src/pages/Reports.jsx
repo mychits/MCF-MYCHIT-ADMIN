@@ -231,6 +231,24 @@ const subMenus = [
     category: "Loan",
     color: "from-green-500 to-green-600",
   },
+         {
+    id: "42",
+    title: "OutStanding Loan Report",
+    link: "/reports/loan-due-report",
+    category: "Loan",
+    Icon: GiMoneyStack,
+    color: "from-blue-500 to-blue-600",
+    isNew: false,
+  },
+     {
+    id: "41",
+    title: "Loan Completion Report",
+    link: "/reports/loan-completion-report",
+    category: "Loan",
+    Icon: GiMoneyStack,
+    color: "from-blue-500 to-blue-600",
+    isNew: false,
+  },
   {
        id:"20",
     title: "Sales Report",
@@ -348,15 +366,16 @@ const subMenus = [
     color: "from-blue-500 to-blue-600",
     isNew: false,
   },
-   {
-    id: "41",
-    title: "Loan Completion Report",
-    link: "/reports/loan-completion-report",
-    category: "Customer",
-    Icon: GiMoneyStack,
+        {
+    id: "43",
+    title: " Reward Points Report",
+    link: "/reports/date-wise-reward-points",
+    category: "Employee",
+    Icon: TfiGift,
     color: "from-blue-500 to-blue-600",
     isNew: false,
   },
+
   
 ];
 
