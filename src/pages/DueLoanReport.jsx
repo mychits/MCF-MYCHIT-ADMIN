@@ -158,6 +158,7 @@ const DueLoanReport = () => {
     {key: "second_last_payment_amount", header: "  Paid Amount - 2nd Previous"},
       {key: "last_payment_date", header: "Payment Date - Latest"},
     {key: "last_payment_amount", header: " Payment Amount – Latest"},
+    {key: "duedaysCount", header: "Days Since Last Payment"},
     { key: "payableAmount", header: "Loan Payable" },
     { key: "totalLoanAmount", header: "Total Paid" },
     {key: "remainingBalance", header: "Balance"},
