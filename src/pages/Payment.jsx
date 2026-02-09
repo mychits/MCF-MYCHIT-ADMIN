@@ -81,6 +81,7 @@ const Payment = () => {
 
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
+    remarks:"",
     user_id: "",
     receipt_no: "",
     pay_date: today,
@@ -250,30 +251,30 @@ const Payment = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleChange = (e) => {
-  const { name, value } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  if (name === "amount") {
-    // Allow digits & ONLY one dot
-    let cleaned = value.replace(/[^0-9.]/g, "");
+    if (name === "amount") {
+      // Allow digits & ONLY one dot
+      let cleaned = value.replace(/[^0-9.]/g, "");
 
-    const dotCount = (cleaned.match(/\./g) || []).length;
-    if (dotCount > 1) return;
+      const dotCount = (cleaned.match(/\./g) || []).length;
+      if (dotCount > 1) return;
 
+      setFormData((prev) => ({
+        ...prev,
+        [name]: cleaned,
+      }));
+
+      return;
+    }
+
+    // Other fields
     setFormData((prev) => ({
       ...prev,
-      [name]: cleaned,
+      [name]: value,
     }));
-
-    return;
-  }
-
-  // Other fields
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-};
+  };
 
 
   const handlePaymentAntSelect = (values) => {
@@ -282,25 +283,25 @@ const handleChange = (e) => {
 
 
 
-  
-const formatIndianNumber = (value) => {
-  if (!value) return "";
 
-  value = value.toString().replace(/[^0-9.]/g, "");
+  const formatIndianNumber = (value) => {
+    if (!value) return "";
 
-  const parts = value.split(".");
-  const integerPart = parts[0];
-  const decimalPart = parts[1] ? parts[1].slice(0, 2) : "";
+    value = value.toString().replace(/[^0-9.]/g, "");
 
-  let lastThree = integerPart.slice(-3);
-  let otherNumbers = integerPart.slice(0, -3);
+    const parts = value.split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts[1] ? parts[1].slice(0, 2) : "";
 
-  let formattedInt = otherNumbers
-    ? otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," + lastThree
-    : lastThree;
+    let lastThree = integerPart.slice(-3);
+    let otherNumbers = integerPart.slice(0, -3);
 
-  return decimalPart ? `${formattedInt}.${decimalPart}` : formattedInt;
-};
+    let formattedInt = otherNumbers
+      ? otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," + lastThree
+      : lastThree;
+
+    return decimalPart ? `${formattedInt}.${decimalPart}` : formattedInt;
+  };
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -449,6 +450,7 @@ const formatIndianNumber = (value) => {
           cheque_date: "",
           cheque_bank_name: "",
           cheque_bank_branch: "",
+          remarks:""
         });
         setAlertConfig({
           visibility: true,
@@ -461,6 +463,7 @@ const formatIndianNumber = (value) => {
       setShowModal(false);
       setSelectedUserId("");
       setFormData({
+        remarks:"",
         user_id: "",
         receipt_no: "",
         pay_date: "",
@@ -669,9 +672,8 @@ const formatIndianNumber = (value) => {
                       </div>
 
                       <div
-                        className={`form-group ${
-                          enrollmentLoading ? "cursor-progress" : ""
-                        }`}
+                        className={`form-group ${enrollmentLoading ? "cursor-progress" : ""
+                          }`}
                       >
                         <label
                           className="block mb-2 text-sm font-medium text-gray-900"
@@ -847,7 +849,7 @@ const formatIndianNumber = (value) => {
                                 placeholder="Individual Amount"
                                 value={formatIndianNumber(
                                   Number(formData.amount) /
-                                    paymentGroupTickets.length
+                                  paymentGroupTickets.length
                                 )}
                                 disabled
                               />
@@ -855,7 +857,7 @@ const formatIndianNumber = (value) => {
                             <div className="text-blue-900">
                               {numberToIndianWords(
                                 Number(formData.amount) /
-                                  paymentGroupTickets.length
+                                paymentGroupTickets.length
                               )}
                             </div>
                           </div>
@@ -863,30 +865,30 @@ const formatIndianNumber = (value) => {
 
                         {(paymentMode === "online" ||
                           paymentMode === "online/upi") && (
-                          <div className="mt-4">
-                            <label
-                              className="block mb-2 text-sm font-medium text-gray-900"
-                              htmlFor="transaction_id"
-                            >
-                              Transaction ID{" "}
-                              <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              name="transaction_id"
-                              id="transaction_id"
-                              value={formData.transaction_id}
-                              onChange={handleChange}
-                              placeholder="Enter Transaction ID"
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                            />
-                            {errors.transaction_id && (
-                              <p className="text-red-500 text-xs mt-1">
-                                {errors.transaction_id}
-                              </p>
-                            )}
-                          </div>
-                        )}
+                            <div className="mt-4">
+                              <label
+                                className="block mb-2 text-sm font-medium text-gray-900"
+                                htmlFor="transaction_id"
+                              >
+                                Transaction ID{" "}
+                                <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                name="transaction_id"
+                                id="transaction_id"
+                                value={formData.transaction_id}
+                                onChange={handleChange}
+                                placeholder="Enter Transaction ID"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                              />
+                              {errors.transaction_id && (
+                                <p className="text-red-500 text-xs mt-1">
+                                  {errors.transaction_id}
+                                </p>
+                              )}
+                            </div>
+                          )}
 
                         {paymentMode === "cheque" && (
                           <div className="mt-4 space-y-4">
@@ -980,6 +982,20 @@ const formatIndianNumber = (value) => {
                             </div>
                           </div>
                         )}
+
+
+                        <div className="my-4">
+                          <label
+                            className="block mb-2 text-sm font-medium text-gray-900 "
+                            htmlFor="remarks"
+                          >
+                            Remarks
+                          </label>
+                         <textarea name="remarks" id="remarks" value={formData?.remarks} onChange={handleChange} placeholder="Remarks if any..." rows={2}   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5">
+
+                         </textarea>
+                          
+                        </div>
                       </div>
 
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
@@ -1127,9 +1143,9 @@ const formatIndianNumber = (value) => {
                 <div className="mb-3 flex gap-x-2">
                   <strong>Bid Amount:</strong>{" "}
                   {currentViewGroup?.group_id?.group_value -
-                  currentViewGroup?.win_amount
+                    currentViewGroup?.win_amount
                     ? currentViewGroup?.group_id?.group_value -
-                      currentViewGroup?.win_amount
+                    currentViewGroup?.win_amount
                     : ""}
                 </div>
                 <div className="mb-3 flex gap-x-2">
