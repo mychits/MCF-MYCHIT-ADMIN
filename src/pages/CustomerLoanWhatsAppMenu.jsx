@@ -8,106 +8,22 @@ import { RiMoneyRupeeCircleLine } from "react-icons/ri";
 
 
 
-const WhatsappMarketingMenu = () => {
-  const whatsappmarketingCategories = [
+const CustomerLoanWhatsappMenu = () => {
+  const customerloanwhatsappCategories = [
   
-    {
-      id: 1,
-      title: "Login",
-      description: "Login to Interakt",
-      icon: <FaWhatsapp className="w-8 h-8" />,
-      color: "from-blue-600 to-blue-700",
-      lightColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      href: "https://app.interakt.ai/login", 
-      target:"_blank",
-      stats: "Login",
-    },
      {
       id: 2,
-      title: "Outstanding Whatsapp Management",
-      description: "Manage Outstanding Whatsapp Message",
+      title: "OutStanding Loan Message",
+      description: "Manage OutStanding Loan Whatsapp Message",
       icon: <FaWhatsapp className="w-8 h-8" />,
       color: "from-blue-600 to-blue-700",
       lightColor: "bg-blue-50",
       borderColor: "border-blue-200",
-      href: "/market-menu/whatsapp-marketing/due-whatsapp-marketing",
-      target:"_self",
-      stats: "Active Outstanding Message",
+      href: "/market-menu/whatsapp-marketing/loan-whatsapp-marketing/due-loan-message",
+    //   target:"_self",
+      stats: "Active Loan Outstanding Whatsapp Message",
     },
 
-      {
-      id: 3,
-      title: "Lead Whatsapp Management",
-      description: "Manage Lead Whatsapp Message",
-      icon: <FaWhatsapp className="w-8 h-8" />,
-      color: "from-blue-600 to-blue-700",
-      lightColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      href: "/market-menu/whatsapp-marketing/lead-whatsapp-marketing",
-      target:"_self",
-      stats: "Active Lead Message",
-    },
-        {
-      id: 4,
-      title: "Customer Whatsapp Management",
-      description: "Manage Customer Whatsapp Message",
-      icon: <FaWhatsapp className="w-8 h-8" />,
-      color: "from-blue-600 to-blue-700",
-      lightColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      href: "/market-menu/whatsapp-marketing/customer-whatsapp-marketing",
-      target:"_self",
-      stats: "Active Customer Message",
-    },
-       {
-      id: 5,
-      title: "Auction Whatsapp Management",
-      description: "Manage Auction Whatsapp Message",
-      icon: <FaWhatsapp className="w-8 h-8" />,
-      color: "from-blue-600 to-blue-700",
-      lightColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      href: "/market-menu/whatsapp-marketing/auction-whatsapp-marketing",
-      target:"_self",
-      stats: "Active Auction Message",
-    },
-         {
-      id: 7,
-      title: "Promotion Whatsapp Management",
-      description: "Manage promotion  Whatsapp Message",
-      icon: <FaWhatsapp className="w-8 h-8" />,
-      color: "from-blue-600 to-blue-700",
-      lightColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      href: "/market-menu/whatsapp-marketing/promo-whatsapp-marketing",
-      target:"_self",
-      stats: "Active Promotion Message",
-    },
-                    {
-      id: 8,
-      title: "Loan Whatsapp Management",
-      description: "Manage Loan  Whatsapp Message",
-      icon: <FaWhatsapp className="w-8 h-8" />,
-      color: "from-blue-600 to-blue-700",
-      lightColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      href: "/market-menu/whatsapp-marketing/loan-whatsapp-marketing",
-      target:"_self",
-      stats: "Active Promotion Message",
-    },
-         {
-      id: 6,
-      title: "Penalty Whatsapp Management",
-      description: "Manage penalty  Whatsapp Message",
-      icon: <FaWhatsapp className="w-8 h-8" />,
-      color: "from-blue-600 to-blue-700",
-      lightColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      href: "/market-menu/whatsapp-marketing/penalty-whatsapp-marketing",
-      target:"_self",
-      stats: "Active Penalty Message",
-    },
    
      
   ];
@@ -121,16 +37,16 @@ const WhatsappMarketingMenu = () => {
           <div className="p-8">
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-gray-900">
-               Whatsapp Marketing Management
+               Loan Whatsapp Message Management
               </h2>
               <p className="text-gray-600 mt-2">
-                Manage and organize your Whatsapp Marketing
+                Manage and organize your Loan Whatsapp Message
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-              {whatsappmarketingCategories.map((category) => (
-                <Link key={category.id} to={category.href} className="group" target={category.target}>
+              {customerloanwhatsappCategories.map((category) => (
+                <Link key={category.id} to={category.href} className="group" >
                   <div
                     className={`relative h-full overflow-hidden rounded-xl bg-white border ${category.borderColor} shadow-md hover:shadow-lg transition-all duration-300`}
                   >
@@ -180,7 +96,7 @@ const WhatsappMarketingMenu = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">Quick Tips</h3>
-                <p className="text-slate-700">Manage whatsapp and more with Marketing Management—everything in one place.</p>
+                <p className="text-slate-700">Manage Loan whatsapp and more with Marketing Management—everything in one place.</p>
               </div>
             </div>
           </div>
@@ -191,4 +107,4 @@ const WhatsappMarketingMenu = () => {
   );
 };
 
-export default WhatsappMarketingMenu;
+export default CustomerLoanWhatsappMenu;

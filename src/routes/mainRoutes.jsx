@@ -174,7 +174,8 @@ import ComplaintForm from "../pages/ComplaintForm";
 import Supports from "../pages/Supports";
 import DueLoanReport from "../pages/DueLoanReport";
 import DateWiseRewardreport from "../pages/DateWiseRewardreport";
-
+import DueLoanWhatsappMessage from "../pages/DueLoanWhatsappMessage";
+import CustomerLoanWhatsappMenu from "../pages/CustomerLoanWhatsAppMenu";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -712,6 +713,17 @@ const mainRoutes = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+
+    {
+    path: "/market-menu/whatsapp-marketing/loan-whatsapp-marketing",
+  element: (
+    <ProtectedRoute>
+        <CustomerLoanWhatsappMenu />
+      </ProtectedRoute>
+  ),
+},
+
+
      {
     path: "/collection-menu",
     element: (
@@ -1080,7 +1092,8 @@ const mainRoutes = createBrowserRouter([
       {path: "/market-menu/whatsapp-marketing/lead-whatsapp-marketing/lead-referredby-message", element: <LeadReferredByWhatsappMessage/>},
       {path: "/market-menu/whatsapp-marketing/customer-whatsapp-marketing/customer-welcome-message", element: <CustomerWelcomeWhatsappMessage/>},
       {path: "/market-menu/whatsapp-marketing/customer-whatsapp-marketing/customer-chitplan-message", element: <CustomerChitPlanWhatsappMessage/>},
-    
+      {path: "/market-menu/whatsapp-marketing/loan-whatsapp-marketing/due-loan-message",element: <DueLoanWhatsappMessage/>},
+       
    
   
 
