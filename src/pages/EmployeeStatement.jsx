@@ -75,7 +75,9 @@ const formatLedgerData = (ledger) => {
       achievement: getAchievementTag(item.business?.achievement),
       incentiveEarned: formatCurrency(item.business?.incentive_earned),
       pigmyIncentives: formatCurrency(item.business?.pigmy_incentives),
+      pigmyIncentivesRaw: item.business?.pigmy_incentives,
       loanIncentives: formatCurrency(item.business?.loan_incentives),
+      loanIncentivesRaw: item.business?.loan_incentives,
       advance: advanceDisplay, // Use the formatted display string
 
       balance: (
@@ -199,8 +201,8 @@ const EmployeeStatement = () => {
     { key: "targetRaw", header: "Target" },
     { key: "businessClosedRaw", header: "Business Closed" },
     { key: "incentiveRaw", header: "Incentive" },
-    { key: "pigmyIncentives", header: "Pigmy Incentives" },
-    { key: "loanIncentives", header: "Loan Incentives" },
+    { key: "pigmyIncentivesRaw", header: "Pigmy Incentives" },
+    { key: "loanIncentivesRaw", header: "Loan Incentives" },
     { key: "achievementRaw", header: "Achievement" },
     { key: "advanceRaw", header: "Advance" },
     { key: "netPayableRaw", header: "Net Payable" },
