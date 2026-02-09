@@ -376,6 +376,15 @@ const subMenus = [
     color: "from-blue-500 to-blue-600",
     isNew: false,
   },
+          {
+    id: "43",
+    title: " Reward Points Report",
+    link: "/reports/date-wise-reward-points",
+    category: "Employee",
+    Icon: TfiGift,
+    color: "from-blue-500 to-blue-600",
+    isNew: false,
+  },
 
   
 ];

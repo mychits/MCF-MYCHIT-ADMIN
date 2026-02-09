@@ -173,7 +173,8 @@ import HelpAndSupport from "../pages/HelpAndSupport";
 import ComplaintForm from "../pages/ComplaintForm";
 import Supports from "../pages/Supports";
 import DueLoanReport from "../pages/DueLoanReport";
-// import DateWiseRewardreport from "../pages/DateWiseRewardreport";
+import DateWiseRewardreport from "../pages/DateWiseRewardreport";
+
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -918,7 +919,8 @@ const mainRoutes = createBrowserRouter([
       },
       {path:"redemtion-points", element: <RedemptionPointsReport/>},
       {path: "loan-completion-report", element: <LoanCompletionReport/>},
-      {path: "loan-due-report", element: <DueLoanReport/>}
+      {path: "loan-due-report", element: <DueLoanReport/>},
+      {path: "date-wise-reward-points", element: <DateWiseRewardreport/>},
     ],
   },
 

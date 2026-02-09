@@ -150,7 +150,7 @@ const DueLoanReport = () => {
     { key: "loanServiceCharges", header: "Service Charges" },
     {key: "loanDocumentCharges", header: "Documentation Charges"},
     {key: "daily_payment_amount", header: "Daily Installment"},
-    { key: "loanAmount", header: "Loan Amount" },
+    { key: "loanAmountValue", header: "Loan Amount" },
     {key: "payableLoanDays", header: "Loan Age (in Days)"},
    {key: "third_last_payment_date", header: "Payment Date - 3nd Previous"},
      {key: "third_last_payment_amount", header: "Paid Amount - 3nd Previous  "},
