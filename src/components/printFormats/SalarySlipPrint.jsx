@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { PrinterOutlined, DownloadOutlined } from "@ant-design/icons";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import dayjs from "dayjs";
 
 // const SalarySlipPrint = () => {
 //   const params = useParams();
@@ -3462,7 +3463,7 @@ const totalOtherDeduction = totalDeductions + underPaidAmount;
               </div>
               <div class="meta-info">
               
-                Date: <strong>${new Date().toLocaleDateString()}</strong>
+                Date: <strong>${dayjs().format("DD-MM-YYYY")}</strong>
               </div>
             </div>
             <div class="payslip-title">SALARY SLIP</div>
