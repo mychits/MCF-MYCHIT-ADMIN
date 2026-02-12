@@ -37,6 +37,7 @@ const User = () => {
     type: "info",
   });
   const [errors, setErrors] = useState({});
+   const [showConfirm, setShowConfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: "",

@@ -674,11 +674,7 @@ const AllUserReport = () => {
                   ₹{totals.totalBalance.toLocaleString("en-IN")}
                 </span>
               </div>
-            </div>
-
-            {/* New Penalty Statistics Cards */}
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
                 <div className="flex items-center justify-between mb-2">
                   <div className="bg-white bg-opacity-20 rounded-lg p-2">
                     <svg
@@ -729,6 +725,11 @@ const AllUserReport = () => {
                  ₹{totals.totalPenalty.toLocaleString("en-IN")}
                 </span>
               </div>
+            </div>
+
+            {/* New Penalty Statistics Cards */}
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          
 
               <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
                 <div className="flex items-center justify-between mb-2">
