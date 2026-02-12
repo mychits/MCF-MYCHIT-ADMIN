@@ -177,7 +177,8 @@ import DateWiseRewardreport from "../pages/DateWiseRewardreport";
 import DueLoanWhatsappMessage from "../pages/DueLoanWhatsappMessage";
 import CustomerLoanWhatsappMenu from "../pages/CustomerLoanWhatsAppMenu";
 import Visitor from "../pages/Visitor";
-import VisitorList from "../pages/VisitorList"
+import VisitorList from "../pages/VisitorList";
+import AuctionFilterReport from "../pages/AuctionFilterReport";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -951,6 +952,8 @@ const mainRoutes = createBrowserRouter([
       {path: "loan-completion-report", element: <LoanCompletionReport/>},
       {path: "loan-due-report", element: <DueLoanReport/>},
       {path: "date-wise-reward-points", element: <DateWiseRewardreport/>},
+      {path: "auction-filter-report", element: <AuctionFilterReport/>},
+      
     ],
   },
 

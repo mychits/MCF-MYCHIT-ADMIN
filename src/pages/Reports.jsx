@@ -208,7 +208,14 @@ const subMenus = [
     category: "Auction",
     color: "from-pink-500 to-pink-600",
   },
- 
+ {
+     id:"&*#$%",
+    title: "Auction Filter Report",
+    link: "/reports/auction-filter-report",
+    Icon: RiAuctionFill,
+    category: "Auction",
+    color: "from-pink-500 to-pink-600",
+  },
   {
      id:"17",
     title: "All Lead Report",
