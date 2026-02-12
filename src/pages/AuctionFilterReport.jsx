@@ -6,7 +6,7 @@ import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Navbar from "../components/layouts/Navbar";
-import { Select, Dropdown, Modal as AntModal, DatePicker, Tag, Switch, Tooltip } from "antd";
+import { Select, Dropdown, Modal as AntModal, DatePicker, Tag, Switch, Tooltip, Empty } from "antd";
 import { IoMdMore } from "react-icons/io";
 import { FaGavel, FaEye } from "react-icons/fa";
 import dayjs from "dayjs";
@@ -62,7 +62,7 @@ const AuctionPage = () => {
     { key: "win_amount_raw", header: "Winning Amount" },
     { key: "bid_amount", header: "Bid Amount" },
     { key: "dividend_raw", header: "Dividend" },
-    
+
     { key: "auction_type_raw", header: "Type" },
     { key: "prized_raw", header: "Prized" },
     { key: "action", header: "Action" },
@@ -108,8 +108,8 @@ const AuctionPage = () => {
           auction_type: <Tag color={item.auction_type === 'free' ? 'purple' : 'blue'}>{item.auction_type?.toUpperCase()}</Tag>,
           auction_type_raw: item?.auction_type,
           prized: <Tag color={item?.isPrized === 'true' ? 'green' : 'red'}>{item?.isPrized ? "Yes" : "No"}</Tag>,
-           bid_amount: parseInt(item.divident) + parseInt(item.commission),
-          prized_raw:item?.isPrized ? "Yes" : "No",
+          bid_amount: parseInt(item.divident) + parseInt(item.commission),
+          prized_raw: item?.isPrized ? "Yes" : "No",
           action: (
             <div className="flex justify-center">
               <Tooltip title="View Details">
@@ -242,7 +242,7 @@ const AuctionPage = () => {
         <div className="bg-white rounded-xl shadow-sm p-4">
           {isLoading ? (
             <CircularLoader isLoading={true} data="Auctions" />
-          ) : (
+          ) : auctions.length <= 0 ? <Empty description="No Auction Data Found" /> : (
             <DataTable
               data={auctions}
               columns={columns}
