@@ -60,55 +60,54 @@ const UnapprovedLoans = () => {
     fetchEmployees();
   }, []);
 
+  // Updated useEffect to use 'users' state instead of fetching by ID
   useEffect(() => {
     const fetchLoans = async () => {
+      // Wait until users are loaded to ensure we can map names immediately
+      // This prevents rendering the table with empty names initially
+      if (users.length === 0) return;
+
       try {
         setLoading(true);
         const loanRes = await api.get("/loans/get-loan-approval-request");
         const loans = loanRes.data.data || [];
 
-        const formatted = await Promise.all(
-          loans.map(async (loan, index) => {
-            let user = {};
-            try {
-              const userRes = await api.get(`user/get-user-by-id/${loan.user_id}`);
-              user = userRes.data;
-            } catch (err) {
-              console.error("User fetch failed", err);
-            }
+        // Map through loans synchronously. No 'await' or API calls needed inside the loop.
+        const formatted = loans.map((loan, index) => {
+          // Find the corresponding user from the 'users' state array
+          const user = users.find((u) => u._id === loan.user_id);
 
-            const menu = (
-              <Menu>
-                <Menu.Item key="approve" onClick={() => handleApproveClick(loan, user)}>
-                  Approve
-                </Menu.Item>
-                <Menu.Item key="delete" onClick={() => handleDeleteClick(loan._id)}>
-                  Delete
-                </Menu.Item>
-              </Menu>
-            );
+          const menu = (
+            <Menu>
+              <Menu.Item key="approve" onClick={() => handleApproveClick(loan, user)}>
+                Approve
+              </Menu.Item>
+              <Menu.Item key="delete" onClick={() => handleDeleteClick(loan._id)}>
+                Delete
+              </Menu.Item>
+            </Menu>
+          );
 
-            return {
-              id: index + 1,
-              loanId: loan._id,
-              customer_name: user?.full_name || "-",
-              phone_number: user?.phone_number || "-",
-              address: user?.address || "-",
-              loan_amount: loan.loan_amount,
-              loan_purpose: loan.loan_purpose,
-              approval_status: (
-                <span className="inline-block px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full">
-                  Pending
-                </span>
-              ),
-              actions: (
-                <Dropdown overlay={menu} trigger={["click"]}>
-                  <Button type="text" icon={<MoreOutlined />} onClick={(e) => e.preventDefault()} />
-                </Dropdown>
-              ),
-            };
-          })
-        );
+          return {
+            id: index + 1,
+            loanId: loan._id,
+            customer_name: user?.full_name || "-",
+            phone_number: user?.phone_number || "-",
+            address: user?.address || "-",
+            loan_amount: loan.loan_amount,
+            loan_purpose: loan.loan_purpose,
+            approval_status: (
+              <span className="inline-block px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full">
+                Pending
+              </span>
+            ),
+            actions: (
+              <Dropdown overlay={menu} trigger={["click"]}>
+                <Button type="text" icon={<MoreOutlined />} onClick={(e) => e.preventDefault()} />
+              </Dropdown>
+            ),
+          };
+        });
 
         setTableData(formatted);
       } catch (err) {
@@ -120,18 +119,19 @@ const UnapprovedLoans = () => {
     };
 
     fetchLoans();
-  }, []);
+  }, [users]); // Add 'users' to dependency array
 
   const handleApproveClick = async (loan, user) => {
     setSelectedLoan(loan);
     setSelectedUser(user);
     
+    // Ensure user data exists before setting form values, fallback to loan data if needed
+    const userId = user?._id || loan.user_id;
 
     form.setFieldsValue({
-      borrower: loan.user_id,
+      borrower: userId,
       loan_amount: loan.loan_amount,
       loan_purpose: loan.loan_purpose,
-    
     });
     
     setShowApprovalModal(true);
