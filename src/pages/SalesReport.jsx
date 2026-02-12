@@ -257,9 +257,9 @@ while (loop <= end) {
   ];
 
   return (
-    <div className="w-screen min-h-screen">
+   <div className="flex-1 min-h-screen">
       <Navbar />
-      <div className="p-6">
+      <div className="flex-1 p-6">
         <h1 className="text-3xl font-bold text-center mb-6">Reports - Sales</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

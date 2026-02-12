@@ -429,7 +429,7 @@ const Reports = () => {
           ))}
         </div>
 
-        <div className="flex-grow p-6 ">
+     <div className="flex-grow p-6 overflow-hidden ">
           {location.pathname === "/reports" ? (
             <>
               {/* Search Bar */}

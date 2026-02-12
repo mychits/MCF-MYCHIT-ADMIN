@@ -1465,8 +1465,8 @@ const PaymentSummary = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+     <div className="flex-1 min-h-screen bg-gray-50">
+      <div className="flex-1">
         <Navbar onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)} visibility={true} />
 
         {isLoading ? (
@@ -1482,7 +1482,7 @@ const PaymentSummary = () => {
             </div>
 
             {/* SUMMARY CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>

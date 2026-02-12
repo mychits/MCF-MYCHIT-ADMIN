@@ -455,8 +455,8 @@ const TargetIncentive = () => {
   ).padStart(2, "0")}`;
 
   return (
-    <div className="w-screen min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="flex-1 min-h-screen bg-gray-50">
+      <div className="flex-1">
         <Navbar visibility={true} />
         <div className="flex-grow p-8">
           {/* Header Section */}

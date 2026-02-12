@@ -10,7 +10,7 @@ import { CgWebsite } from "react-icons/cg";
 import { IoIosSettings } from "react-icons/io";
 import { IoIosHelpCircle } from "react-icons/io";
 import { RiAuctionLine } from "react-icons/ri";
-import { FaPeopleArrows } from "react-icons/fa";
+import { FaBriefcase, FaBullhorn, FaChartBar, FaCheckCircle, FaPeopleArrows } from "react-icons/fa";
 import { GiGoldBar } from "react-icons/gi";
 import { IoPeopleOutline } from "react-icons/io5";
 import { GoGraph } from "react-icons/go";
@@ -45,6 +45,7 @@ import { TbTargetArrow } from "react-icons/tb";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { FaGifts } from "react-icons/fa";
 import { TbGraph } from "react-icons/tb";
+import { useLocation } from "react-router-dom";
 
 import { MdAdminPanelSettings } from "react-icons/md";
 
@@ -224,7 +225,7 @@ const MenuSidebar = [
   {
     id: "$2564",
     title: "Approvals",
-    icon: <FaExclamationTriangle />,
+    icon: <FaCheckCircle />,
     link: "/approval-menu",
   },
   {
@@ -237,7 +238,7 @@ const MenuSidebar = [
   {
     id: "$#S",
     title: "Accounts",
-    icon: <MdAccountBalanceWallet />,
+      icon: <FaBriefcase />,
     link: "/payment-menu/"
    // submenu: true,
    // submenuItems: [
@@ -264,17 +265,16 @@ const MenuSidebar = [
      // },
   //  ],
   },
-
-  {
-    id: "$12",
+{
+  id: "$12",
     title: "Reports",
-    icon: <GrAnalytics />,
+    icon: <FaChartBar />,
     link: "/reports",
   },
   {
     id: ids.fourteen,
     title: "Marketing",
-    icon: <GoGraph />,
+    icon: <FaBullhorn />,
     link: "/marketing-menu",
   },
 
@@ -421,6 +421,7 @@ const MenuSidebar = [
 
 const Sidebar = () => {
   const ref = useRef(null);
+    const location = useLocation();
   const [open, setOpen] = useState(true);
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
 
@@ -437,29 +438,25 @@ const Sidebar = () => {
     }));
   };
 
-  return (
+ return (
     <div
       ref={ref}
-      className={`bg-secondary min-h-screen max-h-auto p-5 pt-8  ${
-        open ? "w-64" : "w-20"
-      } duration-300 relative`}
+      className={`bg-secondary min-h-screen max-h-auto p-5 pt-8  ${open ? "w-64" : "w-20"
+        } duration-300 relative`}
     >
       <BsArrowLeftShort
-        className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-9 border border-secondary cursor-pointer ${
-          !open && "rotate-180"
-        }`}
+        className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-9 border border-secondary cursor-pointer ${!open && "rotate-180"
+          }`}
         onClick={() => setOpen(!open)}
       />
       <div className="inline-flex">
         <GiGoldBar
-          className={`bg-amber-300 text-4xl rounded cursor-pointer block float-left mr-2 duration-500 ${
-            open && "rotate-[360deg]"
-          }`}
+          className={`bg-amber-300 text-4xl rounded cursor-pointer block float-left mr-2 duration-500 ${open && "rotate-[360deg]"
+            }`}
         />
         <h3
-          className={`text-white origin-left font-medium text-2xl ${
-            !open && "scale-0"
-          } duration-300 `}
+          className={`text-white origin-left font-medium text-2xl ${!open && "scale-0"
+            } duration-300 `}
         >
           MyChits
         </h3>
@@ -474,16 +471,25 @@ const Sidebar = () => {
           return (
             <Fragment key={menu.id}>
               <a href={menu.link} onClick={() => toggleSubMenu(index)}>
-                <li
+                {/* <li
                   className={`text-gray-300 text-sm flex items-center p-2 gap-x-4 cursor-pointer  hover:bg-light-white rounded-2xl  ${
                     menu.spacing ? "mt-9" : "mt-2"
                   }`}
-                >
+                > */}
+         <li
+  className={`
+    text-gray-300 text-sm flex items-center p-2 gap-x-4 cursor-pointer rounded-2xl
+    ${menu.spacing ? "mt-9" : "mt-2"}
+    hover:bg-light-white rounded-2xl         /* subtle hover */
+    ${location.pathname === menu.link ? "bg-blue-900 text-white" : ""}  /* active color */
+  `}
+>
+
+
                   <span className="text-2xl block float-left">{menu.icon}</span>
                   <span
-                    className={`text-base font-medium flex-1 ${
-                      !open && "hidden"
-                    }`}
+                    className={`text-base font-medium flex-1 ${!open && "hidden"
+                      }`}
                   >
                     {menu.title}
                   </span>
@@ -497,9 +503,8 @@ const Sidebar = () => {
                       )
                     ) : (
                       <BsChevronDown
-                        className={`${
-                          isOpen ? "rotate-180" : "rotate-0"
-                        } transition-transform duration-200`}
+                        className={`${isOpen ? "rotate-180" : "rotate-0"
+                          } transition-transform duration-200`}
                       />
                     ))}
                 </li>
@@ -515,9 +520,8 @@ const Sidebar = () => {
                       >
                         <li
                           onClick={() => toggleNestedSubMenu(index, subIndex)}
-                          className={`${
-                            submenuItem.red ? "text-red-300" : "text-gray-300"
-                          } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white  rounded-2xl`}
+                          className={`${submenuItem.red ? "text-red-300" : "text-gray-300"
+                            } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white  rounded-2xl`}
                         >
                           {submenuItem.icon}
                           {submenuItem.title}
@@ -540,11 +544,10 @@ const Sidebar = () => {
                                 target={subSubItem.newTab ? "_blank" : "_self"}
                               >
                                 <li
-                                  className={`${
-                                    subSubItem.red
+                                  className={`${subSubItem.red
                                       ? "text-red-300"
                                       : "text-gray-300"
-                                  } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md`}
+                                    } select-none text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md`}
                                 >
                                   {subSubItem.icon}
                                   {subSubItem.title}

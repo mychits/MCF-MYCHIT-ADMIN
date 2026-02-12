@@ -11,6 +11,15 @@ import { Link } from "react-router-dom";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
 import api from "../instance/TokenInstance";
+import {
+  FaBullhorn,
+  FaLifeRing,
+  FaBriefcase,
+  FaCheckCircle,
+  FaChartBar,
+  FaSearch,
+  FaUserTie,
+} from "react-icons/fa";
 import { Tag } from "antd";
 import {
   ClockCircleOutlined,
@@ -20,6 +29,9 @@ import {
 import Receipt from "../components/receipts/CustomReceiptOne";
 import { BsGrid3X3GapFill, BsListUl } from "react-icons/bs";
 import dayjs from "dayjs";
+import { Icon } from "lucide-react";
+import { IoIosHelpCircle } from "react-icons/io";
+import { SiQuicklook } from "react-icons/si";
 const Home = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
@@ -294,6 +306,57 @@ const fetchTotalBranchTarget = useCallback(async () => {
     },
     
   ];
+   const shortcuts = [
+    {
+      label: "Marketing",
+      icon: FaBullhorn,
+      path: "/marketing-menu",
+      bg: "bg-pink-50 hover:bg-pink-100",
+      text: "text-pink-700",
+    },
+    {
+      label: "Help & Support",
+      icon: IoIosHelpCircle,
+      path: "/help",
+      bg: "bg-blue-50 hover:bg-blue-100",
+      text: "text-blue-700",
+    },
+    {
+      label: "Accounts",
+      icon: FaBriefcase,
+      path: "/payment-menu",
+      bg: "bg-indigo-50 hover:bg-indigo-100",
+      text: "text-indigo-700",
+    },
+    {
+      label: "Approvals",
+      icon: FaCheckCircle,
+      path: "/approval-menu",
+      bg: "bg-green-50 hover:bg-green-100",
+      text: "text-green-700",
+    },
+    {
+      label: "Reports",
+      icon: FaChartBar,
+      path: "/reports",
+      bg: "bg-purple-50 hover:bg-purple-100",
+      text: "text-purple-700",
+    },
+    {
+      label: "Quick Search",
+      icon: SiQuicklook,
+      path: "/quick-search",
+      bg: "bg-yellow-50 hover:bg-yellow-100",
+      text: "text-yellow-700",
+    },
+    {
+      label: "HR",
+      icon: FaUserTie,
+      path: "/hr-menu",
+      bg: "bg-orange-50 hover:bg-orange-100",
+      text: "text-orange-700",
+    },
+  ];
 
   const paymentCards = hidePayment
     ? [
@@ -361,15 +424,43 @@ const fetchTotalBranchTarget = useCallback(async () => {
         />
 
         <main className="flex-1 overflow-auto mt-20 p-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Header Section */}
-            <div className="mb-8">
+          <div className="max-w-7xl overflow-hidden w-100% mx-auto">
+           {/* Header Section */}
+            <div className="mb-8 flex items-start justify-between gap-4">
+                 <div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
                 Dashboard
               </h1>
               <p className="text-gray-600">
                 Overview of your business metrics and data
               </p>
+            </div>
+                    <div className="flex flex-wrap gap-3 justify-end">
+                {shortcuts.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      key={item.label}
+                      to={item.path}
+                      className={`group flex flex-col items-center justify-center
+        w-24 h-20 rounded-xl transition
+        ${item.bg}`}
+                    >
+                      <Icon
+                        className={`text-2xl ${item.text} 
+          group-hover:scale-110 transition-transform`}
+                      />
+
+                      <span className={`text-xs font-medium mt-1 ${item.text}`}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+
+
+              </div>
             </div>
 
             {/* Cards Grid */}

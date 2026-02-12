@@ -12,6 +12,7 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import handleEnrollmentRequestPrint from "../components/printFormats/enrollmentRequestPrint";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { fieldSize } from "../data/fieldSize";
+import { table } from "framer-motion/client";
 
 const UnApprovedCustomer = () => {
   const [users, setUsers] = useState([]);

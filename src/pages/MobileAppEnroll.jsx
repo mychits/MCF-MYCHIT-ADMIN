@@ -123,7 +123,7 @@ const MobileAppEnroll = () => {
   useEffect(() => {
     const user = localStorage.getItem("user");
     const userObj = JSON.parse(user);
-    const adminId = userObj._id;
+     const adminId = userObj?._id;
     if (adminId) {
       setAdmin(userObj._id);
     } else {

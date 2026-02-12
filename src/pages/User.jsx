@@ -12,7 +12,9 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import handleEnrollmentRequestPrint from "../components/printFormats/enrollmentRequestPrint";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { fieldSize } from "../data/fieldSize";
+import PageWrapper from "../components/modals/PageWrapper";
 import dayjs from "dayjs"
+import ReConfirmModal from "../components/modals/ReConfirmModal";
 const User = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -380,6 +382,15 @@ const User = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const handleReconfirmation = (e) => {  
+  e.preventDefault();
+
+  const isValid = validateForm("addCustomer");
+  if (!isValid) return;
+
+  // ✅ Just open reconfirm modal
+  setShowConfirm(true);
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -444,6 +455,7 @@ const User = () => {
             message: "An unexpected error occurred. Please try again.",
             visibility: true,
           });
+           setShowConfirm(false);
         }
       }
     }
@@ -699,8 +711,8 @@ const User = () => {
             }
           />
 
-          <div className="flex-grow p-7">
-            <div className="mt-6 mb-8">
+            <div className="flex-grow p-7 overflow-x-auto">
+  <div className="mt-6 mb-8 min-w-max">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Customers</h1>
 
@@ -735,12 +747,13 @@ const User = () => {
             )}
           </div>
         </div>
-        <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
+        {/* <Modal isVisible={showModal} onClose={() => setShowModal(false)}> */}
+          <PageWrapper isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Add Customer
             </h3>
-            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+             <form className="space-y-6" onSubmit={handleReconfirmation} noValidate>
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
@@ -968,7 +981,17 @@ const User = () => {
               </div>
             </form>
           </div>
-        </Modal>
+        {showConfirm  &&  (
+  <ReConfirmModal
+   isOpen={showConfirm}
+  title="Confirm Details"
+  data={formData}
+  onCancel={() => setShowConfirm(false)}
+  onConfirm={handleSubmit}
+
+  />
+)}
+        </PageWrapper>
         <Modal
           isVisible={showModalUpdate}
           onClose={() => setShowModalUpdate(false)}

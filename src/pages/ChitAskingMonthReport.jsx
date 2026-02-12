@@ -609,8 +609,8 @@ const ChitAskingMonthReport = () => {
   });
 
   return (
-    <div className="w-screen">
-      <div className="flex">
+     <div className="flex-1">
+      <div className="flex-1">
         <div className="flex-grow p-8">
           {/* PAGE TITLE */}
           <div className="mb-6">

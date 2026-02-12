@@ -208,7 +208,7 @@ const Daybook = () => {
   ]
 
   return (
-    <div className="w-screen flex">
+   <div className="relative flex flex-col [height:calc(100vh-100px)] overflow-y-auto">
       <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
       <div className="flex-grow p-8 bg-slate-50 min-h-screen">
 
@@ -395,11 +395,21 @@ const Daybook = () => {
 
         <div className="bg-white rounded-xl shadow-md border p-4">
           {isLoading ? (
-            <div className="py-20 flex justify-center"><CircularLoader isLoading={true} /></div>
-          ) : TableDaybook?.length <= 0 ? <Empty description="Daybook Data is not found" /> : (
-            <DataTable data={filterOption(TableDaybook, searchText)} columns={columns} exportCols={exportCols} exportedPdfName={`Daybook_${selectedDate}`} />
-          )}
-        </div>
+    <div className="py-20 flex justify-center">
+      <CircularLoader isLoading={true} />
+    </div>
+  ) : TableDaybook?.length <= 0 ? (
+    <Empty description="Daybook Data is not found" />
+  ) : (
+
+    <DataTable
+      data={filterOption(TableDaybook, searchText)}
+      columns={columns}
+      exportCols={exportCols}
+      exportedPdfName={`Daybook_${selectedDate}`}
+    />
+  )}
+</div>
       </div>
     </div>
   );

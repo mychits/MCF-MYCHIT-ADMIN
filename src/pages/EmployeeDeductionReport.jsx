@@ -686,9 +686,9 @@ const EmployeeDeductionReport = () => {
 
 
   return (
-    <div className="w-screen">
+     <div className="flex-1">
       <Navbar />
-      <div className="flex-grow p-7">
+      <div className="flex-1 p-7">
         <h1 className="font-bold text-2xl mb-4">Reports - Salary Deductions</h1>
 
         {/* FILTERS */}

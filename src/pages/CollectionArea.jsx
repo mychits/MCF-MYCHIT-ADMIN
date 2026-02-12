@@ -321,8 +321,8 @@ const CollectionArea = () => {
             }
           />
 
-          <div className="flex-grow p-7">
-            <div className="mt-6 mb-8">
+          <div className="flex-grow p-7 overflow-x-auto">
+             <div className="mt-6 mb-8 min-w-max">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Collection Area</h1>
 
