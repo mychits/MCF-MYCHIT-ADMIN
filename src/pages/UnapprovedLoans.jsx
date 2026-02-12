@@ -15,7 +15,8 @@ const { TextArea } = Input;
 
 const UnapprovedLoans = () => {
   const [tableData, setTableData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // Initialize loading to true so the spinner shows immediately on mount
+  const [loading, setLoading] = useState(true); 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -26,112 +27,118 @@ const UnapprovedLoans = () => {
   const [employees, setEmployees] = useState([]);
   const [form] = Form.useForm();
 
-  // Fetch users, agents, and employees data
+  // Fetch users, agents, and employees data in parallel
   useEffect(() => {
     const fetchUsers = async () => {
-      try {
-        const response = await api.get("/user/get-user");
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
+      const response = await api.get("/user/get-user");
+      return response.data;
     };
 
     const fetchAgents = async () => {
-      try {
-        const response = await api.get("/agent/get");
-        setAgents(response.data?.agent);
-      } catch (err) {
-        console.error("Failed to fetch agents", err);
-      }
+      const response = await api.get("/agent/get");
+      return response.data?.agent;
     };
 
     const fetchEmployees = async () => {
+      const response = await api.get("/employee");
+      return response.data?.employee;
+    };
+
+    const fetchMasterData = async () => {
       try {
-        const response = await api.get("/employee");
-        setEmployees(response?.data?.employee);
+        // Wait for all three master data calls to finish
+        const [usersData, agentsData, employeesData] = await Promise.all([
+          fetchUsers(),
+          fetchAgents(),
+          fetchEmployees()
+        ]);
+
+        setUsers(usersData);
+        setAgents(agentsData);
+        setEmployees(employeesData);
+
+        // We do NOT set setLoading(false) here yet. 
+        // We wait for the loans to fetch as well in the next effect.
       } catch (error) {
-        console.error("Failed to fetch employees", error);
+        console.error("Error fetching master data:", error);
+        message.error("Failed to load initial data");
+        setLoading(false); // Stop loading if master data fails
       }
     };
 
-    fetchUsers();
-    fetchAgents();
-    fetchEmployees();
+    fetchMasterData();
   }, []);
 
+  // Fetch loans only after users are available
   useEffect(() => {
     const fetchLoans = async () => {
+      // Ensure users are loaded before trying to map them
+      if (users.length === 0) return;
+
       try {
-        setLoading(true);
+        setLoading(true); // Ensure loading is true while fetching loans
         const loanRes = await api.get("/loans/get-loan-approval-request");
         const loans = loanRes.data.data || [];
 
-        const formatted = await Promise.all(
-          loans.map(async (loan, index) => {
-            let user = {};
-            try {
-              const userRes = await api.get(`user/get-user-by-id/${loan.user_id}`);
-              user = userRes.data;
-            } catch (err) {
-              console.error("User fetch failed", err);
-            }
+        // Map synchronously using the 'users' state
+        const formatted = loans.map((loan, index) => {
+          const user = users.find((u) => u._id === loan.user_id);
 
-            const menu = (
-              <Menu>
-                <Menu.Item key="approve" onClick={() => handleApproveClick(loan, user)}>
-                  Approve
-                </Menu.Item>
-                <Menu.Item key="delete" onClick={() => handleDeleteClick(loan._id)}>
-                  Delete
-                </Menu.Item>
-              </Menu>
-            );
+          const menu = (
+            <Menu>
+              <Menu.Item key="approve" onClick={() => handleApproveClick(loan, user)}>
+                Approve
+              </Menu.Item>
+              <Menu.Item key="delete" onClick={() => handleDeleteClick(loan._id)}>
+                Delete
+              </Menu.Item>
+            </Menu>
+          );
 
-            return {
-              id: index + 1,
-              loanId: loan._id,
-              customer_name: user?.full_name || "-",
-              phone_number: user?.phone_number || "-",
-              address: user?.address || "-",
-              loan_amount: loan.loan_amount,
-              loan_purpose: loan.loan_purpose,
-              approval_status: (
-                <span className="inline-block px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full">
-                  Pending
-                </span>
-              ),
-              actions: (
-                <Dropdown overlay={menu} trigger={["click"]}>
-                  <Button type="text" icon={<MoreOutlined />} onClick={(e) => e.preventDefault()} />
-                </Dropdown>
-              ),
-            };
-          })
-        );
+          return {
+            id: index + 1,
+            loanId: loan._id,
+            customer_name: user?.full_name || "-",
+            phone_number: user?.phone_number || "-",
+            address: user?.address || "-",
+            loan_amount: loan.loan_amount,
+            loan_purpose: loan.loan_purpose,
+            approval_status: (
+              <span className="inline-block px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full">
+                Pending
+              </span>
+            ),
+            actions: (
+              <Dropdown overlay={menu} trigger={["click"]}>
+                <Button type="text" icon={<MoreOutlined />} onClick={(e) => e.preventDefault()} />
+              </Dropdown>
+            ),
+          };
+        });
 
         setTableData(formatted);
       } catch (err) {
         console.error(err);
         message.error("Failed to fetch loan requests");
       } finally {
+        // All data (Master + Loans) is now loaded. Stop the loader.
         setLoading(false);
       }
     };
 
     fetchLoans();
-  }, []);
+  }, [users]); 
 
   const handleApproveClick = async (loan, user) => {
     setSelectedLoan(loan);
     setSelectedUser(user);
     
+    const userId = user?._id || loan.user_id;
 
     form.setFieldsValue({
-      borrower: loan.user_id,
+      borrower: userId,
       loan_amount: loan.loan_amount,
       loan_purpose: loan.loan_purpose,
-    
     });
     
     setShowApprovalModal(true);
@@ -224,7 +231,7 @@ const UnapprovedLoans = () => {
         ) : (
           <CircularLoader
             isLoading={loading}
-            failure={tableData.length === 0}
+            failure={tableData.length === 0 && !loading}
             data="Loan Requests"
           />
         )}
