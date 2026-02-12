@@ -176,6 +176,8 @@ import DueLoanReport from "../pages/DueLoanReport";
 import DateWiseRewardreport from "../pages/DateWiseRewardreport";
 import DueLoanWhatsappMessage from "../pages/DueLoanWhatsappMessage";
 import CustomerLoanWhatsappMenu from "../pages/CustomerLoanWhatsAppMenu";
+import Visitor from "../pages/Visitor";
+import VisitorList from "../pages/VisitorList"
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -194,6 +196,22 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <HelpAndSupport/>
+      </ProtectedRoute>
+    ),
+  },
+       {
+    path: "/visitorsection",
+    element: (
+      <ProtectedRoute>
+        <Visitor/>
+      </ProtectedRoute>
+    ),
+  },
+        {
+    path: "/visitor-list",
+    element: (
+      <ProtectedRoute>
+        <VisitorList/>
       </ProtectedRoute>
     ),
   },

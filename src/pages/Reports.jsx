@@ -233,14 +233,14 @@ const subMenus = [
    Icon: LiaPeopleCarrySolid,
    color: "from-blue-500 to-blue-600",
   },
-  {
-     id:"18",
-    title: "Pigmy Report",
-    link: "/reports/pigme-report",
-    Icon: LiaCalculatorSolid,
-    category: "Pigmy",
-    color: "from-yellow-500 to-yellow-600",
-  },
+  // {
+  //    id:"18",
+  //   title: "Pigmy Report",
+  //   link: "/reports/pigme-report",
+  //   Icon: LiaCalculatorSolid,
+  //   category: "Pigmy",
+  //   color: "from-yellow-500 to-yellow-600",
+  // },
   // {
   //    id:"19",
   //   title: "Loan Report",

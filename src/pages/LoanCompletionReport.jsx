@@ -2,7 +2,10 @@ import { useEffect, useState, useMemo } from "react";
 import { Search, FileText, Users, Calendar, IndianRupee, TrendingUp } from "lucide-react";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
-
+import { Collapse } from "antd";
+import { Link } from "react-router-dom";
+import { FileTextOutlined, DollarOutlined } from "@ant-design/icons";
+import { FaMoneyBill } from "react-icons/fa";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import { Select } from "antd";
@@ -202,6 +205,59 @@ const LoanCompletionReport = () => {
           </div>
         ) : (
           <>
+          <div className="my-6">
+                <Collapse
+                  items={[
+                    {
+                      key: "1",
+                      label: (
+                        <span className="font-semibold text-gray-800 text-base">
+                          Shortcut Keys
+                        </span>
+                      ),
+                      children: (
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                          <Link
+                            to="/other-service-menu/loan"
+                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                          >
+                            <FaMoneyBill className="text-blue-500" size={30} />
+                            Loan
+                          </Link>
+                          <Link
+                            to="/reports/customer-loan-report"
+                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                          >
+                            <FileTextOutlined
+                              className="text-blue-500"
+                              size={30}
+                            />
+                            Loan Summary Report
+                          </Link>
+                          <Link
+                            to="/reports/loan-due-report"
+                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                          >
+                            <DollarOutlined
+                              className="text-blue-500"
+                              size={30}
+                            />
+                            OutStanding Loan Report
+                          </Link>
+
+                          
+
+                         
+
+                          
+                        </div>
+                      ),
+                    },
+                  ]}
+                  defaultActiveKey={["1"]}
+                  className="rounded-lg border border-gray-200 bg-white shadow-sm"
+                />
+              </div>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <StatCard icon={FileText} label="Total Loans" value={summaryStats.totalLoans} color="bg-blue-600" />

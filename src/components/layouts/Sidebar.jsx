@@ -415,7 +415,23 @@ const MenuSidebar = [
     id: "$17",
     title: "Help & Support",
     icon: <IoIosHelpCircle />,
-    link: "/help",
+    // link: "/help",
+    submenu : true,
+    submenuItems: [
+      {
+        id: "#17-main",
+        title: "Help & Support",
+        icon: <IoIosHelpCircle size={20} />,
+        link: "/help&support",
+      },
+      {
+        id: "#5",
+        title: "Visitor Details",
+        icon: <FaUserTie size={18} />,
+        isHeading: true,
+        link: "/visitorsection"
+      },
+    ],
   },
 ];
 
