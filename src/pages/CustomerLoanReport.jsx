@@ -175,7 +175,7 @@ const CustomerLoanReport = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            <FileText className="w-7 h-7 text-blue-600" /> Customer Loan Report
+            <FileText className="w-7 h-7 text-blue-600" /> Loan Summary Report
           </h1>
           <p className="text-gray-600 ml-10">
             Overview of customer loans, payments & referral details
