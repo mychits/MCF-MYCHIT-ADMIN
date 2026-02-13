@@ -116,8 +116,8 @@ const columns = selectedEmployeeId === "ALL"
 
 
   return (
-    <div className="w-screen min-h-screen">
-      <div className="flex mt-30">
+    <div className=" min-h-screen">
+      <div className="flex-1 mt-30">
         <Navbar visibility={true} />
         <div className="flex-grow p-7">
           <h1 className="text-2xl font-bold text-center">Reports - Employee</h1>

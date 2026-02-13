@@ -246,8 +246,8 @@ const AuctionReport = () => {
 const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
   return (
     <>
-      <div className="w-screen min-h-screen">
-        <div className="flex mt-30">
+         <div className="flex-1 min-h-screen">
+        <div className="flex-1 mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}

@@ -378,8 +378,8 @@ const AllUserReport = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="flex mt-30">
+    <div className="flex-1 p-1">
+  <div className="max-w-7xl mx-auto w-full">
         <Navbar
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}
@@ -422,8 +422,8 @@ const AllUserReport = () => {
             </div>
           </div>
         ) : (
-          <div className="flex-grow max-w-screen p-4">
-            <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
+            <div className="flex-grow max-w-screen p-1">
+            <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100   flex-1">
               <div className="flex items-center justify-center gap-3 mb-2">
                 <svg
                   className="w-8 h-8 text-indigo-600"
@@ -447,7 +447,7 @@ const AllUserReport = () => {
               </p>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
+           <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100 w-full">
               <div className="flex items-center gap-2 mb-5">
                 <svg
                   className="w-5 h-5 text-indigo-600"
@@ -466,7 +466,7 @@ const AllUserReport = () => {
               </div>
 
               <div className="flex flex-wrap items-end gap-6">
-                <div className="flex-1 min-w-[200px]">
+                <div className="flex-1 min-w-[300px]">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Group Filter
                   </label>
@@ -489,7 +489,7 @@ const AllUserReport = () => {
                   </Select>
                 </div>
 
-                <div className="flex-1 min-w-[180px]">
+                <div className="flex-1 min-w-[300px]">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     From Date
                   </label>
@@ -503,7 +503,7 @@ const AllUserReport = () => {
                   />
                 </div>
 
-                <div className="flex-1 min-w-[180px]">
+                <div className="flex-1 min-w-[300px]">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     To Date
                   </label>
@@ -520,7 +520,7 @@ const AllUserReport = () => {
             </div>
 
             {/* Statistics Cards - Updated with penalty totals */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
                 <div className="flex items-center justify-between mb-2">
                   <div className="bg-white bg-opacity-20 rounded-lg p-2">
@@ -674,11 +674,7 @@ const AllUserReport = () => {
                   ₹{totals.totalBalance.toLocaleString("en-IN")}
                 </span>
               </div>
-            </div>
-
-            {/* New Penalty Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 mb-8">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
                 <div className="flex items-center justify-between mb-2">
                   <div className="bg-white bg-opacity-20 rounded-lg p-2">
                     <svg
@@ -729,6 +725,11 @@ const AllUserReport = () => {
                  ₹{totals.totalPenalty.toLocaleString("en-IN")}
                 </span>
               </div>
+            </div>
+
+            {/* New Penalty Statistics Cards */}
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          
 
               <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
                 <div className="flex items-center justify-between mb-2">

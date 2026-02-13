@@ -883,7 +883,7 @@ const EmployeeMonthlyReport = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Total Employees / Total Days */}
           <div className="bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200">
             <div className="flex items-center justify-between mb-2">

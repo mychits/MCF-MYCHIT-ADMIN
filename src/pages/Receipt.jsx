@@ -527,7 +527,7 @@ const Receipt = () => {
 
   return (
     <>
-      <div className="w-screen">
+     <div className="relative flex flex-col [height:calc(100vh-100px)] overflow-y-auto">
         <div className="flex mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}

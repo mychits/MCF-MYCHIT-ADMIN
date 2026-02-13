@@ -11,6 +11,8 @@ import imageInput from "../../assets/images/Agent.png";
 import CircularLoader from "../loaders/CircularLoader";
 import { Modal, Select } from "antd";
 import logo from "../../assets/images/mychits.png";
+import { FaFileExcel } from "react-icons/fa";
+import { FaFilePdf } from "react-icons/fa";
 
 const DataTable = ({
   updateHandler = () => {},
@@ -467,23 +469,22 @@ const DataTable = ({
 
         {isExportEnabled && (
           <div className="flex items-center gap-2">
-            <button
+             <button
               onClick={() => setShowExportModal(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-md 
-    bg-[#217346] hover:bg-[#1a5c38] text-white 
-    transition-colors duration-200 
-    shadow-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 rounded-md
+    bg-[#217346] hover:bg-[#1B5E20] text-white
+    transition-colors duration-200 shadow-sm font-medium"
             >
-              <Download className="w-4 h-4" />
+              <FaFileExcel className="w-4 h-4 text-white" />
               Export Excel
             </button>
-            <button
-              onClick={printToPDF}
-              className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-700 hover:bg-green-900 text-white 
-    transition-colors duration-200 
-    shadow-sm font-medium"
+                  <button
+              onClick={printToPDF} // your print function
+              className="flex items-center gap-2 px-4 py-2 rounded-md
+    bg-[#D32F2F] hover:bg-[#B71C1C] text-white
+    transition-all duration-200 shadow-sm font-medium"
             >
-              <Printer className="w-4 h-4" />
+              <FaFilePdf className="w-4 h-4 text-white" />
               Print PDF
             </button>
           </div>
@@ -542,7 +543,7 @@ const DataTable = ({
           ))}
         </div>
       </Modal>
-      <div className="border rounded-lg overflow-hidden whitespace-normal">
+         <div className="max-h-[calc(100vh-330px)] overflow-y-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>

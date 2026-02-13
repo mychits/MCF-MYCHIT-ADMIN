@@ -3329,8 +3329,8 @@ if (loginTime && logoutTime) {
   ];
 
   return (
-    <div className="w-screen bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
-      <div className="flex">
+     <div className="w-screen h-screen bg-gradient-to-br from-slate-50 to-slate-100 overflow-x-hidden overflow-y-auto">
+     <div className="flex ">
         <Navbar
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}

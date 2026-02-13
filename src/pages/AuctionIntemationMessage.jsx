@@ -190,7 +190,7 @@ const AuctionIntemationMessage = () => {
   ];
 
   return (
-    <div className="w-screen">
+   <div className="flex-1">
       <div className="flex mt-30">
         <Navbar
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}

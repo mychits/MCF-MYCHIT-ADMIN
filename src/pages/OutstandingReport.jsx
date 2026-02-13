@@ -319,8 +319,8 @@ const OutstandingReport = () => {
   }, [usersData, groupFilter, fromDate, toDate, searchText]);
 
   return (
-    <div className="w-screen">
-      <div className="flex mt-20">
+  <div className="flex-1  min-h-screen">
+      <div className="flex-1 mt-10">
         <Navbar
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}
