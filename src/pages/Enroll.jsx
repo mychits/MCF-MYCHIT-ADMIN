@@ -15,7 +15,6 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { FiMail } from "react-icons/fi";
-import PageWrapper from "../components/modals/PageWrapper";
 const Enroll = () => {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
@@ -995,14 +994,7 @@ const Enroll = () => {
             )}
           </div>
         </div>
-        {/* <Modal
-          isVisible={showModal}
-          onClose={() => {
-            setShowModal(false);
-            setErrors({});
-          }}
-        > */}
-           <PageWrapper
+        <Modal
           isVisible={showModal}
           onClose={() => {
             setShowModal(false);
@@ -1440,9 +1432,9 @@ const Enroll = () => {
               </div>
             </form>
           </div>
-      </PageWrapper>
+        </Modal>
 
-   <PageWrapper
+        <Modal
           isVisible={showModalUpdate}
           onClose={() => {
             setShowModalUpdate(false);
@@ -1752,8 +1744,8 @@ const Enroll = () => {
               </button>
             </form>
           </div>
-       </PageWrapper>
-          <PageWrapper
+        </Modal>
+        <Modal
           isVisible={showModalRemove}
           onClose={() => {
             setShowModalRemove(false);
@@ -1804,7 +1796,7 @@ const Enroll = () => {
               </form>
             )}
           </div>
-     </PageWrapper>
+        </Modal>
       </div>
     </>
   );

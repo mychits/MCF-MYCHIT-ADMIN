@@ -748,8 +748,8 @@ const User = () => {
             )}
           </div>
         </div>
-        {/* <Modal isVisible={showModal} onClose={() => setShowModal(false)}> */}
-          <PageWrapper isVisible={showModal} onClose={() => setShowModal(false)}>
+        <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
+          {/* <PageWrapper isVisible={showModal} onClose={() => setShowModal(false)}> */}
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">
               Add Customer
@@ -992,7 +992,8 @@ const User = () => {
 
   />
 )}
-        </PageWrapper>
+              </Modal>
+        {/* </PageWrapper> */}
         <Modal
           isVisible={showModalUpdate}
           onClose={() => setShowModalUpdate(false)}
