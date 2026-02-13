@@ -208,7 +208,14 @@ const subMenus = [
     category: "Auction",
     color: "from-pink-500 to-pink-600",
   },
- 
+ {
+     id:"&*#$%",
+    title: "Auction Filter Report",
+    link: "/reports/auction-filter-report",
+    Icon: RiAuctionFill,
+    category: "Auction",
+    color: "from-pink-500 to-pink-600",
+  },
   {
      id:"17",
     title: "All Lead Report",
@@ -233,14 +240,14 @@ const subMenus = [
    Icon: LiaPeopleCarrySolid,
    color: "from-blue-500 to-blue-600",
   },
-  {
-     id:"18",
-    title: "Pigmy Report",
-    link: "/reports/pigme-report",
-    Icon: LiaCalculatorSolid,
-    category: "Pigmy",
-    color: "from-yellow-500 to-yellow-600",
-  },
+  // {
+  //    id:"18",
+  //   title: "Pigmy Report",
+  //   link: "/reports/pigme-report",
+  //   Icon: LiaCalculatorSolid,
+  //   category: "Pigmy",
+  //   color: "from-yellow-500 to-yellow-600",
+  // },
   // {
   //    id:"19",
   //   title: "Loan Report",
