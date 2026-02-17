@@ -7,6 +7,8 @@ const { MonthPicker } = DatePicker;
 const { Option } = Select;
 import { PiMoneyDuotone } from "react-icons/pi";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
+
 // const EmployeeDeductionReport = () => {
 //   const [allEmployeeSalary, setAllEmployeeSalary] = useState([]);
 //   const [allEmployees, setAllEmployees] = useState([]);
@@ -422,6 +424,10 @@ const EmployeeDeductionReport = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedMonthYear, setSelectedMonthYear] = useState(null);
 
+  // ✅ Helper to sanitize string amounts to numbers for word conversion
+  const parseAmount = (val) =>
+    parseFloat(val?.toString().replace(/[^0-9.-]+/g, "")) || 0;
+
   // Fetch all employees
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -502,8 +508,18 @@ const EmployeeDeductionReport = () => {
   // Sort salary data by month and year
   const sortSalaryData = (data) => {
     const monthOrder = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December",
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
     return data.sort((a, b) => {
@@ -592,8 +608,18 @@ const EmployeeDeductionReport = () => {
     const year = value.year();
 
     const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December",
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
     setSelectedMonthYear({
@@ -621,62 +647,120 @@ const EmployeeDeductionReport = () => {
     { key: "deductPT", header: "Professional Tax" },
   ];
 
-  const allColumns = [
-    // ... your allColumns definition
-  ];
-
   const printHeaderKeys = [
-    "Employee", "Month", "Year", "Total ESI", "Total PF", "Total IT", "Total PT",
+    "Employee",
+    "Month",
+    "Year",
+    "Total ESI",
+    "Total PF",
+    "Total IT",
+    "Total PT",
   ];
 
+  // ✅ Updated Print Header Values with Words
   const printHeaderValues = [
-    selectedEmployee ? allEmployees.find((e) => e._id === selectedEmployee)?.name || "—" : "All Employees",
+    selectedEmployee
+      ? allEmployees.find((e) => e._id === selectedEmployee)?.name || "—"
+      : "All Employees",
     selectedMonthYear?.month || "—",
     selectedMonthYear?.year || "—",
-    `₹${summary.totalEsi.toLocaleString("en-IN")}`,
-    `₹${summary.totalEpf.toLocaleString("en-IN")}`,
-    `₹${summary.totalIt.toLocaleString("en-IN")}`,
-    `₹${summary.totalpt.toLocaleString("en-IN")}`,
+    `₹${summary.totalEsi.toLocaleString("en-IN")} (${numberToIndianWords(
+      parseAmount(summary.totalEsi)
+    )})`,
+    `₹${summary.totalEpf.toLocaleString("en-IN")} (${numberToIndianWords(
+      parseAmount(summary.totalEpf)
+    )})`,
+    `₹${summary.totalIt.toLocaleString("en-IN")} (${numberToIndianWords(
+      parseAmount(summary.totalIt)
+    )})`,
+    `₹${summary.totalpt.toLocaleString("en-IN")} (${numberToIndianWords(
+      parseAmount(summary.totalpt)
+    )})`,
   ];
 
-  // --- CORRECTED: Professional Summary Card Component ---
-  // It now handles its own icon rendering.
+  // --- Updated: Professional Summary Card Component with Words ---
   const DeductionSummaryCard = ({ title, value, iconType, color }) => {
     const getIcon = () => {
       const iconStyle = { width: "24px", height: "24px", color };
       switch (iconType) {
         case "pf":
           return (
-            <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
+            <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+            </svg>
           );
         case "esi":
           return (
-            <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd"></path></svg>
+            <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                clipRule="evenodd"
+              ></path>
+            </svg>
           );
         case "it":
           return (
-            <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"></path></svg>
+            <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
+              <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
+                clipRule="evenodd"
+              ></path>
+            </svg>
           );
         case "pt":
           return (
-            <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 000 2h2a1 1 0 100-2H7z" clipRule="evenodd"></path></svg>
+            <svg style={iconStyle} fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 000 2h6a1 1 0 100-2H7zm0 4a1 1 0 000 2h2a1 1 0 100-2H7z"
+                clipRule="evenodd"
+              ></path>
+            </svg>
           );
         default:
           return null;
       }
     };
 
+    // Determine text color based on card color for consistency
+    const getTextClass = () => {
+      if (color.includes("3b82f6")) return "text-blue-700"; // PF
+      if (color.includes("10b981")) return "text-green-700"; // ESI
+      if (color.includes("f59e0b")) return "text-amber-700"; // IT
+      if (color.includes("5d23aa")) return "text-purple-700"; // PT
+      return "text-gray-700";
+    };
+
     const isCurrency = !title.toLowerCase().includes("tax");
+    const numericValue = parseAmount(value);
+
     return (
-      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 border-l-4" style={{ borderLeftColor: color }}>
+      <div
+        className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 border-l-4"
+        style={{ borderLeftColor: color }}
+      >
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">{title}</p>
-            <p className="text-2xl font-bold text-gray-800 mt-1">
-              {isCurrency ? `₹${value.toLocaleString("en-IN")}` : value.toLocaleString("en-IN")}
+          <div className="flex-1">
+            <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">
+              {title}
             </p>
+            <p className="text-2xl font-bold text-gray-800 mt-1">
+              {isCurrency
+                ? `₹${numericValue.toLocaleString("en-IN")}`
+                : numericValue.toLocaleString("en-IN")}
+            </p>
+            {/* ✅ Added Number to Words */}
+            <span className={`text-xs font-mono mt-1 block ${getTextClass()}`}>
+              {numberToIndianWords(numericValue)}
+            </span>
           </div>
-          <div className="p-3 rounded-full flex items-center justify-center" style={{ backgroundColor: `${color}20` }}>
+          <div
+            className="p-3 rounded-full flex items-center justify-center ml-4"
+            style={{ backgroundColor: `${color}20` }}
+          >
             {getIcon()}
           </div>
         </div>
@@ -684,9 +768,8 @@ const EmployeeDeductionReport = () => {
     );
   };
 
-
   return (
-     <div className="flex-1">
+    <div className="flex-1">
       <Navbar />
       <div className="flex-1 p-7">
         <h1 className="font-bold text-2xl mb-4">Reports - Salary Deductions</h1>
@@ -721,31 +804,31 @@ const EmployeeDeductionReport = () => {
           </button>
         </div>
 
-        {/* --- UPDATED: SUMMARY CARDS SECTION --- */}
+        {/* --- UPDATED: SUMMARY CARDS SECTION WITH WORDS --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <DeductionSummaryCard
             title="Total PF"
             value={summary.totalEpf}
-            iconType="pf" // Pass the icon type
-            color="#3b82f6" // Blue
+            iconType="pf"
+            color="#3b82f6"
           />
           <DeductionSummaryCard
             title="Total ESI"
             value={summary.totalEsi}
-            iconType="esi" // Pass the icon type
-            color="#10b981" // Green
+            iconType="esi"
+            color="#10b981"
           />
           <DeductionSummaryCard
             title="Total Income Tax"
             value={summary.totalIt}
-            iconType="it" // Pass the icon type
-            color="#f59e0b" // Amber
+            iconType="it"
+            color="#f59e0b"
           />
           <DeductionSummaryCard
             title="Total Professional Tax"
             value={summary.totalpt}
-            iconType="pt" // Pass the icon type
-            color="#5d23aaff" // Red
+            iconType="pt"
+            color="#5d23aaff"
           />
         </div>
 
@@ -769,9 +852,6 @@ const EmployeeDeductionReport = () => {
     </div>
   );
 };
-
-
-
 
 
 export default EmployeeDeductionReport;
