@@ -3,6 +3,8 @@ import { Select, Spin } from "antd";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const groupOptions = [
   { value: "Today", label: "Today" },
   { value: "Yesterday", label: "Yesterday" },
@@ -147,8 +149,8 @@ const ConvertedLead = () => {
           (lead?.lead_agent?.name && lead?.lead_agent?.phone_number)
             ? `${lead?.lead_agent?.name} | ${lead?.lead_agent?.phone_number}`
             : (lead?.lead_customer?.full_name && lead?.lead_customer?.phone_number)
-            ? `${lead?.lead_customer?.full_name} | ${lead?.lead_customer?.phone_number}`
-            : "N/A",
+              ? `${lead?.lead_customer?.full_name} | ${lead?.lead_customer?.phone_number}`
+              : "N/A",
       }));
 
       setLeadTableData(formatted);
@@ -234,9 +236,8 @@ const ConvertedLead = () => {
               setSelectedLabel("Custom");
             }}
             disabled={!isCustomMode}
-            className={`w-full h-11 border rounded-lg px-3 ${
-              !isCustomMode ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"
-            }`}
+            className={`w-full h-11 border rounded-lg px-3 ${!isCustomMode ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"
+              }`}
           />
         </div>
 
@@ -250,9 +251,8 @@ const ConvertedLead = () => {
               setSelectedLabel("Custom");
             }}
             disabled={!isCustomMode}
-            className={`w-full h-11 border rounded-lg px-3 ${
-              !isCustomMode ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"
-            }`}
+            className={`w-full h-11 border rounded-lg px-3 ${!isCustomMode ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"
+              }`}
           />
         </div>
 
@@ -320,21 +320,33 @@ const ConvertedLead = () => {
         <div className="text-center">
           <p className="text-gray-600 text-sm">Total Converted Leads</p>
           <p className="text-xl font-bold text-blue-700">{totalConverted}</p>
+          <span className={`text-sm font-mono text-blue-700 pl-3`}>
+            {numberToIndianWords(totalConverted || 0)}
+          </span>
         </div>
 
         <div className="text-center">
           <p className="text-gray-600 text-sm">Referred by Customer</p>
           <p className="text-xl font-bold text-green-700">{referredByCustomer}</p>
+          <span className={`text-sm font-mono text-green-700 pl-3`}>
+            {numberToIndianWords(referredByCustomer || 0)}
+          </span>
         </div>
 
         <div className="text-center">
           <p className="text-gray-600 text-sm">Referred by Employee</p>
           <p className="text-xl font-bold text-purple-700">{referredByEmployee}</p>
+          <span className={`text-sm font-mono text-purple-700 pl-3`}>
+            {numberToIndianWords(referredByEmployee || 0)}
+          </span>
         </div>
 
         <div className="text-center">
           <p className="text-gray-600 text-sm">Other Referrers</p>
           <p className="text-xl font-bold text-orange-700">{otherReferrers}</p>
+          <span className={`text-sm font-mono text-orange-700 pl-3`}>
+            {numberToIndianWords(otherReferrers || 0)}
+          </span>
         </div>
       </div>
 
@@ -687,7 +699,7 @@ const ConvertedLead = () => {
 //         </div>
 //       </div>
 
-      
+
 
 //       {/* ---------- CONVERTED LEADS TABLE ---------- */}
 //       <div className="bg-white p-4 rounded-lg shadow mb-6">

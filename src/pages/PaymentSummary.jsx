@@ -8,7 +8,7 @@ import { Select } from "antd";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 
-
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 // const PaymentSummary = () => {
 //   const [searchText, setSearchText] = useState("");
@@ -481,7 +481,7 @@ import filterOption from "../helpers/filterOption";
 //                   <input
 //                     readOnly
 //                     className="w-full max-w-xs h-11 rounded-md"
-                   
+
 //                     value={`₹ ${filteredData
 //                       .reduce((sum, u) => sum + (u.dailyPaymentTotal || 0), 0)
 //                       .toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
@@ -973,7 +973,7 @@ import filterOption from "../helpers/filterOption";
 
 //                 const pigmeAmount = Number(enroll.pigme_amount || 0);
 //                 const balance = pigmeAmount - totalPaid;
-                
+
 
 //                 processed.push({
 //                   sl_no: count,
@@ -1452,11 +1452,10 @@ const PaymentSummary = () => {
       key: "status",
       header: "Status",
       render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-          row.status === "Paid" 
-            ? "bg-green-100 text-green-800" 
-            : "bg-red-100 text-red-800"
-        }`}>
+        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${row.status === "Paid"
+          ? "bg-green-100 text-green-800"
+          : "bg-red-100 text-red-800"
+          }`}>
           {row.status}
         </span>
       ),
@@ -1465,7 +1464,7 @@ const PaymentSummary = () => {
   ];
 
   return (
-     <div className="flex-1 min-h-screen bg-gray-50">
+    <div className="flex-1 min-h-screen bg-gray-50">
       <div className="flex-1">
         <Navbar onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)} visibility={true} />
 
@@ -1483,98 +1482,161 @@ const PaymentSummary = () => {
 
             {/* SUMMARY CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center justify-between">
+
+              {/* TOTAL COLLECTED */}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition">
+                <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Collected</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      ₹{summaryTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Total Collected
+                    </p>
+
+                    <p className="mt-2 text-2xl font-bold text-gray-900">
+                      ₹{(summaryTotal || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-400 leading-snug">
+                      {numberToIndianWords(Math.floor(summaryTotal || 0))}
                     </p>
                   </div>
-                  <div className="p-3 bg-green-100 rounded-full">
+
+                  <div className="p-3 bg-green-100 rounded-lg">
                     <FiDollarSign className="text-green-600 text-xl" />
                   </div>
                 </div>
               </div>
 
-              {/* <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center justify-between">
+              {/* PAID */}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition">
+                <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Payments</p>
-                    <p className="text-2xl font-bold text-gray-900">{totalPayments}</p>
-                  </div>
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <FiFileText className="text-blue-600 text-xl" />
-                  </div>
-                </div>
-              </div> */}
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Paid
+                    </p>
 
-              <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Paid</p>
-                    <p className="text-2xl font-bold text-gray-900">{paidCount}</p>
+                    <p className="mt-2 text-2xl font-bold text-gray-900">
+                      {paidCount || 0}
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-400">
+                      {numberToIndianWords(paidCount || 0)}
+                    </p>
                   </div>
-                  <div className="p-3 bg-green-100 rounded-full">
+
+                  <div className="p-3 bg-green-100 rounded-lg">
                     <FiCheckCircle className="text-green-600 text-xl" />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center justify-between">
+              {/* UNPAID */}
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition">
+                <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Unpaid</p>
-                    <p className="text-2xl font-bold text-gray-900">{unpaidCount}</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Unpaid
+                    </p>
+
+                    <p className="mt-2 text-2xl font-bold text-gray-900">
+                      {unpaidCount || 0}
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-400">
+                      {numberToIndianWords(unpaidCount || 0)}
+                    </p>
                   </div>
-                  <div className="p-3 bg-red-100 rounded-full">
+
+                  <div className="p-3 bg-red-100 rounded-lg">
                     <FiXCircle className="text-red-600 text-xl" />
                   </div>
                 </div>
               </div>
+
             </div>
+
 
             {/* PAYMENT TYPE BREAKDOWN */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Payment Type Breakdown</h2>
+            <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-6">
+                Payment Type Breakdown
+              </h2>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex items-center">
-                  <div className="p-3 bg-blue-100 rounded-full mr-4">
+
+                {/* GROUP */}
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-blue-100 rounded-lg">
                     <FiDollarSign className="text-blue-600 text-xl" />
                   </div>
+
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Group Payments</p>
-                    <p className="text-xl font-bold text-gray-900">
-                      ₹{groupPayments.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Group Payments
+                    </p>
+
+                    <p className="mt-1 text-xl font-bold text-gray-900">
+                      ₹{(groupPayments || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-400">
+                      {numberToIndianWords(Math.floor(groupPayments || 0))}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center">
-                  <div className="p-3 bg-purple-100 rounded-full mr-4">
+                {/* LOAN */}
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-purple-100 rounded-lg">
                     <FiDollarSign className="text-purple-600 text-xl" />
                   </div>
+
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Loan Payments</p>
-                    <p className="text-xl font-bold text-gray-900">
-                      ₹{loanPayments.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Loan Payments
+                    </p>
+
+                    <p className="mt-1 text-xl font-bold text-gray-900">
+                      ₹{(loanPayments || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-400">
+                      {numberToIndianWords(Math.floor(loanPayments || 0))}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center">
-                  <div className="p-3 bg-pink-100 rounded-full mr-4">
+                {/* PIGME */}
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-pink-100 rounded-lg">
                     <FiDollarSign className="text-pink-600 text-xl" />
                   </div>
+
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Pigme Payments</p>
-                    <p className="text-xl font-bold text-gray-900">
-                      ₹{pigmePayments.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Pigme Payments
+                    </p>
+
+                    <p className="mt-1 text-xl font-bold text-gray-900">
+                      ₹{(pigmePayments || 0).toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
+
+                    <p className="mt-1 text-xs text-gray-400">
+                      {numberToIndianWords(Math.floor(pigmePayments || 0))}
                     </p>
                   </div>
                 </div>
+
               </div>
             </div>
+
 
             {/* FILTERS */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">

@@ -8,6 +8,8 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import moment from "moment";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const OutstandingReport = () => {
   const [searchText, setSearchText] = useState("");
   const [screenLoading, setScreenLoading] = useState(true);
@@ -374,40 +376,72 @@ const OutstandingReport = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
-              <div className="flex flex-col border p-4 rounded shadow">
-                <span className="text-sm font-medium text-gray-600">Total Customers</span>
-                <span className="text-lg font-bold text-blue-600">{totals.totalCustomers}</span>
-              </div>
-              <div className="flex flex-col border p-4 rounded shadow">
-                <span className="text-sm font-medium text-gray-600">Total Groups</span>
-                <span className="text-lg font-bold text-green-600">{totals.totalGroups}</span>
-              </div>
-              <div className="flex flex-col border p-4 rounded shadow">
-                <span className="text-sm font-medium text-gray-600">Amount to be Paid</span>
-                <span className="text-lg font-bold text-green-600">
-                  ₹{totals.totalToBePaid.toLocaleString("en-IN")}
-                </span>
-              </div>
-              <div className="flex flex-col border p-4 rounded shadow">
-                <span className="text-sm font-medium text-gray-600">Total Paid</span>
-                <span className="text-lg font-bold text-indigo-600">
-                  ₹{totals.totalPaid.toLocaleString("en-IN")}
-                </span>
-              </div>
-              <div className="flex flex-col border p-4 rounded shadow">
-                <span className="text-sm font-medium text-gray-600">Total Balance</span>
-                <span className="text-lg font-bold text-red-600">
-                  ₹{totals.totalBalance.toLocaleString("en-IN")}
-                </span>
-              </div>
-              <div className="flex flex-col border p-4 rounded shadow">
-                <span className="text-sm font-medium text-gray-600">Total Overdue Charges</span>
-                <span className="text-lg font-bold text-pink-600">
-                  ₹{totals.totalOverdueCharges.toLocaleString("en-IN")}
-                </span>
-              </div>
-            </div>
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5 mb-8">
+
+  {[
+    {
+      label: "Total Customers",
+      value: totals.totalCustomers,
+      color: "text-blue-600",
+      currency: false,
+    },
+    {
+      label: "Total Groups",
+      value: totals.totalGroups,
+      color: "text-green-600",
+      currency: false,
+    },
+    {
+      label: "Amount to be Paid",
+      value: totals.totalToBePaid,
+      color: "text-green-600",
+      currency: true,
+    },
+    {
+      label: "Total Paid",
+      value: totals.totalPaid,
+      color: "text-indigo-600",
+      currency: true,
+    },
+    {
+      label: "Total Balance",
+      value: totals.totalBalance,
+      color: "text-red-600",
+      currency: true,
+    },
+    {
+      label: "Total Overdue Charges",
+      value: totals.totalOverdueCharges,
+      color: "text-pink-600",
+      currency: true,
+    },
+  ].map((item, index) => (
+    <div
+      key={index}
+      className="bg-white border border-gray-200 rounded-lg px-5 py-4 text-center"
+    >
+      {/* LABEL */}
+      <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">
+        {item.label}
+      </div>
+
+      {/* NUMBER */}
+      <div className={`text-2xl font-bold mt-2 ${item.color}`}>
+        {item.currency
+          ? `₹${(item.value || 0).toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+            })}`
+          : item.value || 0}
+      </div>
+
+      {/* WORDS */}
+      <div className="text-[11px] text-gray-400 mt-1 leading-tight">
+        {numberToIndianWords(Math.floor(item.value || 0))}
+      </div>
+    </div>
+  ))}
+</div>
+
 
             {/* Table */}
             <DataTable

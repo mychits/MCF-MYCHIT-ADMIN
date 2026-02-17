@@ -12,10 +12,14 @@ import { Link } from "react-router-dom";
 import { FileTextOutlined, DollarOutlined } from "@ant-design/icons";
 import { FaMoneyBill } from "react-icons/fa";
 import { MdPayments } from "react-icons/md";
+// Import the helper function to convert numbers to Indian words
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
+
 const today = new Date();
 const currentYear = today.getFullYear();
 const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
 const currentYearMonth = `${currentYear}-${currentMonth}`;
+
 function formatDate(date) {
   const year = date.getFullYear();
   const month = `0${date.getMonth() + 1}`.slice(-2);
@@ -708,6 +712,12 @@ const Target = () => {
                       placeholder={`Enter ${month} target`}
                     />
                   </div>
+                  {/* Display Indian words for the amount field in the drawer */}
+                  {monthValues[month] > 0 && (
+                    <div className="text-xs text-gray-500 mt-1 italic">
+                      {numberToIndianWords(monthValues[month])}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

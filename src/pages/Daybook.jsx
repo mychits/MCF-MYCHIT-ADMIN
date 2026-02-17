@@ -10,7 +10,7 @@ import { IoMdMore } from "react-icons/io";
 import { ArrowUpOutlined, ArrowDownOutlined, WalletOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import filterOption from "../helpers/filterOption";
-import { numberToIndianWords } from "../helpers/numberToIndianWords"
+  import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const Daybook = () => {
   const [groups, setGroups] = useState([]);
@@ -226,9 +226,12 @@ const Daybook = () => {
                 <ArrowUpOutlined />₹
 
               </>} valueStyle={{ color: '#3f8600' }} />
-             
+            
 
             </Card>
+             <span className={`text-sm font-mono text-green-700 pl-3`}>
+                {numberToIndianWords(totals.in || 0)}
+              </span>
           </Col>
           <Col xs={24} md={8}>
             <Card className="shadow-sm border-l-4 border-red-500">
@@ -238,6 +241,9 @@ const Daybook = () => {
 
               </>} valueStyle={{ color: '#cf1322' }} />
             </Card>
+             <span className={`text-sm font-mono text-red-700 pl-3`}>
+                {numberToIndianWords(totals.out || 0)}
+              </span>
           </Col>
           <Col xs={24} md={8}>
             <Card className="shadow-sm border-l-4 border-blue-500 bg-blue-50/20">
@@ -247,6 +253,9 @@ const Daybook = () => {
                 ₹
               </>} valueStyle={{ color: '#096dd9' }} />
             </Card>
+            <span className={`text-sm font-mono ${totals.net < 0 ? "text-red-700" : "text-green-700"} pl-3`}>
+                {numberToIndianWords(totals.net || 0)}
+              </span>
           </Col>
         </Row>
 

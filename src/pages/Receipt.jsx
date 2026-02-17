@@ -20,6 +20,8 @@ import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { fieldSize } from "../data/fieldSize";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const Receipt = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -821,21 +823,37 @@ const Receipt = () => {
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
                   <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
 
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-4">
-                      <p className="text-white/90 text-sm font-semibold uppercase tracking-wider">
-                        Total Receipt Amount
-                      </p>
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-white text-5xl font-bold tracking-tight">
-                        ₹{payments?.toLocaleString() || 0}
-                      </span>
-                    </div>
-                    <p className="text-white/70 text-sm mt-3">
-                      Based on current filters
-                    </p>
-                  </div>
+                <div className="relative z-10 p-4  rounded-xl border border-white/10 shadow-lg">
+  <div className="mb-3">
+    <p className="text-white/70 text-xs font-medium uppercase tracking-wider">
+      Total Receipt Amount
+    </p>
+  </div>
+  
+  <div className="space-y-1.5">
+    <div>
+      <span className="text-white text-4xl md:text-5xl font-bold tracking-tight">
+        ₹{payments ? Number(payments).toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }) : '0.00'}
+      </span>
+    </div>
+    
+    <div>
+      <span className="text-white/85 text-base font-medium break-words">
+        {payments ? numberToIndianWords(Number(payments)) : 'Zero Only'}
+      </span>
+    </div>
+  </div>
+  
+  <div className="mt-4 pt-3 border-t border-white/10">
+    <p className="text-white/60 text-xs flex items-center gap-1.5">
+      <span>📊</span>
+      <span>Based on active filters • Updated live</span>
+    </p>
+  </div>
+</div>
 
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12"></div>
                 </div>

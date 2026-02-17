@@ -4,6 +4,7 @@ import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Navbar from "../components/layouts/Navbar";
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const EmployeeReport = () => {
   const [employees, setEmployees] = useState([]);
@@ -12,7 +13,7 @@ const EmployeeReport = () => {
   const [employeeCustomerData, setEmployeeCustomerData] = useState([]);
   const [loading, setLoading] = useState(false);
 
- 
+
   const fetchEmployees = async () => {
     try {
       const res = await api.get("/agent/get-agent");
@@ -22,7 +23,7 @@ const EmployeeReport = () => {
     }
   };
 
- 
+
   const fetchEmployeeReport = async (employeeId) => {
     setLoading(true);
     try {
@@ -36,7 +37,7 @@ const EmployeeReport = () => {
     }
   };
 
- 
+
   const fetchAllEmployeeReports = async () => {
     setLoading(true);
     try {
@@ -50,7 +51,7 @@ const EmployeeReport = () => {
     }
   };
 
- 
+
   const handleEmployeeChange = async (value) => {
     setSelectedEmployeeId(value);
     if (value === "ALL") {
@@ -67,7 +68,7 @@ const EmployeeReport = () => {
     fetchEmployees();
   }, []);
 
- 
+
   const totalCommission = employeeCustomerData.reduce(
     (acc, curr) => acc + parseFloat(curr.commissionValue?.replace(/,/g, "") || 0),
     0
@@ -82,36 +83,36 @@ const EmployeeReport = () => {
     ...item,
     enrollmentStartDate: item?.enrollmentStartDate?.split("T")[0],
     sl_no: index + 1,
-       agentName: item?.employeeName || "-",
+    agentName: item?.employeeName || "-",
   }));
 
- const baseColumns = [
-  { key: "customerName", header: "Customer Name" },
-  { key: "customerId", header: "Customer ID" },
-  { key: "userPhone", header: "Phone Number" },
-  { key: "groupName", header: "Group" },
-  { key: "groupValue", header: "Group Value" },
-  { key: "enrollmentStartDate", header: "Enrollment Start Date" },
-  { key: "ticket", header: "Ticket" },
-  { key: "amountPaid", header: "Amount Paid" },
-  { key: "toBePaidAmount", header: "To Be Paid" },
-  { key: "balance", header: "Balance" },
-  { key: "commissionPercent", header: "Commission (%)" },
-  { key: "commissionValue", header: "Commission (₹)" },
-  { key: "incentives", header: "Incentives" },
-];
+  const baseColumns = [
+    { key: "customerName", header: "Customer Name" },
+    { key: "customerId", header: "Customer ID" },
+    { key: "userPhone", header: "Phone Number" },
+    { key: "groupName", header: "Group" },
+    { key: "groupValue", header: "Group Value" },
+    { key: "enrollmentStartDate", header: "Enrollment Start Date" },
+    { key: "ticket", header: "Ticket" },
+    { key: "amountPaid", header: "Amount Paid" },
+    { key: "toBePaidAmount", header: "To Be Paid" },
+    { key: "balance", header: "Balance" },
+    { key: "commissionPercent", header: "Commission (%)" },
+    { key: "commissionValue", header: "Commission (₹)" },
+    { key: "incentives", header: "Incentives" },
+  ];
 
-const slNoColumn = { key: "sl_no", header: "SL. NO" };
+  const slNoColumn = { key: "sl_no", header: "SL. NO" };
 
-const allColumns = [
-  slNoColumn,
-  { key: "agentName", header: "Agent Name" },
-  ...baseColumns,
-];
+  const allColumns = [
+    slNoColumn,
+    { key: "agentName", header: "Agent Name" },
+    ...baseColumns,
+  ];
 
-const columns = selectedEmployeeId === "ALL"
-  ? allColumns
-  : [slNoColumn, ...baseColumns];
+  const columns = selectedEmployeeId === "ALL"
+    ? allColumns
+    : [slNoColumn, ...baseColumns];
 
 
 
@@ -122,50 +123,53 @@ const columns = selectedEmployeeId === "ALL"
         <div className="flex-grow p-7">
           <h1 className="text-2xl font-bold text-center">Reports - Employee</h1>
 
-          
+
           <div className="mt-6 mb-8">
             <div className="mb-2">
-            <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-2 w-30 h-40 rounded-3xl border   space-x-2">
-              <div className="mb-2">
-                <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
-                  Employee
-                </label>
-                <Select
-                  value={selectedEmployeeId || undefined}
-                  onChange={handleEmployeeChange}
-                  showSearch
-                  popupMatchSelectWidth={false}
-                  placeholder="Search or Select Employee"
-                  filterOption={(input, option) =>
-                    option.children.toString().toLowerCase().includes(input.toLowerCase())
-                  }
-                  style={{ height: "50px", width: "600px" }}
-                >
-                  <Select.Option value="ALL">All</Select.Option>
-                  {employees.map((emp) => (
-                    <Select.Option key={emp._id} value={emp._id}>
-                      {emp.name} - {emp.phone_number}
-                    </Select.Option>
-                  ))}
-                </Select>
+              <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-2 w-30 h-40 rounded-3xl border   space-x-2">
+                <div className="mb-2">
+                  <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
+                    Employee
+                  </label>
+                  <Select
+                    value={selectedEmployeeId || undefined}
+                    onChange={handleEmployeeChange}
+                    showSearch
+                    popupMatchSelectWidth={false}
+                    placeholder="Search or Select Employee"
+                    filterOption={(input, option) =>
+                      option.children.toString().toLowerCase().includes(input.toLowerCase())
+                    }
+                    style={{ height: "50px", width: "600px" }}
+                  >
+                    <Select.Option value="ALL">All</Select.Option>
+                    {employees.map((emp) => (
+                      <Select.Option key={emp._id} value={emp._id}>
+                        {emp.name} - {emp.phone_number}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+
               </div>
-              
-            </div>
             </div>
           </div>
-         <div className="ml-6 text-md font-semibold text-blue-700 mb-5">
+          <div className="ml-6 text-md font-semibold text-blue-700 mb-5">
             <label> Total Business: </label>
             <div className="mt-2">
-            <input
-              className="rounded-md"
-              readOnly
-              value={`₹${totalBusiness.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })}`}
-            />
+              <input
+                className="rounded-md"
+                readOnly
+                value={`₹${totalBusiness.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                })}`}
+              />
+              <div className={`text-sm font-mono text-blue-700 pl-1`}>
+                {numberToIndianWords(totalBusiness || 0)}
+              </div>
             </div>
           </div>
-       
+
           {selectedEmployeeId !== "ALL" && selectedEmployeeDetails && (
             <div className="mb-8 bg-gray-50 rounded-md shadow-md p-6 space-y-4">
               <div className="flex gap-4">
@@ -231,7 +235,7 @@ const columns = selectedEmployeeId === "ALL"
             </div>
           )}
 
-         
+
           {loading ? (
             <CircularLoader isLoading={true} />
           ) : employeeCustomerData.length > 0 ? (
@@ -240,31 +244,48 @@ const columns = selectedEmployeeId === "ALL"
                 data={processedTableData}
                 columns={columns}
                 exportedPdfName={`Employee Report`}
-                                    printHeaderKeys={[
-                                  "Name",
-                                  "Phone Number",
-                                  "Total Bussiness",
-                                ]}
-                                printHeaderValues={[
-                                  selectedEmployeeDetails?.name,
-                                  selectedEmployeeDetails?.phone_number,
-                                   totalBusiness.toLocaleString("en-IN", {
-                minimumFractionDigits: 2,})
-                                ]}
-                exportedFileName={`Employee Report-${selectedEmployeeDetails?.name || "all"}.csv`}
-                
-              />
-              <div className="mt-6 pr-10 text-right flex justify-end gap-12">
-                <div className="text-lg font-semibold text-green-700">
-                  Total Commission: ₹
-                  {totalCommission.toLocaleString("en-IN", {
+                printHeaderKeys={[
+                  "Name",
+                  "Phone Number",
+                  "Total Bussiness",
+                ]}
+                printHeaderValues={[
+                  selectedEmployeeDetails?.name,
+                  selectedEmployeeDetails?.phone_number,
+                  totalBusiness.toLocaleString("en-IN", {
                     minimumFractionDigits: 2,
-                  })}
+                  })
+                ]}
+                exportedFileName={`Employee Report-${selectedEmployeeDetails?.name || "all"}.csv`}
+
+              />
+              <div className="mt-6 pr-10 flex justify-end gap-14">
+
+                {/* Total Commission */}
+                <div className="text-right">
+                  <div className="text-lg font-semibold text-green-700">
+                    Total Commission: ₹{" "}
+                    {totalCommission.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </div>
+                  <div className="text-sm text-green-700 mt-1 leading-snug">
+                    ({numberToIndianWords(totalCommission || 0)})
+                  </div>
                 </div>
-                <div className="text-lg font-semibold text-green-700">
-                  Total Customers: {totalCustomers}
+
+                {/* Total Customers */}
+                <div className="text-right">
+                  <div className="text-lg font-semibold text-green-700">
+                    Total Customers: {totalCustomers}
+                  </div>
+                  <div className="text-sm text-green-700 mt-1 leading-snug">
+                    ({numberToIndianWords(totalCustomers || 0)})
+                  </div>
                 </div>
+
               </div>
+
             </>
           ) : (
             selectedEmployeeId && (

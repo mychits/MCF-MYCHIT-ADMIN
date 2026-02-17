@@ -822,66 +822,66 @@ const UserReport = () => {
       const response = await api.get(`/enroll/customer-payment/statement/${enrollmentId}`);
       const responseData = response.data?.data?.statement ?? [];
 
-     const filteredResponse = responseData.map((statement, index) => {
-  const balanceValue = Number(statement?.balance || 0);
-  const isNegative = balanceValue < 0;
+      const filteredResponse = responseData.map((statement, index) => {
+        const balanceValue = Number(statement?.balance || 0);
+        const isNegative = balanceValue < 0;
 
-  return {
-    id: index + 1,
-    // RAW DATA
-    rawDate: `${statement?.date}`.split("T")?.[0] ?? "N/A",
-    rawBalance: balanceValue,
-    rawDescription:statement?.description,
-    rawDue:statement?.due,
-    rawPaid:statement?.paid,
+        return {
+          id: index + 1,
+          // RAW DATA
+          rawDate: `${statement?.date}`.split("T")?.[0] ?? "N/A",
+          rawBalance: balanceValue,
+          rawDescription: statement?.description,
+          rawDue: statement?.due,
+          rawPaid: statement?.paid,
 
 
-    // DECORATED DATA
-    date: (
-      <div className="text-slate-500 text-xs font-medium">
-        {`${statement?.date}`.split("T")?.[0] ?? "N/A"}
-      </div>
-    ),
-    
-    description: (
-      <div className="flex flex-col">
-        <span className="text-slate-900 font-bold text-sm tracking-tight">
-          {statement?.description || "General Payment"}
-        </span>
-        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
-          Ref: #{index.toString().padStart(4, '0')}
-        </span>
-      </div>
-    ),
+          // DECORATED DATA
+          date: (
+            <div className="text-slate-500 text-xs font-medium">
+              {`${statement?.date}`.split("T")?.[0] ?? "N/A"}
+            </div>
+          ),
 
-    due: (
-       <div className="text-slate-600 font-semibold text-sm">
-         ₹{Number(statement?.due || 0).toLocaleString('en-IN')}
-       </div>
-    ),
+          description: (
+            <div className="flex flex-col">
+              <span className="text-slate-900 font-bold text-sm tracking-tight">
+                {statement?.description || "General Payment"}
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                Ref: #{index.toString().padStart(4, '0')}
+              </span>
+            </div>
+          ),
 
-    paid: (
-      <div className="text-emerald-600 font-bold text-sm">
-        {statement?.paid > 0 ? `+ ₹${Number(statement?.paid).toLocaleString('en-IN')}` : "—"}
-      </div>
-    ),
+          due: (
+            <div className="text-slate-600 font-semibold text-sm">
+              ₹{Number(statement?.due || 0).toLocaleString('en-IN')}
+            </div>
+          ),
 
-    balance: (
-      <div className="flex items-center justify-end gap-3">
-        <div className="text-right">
-          <div className={`text-sm font-black ${isNegative ? "text-rose-600" : "text-green-900"}`}>
-            ₹{Math.abs(balanceValue).toLocaleString('en-IN')}
-          </div>
-          <div className={`text-[9px] font-bold uppercase tracking-widest ${isNegative ? "text-rose-400" : "text-emerald-500"}`}>
-            {isNegative ? "Debit / Outstanding" : "Credit / Settled"}
-          </div>
-        </div>
-        {/* Simple geometric indicator instead of pulsing dots */}
-        <div className={`w-1 h-8 rounded-full ${isNegative ? "bg-rose-200" : "bg-emerald-200"}`} />
-      </div>
-    ),
-  };
-});
+          paid: (
+            <div className="text-emerald-600 font-bold text-sm">
+              {statement?.paid > 0 ? `+ ₹${Number(statement?.paid).toLocaleString('en-IN')}` : "—"}
+            </div>
+          ),
+
+          balance: (
+            <div className="flex items-center justify-end gap-3">
+              <div className="text-right">
+                <div className={`text-sm font-black ${isNegative ? "text-rose-600" : "text-green-900"}`}>
+                  ₹{Math.abs(balanceValue).toLocaleString('en-IN')}
+                </div>
+                <div className={`text-[9px] font-bold uppercase tracking-widest ${isNegative ? "text-rose-400" : "text-emerald-500"}`}>
+                  {isNegative ? "Debit / Outstanding" : "Credit / Settled"}
+                </div>
+              </div>
+              {/* Simple geometric indicator instead of pulsing dots */}
+              <div className={`w-1 h-8 rounded-full ${isNegative ? "bg-rose-200" : "bg-emerald-200"}`} />
+            </div>
+          ),
+        };
+      });
       setActiveEnrollmentData(filteredResponse)
 
     } catch (error) {
@@ -897,7 +897,7 @@ const UserReport = () => {
   }, [enrollmentId])
   useEffect(() => {
     setEnrollmentId(""),
-    setActiveEnrollmentData([]);
+      setActiveEnrollmentData([]);
   }, [selectedGroup])
   const handleEnrollmentChange = (e) => {
     const value = e.target.value;
@@ -1148,7 +1148,7 @@ const UserReport = () => {
     { key: "balance", header: "Balance" },
 
   ];
-   const CustomerPaymentStatementExportsColumns = [
+  const CustomerPaymentStatementExportsColumns = [
     { key: "id", header: "SL. NO" },
     { key: "rawDate", header: "Due Date" },
     { key: "rawDescription", header: "Description" },
@@ -1774,6 +1774,9 @@ const UserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(TotalToBepaid || 0)}
+                                </span>
                               </div>
                               <div className="flex flex-col flex-1">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1786,6 +1789,9 @@ const UserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(Totalprofit || 0)}
+                                </span>
                               </div>
                               <div className="flex flex-col flex-1">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1798,6 +1804,9 @@ const UserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(NetTotalprofit || 0)}
+                                </span>
                               </div>
                               <div className="flex flex-col flex-1">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1810,6 +1819,9 @@ const UserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(Totalpaid || 0)}
+                                </span>
                               </div>
                               <div className="flex flex-col flex-1">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1826,6 +1838,13 @@ const UserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(
+                                    NetTotalprofit && Totalpaid
+                                      ? NetTotalprofit - Totalpaid
+
+                                      : 0)}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -1907,29 +1926,42 @@ const UserReport = () => {
                             </div>
                           </div>
 
-                          <div className="mt-6 flex justify-center gap-8 flex-wrap">
-                            <input
-                              type="text"
-                              value={`Registration Fee: ₹${registrationAmount || 0
-                                }`}
-                              readOnly
-                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-green-100 text-green-800 border-green-400"
-                            />
-                            <input
-                              type="text"
-                              value={`Payment Balance: ₹${finalPaymentBalance}`}
-                              readOnly
-                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-blue-100 text-blue-800 border-blue-400"
-                            />
-                            <input
-                              type="text"
-                              value={`Total: ₹${Number(finalPaymentBalance) +
-                                Number(registrationAmount || 0)
-                                }`}
-                              readOnly
-                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-purple-100 text-purple-800 border-purple-400"
-                            />
+                          <div className="mt-6 flex justify-center gap-10 flex-wrap">
+
+                            {/* Registration Fee */}
+                            <div className="flex flex-col items-center">
+                              <div className="px-4 py-2 w-60 text-center font-semibold rounded border bg-green-100 text-green-800 border-green-400">
+                                Registration Fee: ₹{registrationAmount || 0}
+                              </div>
+                              <p className="mt-1 text-xs text-green-700 text-center max-w-[240px] break-words">
+                                {numberToIndianWords(registrationAmount || 0)}
+                              </p>
+                            </div>
+
+                            {/* Payment Balance */}
+                            <div className="flex flex-col items-center">
+                              <div className="px-4 py-2 w-60 text-center font-semibold rounded border bg-blue-100 text-blue-800 border-blue-400">
+                                Payment Balance: ₹{finalPaymentBalance || 0}
+                              </div>
+                              <p className="mt-1 text-xs text-blue-700 text-center max-w-[240px] break-words">
+                                {numberToIndianWords(finalPaymentBalance || 0)}
+                              </p>
+                            </div>
+
+                            {/* Total */}
+                            <div className="flex flex-col items-center">
+                              <div className="px-4 py-2 w-60 text-center font-semibold rounded border bg-gray-100 text-gray-800 border-gray-400">
+                                Total: ₹{Number(finalPaymentBalance || 0) + Number(registrationAmount || 0)}
+                              </div>
+                              <p className="mt-1 text-xs text-gray-700 text-center max-w-[240px] break-words">
+                                {numberToIndianWords(
+                                  Number(finalPaymentBalance || 0) + Number(registrationAmount || 0)
+                                )}
+                              </p>
+                            </div>
+
                           </div>
+
 
                           {(TableEnrolls?.length > 0 ||
                             borrowersData?.length > 0 ||

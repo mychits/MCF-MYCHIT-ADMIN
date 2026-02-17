@@ -10,6 +10,7 @@ import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import { Select } from "antd";
 import CircularLoader from "../components/loaders/CircularLoader";
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const { RangePicker } = DatePicker;
 
@@ -241,13 +242,75 @@ const CustomerLoanReport = () => {
                 />
               </div>
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <StatCard icon={FileText} label="Total Loans" value={summaryStats.totalLoans} color="bg-blue-600" />
-              <StatCard icon={IndianRupee} label="Total Loan Amount" value={`₹${summaryStats.totalAmount}`} color="bg-purple-600" />
-              <StatCard icon={TrendingUp} label="Total Payable" value={`₹${summaryStats.totalPayable}`} color="bg-blue-600" />
-              <StatCard icon={TrendingUp} label="Total Paid" value={`₹${summaryStats.totalPaid}`} color="bg-green-600" />
-              <StatCard icon={Calendar} label="Total Balance" value={`₹${summaryStats.totalBalance}`} color="bg-orange-600" />
-            </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+  {/* Total Loans */}
+  <div className="flex flex-col">
+    <StatCard
+      icon={FileText}
+      label="Total Loans"
+      value={summaryStats.totalLoans}
+      color="bg-blue-600"
+    />
+    <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+      {numberToIndianWords(summaryStats.totalLoans || 0)}
+    </span>
+  </div>
+
+  {/* Total Loan Amount */}
+  <div className="flex flex-col">
+    <StatCard
+      icon={IndianRupee}
+      label="Total Loan Amount"
+      value={`₹${summaryStats.totalAmount}`}
+      color="bg-purple-600"
+    />
+    <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+      {numberToIndianWords(summaryStats.totalAmount || 0)}
+    </span>
+  </div>
+
+  {/* Total Payable */}
+  <div className="flex flex-col">
+    <StatCard
+      icon={TrendingUp}
+      label="Total Payable"
+      value={`₹${summaryStats.totalPayable}`}
+      color="bg-blue-600"
+    />
+    <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+      {numberToIndianWords(summaryStats.totalPayable || 0)}
+    </span>
+  </div>
+
+  {/* Total Paid */}
+  <div className="flex flex-col">
+    <StatCard
+      icon={TrendingUp}
+      label="Total Paid"
+      value={`₹${summaryStats.totalPaid}`}
+      color="bg-green-600"
+    />
+    <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+      {numberToIndianWords(summaryStats.totalPaid || 0)}
+    </span>
+  </div>
+
+  {/* Total Balance */}
+  <div className="flex flex-col">
+    <StatCard
+      icon={Calendar}
+      label="Total Balance"
+      value={`₹${summaryStats.totalBalance}`}
+      color="bg-orange-600"
+    />
+    <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+      {numberToIndianWords(summaryStats.totalBalance || 0)}
+    </span>
+  </div>
+
+</div>
+
 
             {/* FILTERS */}
             <div className="bg-white rounded-xl shadow-sm border p-6 mb-8">

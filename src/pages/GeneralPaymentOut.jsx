@@ -14,6 +14,8 @@ import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { Space } from "lucide-react";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const GeneralPaymentOut = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -537,6 +539,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                   readOnly
                   className="bg-gray-100 border rounded w-full p-2 cursor-not-allowed"
                 />
+                      <span className={`text-sm font-mono`}>
+                                                  {numberToIndianWords(formData.ticket || 0)}
+                                                </span>
               </div>
               <div>
                 <label className="block text-sm font-medium">Win Amount</label>
@@ -552,6 +557,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                   className="border bg-gray-100 rounded w-full p-2 cursor-not-allowed"
                   readOnly
                 />
+                      <span className={`text-sm font-mono`}>
+                                                  {numberToIndianWords(paymentDetails.winAmount || 0)}
+                                                </span>
               </div>
               <div>
                 <label className="block text-sm font-medium">
@@ -616,8 +624,12 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                       {errors.transaction_id}
                     </p>
                   )}
+ <span className={`text-sm font-mono`}>
+                                                {numberToIndianWords(formData.transaction_id || 0)}
+                                              </span>
                 </div>
               )}
+                   
               <div>
                 <label className="block text-sm font-medium">Note</label>
                 <textarea
@@ -657,6 +669,7 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                    
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">Group *</label>
@@ -675,6 +688,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.group_id?.group_value || 0)}
+                                                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">
@@ -685,6 +701,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                    <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.group_id?.group_install || 0)}
+                                                  </span>
                 </div>
               </div>
               {currentUpdateGroup?.group_id?.group_type === "double" && (
@@ -719,6 +738,10 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                   readOnly
                   className="bg-gray-50 border rounded w-full p-2"
                 />
+                      <span className={`text-sm font-mono`}>
+                                                  {numberToIndianWords(currentUpdateGroup?.group_id?.group_value -
+                    currentUpdateGroup?.win_amount || 0)}
+                                                </span>
               </div>
               <div className="flex gap-4">
                 <div className="w-1/2">
@@ -728,6 +751,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.commission || 0)}
+                                                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">Winning Amount</label>
@@ -736,6 +762,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.win_amount || 0)}
+                                                  </span>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -746,6 +775,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.divident || 0)}
+                                                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">
@@ -756,6 +788,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.divident_head || 0)}
+                                                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">Next Payable</label>
@@ -764,6 +799,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.payable || 0)}
+                                                  </span>
                 </div>
               </div>
               <div className="flex gap-4">
