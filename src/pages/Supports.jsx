@@ -10,7 +10,8 @@ import { Users, IndianRupee, ChevronRight, Zap, ClipboardCheck, X, Eye, UserPlus
 import DataTable from "../components/layouts/Datatable";
 import BaseURL from "../instance/BaseUrl";
 import CircularLoader from "../components/loaders/CircularLoader";
-
+import { GrTask } from "react-icons/gr";
+import { MdAssignmentInd } from "react-icons/md";
 
 function Supports() {
     const [api, contextHolder] = notification.useNotification();
@@ -436,7 +437,9 @@ function Supports() {
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-4">
                                                         <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-50 rounded-lg">
-                                                            <span className="text-3xl">📝</span>
+                                                            <span className="text-3xl">
+                                                                <GrTask/>
+                                                            </span>
                                                         </div>
                                                         <div>
                                                             <h3 className="text-lg font-bold text-gray-900">Tickets</h3>
@@ -465,7 +468,13 @@ function Supports() {
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-4">
                                                         <div className="inline-flex items-center justify-center w-12 h-12 bg-green-50 rounded-lg">
-                                                            <span className="text-2xl">👤</span>
+                                                            <span className="text-2xl">
+
+
+
+                                                                
+  <MdAssignmentInd />
+                                                            </span>
                                                         </div>
                                                         <div>
                                                             <h3 className="text-lg font-bold text-gray-900">Assign</h3>
@@ -501,10 +510,10 @@ function Supports() {
                                             <div>
                                                 <h3 className="text-lg font-semibold text-slate-900">Quick Tips</h3>
                                                 <ul className="list-disc list-inside text-slate-700 space-y-1">
-                                                    <li className="flex gap-2"><span>👉</span> View and manage all support requests in one place</li>
-                                                    <li className="flex gap-2"><span>👉</span> Assign complaints to staff easily</li>
-                                                    <li className="flex gap-2"><span>👉</span> Track complaint status and resolution progress</li>
-                                                    <li className="flex gap-2"><span>👉</span> Improve response time and customer satisfaction</li>
+                                                    <li className="flex gap-2"> View and manage all support requests in one place</li>
+                                                    <li className="flex gap-2"> Assign complaints to staff easily</li>
+                                                    <li className="flex gap-2"> Track complaint status and resolution progress</li>
+                                                    <li className="flex gap-2"> Improve response time and customer satisfaction</li>
                                                 </ul>
                                             </div>
                                         </div>
