@@ -499,7 +499,7 @@ const Task = () => {
 
           taskTitle: task.taskTitle,
           status: task.status,
-
+          referredType: task?.referred_type,
           referred: referredDisplay,
            approvalStatus: task?.approval_status,
           action: (
@@ -675,7 +675,8 @@ const Task = () => {
           type: "success",
         });
       } else {
-        await api.post("/task/add-new-task", payload);
+       const res= await api.post("/task/add-new-task", payload);
+       console.info(res.data, "test123");
         setAlertConfig({
           visibility: true,
           message: "Task created successfully",
@@ -821,6 +822,7 @@ const Task = () => {
     { key: "employeeCode", header: "Employee ID" },
     { key: "taskTitle", header: "Task Name" },
     { key: "status", header: "Task Status" },
+    {key: "referredType", header: "Referred Type"},
     { key: "referred", header: "Assign to" },
     {key: "approvalStatus", header: "Approval Status"},
     { key: "action", header: "Action" },
