@@ -181,7 +181,7 @@ import VisitorList from "../pages/VisitorList";
 import AuctionFilterReport from "../pages/AuctionFilterReport";
 import prizedCustomerReport from "../pages/PrizedCustomerReport";
 import PrizedCustomerReport from "../pages/PrizedCustomerReport";
-import EmployeeTasks from "../components/employee/EmployeeTasks";
+import EmployeeTasks from "../employee/EmployeeTasks";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
