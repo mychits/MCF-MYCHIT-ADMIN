@@ -223,7 +223,7 @@ const DueLoanReport = () => {
                             className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
                           >
                             <FaMoneyBill className="text-blue-500" size={30} />
-                            Loan
+                            Add Loan
                           </Link>
                           <Link
                             to="/reports/customer-loan-report"
@@ -305,7 +305,7 @@ const DueLoanReport = () => {
     </span>
   </div>
 
-  <div className="flex flex-col">
+  {/* <div className="flex flex-col">
     <StatCard
       icon={Calendar}
       label="Total Balance"
@@ -315,7 +315,7 @@ const DueLoanReport = () => {
     <span className="text-sm font-mono text-green-700 mt-2 break-words">
       {numberToIndianWords(summaryStats.totalBalance || 0)}
     </span>
-  </div>
+  </div> */}
 
 </div>
 
@@ -408,7 +408,21 @@ const DueLoanReport = () => {
               <DataTable
                 columns={loanReportColumns}
                 data={filteredLoanReport}
-                exportedPdfName="Customer Loan Report"
+                 printHeaderKeys={[
+                  "Total Loans",
+                  "Total Loan Amount",
+                  "Total Payable",
+                  "Total Paid",
+                  "Total Outstanding",
+                ]}
+                printHeaderValues={[
+                  summaryStats.totalLoans.toLocaleString("en-IN"),
+                  `₹ ${summaryStats.totalAmount.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalPayable.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalPaid.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalBalance.toLocaleString("en-IN")}`,
+                ]}
+                exportedPdfName="OutStanding Customer Loan Report"
               />
             </div>
           </>

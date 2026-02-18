@@ -28,7 +28,7 @@ const LoanCompletionReport = () => {
     const fetchLoanReport = async () => {
       try {
         const response = await api.get(`/payment/customers/loan-report`);
-        console.info(response, " test fvdfhjdfgjhgf");
+       
 
         // const formattedData = response.data.loanReports.map((loan, index) => ({
         //   id: loan?._id,
@@ -224,7 +224,7 @@ const LoanCompletionReport = () => {
                           className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
                         >
                           <FaMoneyBill className="text-blue-500" size={30} />
-                          Loan
+                          Add Loan
                         </Link>
                         <Link
                           to="/reports/customer-loan-report"
@@ -402,7 +402,8 @@ const LoanCompletionReport = () => {
               <DataTable
                 columns={loanReportColumns}
                 data={filteredLoanReport}
-                exportedPdfName="Customer Loan Report"
+                
+                exportedPdfName="Customer Completion Loan Report"
               />
             </div>
           </>

@@ -135,6 +135,9 @@ const PigmySummaryReport = () => {
       (sum, pigmy) => sum + pigmy.totalpigmyAmount,
       0
     );
+    const totalPayablePigmy = filtered.reduce(
+      (sum, pigmy) => sum + Number(pigmy.amount || 0),0
+    )
     const avgDuration =
       filtered.length > 0
         ? filtered.reduce((sum, pigmy) => {
@@ -146,6 +149,7 @@ const PigmySummaryReport = () => {
     return {
       totalPigmy: filtered.length,
       totalAmount: totalAmount,
+      totalPayable: totalPayablePigmy,
       avgDuration: avgDuration.toFixed(1),
       uniqueCustomers: new Set(filtered.map((p) => p.customerId)).size,
     };
@@ -236,6 +240,18 @@ const PigmySummaryReport = () => {
                 />
                 <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
                   {numberToIndianWords(summaryStats.totalAmount || 0)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={TrendingUp}
+                  label="Total Payable"
+                  value={`₹${summaryStats.totalPayable?.toLocaleString("en-IN") || 0}`}
+                  color="bg-gradient-to-br from-orange-500 to-orange-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.totalPayable || 0)}
                 </span>
               </div>
 
@@ -410,6 +426,20 @@ const PigmySummaryReport = () => {
               <DataTable
                 columns={PigmyReportColumns}
                 data={filteredPigmyReport}
+                 printHeaderKeys={[
+                  "Total Pigmy",
+                  "Total Pigmy Amount",
+                  "Total Payable",
+                  "Average Duration",
+                  "Unique Customers",
+                ]}
+                printHeaderValues={[
+                  summaryStats.totalPigmy,
+                  `₹ ${summaryStats.totalAmount}`,
+                  `₹ ${summaryStats.totalPayable}`,
+                  `₹ ${summaryStats.avgDuration}`,
+                  `₹ ${summaryStats.uniqueCustomers}`,
+                ]}
                 exportedPdfName="Pigmy Summary Report"
               />
             </div>

@@ -253,16 +253,17 @@ const OverDueEmail = () => {
           onGlobalSearchChangeHandler={(e) => setSearchText(e.target.value)}
           visibility={true}
         />
-        {isLoading ? (
+       
+          <div className="flex-grow p-7">
+            <h1 className="text-2xl font-bold text-center">
+               Outstanding Email [Over]
+            </h1>
+            {contextHolder}
+             {isLoading ? (
           <div className="w-full">
             <CircularLoader color="text-green-600" />
           </div>
         ) : (
-          <div className="flex-grow p-7">
-            <h1 className="text-2xl font-bold text-center">
-              Email Over Due Messages
-            </h1>
-            {contextHolder}
             <div className="mt-6 mb-8">
               <div className="flex justify-start border-b border-gray-300 mb-4"></div>
               <div className="mt-10">
@@ -307,15 +308,16 @@ const OverDueEmail = () => {
                   data={filteredUsers}
                   columns={Auctioncolumns}
                   catcher="_id"
-                  exportedPdfName="Overdue Email"
+                  exportedPdfName="Over  Email"
                   printHeaderKeys={["Group Name"]}
                   printHeaderValues={[groupFilter]}
                   exportedFileName={`Overdue Email.csv`}
                 />
               </div>
             </div>
+            )}
           </div>
-        )}
+        
       </div>
     </div>
   );

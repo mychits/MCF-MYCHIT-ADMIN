@@ -734,6 +734,7 @@ const PaymentReport = () => {
                         { label: "Chit", value: "Chit" },
                         { label: "Pigme", value: "Pigme" },
                         { label: "Loan", value: "Loan" },
+                        {label: "Registration", value: "Registration"}
                       ]}
                     />
                   </div>
