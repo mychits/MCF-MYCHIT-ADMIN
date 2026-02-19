@@ -326,8 +326,8 @@ const AllUserReport = () => {
     { key: "payment_type", header: "Payment Type" },
     { key: "firstInstallment", header: "First Installment" },
     { key: "firstInstallmentStatus", header: "First Installment Status" },
-    { key: "amountPaid", header: "Amount Paid" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
+    { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
     // New penalty columns
     // { 
@@ -366,8 +366,8 @@ const AllUserReport = () => {
     { key: "relationshipManager", header: "Relationship Manager" },
     { key: "payment_type", header: "Payment Type" },
     { key: "firstInstallment", header: "First Installment" },
-    { key: "amountPaid", header: "Amount Paid" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
+    { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
     // New penalty columns for Excel
     // { key: "totalPenalty", header: "Total Penalty" },
