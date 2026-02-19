@@ -181,6 +181,7 @@ import VisitorList from "../pages/VisitorList";
 import AuctionFilterReport from "../pages/AuctionFilterReport";
 import prizedCustomerReport from "../pages/PrizedCustomerReport";
 import PrizedCustomerReport from "../pages/PrizedCustomerReport";
+import EmployeeTasks from "../components/employee/EmployeeTasks";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -199,6 +200,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <HelpAndSupport/>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/my-tasks",
+    element: (
+      <ProtectedRoute>
+        <EmployeeTasks/>
       </ProtectedRoute>
     ),
   },

@@ -1,5 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
-import { Search, FileText, Users, Calendar, IndianRupee, TrendingUp } from "lucide-react";
+import {
+  Search,
+  FileText,
+  Users,
+  Calendar,
+  IndianRupee,
+  TrendingUp,
+} from "lucide-react";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import { Collapse } from "antd";
@@ -10,6 +17,7 @@ import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import { Select } from "antd";
 import CircularLoader from "../components/loaders/CircularLoader";
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
 
 const { RangePicker } = DatePicker;
 
@@ -27,7 +35,6 @@ const CustomerLoanReport = () => {
       try {
         const response = await api.get(`/payment/customers/loan-report`);
 
-
         const formattedData = response.data.loanReports.map((loan, index) => ({
           id: loan?._id,
           slNo: index + 1,
@@ -43,10 +50,13 @@ const CustomerLoanReport = () => {
             : "N/A",
           // Store the original date for filtering
           loanStartDateObj: loan?.start_date ? new Date(loan.start_date) : null,
-         // loanStartDateObj: loan?.start_date ? new Date(loan.start_date) : null,
-          loanEndDate: loan?.end_date ? `${loan?.end_date}`.split("T")[0]
+          // loanStartDateObj: loan?.start_date ? new Date(loan.start_date) : null,
+          loanEndDate: loan?.end_date
+            ? `${loan?.end_date}`.split("T")[0]
             : "N/A",
-          loanSanctionDate: loan?.loan_sanction_date ? `${loan?.loan_sanction_date}`.split("T")[0] : "N/A",
+          loanSanctionDate: loan?.loan_sanction_date
+            ? `${loan?.loan_sanction_date}`.split("T")[0]
+            : "N/A",
           loanDocumentCharges: loan?.document_charges ?? 0,
           payableLoanDays: loan?.days_count,
           loanServiceCharges: loan?.service_charges ?? 0,
@@ -58,7 +68,6 @@ const CustomerLoanReport = () => {
           status: loan?.status || "-",
           referredBy: loan?.referredBy || "N/A",
         }));
-        
 
         setLoanReportTable(formattedData);
       } catch (error) {
@@ -90,7 +99,7 @@ const CustomerLoanReport = () => {
         phone: loan.customerPhone,
         custid: loan.customerId,
       })),
-    [loanReportTable]
+    [loanReportTable],
   );
 
   const uniqueReferredBy = useMemo(() => {
@@ -105,22 +114,35 @@ const CustomerLoanReport = () => {
 
   const filteredLoanReport = useMemo(() => {
     return loanReportTable.filter((loan) => {
-      const matchLoanId = selectedLoanId ? loan.loanIds === selectedLoanId : true;
-      const matchCustomer = selectedCustomer ? loan.id === selectedCustomer : true;
-      const matchReferredBy = selectedReferredBy ? loan.referredBy === selectedReferredBy : true;
+      const matchLoanId = selectedLoanId
+        ? loan.loanIds === selectedLoanId
+        : true;
+      const matchCustomer = selectedCustomer
+        ? loan.id === selectedCustomer
+        : true;
+      const matchReferredBy = selectedReferredBy
+        ? loan.referredBy === selectedReferredBy
+        : true;
 
       // NEW: Date range filtering
       let matchDateRange = true;
       if (dateRange && dateRange.length === 2 && loan.loanStartDateObj) {
-        const startDate = dayjs(dateRange[0]).startOf('day');
-        const endDate = dayjs(dateRange[1]).endOf('day');
+        const startDate = dayjs(dateRange[0]).startOf("day");
+        const endDate = dayjs(dateRange[1]).endOf("day");
         const loanDate = dayjs(loan.loanStartDateObj);
-        matchDateRange = loanDate.isAfter(startDate) && loanDate.isBefore(endDate);
+        matchDateRange =
+          loanDate.isAfter(startDate) && loanDate.isBefore(endDate);
       }
 
       return matchLoanId && matchCustomer && matchReferredBy && matchDateRange;
     });
-  }, [loanReportTable, selectedLoanId, selectedCustomer, selectedReferredBy, dateRange]);
+  }, [
+    loanReportTable,
+    selectedLoanId,
+    selectedCustomer,
+    selectedReferredBy,
+    dateRange,
+  ]);
 
   const summaryStats = useMemo(() => {
     const filtered = filteredLoanReport;
@@ -139,20 +161,19 @@ const CustomerLoanReport = () => {
     { key: "customerName", header: "Customer Name" },
     { key: "customerPhone", header: "Phone Number" },
     { key: "referredBy", header: "Referred By" },
-    {key: "loanSanctionDate", header: "Sanction Date"},
+    { key: "loanSanctionDate", header: "Sanction Date" },
     { key: "loanStartDate", header: "Loan Start Date" },
-    {key: "loanEndDate", header: "Loan End Date"},
+    { key: "loanEndDate", header: "Loan End Date" },
     { key: "loanServiceCharges", header: "Service Charges" },
-    {key: "loanDocumentCharges", header: "Documentation Charges"},
-    {key: "daily_payment_amount", header: "Daily Installment"},
+    { key: "loanDocumentCharges", header: "Documentation Charges" },
+    { key: "daily_payment_amount", header: "Daily Installment" },
     { key: "loanAmount", header: "Loan Amount" },
-    {key: "payableLoanDays", header: "Loan Age (in Days)"},
+    { key: "payableLoanDays", header: "Loan Age (in Days)" },
     { key: "payableAmount", header: "Loan Payable" },
     { key: "totalLoanAmount", header: "Total Paid" },
-    {key: "remainingBalance", header: "Balance"},
+    { key: "remainingBalance", header: "Balance" },
     { key: "loanBalance", header: "OutStanding" },
-    {key: "status", header: "Status"},
-
+    { key: "status", header: "Status" },
   ];
 
   const StatCard = ({ icon: Icon, label, value, color }) => (
@@ -188,65 +209,117 @@ const CustomerLoanReport = () => {
           </div>
         ) : (
           <>
-          <div className="my-6">
-                <Collapse
-                  items={[
-                    {
-                      key: "1",
-                      label: (
-                        <span className="font-semibold text-gray-800 text-base">
-                          Shortcut Keys
-                        </span>
-                      ),
-                      children: (
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                          <Link
-                            to="/other-service-menu/loan"
-                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
-                          >
-                            <FaMoneyBill className="text-blue-500" size={30} />
-                            Loan
-                          </Link>
-                          <Link
-                            to="/reports/loan-due-report"
-                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
-                          >
-                            <DollarOutlined
-                              className="text-blue-500"
-                              size={30}
-                            />
-                            OutStanding Loan Report
-                          </Link>
+            <div className="my-6">
+              <Collapse
+                items={[
+                  {
+                    key: "1",
+                    label: (
+                      <span className="font-semibold text-gray-800 text-base">
+                        Shortcut Keys
+                      </span>
+                    ),
+                    children: (
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <Link
+                          to="/other-service-menu/loan"
+                          className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                        >
+                          <FaMoneyBill className="text-blue-500" size={30} />
+                          Add Loan
+                        </Link>
+                        <Link
+                          to="/reports/loan-due-report"
+                          className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                        >
+                          <DollarOutlined className="text-blue-500" size={30} />
+                          OutStanding Loan Report
+                        </Link>
 
-                          <Link
-                            to="/reports/loan-completion-report"
-                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
-                          >
-                            <FileTextOutlined
-                              className="text-blue-500"
-                              size={30}
-                            />
-                            Loan Completion Report
-                          </Link>
-
-                         
-
-                          
-                        </div>
-                      ),
-                    },
-                  ]}
-                  defaultActiveKey={["1"]}
-                  className="rounded-lg border border-gray-200 bg-white shadow-sm"
-                />
-              </div>
+                        <Link
+                          to="/reports/loan-completion-report"
+                          className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                        >
+                          <FileTextOutlined
+                            className="text-blue-500"
+                            size={30}
+                          />
+                          Loan Completion Report
+                        </Link>
+                      </div>
+                    ),
+                  },
+                ]}
+                defaultActiveKey={["1"]}
+                className="rounded-lg border border-gray-200 bg-white shadow-sm"
+              />
+            </div>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <StatCard icon={FileText} label="Total Loans" value={summaryStats.totalLoans} color="bg-blue-600" />
-              <StatCard icon={IndianRupee} label="Total Loan Amount" value={`₹${summaryStats.totalAmount}`} color="bg-purple-600" />
-              <StatCard icon={TrendingUp} label="Total Payable" value={`₹${summaryStats.totalPayable}`} color="bg-blue-600" />
-              <StatCard icon={TrendingUp} label="Total Paid" value={`₹${summaryStats.totalPaid}`} color="bg-green-600" />
-              <StatCard icon={Calendar} label="Total Balance" value={`₹${summaryStats.totalBalance}`} color="bg-orange-600" />
+              {/* Total Loans */}
+              <div className="flex flex-col">
+                <StatCard
+                  icon={FileText}
+                  label="Total Loans"
+                  value={summaryStats.totalLoans}
+                  color="bg-blue-600"
+                />
+                <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+                  {numberToIndianWords(summaryStats.totalLoans || 0)}
+                </span>
+              </div>
+
+              {/* Total Loan Amount */}
+              <div className="flex flex-col">
+                <StatCard
+                  icon={IndianRupee}
+                  label="Total Loan Amount"
+                  value={`₹${summaryStats.totalAmount}`}
+                  color="bg-purple-600"
+                />
+                <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+                  {numberToIndianWords(summaryStats.totalAmount || 0)}
+                </span>
+              </div>
+
+              {/* Total Payable */}
+              <div className="flex flex-col">
+                <StatCard
+                  icon={TrendingUp}
+                  label="Total Payable"
+                  value={`₹${summaryStats.totalPayable}`}
+                  color="bg-blue-600"
+                />
+                <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+                  {numberToIndianWords(summaryStats.totalPayable || 0)}
+                </span>
+              </div>
+
+              {/* Total Paid */}
+              <div className="flex flex-col">
+                <StatCard
+                  icon={TrendingUp}
+                  label="Total Paid"
+                  value={`₹${summaryStats.totalPaid}`}
+                  color="bg-green-600"
+                />
+                <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+                  {numberToIndianWords(summaryStats.totalPaid || 0)}
+                </span>
+              </div>
+
+              {/* Total Balance */}
+              {/* <div className="flex flex-col">
+    <StatCard
+      icon={Calendar}
+      label="Total Balance"
+      value={`₹${summaryStats.totalBalance}`}
+      color="bg-orange-600"
+    />
+    <span className="mt-2 text-xs font-mono text-green-700 break-words px-1">
+      {numberToIndianWords(summaryStats.totalBalance || 0)}
+    </span>
+  </div> */}
             </div>
 
             {/* FILTERS */}
@@ -258,7 +331,9 @@ const CustomerLoanReport = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Loan Filter */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Loan ID & Amount</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Loan ID & Amount
+                  </label>
                   <Select
                     showSearch
                     placeholder="Select loan"
@@ -278,7 +353,9 @@ const CustomerLoanReport = () => {
 
                 {/* Customer Filter */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Customer</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Customer
+                  </label>
                   <Select
                     showSearch
                     placeholder="Select customer"
@@ -289,10 +366,7 @@ const CustomerLoanReport = () => {
                   >
                     <Select.Option value="">All Customers</Select.Option>
                     {uniqueCustomers.map((cust) => (
-                      <Select.Option
-                        key={cust.id}
-                        value={cust.id}
-                      >
+                      <Select.Option key={cust.id} value={cust.id}>
                         {cust.custid} | {cust.name} | {cust.phone}
                       </Select.Option>
                     ))}
@@ -301,7 +375,9 @@ const CustomerLoanReport = () => {
 
                 {/* Referred By Filter */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Referred By</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Referred By
+                  </label>
                   <Select
                     showSearch
                     placeholder="Select referrer"
@@ -321,7 +397,9 @@ const CustomerLoanReport = () => {
 
                 {/* NEW: Date Range Filter */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Start Date Range</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Start Date Range
+                  </label>
                   <RangePicker
                     value={dateRange}
                     onChange={setDateRange}
@@ -337,6 +415,20 @@ const CustomerLoanReport = () => {
               <DataTable
                 columns={loanReportColumns}
                 data={filteredLoanReport}
+                printHeaderKeys={[
+                  "Total Loans",
+                  "Total Loan Amount",
+                  "Total Payable",
+                  "Total Paid",
+                  "Total Outstanding",
+                ]}
+                printHeaderValues={[
+                  summaryStats.totalLoans.toLocaleString("en-IN"),
+                  `₹ ${summaryStats.totalAmount.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalPayable.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalPaid.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalBalance.toLocaleString("en-IN")}`,
+                ]}
                 exportedPdfName="Customer Loan Report"
               />
             </div>

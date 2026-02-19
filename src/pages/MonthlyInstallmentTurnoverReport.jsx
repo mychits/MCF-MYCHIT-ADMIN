@@ -177,6 +177,7 @@ const MonthlyInstallmentTurnoverReport = () => {
                   <div className="flex justify-between">
                     <span className="font-medium">Expected Turnover:</span>
                     <span>₹{summaryData.expectedTurnover}</span>
+                    
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Total Turnover:</span>

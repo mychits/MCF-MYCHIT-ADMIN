@@ -11,6 +11,8 @@ import { Link } from "react-router-dom";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
 import api from "../instance/TokenInstance";
+import { FaCopy, FaShareAlt, FaExternalLinkAlt } from "react-icons/fa"; // Add these imports
+import { message, Tooltip } from "antd";
 import {
   FaBullhorn,
   FaLifeRing,
@@ -49,7 +51,7 @@ const Home = () => {
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [tableTransactions, setTableTransactions] = useState([]);
   const [viewMode, setViewMode] = useState('list');
-  const [targetValue , setTotalTargetAmount] = useState(0);
+  const [targetValue, setTotalTargetAmount] = useState(0);
 
   const fetchGroupData = useCallback(async () => {
     try {
@@ -90,11 +92,11 @@ const Home = () => {
       setEmployees([]);
     }
   }, []);
-const fetchTotalBranchTarget = useCallback(async () => {
+  const fetchTotalBranchTarget = useCallback(async () => {
     try {
-   
-      const response = await api.get("/payment/branch/target"); 
-      
+
+      const response = await api.get("/payment/branch/target");
+
       setTotalTargetAmount(response?.data?.data?.[0].branchTarget || 0);
     } catch (error) {
       console.error("Error fetching branch target amount:", error);
@@ -199,7 +201,7 @@ const fetchTotalBranchTarget = useCallback(async () => {
     fetchTotalAmount,
     fetchMonthlyPayments,
     fetchTotalBranchTarget
-    
+
   ]);
   async function getTransactions() {
     try {
@@ -228,6 +230,9 @@ const fetchTotalBranchTarget = useCallback(async () => {
           status: <Tag key={"success"} color={color} icon={icon} variant={"filled"}>
             {status}
           </Tag>,
+          amount: order?.amount,
+          purpose: order?.purpose,
+          link_url: order?.link_url,
           statusRaw: status,
           collectedBy: order?.collected_by,
           createdAt: dayjs(order?.createdAt)?.endOf("D")?.format("YYYY-MM-DD")
@@ -240,15 +245,25 @@ const fetchTotalBranchTarget = useCallback(async () => {
       setTransactionsLoading(false);
     }
   }
+
   useEffect(() => {
     getTransactions();
   }, [])
+  const handleCopyLink = (url) => {
+    if (!url) {
+      message.warning("No payment link found for this transaction");
+      return;
+    }
+    navigator.clipboard.writeText(url);
+    message.success("Payment link copied to clipboard!");
+  };
+  const GRID_LAYOUT = "grid-cols-[50px_110px_1.5fr_2fr_100px_120px_100px]";
   const baseCards = [
     {
       id: 1055,
       icon: <FaCodeBranch size={24} />,
       text: "Branch Target",
-      count:  `₹ ${(targetValue ?? 0)?.toLocaleString("en-IN")} `,
+      count: `₹ ${(targetValue ?? 0)?.toLocaleString("en-IN")} `,
       bgGradient: "from-neutral-500 to-neutral-600",
       iconBg: "bg-neutral-700",
       hoverBg: "hover:from-neutral-600 hover:to-neutral-700",
@@ -304,9 +319,9 @@ const fetchTotalBranchTarget = useCallback(async () => {
       hoverBg: "hover:from-lime-600 hover:to-lime-700",
       redirect: "/staff-menu/employee-menu",
     },
-    
+
   ];
-   const shortcuts = [
+  const shortcuts = [
     {
       label: "Marketing",
       icon: FaBullhorn,
@@ -425,17 +440,16 @@ const fetchTotalBranchTarget = useCallback(async () => {
 
         <main className="flex-1 overflow-auto mt-20 p-8">
           <div className="max-w-7xl overflow-hidden w-100% mx-auto">
-           {/* Header Section */}
             <div className="mb-8 flex items-start justify-between gap-4">
-                 <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Dashboard
-              </h1>
-              <p className="text-gray-600">
-                Overview of your business metrics and data
-              </p>
-            </div>
-                    <div className="flex flex-wrap gap-3 justify-end">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                  Dashboard
+                </h1>
+                <p className="text-gray-600">
+                  Overview of your business metrics and data
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3 justify-end">
                 {shortcuts.map((item) => {
                   const Icon = item.icon;
 
@@ -551,11 +565,10 @@ const fetchTotalBranchTarget = useCallback(async () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800">Recent Transactions</h2>
-                  <p className="text-sm text-gray-500">Showing the latest activities</p>
+                  <p className="text-sm text-gray-500">Real-time update of latest payments</p>
                 </div>
 
                 <div className="flex items-center gap-4">
-               
                   <div className="flex bg-gray-200 p-1 rounded-lg">
                     <button
                       onClick={() => setViewMode('grid')}
@@ -570,59 +583,109 @@ const fetchTotalBranchTarget = useCallback(async () => {
                       <BsListUl size={18} />
                     </button>
                   </div>
-
-                  <button onClick={getTransactions} className="bg-white border px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">
+                  <button onClick={getTransactions} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
                     Refresh
                   </button>
                 </div>
               </div>
 
               {transactionsLoading ? (
-                <div className="space-y-4">
-                  <div className="h-20 bg-gray-200 animate-pulse rounded-md" />
-                  <div className="h-20 bg-gray-200 animate-pulse rounded-md" />
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-16 bg-gray-100 animate-pulse rounded-xl" />
+                  ))}
                 </div>
               ) : (
                 <div className={viewMode === 'grid'
                   ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : "flex flex-col border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm"
+                  : "bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
                 }>
 
-                  {viewMode === 'list' && tableTransactions.length > 0 && (
-                    <div className="grid grid-cols-[60px_140px_1fr_1.5fr_100px_100px_120px] items-center bg-gray-100 p-4 border-b border-gray-200 font-bold text-[10px] text-gray-500 uppercase tracking-wider gap-4">
-                      <div>ID</div>
-                      <div className="text-left">Transaction Date</div>
+                  {/* HEADER SECTION */}
+                  {viewMode === 'list' && (
+                    <div className={`grid ${GRID_LAYOUT} items-center bg-gray-50 px-6 py-4 border-b border-gray-200 font-bold text-[11px] text-gray-400 uppercase tracking-widest gap-4`}>
+                      <div>SL</div>
+                      <div>Date</div>
                       <div>Customer</div>
-                      <div>Details</div>
-                      <div>Type</div>
+                      <div>Purpose & Details</div>
+                      <div>Amount</div>
                       <div>Status</div>
-                      <div className="text-right">Agent</div>
+                      <div className="text-center">Actions</div>
                     </div>
                   )}
 
+                  {/* BODY SECTION */}
                   {tableTransactions.length > 0 ? (
-                    tableTransactions.map((item) => (
-                      <Receipt
-                        key={item?.id}
-                        {...item}
-                        status={item?.statusRaw}
-                        viewMode={viewMode}
-                      />
+                    tableTransactions.map((item, index) => (
+                      viewMode === 'list' ? (
+                        <div
+                          key={item.id}
+                          className={`grid ${GRID_LAYOUT} items-center px-6 py-4 border-b border-gray-50 hover:bg-gray-50/80 transition-colors gap-4 text-sm`}
+                        >
+                          <div className="text-gray-400 font-mono">{(index + 1).toString().padStart(2, '0')}</div>
+
+                          <div className="text-gray-600 font-medium whitespace-nowrap">{item.createdAt}</div>
+
+                          <div className="overflow-hidden">
+                            <div className="font-bold text-gray-800 truncate">{item.user_name}</div>
+                            <div className="text-xs text-gray-400">{item.phone_number}</div>
+                          </div>
+
+                          {/* PURPOSE & DETAILS */}
+                          <div className="flex flex-col overflow-hidden">
+                            <span className="font-medium text-blue-700 text-[10px] px-2 py-0.5 bg-blue-50 rounded-md w-fit mb-1 uppercase">
+                              {item.purpose || "N/A"}
+                            </span>
+                            <span className="text-[11px] text-gray-500 line-clamp-1 italic">
+                              {item.others || "No extra data"}
+                            </span>
+                          </div>
+
+                          <div className="font-bold text-gray-900">
+                            ₹{item.amount?.toLocaleString("en-IN")}
+                          </div>
+
+                          <div>{item.status}</div>
+
+                          {/* ACTIONS: Icons stay visible even if link is missing */}
+                          <div className="flex items-center justify-center gap-2">
+                            <Tooltip title={item.link_url ? "Copy Payment Link" : "No link available"}>
+                              <button
+                                onClick={() => handleCopyLink(item.link_url)}
+                                className={`p-2 rounded-lg transition-all ${item.link_url ? 'text-blue-600 hover:bg-blue-100' : 'text-gray-300'}`}
+                              >
+                                <FaCopy size={14} />
+                              </button>
+                            </Tooltip>
+
+                            <Tooltip title={item.link_url ? "Open Link" : "Link not found"}>
+                              <button
+                                onClick={() => {
+                                  if (item.link_url) window.open(item.link_url, "_blank");
+                                  else message.info("External link is not available for this entry");
+                                }}
+                                className={`p-2 rounded-lg transition-all ${item.link_url ? 'text-gray-500 hover:bg-gray-100' : 'text-gray-300'}`}
+                              >
+                                <FaExternalLinkAlt size={13} />
+                              </button>
+                            </Tooltip>
+                          </div>
+                        </div>
+                      ) : (
+                        <Receipt key={item.id} {...item} status={item.statusRaw} viewMode="grid" />
+                      )
                     ))
                   ) : (
-                    <div className="p-20 text-center text-gray-400 italic">No transactions found</div>
+                    <div className="p-20 text-center text-gray-400 italic bg-white">
+                      No transactions found.
+                    </div>
                   )}
                 </div>
               )}
             </div>
 
-            {!loading && filteredCards.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-gray-500 text-lg">
-                  No results found for "{searchValue}"
-                </p>
-              </div>
-            )}
+
+
           </div>
         </main>
       </div>

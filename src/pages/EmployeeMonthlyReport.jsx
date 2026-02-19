@@ -8,6 +8,8 @@ import duration from "dayjs/plugin/duration";
 
 dayjs.extend(duration);
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 // const EmployeeMonthlyReport = () => {
 //   const today = new Date();
 //   const currentYear = today.getFullYear();
@@ -63,7 +65,7 @@ dayjs.extend(duration);
 //   //     const attendanceResponse = res.data.attendanceDataResponse || [];
 
 //   //     if (selectedEmployee !== "all") {
- 
+
 //   //       const formatted = attendanceResponse.map((rec, index) => ({
 //   //         slNo: index + 1,
 //   //         key: rec._id || index,
@@ -376,7 +378,7 @@ dayjs.extend(duration);
 //             <FilterOutlined className="text-blue-600 text-lg" />
 //             <h3 className="text-lg font-semibold text-slate-700">Filters</h3>
 //           </div>
-          
+
 //           <div className="flex flex-wrap gap-4 items-end">
 //             <div className="flex-1 min-w-[200px]">
 //               <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -531,7 +533,7 @@ dayjs.extend(duration);
 //                 exportedFileName={`EmployeeMonthlyAttendenceReport.csv`}
 //                 loading={loading}
 //               />
-              
+
 //               <div className="mt-6 pt-4 border-t border-slate-200">
 //                 <p className="text-slate-600 text-sm">
 //                   <span className="font-medium">Showing attendance for:</span>{" "}
@@ -693,19 +695,19 @@ const EmployeeMonthlyReport = () => {
     { header: "Sl No", key: "slNo", },
     { header: "Employee Name", key: "EmployeeName" },
     { header: "Present Days", key: "PresentDays" },
-    { header: "Absent Days", key: "AbsentDays"},
-    { header: "Half Days", key: "HalfDays"},
-    {header: "On Leave", key: "OnLeave"}
+    { header: "Absent Days", key: "AbsentDays" },
+    { header: "Half Days", key: "HalfDays" },
+    { header: "On Leave", key: "OnLeave" }
   ];
 
   const individualColumns = [
     { header: "Sl No", key: "slNo" },
     { header: "Date", key: "date" },
     { header: "In-Time", key: "time" },
-    {header: "Out-Time", key: "outTime"},
-     {header: "Working Hours", key: "WorkingHours"},
+    { header: "Out-Time", key: "outTime" },
+    { header: "Working Hours", key: "WorkingHours" },
     { header: "Day", key: "day" },
-    {header: "Note", key: "Note"},
+    { header: "Note", key: "Note" },
     {
       header: "Status",
       key: "status",
@@ -776,10 +778,10 @@ const EmployeeMonthlyReport = () => {
         presentPercent:
           totalPresent + totalAbsent + totalHalfDays
             ? (
-                (totalPresent /
-                  (totalPresent + totalAbsent + totalHalfDays)) *
-                100
-              ).toFixed(1)
+              (totalPresent /
+                (totalPresent + totalAbsent + totalHalfDays)) *
+              100
+            ).toFixed(1)
             : 0,
       };
     }
@@ -831,7 +833,7 @@ const EmployeeMonthlyReport = () => {
             <FilterOutlined className="text-blue-600 text-lg" />
             <h3 className="text-lg font-semibold text-slate-700">Filters</h3>
           </div>
-          
+
           <div className="flex flex-wrap gap-4 items-end">
             <div className="flex-1 min-w-[200px]">
               <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -871,8 +873,8 @@ const EmployeeMonthlyReport = () => {
               </Select>
             </div>
 
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               size="large"
               onClick={fetchAttendanceData}
               className="px-8 h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 shadow-md hover:shadow-lg transition-all duration-200"
@@ -897,6 +899,11 @@ const EmployeeMonthlyReport = () => {
                 ? summaryStats.totalEmployees
                 : summaryStats.totalDays}
             </p>
+            <span className={`text-sm font-mono text-white `}>
+              {numberToIndianWords(selectedEmployee === "all"
+                ? summaryStats.totalEmployees
+                : summaryStats.totalDays || 0)}
+            </span>
           </div>
 
           {/* Present */}
@@ -909,6 +916,9 @@ const EmployeeMonthlyReport = () => {
               </div>
               <p className="text-emerald-100 text-sm font-medium mb-1">Present</p>
               <p className="text-4xl font-bold">{summaryStats.present}</p>
+              <span className={`text-sm font-mono text-white `}>
+                {numberToIndianWords(summaryStats.present || 0)}
+              </span>
             </div>
           )}
 
@@ -922,6 +932,9 @@ const EmployeeMonthlyReport = () => {
               </div>
               <p className="text-rose-100 text-sm font-medium mb-1">Absent</p>
               <p className="text-4xl font-bold">{summaryStats.absent}</p>
+              <span className={`text-sm font-mono text-white `}>
+                {numberToIndianWords(summaryStats.absent || 0)}
+              </span>
             </div>
           )}
 
@@ -936,6 +949,9 @@ const EmployeeMonthlyReport = () => {
             <p className="text-4xl font-bold">
               {selectedEmployee === "all" ? summaryStats.totalHalfDays : summaryStats.halfDays}
             </p>
+            <span className={`text-sm font-mono text-white `}>
+              {numberToIndianWords(selectedEmployee === "all" ? summaryStats.totalHalfDays : summaryStats.halfDays || 0)}
+            </span>
           </div>
 
           {/* On Leave */}
@@ -949,6 +965,9 @@ const EmployeeMonthlyReport = () => {
             <p className="text-4xl font-bold">
               {selectedEmployee === "all" ? summaryStats.totalOnLeave : summaryStats.onLeave}
             </p>
+            <span className={`text-sm font-mono text-white `}>
+              {numberToIndianWords(selectedEmployee === "all" ? summaryStats.totalOnLeave : summaryStats.onLeave || 0)}
+            </span>
           </div>
 
           {/* Present % */}
@@ -960,6 +979,9 @@ const EmployeeMonthlyReport = () => {
             </div>
             <p className="text-purple-100 text-sm font-medium mb-1">Present Rate</p>
             <p className="text-4xl font-bold">{summaryStats.presentPercent}%</p>
+            <span className={`text-sm font-mono text-white `}>
+              {numberToIndianWords(summaryStats.presentPercent || 0)}
+            </span>
           </div>
 
           {/* Total Working Time - Only for single employee */}
@@ -992,7 +1014,7 @@ const EmployeeMonthlyReport = () => {
                 exportedFileName={`EmployeeMonthlyAttendenceReport.csv`}
                 loading={loading}
               />
-              
+
               <div className="mt-6 pt-4 border-t border-slate-200">
                 <p className="text-slate-600 text-sm">
                   <span className="font-medium">Showing attendance for:</span>{" "}

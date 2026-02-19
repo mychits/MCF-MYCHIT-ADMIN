@@ -29,25 +29,34 @@ const PrizedCustomerReport = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
-    { key: "pay_date", header: "Payment Date" },
-    { key: "transaction_date", header: "Transaction Date" },
-    { key: "group_name", header: "Group Name" },
-    { key: "user_name", header: "Customer Name" },
-    { key: "admin_name", header: "Handled By" },
+    { key: "payDate", header: "Payment Date" },
+    { key: "transactionDate", header: "Transaction Date" },
+    { key: "userName", header: "Customer Name" },
+    { key: "groupName", header: "Group Name" },
+    { key: "ticket", header: "Ticket" },
+    { key: "totalPaidAmount", header: "Total Paid Amount" },
+    { key: "totalPayable", header: "Total Payable" },
+    { key: "balance", header: "Balance" },
+    
     { key: "amount", header: "Payout Amount" },
     { key: "status", header: "Status" },
+    { key: "adminName", header: "Handled By" },
     { key: "action", header: "Action" },
   ];
 
   const exportColumns = [
     { key: "id", header: "SL. NO" },
-    { key: "pay_date", header: "Payment Date" },
-       { key: "transaction_date", header: "Transaction Date" },
-    { key: "group_name", header: "Group Name" },
-    { key: "user_name", header: "Customer Name" },
-    { key: "admin_name", header: "Handled By" },
-    { key: "amount_raw", header: "Payout Amount" },
-    { key: "status_raw", header: "Status" },
+    { key: "payDate", header: "Payment Date" },
+       { key: "transactionDate", header: "Transaction Date" },
+       { key: "userName", header: "Customer Name" },
+    { key: "groupName", header: "Group Name" },
+    { key: "ticket", header: "Ticket" },
+    { key: "totalPayableRaw", header: "Total Payable" },
+    { key: "totalPaidAmountRaw", header: "Total Paid Amount" },
+    { key: "balanceRaw", header: "Balance" },
+    { key: "amountRaw", header: "Payout Amount" },
+    { key: "statusRaw", header: "Status" },
+    { key: "adminName", header: "Handled By" },
   ];
 
   const fetchInitialData = async () => {
@@ -82,14 +91,23 @@ const PrizedCustomerReport = () => {
         const formattedData = response.data.data.map((item, index) => ({
           ...item,
           id: index + 1,
-          pay_date: item.pay_date ? dayjs(item.pay_date).format("YYYY-MM-DD") : "N/A",
-          group_name: item.group_details?.group_name || "N/A",
-          user_name: item.user_details?.full_name || "N/A",
-          admin_name: item.admin_details?.name || "N/A",
-          amount: `₹${item.amount?.toLocaleString()}`,
-          amount_raw: item.amount,
-          transaction_date:item.createdAt ? `${item.createdAt.split("T")[0]}` :"",
+          payDate: item.pay_date ? dayjs(item.pay_date).format("YYYY-MM-DD") : "N/A",
+          groupName: item.group_details?.group_name || "N/A",
+          userName: item.user_details?.full_name || "N/A",
+          ticket: item.ticket,
+          adminName: item.admin_details?.name || "N/A",
+          amount: `₹${item.amount?.toLocaleString("en-IN")}`,
+          amountRaw: item.amount,
+          transactionDate:item.createdAt ? `${item.createdAt.split("T")[0]}` :"",
           status: <Tag color="green">PAID</Tag>,
+          statusRaw: "PAID",
+          balance: `${item.auctions?.balance?.toLocaleString("en-IN")}`,
+          balanceRaw: item.auctions?.balance,
+          totalPaidAmount: `${item?.payments?.totalPaidAmount?.toLocaleString("en-IN") || 0}`,
+          totalPaidAmountRaw: item?.payments?.totalPaidAmount || 0,
+          totalPayable : `${item?.auctions?.to_be_paid_amount?.toLocaleString("en-IN") || 0}`,
+          totalPayableRaw : item?.auctions?.to_be_paid_amount || 0,
+
           status_raw: "Paid",
           action: (
             <div className="flex justify-center">

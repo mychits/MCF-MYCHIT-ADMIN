@@ -13,24 +13,24 @@ const DueEmailMenu = () => {
   
     {
       id: 1,
-      title: "Due Email",
-      description: "Manage Due Email",
+      title: "Outstanding Email",
+      description: "Manage Outstanding Email",
       icon: <MdEmail className="w-8 h-8" />,
       color: "from-blue-600 to-blue-700",
       lightColor: "bg-blue-50",
       borderColor: "border-blue-200",
-      href: "/market-menu/email-marketing/due-email",
+      href: "/market-menu/email-marketing/due-email-marketing/due-email",
       stats: "Active Due Mails",
     },
      {
       id: 2,
-      title: "Over Due Email",
-      description: "Manage Over Due Email",
+      title: "Outstanding Email [Over]",
+      description: "Manage Over Outstanding Email",
       icon: <MdEmail className="w-8 h-8" />,
       color: "from-blue-600 to-blue-700",
       lightColor: "bg-blue-50",
       borderColor: "border-blue-200",
-      href: "/market-menu/email-marketing/over-due-email",
+      href: "/market-menu/email-marketing/due-email-marketing/over-due-email",
       stats: "Active Over Due Mails",
     },
    
@@ -46,10 +46,10 @@ const DueEmailMenu = () => {
           <div className="p-8">
             <div className="mb-8">
               <h2 className="text-3xl font-bold text-gray-900">
-               Due Email Marketing Management
+               Outstanding Email Marketing Management
               </h2>
               <p className="text-gray-600 mt-2">
-                Manage and organize your Due Email Marketing
+                Manage and organize your Outstanding Email Marketing
               </p>
             </div>
 
@@ -105,7 +105,7 @@ const DueEmailMenu = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">Quick Tips</h3>
-                <p className="text-slate-700">Manage Due email, and more with Marketing Management—everything in one place.</p>
+                <p className="text-slate-700">Manage Outsatnding email, and more with Marketing Management—everything in one place.</p>
               </div>
             </div>
           </div>

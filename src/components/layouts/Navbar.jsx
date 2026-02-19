@@ -13,14 +13,17 @@ import { CgProfile } from "react-icons/cg";
 import { Button, Input } from "antd";
 import { RiSettings3Line } from "react-icons/ri";
 import { FiUser } from "react-icons/fi";
+import { CheckCircle } from "lucide-react";
+import API from "../../instance/TokenInstance"; // <--- ADDED THIS IMPORT
 
 const Navbar = ({
-  onGlobalSearchChangeHandler = () => {},
+  onGlobalSearchChangeHandler = () => { },
   visibility = false,
 }) => {
   const [adminName, setAdminName] = useState("");
   const [onload, setOnload] = useState(true);
   const [showProfileCard, setShowProfileCard] = useState(false);
+
 
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef(null);
@@ -96,6 +99,52 @@ const Navbar = ({
     },
   ];
 
+  const [taskCount, setTaskCount] = useState(0);
+  useEffect(() => {
+    const fetchMyTaskCount = async () => {
+      try {
+        // 1. Get User ID
+        const userStr = localStorage.getItem("user");
+        if (!userStr) return;
+        const user = JSON.parse(userStr);
+        const myId = user._id;
+
+        // 2. Fetch Complaints
+        const res = await API.get("/complaints/all");
+        const complaints = res.data?.data || [];
+
+        // 3. Filter using the EXACT logic from EmployeeTasks.js
+        const myPendingTickets = complaints.filter((item) => {
+
+          // Case A: No assignment
+          if (!item.assignedTo) return false;
+
+          // Case B: assignedTo is an Object
+          let assignedId = null;
+          if (typeof item.assignedTo === "object" && item.assignedTo._id) {
+            assignedId = item.assignedTo._id;
+          }
+          // Case C: assignedTo is a String
+          else if (typeof item.assignedTo === "string") {
+            assignedId = item.assignedTo;
+          }
+
+          // Strict String Comparison + Check if NOT Closed
+          const isAssignedToMe = String(assignedId) === String(myId);
+          const isPending = item.status !== "Closed";
+
+          return isAssignedToMe && isPending;
+        });
+
+        setTaskCount(myPendingTickets.length);
+      } catch (error) {
+        console.error("Error fetching task count", error);
+      }
+    };
+
+    fetchMyTaskCount();
+  }, []);
+
   return (
     <>
       <style>{`
@@ -159,11 +208,10 @@ const Navbar = ({
             to={"/reports/group-report"}>
             {({ isActive }) => (
               <Button
-                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${
-                  isActive
-                    ? "bg-blue-200 text-blue-900 font-bold"
-                    : "font-semibold"
-                }  `}>
+                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
+                  ? "bg-blue-200 text-blue-900 font-bold"
+                  : "font-semibold"
+                  }  `}>
                 Group Report
               </Button>
             )}
@@ -176,11 +224,10 @@ const Navbar = ({
             to={"/reports/daybook"}>
             {({ isActive }) => (
               <Button
-                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${
-                  isActive
-                    ? "bg-blue-200 text-blue-900 font-bold"
-                    : "font-semibold"
-                }  `}>
+                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
+                  ? "bg-blue-200 text-blue-900 font-bold"
+                  : "font-semibold"
+                  }  `}>
                 Day Book
               </Button>
             )}
@@ -192,11 +239,10 @@ const Navbar = ({
             to={"/reports"}>
             {({ isActive }) => (
               <Button
-                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${
-                  isActive
-                    ? "bg-blue-200 text-blue-900 font-bold"
-                    : "font-semibold"
-                }  `}>
+                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
+                  ? "bg-blue-200 text-blue-900 font-bold"
+                  : "font-semibold"
+                  }  `}>
                 Reports
               </Button>
             )}
@@ -208,11 +254,10 @@ const Navbar = ({
             to={"/reports/receipt"}>
             {({ isActive }) => (
               <Button
-                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${
-                  isActive
-                    ? "bg-blue-200 text-blue-900 font-bold"
-                    : "font-semibold"
-                }  `}>
+                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
+                  ? "bg-blue-200 text-blue-900 font-bold"
+                  : "font-semibold"
+                  }  `}>
                 Receipt Report
               </Button>
             )}
@@ -225,11 +270,10 @@ const Navbar = ({
             to={"/reports/user-report"}>
             {({ isActive }) => (
               <Button
-                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${
-                  isActive
-                    ? "bg-blue-200 text-blue-900 font-bold"
-                    : "font-semibold"
-                }  `}>
+                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
+                  ? "bg-blue-200 text-blue-900 font-bold"
+                  : "font-semibold"
+                  }  `}>
                 Customer Report
               </Button>
             )}
@@ -242,15 +286,15 @@ const Navbar = ({
             to={"/reports/employee-report"}>
             {({ isActive }) => (
               <Button
-                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${
-                  isActive
-                    ? "bg-blue-200 text-blue-900 font-bold"
-                    : "font-semibold"
-                }  `}>
+                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive
+                  ? "bg-blue-200 text-blue-900 font-bold"
+                  : "font-semibold"
+                  }  `}>
                 Employee Report
               </Button>
             )}
           </NavLink>
+
           <NavLink
             className={({ isActive }) =>
               isActive ? "text-white font-bold" : "text-white font-medium"
@@ -258,12 +302,31 @@ const Navbar = ({
             to={"/reports/lead-report"}>
             {({ isActive }) => (
               <Button
-                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${
-                  isActive
-                    ? "bg-blue-200 text-blue-900 font-bold"
-                    : "font-semibold"
-                }  `}>
+                className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive
+                  ? "bg-blue-200 text-blue-900 font-bold"
+                  : "font-semibold"
+                  }  `}>
                 Lead Report
+              </Button>
+            )}
+          </NavLink>
+
+          {/* --- ADDED MY TASKS LINK HERE --- */}
+          <NavLink to={"/my-tasks"}>
+            {({ isActive }) => (
+              <Button
+                className={`pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"
+                  }`}
+              >
+               
+                My Tickets
+
+                {/* BADGE */}
+                {taskCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white shadow-sm">
+                    {taskCount > 9 ? "9+" : taskCount}
+                  </span>
+                )}
               </Button>
             )}
           </NavLink>
@@ -273,11 +336,10 @@ const Navbar = ({
             <div className="relative" ref={notificationRef}>
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className={`relative w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${
-                  showNotifications
-                    ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg"
-                    : "bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 hover:from-blue-50 hover:to-blue-100 shadow-sm"
-                }`}>
+                className={`relative w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${showNotifications
+                  ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg"
+                  : "bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 hover:from-blue-50 hover:to-blue-100 shadow-sm"
+                  }`}>
                 <IoIosNotifications className="text-2xl" />
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white flex items-center justify-center">
                   <span className="text-white text-xs font-bold">4</span>
@@ -321,13 +383,12 @@ const Navbar = ({
 
                         <div className="flex items-center gap-2">
                           <span
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
-                              item.color === "text-blue-600"
-                                ? "bg-blue-100 text-blue-700"
-                                : item.color === "text-amber-600"
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold ${item.color === "text-blue-600"
+                              ? "bg-blue-100 text-blue-700"
+                              : item.color === "text-amber-600"
                                 ? "bg-amber-100 text-amber-700"
                                 : "bg-red-100 text-red-700"
-                            }`}>
+                              }`}>
                             Pending
                           </span>
                           <svg
@@ -356,11 +417,10 @@ const Navbar = ({
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setShowProfileCard(!showProfileCard)}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${
-                  showProfileCard
-                    ? "bg-blue-700"
-                    : "bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 hover:from-indigo-50 hover:to-indigo-100 shadow-sm"
-                }`}>
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${showProfileCard
+                  ? "bg-blue-700"
+                  : "bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 hover:from-indigo-50 hover:to-indigo-100 shadow-sm"
+                  }`}>
                 <CgProfile className="text-2xl" />
               </button>
 

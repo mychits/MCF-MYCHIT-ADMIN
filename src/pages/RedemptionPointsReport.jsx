@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import Navbar from "../components/layouts/Navbar";
-import {Select} from "antd"
+import { Select } from "antd"
+
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
 
 // const RedemptionPointsReport = () => {
 //   const [employees, setEmployees] = useState([]);
@@ -632,16 +634,28 @@ const RedemptionPointsReport = () => {
               <div className="bg-white shadow rounded p-4 border-l-4 border-blue-600">
                 <p className="text-sm text-gray-500">Total Records</p>
                 <p className="text-2xl font-bold">{summary.totalRecords}</p>
+
+                <span className={`text-sm font-mono text-green-700 `}>
+                  {numberToIndianWords(summary.totalRecords || 0)}
+                </span>
               </div>
 
               <div className="bg-white shadow rounded p-4 border-l-4 border-green-600">
                 <p className="text-sm text-gray-500">Total Redeemed Points</p>
                 <p className="text-2xl font-bold">{summary.totalPoints}</p>
+
+                <span className={`text-sm font-mono text-green-700 `}>
+                  {numberToIndianWords(summary.totalPoints || 0)}
+                </span>
               </div>
 
               <div className="bg-white shadow rounded p-4 border-l-4 border-purple-600">
                 <p className="text-sm text-gray-500">Total Redeemed Amount</p>
                 <p className="text-2xl font-bold">₹ {summary.totalAmount}</p>
+
+                <span className={`text-sm font-mono text-green-700 `}>
+                  {numberToIndianWords(summary.totalAmount || 0)}
+                </span>
               </div>
             </div>
           )}

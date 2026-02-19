@@ -20,6 +20,8 @@ import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { fieldSize } from "../data/fieldSize";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
+
 const Receipt = () => {
   const [groups, setGroups] = useState([]);
   const [TableDaybook, setTableDaybook] = useState([]);
@@ -42,7 +44,7 @@ const Receipt = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showFilterField, setShowFilterField] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState("Today");
-  const [selectedPaymentFor,setSelectedPaymentFor] = useState([]);
+  const [selectedPaymentFor, setSelectedPaymentFor] = useState([]);
 
   const now = new Date();
   const onGlobalSearchChangeHandler = (e) => {
@@ -80,6 +82,12 @@ const Receipt = () => {
     visibility: false,
     message: "Something went wrong!",
     type: "info",
+  });
+  const [overview, setOverview] = useState({
+    chit: 0,
+    loan: 0,
+    pigmy: 0,
+    registration: 0,
   });
   const handleModalClose = () => setShowUploadModal(false);
   useEffect(() => {
@@ -299,21 +307,21 @@ const Receipt = () => {
             account_type: selectedAccountType,
             collected_by: collectionAgent,
             admin_type: collectionAdmin,
-            pay_for:selectedPaymentFor
+            pay_for: selectedPaymentFor,
           },
           signal: abortController.signal,
         });
         console.info(response.data, "testing account type");
         if (response.data && response.data.length > 0) {
           const validPayments = response.data.filter(
-            (payment) => payment.group_id !== null
+            (payment) => payment.group_id !== null,
           );
 
           setFilteredAuction(validPayments);
 
           const totalAmount = validPayments.reduce(
             (sum, payment) => sum + Number(payment.amount || 0),
-            0
+            0,
           );
           console.info(totalAmount, "check amount");
           setPayments(totalAmount);
@@ -329,10 +337,10 @@ const Receipt = () => {
             receipt_no: group?.receipt_no,
             old_receipt_no: group?.old_receipt_no,
             ticket: group?.loan
-              ? group.loan?.loan_id
+              ? group.loan?.loan_id 
               : group?.pigme
-              ? group.pigme?.pigme_id
-              : group?.ticket,
+                ? group.pigme?.pigme_id
+                : group?.ticket,
             amount: group?.amount,
             transaction_date: group?.createdAt?.split("T")?.[0],
             mode: group?.pay_type,
@@ -354,19 +362,63 @@ const Receipt = () => {
                           <Link
                             target="_blank"
                             to={`/print/${group._id}`}
-                            className="text-blue-600 ">
+                            className="text-blue-600 "
+                          >
                             Print
                           </Link>
                         ),
                       },
                     ],
                   }}
-                  placement="bottomLeft">
+                  placement="bottomLeft"
+                >
                   <IoMdMore className="text-bold" />
                 </Dropdown>
               </div>
             ),
           }));
+
+          // ===== CATEGORY TOTALS =====
+          let chitTotal = 0;
+          let loanTotal = 0;
+          let pigmyTotal = 0;
+          let regTotal = 0;
+
+          validPayments.forEach((p) => {
+            const amount = Number(p.amount || 0);
+
+            // split heads safely
+            const heads = (p.pay_for || "")
+              .toLowerCase()
+              .split("|")
+              .map((h) => h.trim())
+              .filter(Boolean);
+
+            // If empty → default chit payment (old data support)
+            if (heads.length === 0 || heads.includes("chit")) {
+              chitTotal += amount;
+            }
+
+            if (heads.includes("loan")) {
+              loanTotal += amount;
+            }
+
+            if (heads.includes("pigme")) {
+              pigmyTotal += amount;
+            }
+
+            // Registration (handles Reg, Reg|Chit, Reg|Loan, Reg|Pigme)
+            if (heads.includes("reg")) {
+              regTotal += amount;
+            }
+          });
+
+          setOverview({
+            chit: chitTotal,
+            loan: loanTotal,
+            pigmy: pigmyTotal,
+            registration: regTotal,
+          });
 
           setTableDaybook(formattedData);
         } else {
@@ -394,7 +446,7 @@ const Receipt = () => {
     selectedAccountType,
     collectionAgent,
     collectionAdmin,
-    selectedPaymentFor
+    selectedPaymentFor,
   ]);
 
   const columns = [
@@ -527,7 +579,7 @@ const Receipt = () => {
 
   return (
     <>
-     <div className="relative flex flex-col [height:calc(100vh-100px)] overflow-y-auto">
+      <div className="relative flex flex-col [height:calc(100vh-100px)] overflow-y-auto">
         <div className="flex mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
@@ -539,7 +591,6 @@ const Receipt = () => {
             message={alertConfig.message}
           />
           <div className="flex-grow p-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
-           
             <div className="mb-8">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">
                 Reports - Receipt
@@ -549,15 +600,50 @@ const Receipt = () => {
               </p>
             </div>
 
-            <div className="mt-6 mb-8">
+         
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg">
+                <p className="text-sm opacity-80">Chit Payments</p>
+                <h2 className="text-2xl font-bold mt-2">
+                  ₹{overview.chit.toLocaleString("en-IN")}
+                </h2>
+              </div>
+
              
+              <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg">
+                <p className="text-sm opacity-80">Loan Payments</p>
+                <h2 className="text-2xl font-bold mt-2">
+                  ₹{overview.loan.toLocaleString("en-IN")}
+                </h2>
+              </div>
+
+             
+              <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl p-5 text-white shadow-lg">
+                <p className="text-sm opacity-80">Pigmy Payments</p>
+                <h2 className="text-2xl font-bold mt-2">
+                  ₹{overview.pigmy.toLocaleString("en-IN")}
+                </h2>
+              </div>
+
+           
+              <div className="bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl p-5 text-white shadow-lg">
+                <p className="text-sm opacity-80">Registration Fees</p>
+                <h2 className="text-2xl font-bold mt-2">
+                  ₹{overview.registration.toLocaleString("en-IN")}
+                </h2>
+              </div>
+            </div>
+
+            <div className="mt-6 mb-8">
               <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                   <svg
                     className="w-5 h-5 text-indigo-600"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24">
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -586,7 +672,8 @@ const Receipt = () => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      className="w-full h-11">
+                      className="w-full h-11"
+                    >
                       {groupOptions.map((time) => (
                         <Select.Option key={time.value} value={time.value}>
                           {time.label}
@@ -640,7 +727,8 @@ const Receipt = () => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      className="w-full h-11">
+                      className="w-full h-11"
+                    >
                       <Select.Option value={""}>All</Select.Option>
                       {groups.map((group) => (
                         <Select.Option key={group._id} value={group._id}>
@@ -667,7 +755,8 @@ const Receipt = () => {
                       }
                       placeholder="Search Or Select Customer"
                       onChange={(groupId) => setSelectedCustomers(groupId)}
-                      className="w-full h-11">
+                      className="w-full h-11"
+                    >
                       <Select.Option value="">All</Select.Option>
                       {filteredUsers.map((group) => (
                         <Select.Option key={group?._id} value={group?._id}>
@@ -700,7 +789,6 @@ const Receipt = () => {
                       }
                       className="w-full"
                       style={{ height: "44px" }}
-                    
                       options={[
                         { label: "Cash", value: "cash" },
                         { label: "Online", value: "online" },
@@ -708,7 +796,7 @@ const Receipt = () => {
                       ]}
                     />
                   </div>
-<div className="space-y-2">
+                  <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
                       Payment For
                     </label>
@@ -734,6 +822,7 @@ const Receipt = () => {
                         { label: "Chit", value: "Chit" },
                         { label: "Pigme", value: "Pigme" },
                         { label: "Loan", value: "Loan" },
+                        { label: "Registration", value: "registration" },
                       ]}
                     />
                   </div>
@@ -755,7 +844,8 @@ const Receipt = () => {
                             .toLowerCase()
                             .includes(input.toLowerCase())
                         }
-                        className="w-full h-11">
+                        className="w-full h-11"
+                      >
                         <Select.Option value="">
                           Select Account Type
                         </Select.Option>
@@ -797,12 +887,14 @@ const Receipt = () => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      className="w-full h-11">
+                      className="w-full h-11"
+                    >
                       <Select.Option value="">All</Select.Option>
                       {[...new Set(agents), ...new Set(admins)].map((dt) => (
                         <Select.Option
                           key={dt?._id}
-                          value={`${dt._id}|${dt.selected_type}`}>
+                          value={`${dt._id}|${dt.selected_type}`}
+                        >
                           {dt.selected_type === "admin_type"
                             ? "Admin | "
                             : "Agent | "}
@@ -821,20 +913,41 @@ const Receipt = () => {
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
                   <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
 
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-4">
-                      <p className="text-white/90 text-sm font-semibold uppercase tracking-wider">
+                  <div className="relative z-10 p-4  rounded-xl border border-white/10 shadow-lg">
+                    <div className="mb-3">
+                      <p className="text-white/70 text-xs font-medium uppercase tracking-wider">
                         Total Receipt Amount
                       </p>
                     </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-white text-5xl font-bold tracking-tight">
-                        ₹{payments?.toLocaleString() || 0}
-                      </span>
+
+                    <div className="space-y-1.5">
+                      <div>
+                        <span className="text-white text-4xl md:text-5xl font-bold tracking-tight">
+                          ₹
+                          {payments
+                            ? Number(payments).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })
+                            : "0.00"}
+                        </span>
+                      </div>
+
+                      <div>
+                        <span className="text-white/85 text-base font-medium break-words">
+                          {payments
+                            ? numberToIndianWords(Number(payments))
+                            : "Zero Only"}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-white/70 text-sm mt-3">
-                      Based on current filters
-                    </p>
+
+                    <div className="mt-4 pt-3 border-t border-white/10">
+                      <p className="text-white/60 text-xs flex items-center gap-1.5">
+                        <span>📊</span>
+                        <span>Based on active filters • Updated live</span>
+                      </p>
+                    </div>
                   </div>
 
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12"></div>
@@ -849,7 +962,8 @@ const Receipt = () => {
                       className="w-5 h-5 text-indigo-600"
                       fill="none"
                       stroke="currentColor"
-                      viewBox="0 0 24 24">
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
