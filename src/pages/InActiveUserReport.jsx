@@ -12,6 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 import { IoMdDownload } from "react-icons/io";
 import Fuse from "fuse.js";
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const InActiveUserReport = () => {
   const [searchParams] = useSearchParams();
@@ -235,8 +236,8 @@ const InActiveUserReport = () => {
             setRegistrationDate(
               registrationFees[0]?.createdAt
                 ? new Date(registrationFees[0].createdAt).toLocaleDateString(
-                    "en-GB"
-                  )
+                  "en-GB"
+                )
                 : null
             );
           }
@@ -721,7 +722,7 @@ const InActiveUserReport = () => {
 
         if (response.data && response.data.length > 0) {
           setFilteredAuction(response.data);
-        
+
 
           const formattedData = response.data
             .map((group, index) => {
@@ -763,12 +764,12 @@ const InActiveUserReport = () => {
                 balance:
                   groupType === "double"
                     ? groupInstall * auctionCount +
-                      groupInstall -
-                      totalPaidAmount
+                    groupInstall -
+                    totalPaidAmount
                     : totalPayable +
-                      groupInstall +
-                      firstDividentHead -
-                      totalPaidAmount,
+                    groupInstall +
+                    firstDividentHead -
+                    totalPaidAmount,
                 referred_type: group?.enrollment?.referred_type || "N/A",
                 referrer_name: group?.enrollment?.referrer_name || "N/A",
                 chit_asking_month:
@@ -1033,7 +1034,7 @@ const InActiveUserReport = () => {
 
   return (
     <>
-       <div className=" min-h-screen">
+      <div className=" min-h-screen">
         <div className="flex-1 mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
@@ -1081,30 +1082,27 @@ const InActiveUserReport = () => {
                   <div className="mt-6 mb-8">
                     <div className="flex justify-start border-b border-gray-300 mb-4">
                       <button
-                        className={`px-6 py-2 font-medium ${
-                          activeTab === "groupDetails"
-                            ? "border-b-2 border-blue-500 text-blue-500"
-                            : "text-gray-500"
-                        }`}
+                        className={`px-6 py-2 font-medium ${activeTab === "groupDetails"
+                          ? "border-b-2 border-blue-500 text-blue-500"
+                          : "text-gray-500"
+                          }`}
                         onClick={() => handleTabChange("groupDetails")}>
                         Customer Details
                       </button>
                       <button
-                        className={`px-6 py-2 font-medium ${
-                          activeTab === "basicReport"
-                            ? "border-b-2 border-blue-500 text-blue-500"
-                            : "text-gray-500"
-                        }`}
+                        className={`px-6 py-2 font-medium ${activeTab === "basicReport"
+                          ? "border-b-2 border-blue-500 text-blue-500"
+                          : "text-gray-500"
+                          }`}
                         onClick={() => handleTabChange("basicReport")}>
                         Customer Ledger
                       </button>
 
                       <button
-                        className={`px-6 py-2 font-medium ${
-                          activeTab === "disbursement"
-                            ? "border-b-2 border-blue-500 text-blue-500"
-                            : "text-gray-500"
-                        }`}
+                        className={`px-6 py-2 font-medium ${activeTab === "disbursement"
+                          ? "border-b-2 border-blue-500 text-blue-500"
+                          : "text-gray-500"
+                          }`}
                         onClick={() => handleTabChange("disbursement")}>
                         PayOut | Disbursement
                       </button>
@@ -1226,11 +1224,10 @@ const InActiveUserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${
-          visibleRows.row1
-            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-        }
+        ${visibleRows.row1
+                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+                                    }
       `}>
                                   {visibleRows.row1
                                     ? "✓ Hide Basic Info"
@@ -1245,11 +1242,10 @@ const InActiveUserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${
-          visibleRows.row2
-            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-        }
+        ${visibleRows.row2
+                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+                                    }
       `}>
                                   {visibleRows.row2
                                     ? "✓ Hide Address Info"
@@ -1264,11 +1260,10 @@ const InActiveUserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${
-          visibleRows.row3
-            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-        }
+        ${visibleRows.row3
+                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+                                    }
       `}>
                                   {visibleRows.row3
                                     ? "✓ Hide Regional Info"
@@ -1283,11 +1278,10 @@ const InActiveUserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${
-          visibleRows.row4
-            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-        }
+        ${visibleRows.row4
+                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+                                    }
       `}>
                                   {visibleRows.row4
                                     ? "✓ Hide Referral, Nominee & Bank Details"
@@ -1347,8 +1341,8 @@ const InActiveUserReport = () => {
                                       value={
                                         group.dateofbirth
                                           ? new Date(group.dateofbirth)
-                                              .toISOString()
-                                              .split("T")[0]
+                                            .toISOString()
+                                            .split("T")[0]
                                           : ""
                                       }
                                     />
@@ -1417,8 +1411,8 @@ const InActiveUserReport = () => {
                                       value={
                                         group.nominee_dateofbirth
                                           ? new Date(group.nominee_dateofbirth)
-                                              .toISOString()
-                                              .split("T")[0]
+                                            .toISOString()
+                                            .split("T")[0]
                                           : ""
                                       }
                                     />
@@ -1461,8 +1455,8 @@ const InActiveUserReport = () => {
                               </h3>
                               {/* Changed conditional to check TableAuctions directly, as it's the formatted data */}
                               {TableAuctions &&
-                              TableAuctions.length > 0 &&
-                              !isLoading ? (
+                                TableAuctions.length > 0 &&
+                                !isLoading ? (
                                 <div className="mt-5">
                                   <DataTable
                                     data={filterOption(
@@ -1489,15 +1483,14 @@ const InActiveUserReport = () => {
                                         ? NetTotalprofit - Totalpaid
                                         : "",
                                     ]}
-                                    exportedFileName={`CustomerReport-${
-                                      TableAuctions.length > 0
-                                        ? TableAuctions[0].date +
-                                          " to " +
-                                          TableAuctions[
-                                            TableAuctions.length - 1
-                                          ].date
-                                        : "empty"
-                                    }.csv`}
+                                    exportedFileName={`CustomerReport-${TableAuctions.length > 0
+                                      ? TableAuctions[0].date +
+                                      " to " +
+                                      TableAuctions[
+                                        TableAuctions.length - 1
+                                      ].date
+                                      : "empty"
+                                      }.csv`}
                                   />
                                   {/* yes you can */}
                                   {filteredBorrowerData.length > 0 && (
@@ -1549,6 +1542,9 @@ const InActiveUserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(TotalToBepaid || 0)}
+                                </span>
                               </div>
                               <div className="flex flex-col flex-1">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1561,6 +1557,9 @@ const InActiveUserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(Totalprofit || 0)}
+                                </span>
                               </div>
                               <div className="flex flex-col flex-1">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1573,6 +1572,9 @@ const InActiveUserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(NetTotalprofit || 0)}
+                                </span>
                               </div>
                               <div className="flex flex-col flex-1">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1585,6 +1587,9 @@ const InActiveUserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(Totalpaid || 0)}
+                                </span>
                               </div>
                               <div className="flex flex-col flex-1">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -1601,6 +1606,11 @@ const InActiveUserReport = () => {
                                   readOnly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className={`text-sm font-mono text-green-700 pl-3`}>
+                                  {numberToIndianWords(NetTotalprofit && Totalpaid
+                                    ? NetTotalprofit - Totalpaid
+                                    : 0)}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -1819,7 +1829,7 @@ const InActiveUserReport = () => {
                                   if (
                                     group?.enrollment?.group &&
                                     group?.enrollment?.customer_status ===
-                                      "In Active"
+                                    "In Active"
                                   ) {
                                     return (
                                       <option
@@ -1840,9 +1850,8 @@ const InActiveUserReport = () => {
                                         key={
                                           loan?.loan_details?.loan?._id || index
                                         }
-                                        value={`Loan|${
-                                          loan?.loan_details?.loan?._id || index
-                                        }`}>
+                                        value={`Loan|${loan?.loan_details?.loan?._id || index
+                                          }`}>
                                         {loan?.loan_details?.loan?.loan_id ||
                                           "N/A"}{" "}
                                         | ₹{loan?.loan_value || 0}
@@ -1858,10 +1867,9 @@ const InActiveUserReport = () => {
                                           pigme?.pigme_details?.pigme?._id ||
                                           index
                                         }
-                                        value={`Pigme|${
-                                          pigme?.pigme_details?.pigme?._id ||
+                                        value={`Pigme|${pigme?.pigme_details?.pigme?._id ||
                                           index
-                                        }`}>
+                                          }`}>
                                         {pigme?.pigme_details?.pigme
                                           ?.pigme_id || "N/A"}{" "}
                                         | ₹{pigme?.total_deposited_amount || 0}
@@ -1872,37 +1880,60 @@ const InActiveUserReport = () => {
                             </div>
                           </div>
 
-                          <div className="mt-6 flex justify-center gap-8 flex-wrap">
-                            <input
-                              type="text"
-                              value={`Registration Fee: ₹${
-                                registrationAmount || 0
-                              }`}
-                              readOnly
-                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-green-100 text-green-800 border-green-400"
-                            />
-                            <input
-                              type="text"
-                              value={`Payment Balance: ₹${finalPaymentBalance}`}
-                              readOnly
-                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-blue-100 text-blue-800 border-blue-400"
-                            />
-                            <input
-                              type="text"
-                              value={`Total: ₹${
-                                Number(finalPaymentBalance) +
-                                Number(registrationAmount || 0)
-                              }`}
-                              readOnly
-                              className="px-4 py-2 border rounded font-semibold w-60 text-center bg-purple-100 text-purple-800 border-purple-400"
-                            />
+                          <div className="mt-6 flex justify-center gap-10 flex-wrap">
+
+                            {/* Registration Fee */}
+                            <div className="flex flex-col items-center">
+                              <input
+                                type="text"
+                                value={`Registration Fee: ₹${registrationAmount || 0}`}
+                                readOnly
+                                className="px-4 py-2 border rounded font-semibold w-60 text-center bg-green-100 text-green-800 border-green-400"
+                              />
+                              <p className="mt-1 text-xs font-mono text-green-700 text-center w-60 break-words">
+                                {numberToIndianWords(registrationAmount || 0)}
+                              </p>
+                            </div>
+
+                            {/* Payment Balance */}
+                            <div className="flex flex-col items-center">
+                              <input
+                                type="text"
+                                value={`Payment Balance: ₹${finalPaymentBalance || 0}`}
+                                readOnly
+                                className="px-4 py-2 border rounded font-semibold w-60 text-center bg-blue-100 text-blue-800 border-blue-400"
+                              />
+                              <p className="mt-1 text-xs font-mono text-blue-700 text-center w-60 break-words">
+                                {numberToIndianWords(finalPaymentBalance || 0)}
+                              </p>
+                            </div>
+
+                            {/* Total */}
+                            <div className="flex flex-col items-center">
+                              <input
+                                type="text"
+                                value={`Total: ₹${Number(finalPaymentBalance || 0) +
+                                  Number(registrationAmount || 0)
+                                  }`}
+                                readOnly
+                                className="px-4 py-2 border rounded font-semibold w-60 text-center bg-purple-100 text-purple-800 border-purple-400"
+                              />
+                              <p className="mt-1 text-xs font-mono text-purple-700 text-center w-60 break-words">
+                                {numberToIndianWords(
+                                  Number(finalPaymentBalance || 0) +
+                                  Number(registrationAmount || 0)
+                                )}
+                              </p>
+                            </div>
+
                           </div>
+
 
                           {/* ✅ Corrected Data Display */}
                           {(TableEnrolls?.length > 0 ||
                             borrowersData?.length > 0 ||
                             pigmeCustomerData?.length > 0) &&
-                          !basicLoading ? (
+                            !basicLoading ? (
                             <div className="mt-10">
                               <DataTable
                                 exportedPdfName="Customer Ledger Report"
@@ -1924,15 +1955,15 @@ const InActiveUserReport = () => {
                                   EnrollGroupId.groupId === "Loan"
                                     ? borrowersData
                                     : EnrollGroupId.groupId === "Pigme"
-                                    ? pigmeCustomerData
-                                    : TableEnrolls
+                                      ? pigmeCustomerData
+                                      : TableEnrolls
                                 }
                                 columns={
                                   EnrollGroupId.groupId === "Loan"
                                     ? BasicLoanColumns
                                     : EnrollGroupId.groupId === "Pigme"
-                                    ? BasicPigmeColumns
-                                    : Basiccolumns
+                                      ? BasicPigmeColumns
+                                      : Basiccolumns
                                 }
                               />
                             </div>

@@ -6,6 +6,7 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import {Select} from "antd";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
+import { numberToIndianWords } from "../helpers/numberToIndianWords"; // Added Import
 
 const GroupReport = () => {
   const [groups, setGroups] = useState([]);
@@ -578,8 +579,7 @@ const GroupReport = () => {
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
                               </div>
-                             <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
-
+                             <div className="flex flex-col w-full  md:w-1/3 lg:w-1/4">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
                                   Group Value
                                 </label>
@@ -590,6 +590,9 @@ const GroupReport = () => {
                                   readonly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className="text-xs font-mono text-gray-500 mt-1 pl-1">
+                                    {numberToIndianWords(group.group_value || 0)}
+                                </span>
                               </div>
                                    <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
 
@@ -603,6 +606,9 @@ const GroupReport = () => {
                                   readonly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className="text-xs font-mono text-gray-500 mt-1 pl-1">
+                                    {numberToIndianWords(group.group_install || 0)}
+                                </span>
                               </div>
                             </div>
                               <div className="flex gap-4 mt-5">
@@ -642,6 +648,9 @@ const GroupReport = () => {
                                   readonly
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
+                                <span className="text-xs font-mono text-gray-500 mt-1 pl-1">
+                                    {numberToIndianWords(commission || 0)}
+                                </span>
                               </div>
                             <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -731,142 +740,6 @@ const GroupReport = () => {
                       </>
                     )}
 
-                    {/* {activeTab === "basicReport" && (
-                      <>
-                        <div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 mb-10">
-                            <div className="bg-blue-300 shadow-md rounded-lg p-4">
-                              <h3 className="text-2xl font-semibold text-start mb-2">
-                                ₹
-                                {filteredUsers[0]?.group?.group_type ===
-                                "double" ? (
-                                  <>
-                                    {parseInt(
-                                      filteredUsers[0]?.group?.group_install
-                                    ) *
-                                      parseInt(
-                                        filteredUsers[0]?.group?.group_members
-                                      ) *
-                                      parseInt(filteredUsers[0]?.auctionCount) +
-                                      parseInt(
-                                        filteredUsers[0]?.group?.group_install
-                                      ) *
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_members
-                                        )}
-                                  </>
-                                ) : (
-                                  <>
-                                    {groupToBePaid
-                                      ? groupToBePaid *
-                                          parseInt(
-                                            filteredUsers[0]?.group
-                                              ?.group_members
-                                          ) +
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_install
-                                        ) *
-                                          parseInt(
-                                            filteredUsers[0]?.group
-                                              ?.group_members
-                                          ) +
-                                        parseInt(TableAuctions[0]?.divident) *
-                                          parseInt(
-                                            filteredUsers[0]?.group
-                                              ?.group_members
-                                          )
-                                      : parseInt(group?.group_install) *
-                                        parseInt(group?.group_members)}
-                                  </>
-                                )}
-                              </h3>
-                              <div className="text-gray-700">
-                                <p className="mb-2 font-bold">
-                                  Amount to be Paid
-                                </p>
-                              </div>
-                            </div>
-                            <div className="bg-yellow-300 shadow-md rounded-lg p-4">
-                              <h3 className="text-2xl font-semibold text-start mb-2">
-                                ₹ {groupPaid || 0}
-                              </h3>
-                              <div className="text-gray-700">
-                                <p className="mb-2 font-bold">Paid Amount</p>
-                              </div>
-                            </div>
-                            <div className="bg-red-400 shadow-md rounded-lg p-4">
-                              <h3 className="text-2xl font-semibold text-start mb-2">
-                                ₹{" "}
-                                {filteredUsers[0]?.group?.group_type ===
-                                "double" ? (
-                                  <>
-                                    {parseInt(
-                                      filteredUsers[0]?.group?.group_install
-                                    ) *
-                                      parseInt(
-                                        filteredUsers[0]?.group?.group_members
-                                      ) *
-                                      parseInt(filteredUsers[0]?.auctionCount) +
-                                      parseInt(
-                                        filteredUsers[0]?.group?.group_install
-                                      ) *
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_members
-                                        ) -
-                                      groupPaid}
-                                  </>
-                                ) : (
-                                  <>
-                                    {groupToBePaid
-                                      ? groupToBePaid *
-                                          parseInt(
-                                            filteredUsers[0]?.group
-                                              ?.group_members
-                                          ) +
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_install
-                                        ) *
-                                          parseInt(group?.group_members) +
-                                        parseInt(TableAuctions[0]?.divident) *
-                                          parseInt(
-                                            filteredUsers[0]?.group
-                                              ?.group_members
-                                          ) -
-                                        groupPaid
-                                      : parseInt(group?.group_install) *
-                                          parseInt(group?.group_members) -
-                                        groupPaid}
-                                  </>
-                                )}
-                              </h3>
-                              <div className="text-gray-700">
-                                <p className="font-bold">Balance Amount</p>
-                              </div>
-                            </div>
-                          </div>
-                          {TableEnrolls && (TableEnrolls.length > 0)&& !isDateFilterLoading ? (
-                            <div className="mt-10">
-                              <DataTable
-                                data={TableEnrolls}
-                                columns={Basiccolumns}
-                                
-                                exportedFileName={`Employees-${
-                                  TableEnrolls.length > 0
-                                    ? TableEnrolls[0].date +
-                                      " to " +
-                                      TableEnrolls[TableEnrolls.length - 1].date
-                                    : "empty"
-                                }.csv`}
-                              />
-                            </div>
-                          ) : (
-                            <div className="mt-10 text-center text-gray-500">
-                               <CircularLoader isLoading={isDateFilterLoading} />
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )} */}
                     {activeTab === "basicReport" &&
                     (() => {
                       // Precompute values
@@ -921,6 +794,9 @@ const GroupReport = () => {
                               <h3 className="text-2xl font-semibold text-start mb-2">
                                 ₹{amountToBePaid}
                               </h3>
+                               <span className="text-sm font-mono text-gray-700 mb-2 block">
+                                    {numberToIndianWords(amountToBePaid)}
+                              </span>
                               <p className="mb-2 font-bold text-gray-700">
                                 Amount to be Paid
                               </p>
@@ -931,6 +807,9 @@ const GroupReport = () => {
                               <h3 className="text-2xl font-semibold text-start mb-2">
                                 ₹{paidAmount}
                               </h3>
+                               <span className="text-sm font-mono text-gray-700 mb-2 block">
+                                    {numberToIndianWords(paidAmount)}
+                              </span>
                               <p className="mb-2 font-bold text-gray-700">
                                 Paid Amount
                               </p>
@@ -941,6 +820,9 @@ const GroupReport = () => {
                               <h3 className="text-2xl font-semibold text-start mb-2">
                                 ₹{balanceAmount}
                               </h3>
+                               <span className="text-sm font-mono text-gray-700 mb-2 block">
+                                    {numberToIndianWords(balanceAmount)}
+                              </span>
                               <p className="font-bold text-gray-700">
                                 Balance Amount
                               </p>
@@ -986,160 +868,6 @@ const GroupReport = () => {
                       );
                     })()}
 
-                    {/* {activeTab === "dateWiseReport" && (
-                      <div className="mt-7">
-                        <div className="flex gap-4">
-                          <div className="flex flex-col flex-1">
-                            <label className="mb-1 text-sm font-medium text-gray-700">
-                              From Date
-                            </label>
-                            <input
-                              type="date"
-                              value={fromDate}
-                              onChange={handleFromDateChange}
-                              className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                            />
-                          </div>
-                          <div className="flex flex-col flex-1">
-                            <label className="mb-1 text-sm font-medium text-gray-700">
-                              To Date
-                            </label>
-                            <input
-                              type="date"
-                              value={toDate}
-                              onChange={handleToDateChange}
-                              className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 mb-10">
-                          <div className="bg-blue-300 shadow-md rounded-lg p-4">
-                            <h3 className="text-2xl font-semibold text-start mb-2">
-                              ₹
-                              {filteredUsers[0]?.group?.group_type ===
-                              "double" ? (
-                                <>
-                                  {parseInt(
-                                    filteredUsers[0]?.group?.group_install
-                                  ) *
-                                    parseInt(
-                                      filteredUsers[0]?.group?.group_members
-                                    ) *
-                                    parseInt(filteredUsers[0]?.auctionCount) +
-                                    parseInt(
-                                      filteredUsers[0]?.group?.group_install
-                                    ) *
-                                      parseInt(
-                                        filteredUsers[0]?.group?.group_members
-                                      )}
-                                </>
-                              ) : (
-                                <>
-                                  {groupToBePaid
-                                    ? groupToBePaid *
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_members
-                                        ) +
-                                      parseInt(
-                                        filteredUsers[0]?.group?.group_install
-                                      ) *
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_members
-                                        ) +
-                                      parseInt(TableAuctions[0]?.divident) *
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_members
-                                        )
-                                    : parseInt(group?.group_install) *
-                                      parseInt(group?.group_members)}
-                                </>
-                              )}
-                            </h3>
-                            <div className="text-gray-700">
-                              <p className="mb-2 font-bold">
-                                Amount to be Paid
-                              </p>
-                            </div>
-                          </div>
-                          <div className="bg-yellow-300 shadow-md rounded-lg p-4">
-                            <h3 className="text-2xl font-semibold text-start mb-2">
-                              ₹ {groupPaidDate || 0}
-                            </h3>
-                            <div className="text-gray-700">
-                              <p className="mb-2 font-bold">Paid Amount</p>
-                            </div>
-                          </div>
-                          <div className="bg-red-400 shadow-md rounded-lg p-4">
-                            <h3 className="text-2xl font-semibold text-start mb-2">
-                              ₹
-                              {filteredUsers[0]?.group?.group_type ===
-                              "double" ? (
-                                <>
-                                  {parseInt(
-                                    filteredUsers[0]?.group?.group_install
-                                  ) *
-                                    parseInt(
-                                      filteredUsers[0]?.group?.group_members
-                                    ) *
-                                    parseInt(filteredUsers[0]?.auctionCount) +
-                                    parseInt(
-                                      filteredUsers[0]?.group?.group_install
-                                    ) *
-                                      parseInt(
-                                        filteredUsers[0]?.group?.group_members
-                                      ) -
-                                    groupPaid}
-                                </>
-                              ) : (
-                                <>
-                                  {groupToBePaid
-                                    ? groupToBePaid *
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_members
-                                        ) +
-                                      parseInt(
-                                        filteredUsers[0]?.group?.group_install
-                                      ) *
-                                        parseInt(group?.group_members) +
-                                      parseInt(TableAuctions[0]?.divident) *
-                                        parseInt(
-                                          filteredUsers[0]?.group?.group_members
-                                        ) -
-                                      groupPaid
-                                    : parseInt(group?.group_install) *
-                                        parseInt(group?.group_members) -
-                                      groupPaid}
-                                </>
-                              )}
-                            </h3>
-                            <div className="text-gray-700">
-                              <p className="font-bold">Balance Amount</p>
-                            </div>
-                          </div>
-                        </div>
-                        {TableEnrollsDate && (TableEnrollsDate.length > 0)&&(!basicLoading) ? (
-                          <div className="mt-10">
-                            <DataTable
-                              data={TableEnrollsDate}
-                              columns={Datecolumns}
-                              exportedFileName={`Employees-${
-                                TableEnrollsDate.length > 0
-                                  ? TableEnrollsDate[0].name +
-                                    " to " +
-                                    TableEnrollsDate[
-                                      TableEnrollsDate.length - 1
-                                    ].name
-                                  : "empty"
-                              }.csv`}
-                            />
-                          </div>
-                        ) : (
-                          <div className="mt-10 text-center text-gray-500">
-                            <CircularLoader isLoading={basicLoading}/>
-                          </div>
-                        )}
-                      </div>
-                    )} */}
                      {activeTab === "dateWiseReport" &&
                     (() => {
                       // Precompute amounts for both UI and PDF
@@ -1219,6 +947,9 @@ const GroupReport = () => {
                               <h3 className="text-2xl font-semibold text-start mb-2">
                                 ₹{amountToBePaid}
                               </h3>
+                               <span className="text-sm font-mono text-gray-700 mb-2 block">
+                                    {numberToIndianWords(amountToBePaid)}
+                              </span>
                               <p className="mb-2 font-bold text-gray-700">
                                 Amount to be Paid
                               </p>
@@ -1227,6 +958,9 @@ const GroupReport = () => {
                               <h3 className="text-2xl font-semibold text-start mb-2">
                                 ₹{paidAmount}
                               </h3>
+                               <span className="text-sm font-mono text-gray-700 mb-2 block">
+                                    {numberToIndianWords(paidAmount)}
+                              </span>
                               <p className="mb-2 font-bold text-gray-700">
                                 Paid Amount
                               </p>
@@ -1235,6 +969,9 @@ const GroupReport = () => {
                               <h3 className="text-2xl font-semibold text-start mb-2">
                                 ₹{balanceAmount}
                               </h3>
+                               <span className="text-sm font-mono text-gray-700 mb-2 block">
+                                    {numberToIndianWords(balanceAmount)}
+                              </span>
                               <p className="font-bold text-gray-700">
                                 Balance Amount
                               </p>

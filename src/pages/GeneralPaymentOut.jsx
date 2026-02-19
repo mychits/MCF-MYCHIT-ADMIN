@@ -14,6 +14,8 @@ import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { Space } from "lucide-react";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
+
 const GeneralPaymentOut = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -48,7 +50,7 @@ const GeneralPaymentOut = () => {
   });
 
   const [formData, setFormData] = useState({
-    group_id:"",
+    group_id: "",
     user_id: "",
     pay_date: today,
     ticket: "",
@@ -134,7 +136,7 @@ const GeneralPaymentOut = () => {
     const fetchDouble = async () => {
       try {
         const { data } = await api.get(
-          `/double/get-double/${selectedAuctionGroupId}`
+          `/double/get-double/${selectedAuctionGroupId}`,
         );
         setDouble(data);
       } catch (err) {
@@ -166,7 +168,7 @@ const GeneralPaymentOut = () => {
           {
             id: 1,
             date: new Date(
-              new Date(data[0].auction_date).getTime() - 10 * 86400000
+              new Date(data[0].auction_date).getTime() - 10 * 86400000,
             )
               .toLocaleDateString("en-US", {
                 day: "numeric",
@@ -201,8 +203,8 @@ const GeneralPaymentOut = () => {
             status: !g?.isPrized
               ? "Un Prized"
               : g?.isPrized === "true"
-              ? "Prized"
-              : "Un Prized",
+                ? "Prized"
+                : "Un Prized",
             action: (
               <div className="flex justify-center gap-2">
                 <Dropdown
@@ -211,6 +213,7 @@ const GeneralPaymentOut = () => {
                     items: [
                       {
                         key: "1",
+                        disabled: !g?.user_id?._id || !g?.group_id?._id,
                         label: (
                           <div
                             className="text-green-600"
@@ -218,7 +221,7 @@ const GeneralPaymentOut = () => {
                               handlePaymentOut(
                                 g.group_id?._id,
                                 g.user_id?._id,
-                                g.ticket
+                                g.ticket,
                               )
                             }
                           >
@@ -266,7 +269,7 @@ const GeneralPaymentOut = () => {
     try {
       const { data } = await api.get(
         "/auction/get-auction-by-user-group-ticket",
-        { params: { user_id: userId, group_id: groupId, ticket } }
+        { params: { user_id: userId, group_id: groupId, ticket } },
       );
       setPaymentDetails({
         customerName: data.user_id?.full_name,
@@ -275,7 +278,7 @@ const GeneralPaymentOut = () => {
       });
       setFormData((prev) => ({
         ...prev,
-        group_id:data.group_id?._id,
+        group_id: data.group_id?._id,
         user_id: userId,
         amount: data.win_amount,
         ticket,
@@ -311,7 +314,6 @@ const GeneralPaymentOut = () => {
 
   const handleSubmit = async () => {
     const isValid = validateForm();
-  
 
     if (!isValid) return;
 
@@ -339,7 +341,7 @@ const GeneralPaymentOut = () => {
         ({ group_id, ticket }) => ({
           group_id,
           ticket_number: ticket,
-        })
+        }),
       );
 
       const payload = {
@@ -362,7 +364,7 @@ const GeneralPaymentOut = () => {
 
       const response = await api.post(
         "/payment-out/add-payments-and-mark-prized",
-        payload
+        payload,
       );
 
       if (response.status >= 200 && response.status < 300) {
@@ -371,7 +373,7 @@ const GeneralPaymentOut = () => {
         setSelectedGroupId("");
         setPaymentGroupTickets([]);
         setFormData({
-          group_id:"",
+          group_id: "",
           user_id: "",
           pay_date: today,
           amount: "",
@@ -388,7 +390,7 @@ const GeneralPaymentOut = () => {
       setShowPaymentModal(false);
       setSelectedGroupId("");
       setFormData({
-         group_id:"",
+        group_id: "",
         user_id: "",
         pay_date: today,
         amount: "",
@@ -398,12 +400,11 @@ const GeneralPaymentOut = () => {
         disbursement_type: "Auction Winning Payout",
         note: "",
       });
-      
     } finally {
       setOpenBackdropLoader(false);
       setRerender((prev) => prev + 1);
       setDisabled(false);
-       window.location.reload();
+      window.location.reload();
     }
   };
 
@@ -419,7 +420,7 @@ const GeneralPaymentOut = () => {
     { key: "status", header: "Status" },
     { key: "action", header: "Action" },
   ];
-const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
+  const selectednewGroup = groups.find((g) => g._id === selectedAuctionGroupId);
   return (
     <>
       <div className="flex mt-20">
@@ -478,13 +479,10 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                   data={filterOption(TableAuctions, searchText)}
                   columns={columns}
                   exportedPdfName="General Payment Out"
-                  printHeaderKeys={[
-                    "Group Name",
-                    "Balance"
-                  ]}
+                  printHeaderKeys={["Group Name", "Balance"]}
                   printHeaderValues={[
                     selectednewGroup?.group_name,
-                    double.amount
+                    double.amount,
                   ]}
                   exportedFileName={`General Payment Out.csv`}
                 />
@@ -502,12 +500,10 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
         </div>
 
         <Drawer
-         title="Chit Payment Out"
+          title="Chit Payment Out"
           open={showPaymentModal}
-       
           okText="Submit"
           onClose={() => setShowPaymentModal(false)}
-          
         >
           {paymentDetails ? (
             <form className="space-y-4">
@@ -537,6 +533,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                   readOnly
                   className="bg-gray-100 border rounded w-full p-2 cursor-not-allowed"
                 />
+                <span className={`text-sm font-mono`}>
+                  {numberToIndianWords(formData.ticket || 0)}
+                </span>
               </div>
               <div>
                 <label className="block text-sm font-medium">Win Amount</label>
@@ -552,6 +551,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                   className="border bg-gray-100 rounded w-full p-2 cursor-not-allowed"
                   readOnly
                 />
+                <span className={`text-sm font-mono`}>
+                  {numberToIndianWords(paymentDetails.winAmount || 0)}
+                </span>
               </div>
               <div>
                 <label className="block text-sm font-medium">
@@ -616,8 +618,12 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                       {errors.transaction_id}
                     </p>
                   )}
+                  <span className={`text-sm font-mono`}>
+                    {numberToIndianWords(formData.transaction_id || 0)}
+                  </span>
                 </div>
               )}
+
               <div>
                 <label className="block text-sm font-medium">Note</label>
                 <textarea
@@ -630,18 +636,20 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                 />
               </div>
               <div className="flex justify-between">
-            <Button  onClick={() => setShowPaymentModal(false)}>Cancel</Button>
-            <Button onClick={handleSubmit} type="primary">
-              Submit
-            </Button>
-          </div>
+                <Button onClick={() => setShowPaymentModal(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmit} type="primary">
+                  Submit
+                </Button>
+              </div>
             </form>
           ) : (
             <p>Loading payment details…</p>
           )}
         </Drawer>
 
-        <Modal
+        {/* <Modal
           open={showModalUpdate}
           footer={null}
           onCancel={() => setShowModalUpdate(false)}
@@ -657,6 +665,7 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                    
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">Group *</label>
@@ -675,6 +684,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.group_id?.group_value || 0)}
+                                                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">
@@ -685,6 +697,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                    <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.group_id?.group_install || 0)}
+                                                  </span>
                 </div>
               </div>
               {currentUpdateGroup?.group_id?.group_type === "double" && (
@@ -719,6 +734,10 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                   readOnly
                   className="bg-gray-50 border rounded w-full p-2"
                 />
+                      <span className={`text-sm font-mono`}>
+                                                  {numberToIndianWords(currentUpdateGroup?.group_id?.group_value -
+                    currentUpdateGroup?.win_amount || 0)}
+                                                </span>
               </div>
               <div className="flex gap-4">
                 <div className="w-1/2">
@@ -728,6 +747,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.commission || 0)}
+                                                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">Winning Amount</label>
@@ -736,6 +758,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.win_amount || 0)}
+                                                  </span>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -746,6 +771,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.divident || 0)}
+                                                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">
@@ -756,6 +784,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.divident_head || 0)}
+                                                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm">Next Payable</label>
@@ -764,6 +795,9 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     readOnly
                     className="bg-gray-50 border rounded w-full p-2"
                   />
+                        <span className={`text-sm font-mono`}>
+                                                    {numberToIndianWords(currentUpdateGroup?.payable || 0)}
+                                                  </span>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -787,6 +821,201 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                 </div>
               </div>
             </form>
+          </div>
+        </Modal> */}
+
+        <Modal
+          open={showModalUpdate}
+          footer={null}
+          onCancel={() => setShowModalUpdate(false)}
+          width={800}
+          className="auction-modal"
+        >
+          <div className="bg-white rounded-lg">
+            <div className="border-b border-gray-200 pb-4 mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                View Auction Details
+              </h3>
+            </div>
+
+            <div className="space-y-6">
+              {/* Basic Information Section */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="text-base font-semibold text-gray-700 mb-4">
+                  Basic Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      SI No
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.SI_number}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Group
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.group_id?.group_name}
+                    </div>
+                  </div>
+                  {currentUpdateGroup?.group_id?.group_type === "double" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Auction Type
+                      </label>
+                      <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                        {currentUpdateGroup?.auction_type
+                          .charAt(0)
+                          .toUpperCase() +
+                          currentUpdateGroup?.auction_type.slice(1) +
+                          " Auction"}
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Customer
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Financial Information Section */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="text-base font-semibold text-gray-700 mb-4">
+                  Chit Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Group Value
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.group_id?.group_value}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                      {numberToIndianWords(
+                        currentUpdateGroup?.group_id?.group_value || 0,
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Group Installment
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.group_id?.group_install}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                      {numberToIndianWords(
+                        currentUpdateGroup?.group_id?.group_install || 0,
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Bid Amount
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.group_id?.group_value -
+                        currentUpdateGroup?.win_amount}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                      {numberToIndianWords(
+                        currentUpdateGroup?.group_id?.group_value -
+                          currentUpdateGroup?.win_amount || 0,
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Commission
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.commission}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                      {numberToIndianWords(currentUpdateGroup?.commission || 0)}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Winning Amount
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.win_amount}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                      {numberToIndianWords(currentUpdateGroup?.win_amount || 0)}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Dividend
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.divident}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                      {numberToIndianWords(currentUpdateGroup?.divident || 0)}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Dividend per Head
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.divident_head}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                      {numberToIndianWords(
+                        currentUpdateGroup?.divident_head || 0,
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Next Payable
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.payable}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 font-mono">
+                      {numberToIndianWords(currentUpdateGroup?.payable || 0)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dates Section */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Auction Date
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.auction_date}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Next Date
+                    </label>
+                    <div className="bg-white border border-gray-300 rounded px-3 py-2 text-gray-900">
+                      {currentUpdateGroup?.next_date}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </Modal>
       </div>

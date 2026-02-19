@@ -86,17 +86,16 @@ const UserReport = () => {
 
   const [NetTotalprofit, setNetTotalProfit] = useState("");
   const [selectedAuctionGroupId, setSelectedAuctionGroupId] = useState(
-    userId ? userId : ""
+    userId ? userId : "",
   );
   const [filteredAuction, setFilteredAuction] = useState([]);
   const [groupInfo, setGroupInfo] = useState({});
-
 
   const [selectedFromDate, setSelectedFromDate] = useState("");
   const [selectedToDate, setSelectedToDate] = useState("");
   const [selectedPaymentMode, setSelectedPaymentMode] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState(
-    userId ? userId : ""
+    userId ? userId : "",
   );
   const [payments, setPayments] = useState([]);
   const [availableTickets, setAvailableTickets] = useState([]);
@@ -137,7 +136,7 @@ const UserReport = () => {
   const [activeEnrollmentData, setActiveEnrollmentData] = useState("");
   const [enrollmentDataLoading, setEnrollmentDataLoading] = useState(false);
 
-  const [enrollmentId, setEnrollmentId] = useState("")
+  const [enrollmentId, setEnrollmentId] = useState("");
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
@@ -231,7 +230,7 @@ const UserReport = () => {
         if (response.data && response.data.length > 0) {
           const totalSum = response.data.reduce(
             (sum, item) => sum + Number(item.amount || 0),
-            0
+            0,
           );
           setTotalTransactionAmount(totalSum);
           const formattedData = response.data.map((item, index) => {
@@ -269,14 +268,16 @@ const UserReport = () => {
                           <Link
                             target="_blank"
                             to={`/print/${item._id}`}
-                            className="text-blue-600">
+                            className="text-blue-600"
+                          >
                             Print
                           </Link>
                         ),
                       },
                     ],
                   }}
-                  placement="bottomLeft">
+                  placement="bottomLeft"
+                >
                   <IoMdMore className="cursor-pointer" />
                 </Dropdown>
               ),
@@ -338,7 +339,7 @@ const UserReport = () => {
                 ticket: EnrollGroupId.ticket,
                 user_id: selectedGroup,
               },
-            }
+            },
           );
 
           const { payments = [], registrationFees = [] } = response.data || {};
@@ -384,9 +385,9 @@ const UserReport = () => {
             setRegistrationDate(
               registrationFees[0]?.createdAt
                 ? new Date(registrationFees[0].createdAt).toLocaleDateString(
-                  "en-GB"
-                )
-                : null
+                    "en-GB",
+                  )
+                : null,
             );
           }
 
@@ -437,13 +438,13 @@ const UserReport = () => {
       try {
         // Find actual loan_id from selected loan
         const selectedLoan = loanCustomers?.overall_loan?.find(
-          (loan) => loan?.loan_details?.loan?._id === EnrollGroupId.ticket
+          (loan) => loan?.loan_details?.loan?._id === EnrollGroupId.ticket,
         );
         const loanId =
           selectedLoan?.loan_details?.loan?._id || EnrollGroupId.ticket;
 
         const response = await api.get(
-          `/loan-payment/get-all-loan-payments/${loanId}`
+          `/loan-payment/get-all-loan-payments/${loanId}`,
         );
 
         if (response.data?.length > 0) {
@@ -492,7 +493,7 @@ const UserReport = () => {
 
       try {
         const response = await api.get(
-          `/pigme-payment/get-all-pigme-payments-by-id/${EnrollGroupId.ticket}`
+          `/pigme-payment/get-all-pigme-payments-by-id/${EnrollGroupId.ticket}`,
         );
 
         if (response.data && response.data.length > 0) {
@@ -537,7 +538,7 @@ const UserReport = () => {
     const fetchGroupById = async () => {
       try {
         const response = await api.get(
-          `/group/get-by-id-group/${EnrollGroupId.groupId}`
+          `/group/get-by-id-group/${EnrollGroupId.groupId}`,
         );
         if (response.status >= 400) throw new Error("API ERROR");
         setGroupDetails(response.data);
@@ -583,7 +584,7 @@ const UserReport = () => {
               service_charge: loan?.loan_details?.loan?.service_charges,
               total_paid_amount: loan?.total_paid_amount,
               balance: loan?.balance,
-            })
+            }),
           );
           setFilteredBorrowerData(filteredBorrowerData);
         }
@@ -615,7 +616,7 @@ const UserReport = () => {
               duration: pigme?.pigme_details?.pigme?.duration,
               maturity_interest: pigme?.pigme_details?.pigme?.maturity_interest,
               total_deposited_amount: pigme?.total_deposited_amount,
-            })
+            }),
           );
           setFilteredPigmeData(filteredPigmeData);
         }
@@ -667,7 +668,7 @@ const UserReport = () => {
             params: {
               userId: selectedGroup,
             },
-          }
+          },
         );
 
         if (response.data) {
@@ -734,7 +735,7 @@ const UserReport = () => {
         if (!selectedAuctionGroupId) return;
 
         const response = await api.get(
-          `/payment/users/${selectedAuctionGroupId}`
+          `/payment/users/${selectedAuctionGroupId}`,
         );
         console.info(response.data.payments, "Fetched user transactions");
         setCustomerTransactions(response.data.payments); // <-- store in state
@@ -763,7 +764,7 @@ const UserReport = () => {
           const paymentData = response.data;
           const totalAmount = paymentData.reduce(
             (sum, payment) => sum + Number(payment.amount || 0),
-            0
+            0,
           );
           setPayments(totalAmount);
           const formattedData = response.data.map((group, index) => ({
@@ -797,115 +798,232 @@ const UserReport = () => {
 
   async function getActiveCustomerEnrollmentData() {
     try {
-      setEnrollmentDataLoading(true)
+      setEnrollmentDataLoading(true);
 
-      const response = await api.get(`/enroll/customers/${selectedGroup}`)
+      const response = await api.get(`/enroll/customers/${selectedGroup}`);
       const responseData = response?.data?.data ?? [];
 
-      setEnrollmentData(responseData)
+      setEnrollmentData(responseData);
     } catch (error) {
-      setEnrollmentData([])
-
+      setEnrollmentData([]);
     } finally {
       setEnrollmentDataLoading(false);
     }
   }
   useEffect(() => {
     if (activeTab === "customerPaymentStatement")
-      getActiveCustomerEnrollmentData()
+      getActiveCustomerEnrollmentData();
   }, [activeTab, selectedGroup]);
 
+  //   async function getCustomerPaymentStatement() {
+  //     try {
+  //       setStatementLoading(true);
+  //       const response = await api.get(`/enroll/customer-payment/statement/${enrollmentId}`);
+  //       const responseData = response.data?.data?.statement ?? [];
+
+  //       console.info(responseData, "jsdhgjshgf");
+
+  //      const filteredResponse = responseData.map((statement, index) => {
+  //   const balanceValue = Number(statement?.balance || 0);
+  //   const isNegative = balanceValue < 0;
+
+  //   return {
+  //     id: index + 1,
+  //     // RAW DATA
+  //     rawDate: `${statement?.date}`.split("T")?.[0] ?? "N/A",
+  //     rawBalance: balanceValue,
+  //     rawDescription:statement?.description,
+  //     rawDue:statement?.due,
+  //     rawPaid:statement?.paid,
+
+  //     // DECORATED DATA
+  //     date: (
+  //       <div className="text-slate-500 text-xs font-medium">
+  //         {`${statement?.date}`.split("T")?.[0] ?? "N/A"}
+  //       </div>
+  //     ),
+
+  //     description: (
+  //       <div className="flex flex-col">
+  //         <span className="text-slate-900 font-bold text-sm tracking-tight">
+  //           {statement?.description || "General Payment"}
+  //         </span>
+  //         <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+  //           Ref: #{index.toString().padStart(4, '0')}
+  //         </span>
+  //       </div>
+  //     ),
+
+  //     due: (
+  //        <div className="text-slate-600 font-semibold text-sm">
+  //          ₹{Number(statement?.due || 0).toLocaleString('en-IN')}
+  //        </div>
+  //     ),
+
+  //     paid: (
+  //       <div className="text-emerald-600 font-bold text-sm">
+  //         {statement?.paid > 0 ? `+ ₹${Number(statement?.paid).toLocaleString('en-IN')}` : "—"}
+  //       </div>
+  //     ),
+
+  //     balance: (
+  //       <div className="flex items-center justify-end gap-3">
+  //         <div className="text-right">
+  //           <div className={`text-sm font-black ${isNegative ? "text-rose-600" : "text-green-900"}`}>
+  //             ₹{Math.abs(balanceValue).toLocaleString('en-IN')}
+  //           </div>
+  //           <div className={`text-[9px] font-bold uppercase tracking-widest ${isNegative ? "text-rose-400" : "text-emerald-500"}`}>
+  //             {isNegative ? "Debit / Outstanding" : "Credit / Settled"}
+  //           </div>
+  //         </div>
+  //         {/* Simple geometric indicator instead of pulsing dots */}
+  //         <div className={`w-1 h-8 rounded-full ${isNegative ? "bg-rose-200" : "bg-emerald-200"}`} />
+  //       </div>
+  //     ),
+  //   };
+  // });
+  //       setActiveEnrollmentData(filteredResponse)
+
+  //     } catch (error) {
+  //       setActiveEnrollmentData([])
+  //     } finally {
+  //       setStatementLoading(false);
+
+  //     }
+  //   }
 
   async function getCustomerPaymentStatement() {
     try {
       setStatementLoading(true);
-      const response = await api.get(`/enroll/customer-payment/statement/${enrollmentId}`);
+
+      const response = await api.get(
+        `/enroll/customer-payment/customer-statement/${enrollmentId}`,
+      );
+      console.log(response, "fgdshjfgsfgsd");
+
       const responseData = response.data?.data?.statement ?? [];
 
-     const filteredResponse = responseData.map((statement, index) => {
-  const balanceValue = Number(statement?.balance || 0);
-  const isNegative = balanceValue < 0;
+      const filteredResponse = responseData.map((statement, index) => {
+        const balanceValue = Number(statement?.balance || 0);
+        const paidValue = Number(statement?.paid || 0);
+        const dueValue = Number(statement?.due || 0);
 
-  return {
-    id: index + 1,
-    // RAW DATA
-    rawDate: `${statement?.date}`.split("T")?.[0] ?? "N/A",
-    rawBalance: balanceValue,
-    rawDescription:statement?.description,
-    rawDue:statement?.due,
-    rawPaid:statement?.paid,
+        const isNegative = balanceValue < 0;
+        const isNotPaidRow =
+          paidValue === 0 &&
+          dueValue > 0 &&
+          statement?.description?.startsWith("Auction");
 
+        const dateStr = `${statement?.date}`?.split("T")?.[0] ?? "N/A";
 
-    // DECORATED DATA
-    date: (
-      <div className="text-slate-500 text-xs font-medium">
-        {`${statement?.date}`.split("T")?.[0] ?? "N/A"}
-      </div>
-    ),
-    
-    description: (
-      <div className="flex flex-col">
-        <span className="text-slate-900 font-bold text-sm tracking-tight">
-          {statement?.description || "General Payment"}
-        </span>
-        <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
-          Ref: #{index.toString().padStart(4, '0')}
-        </span>
-      </div>
-    ),
+        const paydateStr = statement?.paydate?.split("T")?.[0] ?? "N/A";
 
-    due: (
-       <div className="text-slate-600 font-semibold text-sm">
-         ₹{Number(statement?.due || 0).toLocaleString('en-IN')}
-       </div>
-    ),
+        return {
+          id: index + 1,
 
-    paid: (
-      <div className="text-emerald-600 font-bold text-sm">
-        {statement?.paid > 0 ? `+ ₹${Number(statement?.paid).toLocaleString('en-IN')}` : "—"}
-      </div>
-    ),
+          // ---------- RAW ----------
+          rawDate: dateStr,
+          rawPayDate: paydateStr,
+          rawBalance: balanceValue,
+          rawDescription: statement?.description,
+          rawDue: dueValue,
+          rawPaid: paidValue,
 
-    balance: (
-      <div className="flex items-center justify-end gap-3">
-        <div className="text-right">
-          <div className={`text-sm font-black ${isNegative ? "text-rose-600" : "text-green-900"}`}>
-            ₹{Math.abs(balanceValue).toLocaleString('en-IN')}
-          </div>
-          <div className={`text-[9px] font-bold uppercase tracking-widest ${isNegative ? "text-rose-400" : "text-emerald-500"}`}>
-            {isNegative ? "Debit / Outstanding" : "Credit / Settled"}
-          </div>
-        </div>
-        {/* Simple geometric indicator instead of pulsing dots */}
-        <div className={`w-1 h-8 rounded-full ${isNegative ? "bg-rose-200" : "bg-emerald-200"}`} />
-      </div>
-    ),
-  };
-});
-      setActiveEnrollmentData(filteredResponse)
+          // ---------- UI ----------
 
+          date: (
+            <div className="text-slate-500 text-xs font-medium">{dateStr}</div>
+          ),
+          paydate: (
+            <div className="text-slate-500 text-xs font-medium">
+              {paydateStr}
+            </div>
+          ),
+
+          description: (
+            <div className="flex flex-col">
+              <span className="text-slate-900 font-bold text-sm tracking-tight">
+                {statement?.description || "General Payment"}
+              </span>
+
+              {isNotPaidRow && (
+                <span className="text-[10px] text-rose-500 font-bold uppercase tracking-widest">
+                  Not Paid
+                </span>
+              )}
+
+              <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                Ref: #{index.toString().padStart(4, "0")}
+              </span>
+            </div>
+          ),
+
+          due: (
+            <div className="text-slate-600 font-semibold text-sm">
+              ₹{dueValue.toLocaleString("en-IN")}
+            </div>
+          ),
+
+          paid: (
+            <div
+              className={`font-bold text-sm ${
+                paidValue > 0 ? "text-emerald-600" : "text-slate-400"
+              }`}
+            >
+              {paidValue > 0
+                ? `+ ₹${paidValue.toLocaleString("en-IN")}`
+                : "Not Paid"}
+            </div>
+          ),
+
+          balance: (
+            <div className="flex items-center justify-end gap-3">
+              <div className="text-right">
+                <div
+                  className={`text-sm font-black ${
+                    isNegative ? "text-green-600" : "text-rose-900"
+                  }`}
+                >
+                  ₹{Math.abs(balanceValue).toLocaleString("en-IN")}
+                </div>
+
+                <div
+                  className={`text-[9px] font-bold uppercase tracking-widest ${
+                    isNegative ? "text-emerald-400" : "text-rose-500"
+                  }`}
+                >
+                  {isNegative ? "Debit / Outstanding" : "Credit / Settled"}
+                </div>
+              </div>
+
+              <div
+                className={`w-1 h-8 rounded-full ${
+                  isNegative ? "bg-emerald-200" : "bg-rose-200"
+                }`}
+              />
+            </div>
+          ),
+        };
+      });
+
+      setActiveEnrollmentData(filteredResponse);
     } catch (error) {
-      setActiveEnrollmentData([])
+      setActiveEnrollmentData([]);
     } finally {
       setStatementLoading(false);
-
     }
   }
+
   useEffect(() => {
-    if (enrollmentId)
-      getCustomerPaymentStatement()
-  }, [enrollmentId])
+    if (enrollmentId) getCustomerPaymentStatement();
+  }, [enrollmentId]);
   useEffect(() => {
-    setEnrollmentId(""),
-    setActiveEnrollmentData([]);
-  }, [selectedGroup])
+    (setEnrollmentId(""), setActiveEnrollmentData([]));
+  }, [selectedGroup]);
   const handleEnrollmentChange = (e) => {
     const value = e.target.value;
-    if (value)
-      setEnrollmentId(value)
-
-  }
-
+    if (value) setEnrollmentId(value);
+  };
 
   const handleTransactionsSelectFilter = (value) => {
     setSelectedLabel(value);
@@ -1025,11 +1143,11 @@ const UserReport = () => {
 
       // 📊 Totals
       setTotalToBePaid(
-        formattedData.reduce((sum, row) => sum + row.totalBePaid, 0)
+        formattedData.reduce((sum, row) => sum + row.totalBePaid, 0),
       );
 
       setNetTotalProfit(
-        formattedData.reduce((sum, row) => sum + row.toBePaidAmount, 0)
+        formattedData.reduce((sum, row) => sum + row.toBePaidAmount, 0),
       );
 
       setTotalPaid(formattedData.reduce((sum, row) => sum + row.paidAmount, 0));
@@ -1075,7 +1193,7 @@ const UserReport = () => {
       try {
         setIsLoading(true);
         const response = await api.get(
-          `/enroll/get-user-payment?group_id=${EnrollGroupId.groupId}&ticket=${EnrollGroupId.ticket}&user_id=${selectedGroup}`
+          `/enroll/get-user-payment?group_id=${EnrollGroupId.groupId}&ticket=${EnrollGroupId.ticket}&user_id=${selectedGroup}`,
         );
 
         if (response.data && response.data.length > 0) {
@@ -1144,18 +1262,18 @@ const UserReport = () => {
     { key: "date", header: "Due Date" },
     { key: "description", header: "Description" },
     { key: "due", header: "Due Amount" },
+    { key: "paydate", header: "Paid Date" },
     { key: "paid", header: "Paid Amount" },
     { key: "balance", header: "Balance" },
-
   ];
-   const CustomerPaymentStatementExportsColumns = [
+  const CustomerPaymentStatementExportsColumns = [
     { key: "id", header: "SL. NO" },
     { key: "rawDate", header: "Due Date" },
     { key: "rawDescription", header: "Description" },
     { key: "rawDue", header: "Due Amount" },
+    {key: "rawPayDate",header: "Paid Date"},
     { key: "rawPaid", header: "Paid Amount" },
     { key: "rawBalance", header: "Balance" },
-
   ];
 
   const formatDate = (dateString) => {
@@ -1172,7 +1290,7 @@ const UserReport = () => {
     const fetchEnroll = async () => {
       try {
         const response = await api.get(
-          `/group-report/get-group-enroll-date/${selectedGroup}?fromDate=${formattedFromDate}&toDate=${formattedToDate}`
+          `/group-report/get-group-enroll-date/${selectedGroup}?fromDate=${formattedFromDate}&toDate=${formattedToDate}`,
         );
         if (response.data && response.data.length > 0) {
           setFilteredUsers(response.data);
@@ -1185,7 +1303,7 @@ const UserReport = () => {
 
           const totalAmount = response.data.reduce(
             (sum, group) => sum + parseInt(group.amount),
-            0
+            0,
           );
           setTotalAmount(totalAmount);
           const formattedData = response.data.map((group, index) => ({
@@ -1214,8 +1332,6 @@ const UserReport = () => {
     };
     fetchEnroll();
   }, [selectedGroup, formattedFromDate, formattedToDate]);
-
-
 
   useEffect(() => {
     if (groupInfo && formData.bid_amount) {
@@ -1262,8 +1378,8 @@ const UserReport = () => {
 
   return (
     <>
-      <div className="flex-1 overflow-x-scroll">
-        <div className="flex-1 mt-30">
+      <div className="w-screen min-h-screen">
+        <div className="flex mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}
@@ -1278,7 +1394,8 @@ const UserReport = () => {
                   <div className="mb-2">
                     <label
                       className="block text-lg text-gray-500 text-center  font-semibold mb-2"
-                      htmlFor={"SS"}>
+                      htmlFor={"SS"}
+                    >
                       Customer
                     </label>
                     <Select
@@ -1294,7 +1411,8 @@ const UserReport = () => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      style={{ height: "50px", width: "600px" }}>
+                      style={{ height: "50px", width: "600px" }}
+                    >
                       {groups.map((group) => (
                         <option key={group._id} value={group._id}>
                           {group.full_name} - {group.phone_number}
@@ -1310,21 +1428,44 @@ const UserReport = () => {
                   <div className="mt-6 mb-8">
                     <div className="mb-8 p-1.5 bg-slate-100/80 backdrop-blur-md rounded-2xl inline-flex items-center gap-1 shadow-inner border border-slate-200/50 overflow-x-auto no-scrollbar max-w-full">
                       {[
-                        { id: "groupDetails", label: "Customer Details", icon: <FiUser size={16} /> },
-                        { id: "basicReport", label: "Ledger", icon: <FiBookOpen size={16} /> },
-                        { id: "customerPaymentStatement", label: "Statement", icon: <FiFileText size={16} /> },
-                        { id: "transactions", label: "Transactions", icon: <FiRepeat size={16} /> },
-                        { id: "disbursement", label: "Payouts", icon: <FaRupeeSign size={16} /> },
+                        {
+                          id: "groupDetails",
+                          label: "Customer Details",
+                          icon: <FiUser size={16} />,
+                        },
+                        {
+                          id: "basicReport",
+                          label: "Ledger",
+                          icon: <FiBookOpen size={16} />,
+                        },
+                        {
+                          id: "customerPaymentStatement",
+                          label: "Statement",
+                          icon: <FiFileText size={16} />,
+                        },
+                        {
+                          id: "transactions",
+                          label: "Transactions",
+                          icon: <FiRepeat size={16} />,
+                        },
+                        {
+                          id: "disbursement",
+                          label: "Payouts",
+                          icon: <FaRupeeSign size={16} />,
+                        },
                       ].map((tab) => (
                         <button
                           key={tab.id}
                           onClick={() => handleTabChange(tab.id)}
-                          className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-300 whitespace-nowrap ${activeTab === tab.id
-                            ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200"
-                            : "text-slate-500 hover:text-slate-800 hover:bg-white/40"
-                            }`}
+                          className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-300 whitespace-nowrap ${
+                            activeTab === tab.id
+                              ? "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200"
+                              : "text-slate-500 hover:text-slate-800 hover:bg-white/40"
+                          }`}
                         >
-                          <span className={`${activeTab === tab.id ? "text-blue-500" : "text-slate-400"}`}>
+                          <span
+                            className={`${activeTab === tab.id ? "text-blue-500" : "text-slate-400"}`}
+                          >
                             {tab.icon}
                           </span>
                           {tab.label}
@@ -1346,10 +1487,11 @@ const UserReport = () => {
                               Totalpaid,
                             },
                             TableEnrolls,
-                            customerTransactions
+                            customerTransactions,
                           )
                         }
-                        className="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded shadow">
+                        className="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded shadow"
+                      >
                         <IoMdDownload size={20} />
                         Download Full Report
                       </button>
@@ -1424,7 +1566,8 @@ const UserReport = () => {
                                         results.map(({ item }) => (
                                           <div
                                             key={item.key}
-                                            className="p-1 border-b">
+                                            className="p-1 border-b"
+                                          >
                                             <strong>{item.key}</strong> →{" "}
                                             {item.value || "-"}
                                           </div>
@@ -1448,11 +1591,13 @@ const UserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${visibleRows.row1
-                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-                                    }
-      `}>
+        ${
+          visibleRows.row1
+            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+        }
+      `}
+                                >
                                   {visibleRows.row1
                                     ? "✓ Hide Basic Info"
                                     : "Show Basic Info"}
@@ -1466,11 +1611,13 @@ const UserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${visibleRows.row2
-                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-                                    }
-      `}>
+        ${
+          visibleRows.row2
+            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+        }
+      `}
+                                >
                                   {visibleRows.row2
                                     ? "✓ Hide Address Info"
                                     : "Show Address Info"}
@@ -1484,11 +1631,13 @@ const UserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${visibleRows.row3
-                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-                                    }
-      `}>
+        ${
+          visibleRows.row3
+            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+        }
+      `}
+                                >
                                   {visibleRows.row3
                                     ? "✓ Hide Regional Info"
                                     : "Show Regional Info"}
@@ -1502,11 +1651,13 @@ const UserReport = () => {
                                     }))
                                   }
                                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
-        ${visibleRows.row4
-                                      ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
-                                      : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
-                                    }
-      `}>
+        ${
+          visibleRows.row4
+            ? "bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg"
+            : "bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-md hover:shadow-lg hover:scale-105"
+        }
+      `}
+                                >
                                   {visibleRows.row4
                                     ? "✓ Hide Referral, Nominee & Bank Details"
                                     : "Show Referral, Nominee & Bank Details"}
@@ -1565,8 +1716,8 @@ const UserReport = () => {
                                       value={
                                         group.dateofbirth
                                           ? new Date(group.dateofbirth)
-                                            .toISOString()
-                                            .split("T")[0]
+                                              .toISOString()
+                                              .split("T")[0]
                                           : ""
                                       }
                                     />
@@ -1635,8 +1786,8 @@ const UserReport = () => {
                                       value={
                                         group.nominee_dateofbirth
                                           ? new Date(group.nominee_dateofbirth)
-                                            .toISOString()
-                                            .split("T")[0]
+                                              .toISOString()
+                                              .split("T")[0]
                                           : ""
                                       }
                                     />
@@ -1685,7 +1836,7 @@ const UserReport = () => {
                                     <DataTable
                                       data={filterOption(
                                         TableAuctions,
-                                        searchText
+                                        searchText,
                                       )}
                                       columns={Auctioncolumns}
                                       exportedPdfName="Customer Report"
@@ -1833,7 +1984,6 @@ const UserReport = () => {
                       </>
                     )}
 
-
                     {activeTab === "basicReport" && (
                       <>
                         <div>
@@ -1849,19 +1999,21 @@ const UserReport = () => {
                                     : ""
                                 }
                                 onChange={handleEnrollGroup}
-                                className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md">
+                                className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                              >
                                 <option value="">Select Group | Ticket</option>
 
                                 {filteredAuction.map((group) => {
                                   if (
                                     group?.enrollment?.group &&
                                     group?.enrollment?.customer_status ===
-                                    "Active"
+                                      "Active"
                                   ) {
                                     return (
                                       <option
                                         key={group.enrollment.group._id}
-                                        value={`${group.enrollment.group._id}|${group.enrollment.tickets}`}>
+                                        value={`${group.enrollment.group._id}|${group.enrollment.tickets}`}
+                                      >
                                         {group.enrollment.group.group_name} |{" "}
                                         {group.enrollment.tickets}
                                       </option>
@@ -1877,13 +2029,15 @@ const UserReport = () => {
                                         key={
                                           loan?.loan_details?.loan?._id || index
                                         }
-                                        value={`Loan|${loan?.loan_details?.loan?._id || index
-                                          }`}>
+                                        value={`Loan|${
+                                          loan?.loan_details?.loan?._id || index
+                                        }`}
+                                      >
                                         {loan?.loan_details?.loan?.loan_id ||
                                           "N/A"}{" "}
                                         | ₹{loan?.loan_value || 0}
                                       </option>
-                                    )
+                                    ),
                                   )}
 
                                 {Array.isArray(pigmeCustomers?.overall_pigme) &&
@@ -1894,14 +2048,16 @@ const UserReport = () => {
                                           pigme?.pigme_details?.pigme?._id ||
                                           index
                                         }
-                                        value={`Pigme|${pigme?.pigme_details?.pigme?._id ||
+                                        value={`Pigme|${
+                                          pigme?.pigme_details?.pigme?._id ||
                                           index
-                                          }`}>
+                                        }`}
+                                      >
                                         {pigme?.pigme_details?.pigme
                                           ?.pigme_id || "N/A"}{" "}
                                         | ₹{pigme?.total_deposited_amount || 0}
                                       </option>
-                                    )
+                                    ),
                                   )}
                               </select>
                             </div>
@@ -1910,8 +2066,9 @@ const UserReport = () => {
                           <div className="mt-6 flex justify-center gap-8 flex-wrap">
                             <input
                               type="text"
-                              value={`Registration Fee: ₹${registrationAmount || 0
-                                }`}
+                              value={`Registration Fee: ₹${
+                                registrationAmount || 0
+                              }`}
                               readOnly
                               className="px-4 py-2 border rounded font-semibold w-60 text-center bg-green-100 text-green-800 border-green-400"
                             />
@@ -1923,9 +2080,10 @@ const UserReport = () => {
                             />
                             <input
                               type="text"
-                              value={`Total: ₹${Number(finalPaymentBalance) +
+                              value={`Total: ₹${
+                                Number(finalPaymentBalance) +
                                 Number(registrationAmount || 0)
-                                }`}
+                              }`}
                               readOnly
                               className="px-4 py-2 border rounded font-semibold w-60 text-center bg-purple-100 text-purple-800 border-purple-400"
                             />
@@ -1934,7 +2092,7 @@ const UserReport = () => {
                           {(TableEnrolls?.length > 0 ||
                             borrowersData?.length > 0 ||
                             pigmeCustomerData?.length > 0) &&
-                            !basicLoading ? (
+                          !basicLoading ? (
                             <div className="mt-10">
                               <DataTable
                                 exportedPdfName="Customer Ledger Report"
@@ -2008,41 +2166,32 @@ const UserReport = () => {
                       </div>
                     )}
 
-
                     {activeTab === "customerPaymentStatement" && (
                       <div className="flex flex-col flex-1">
                         <label className="mb-1 text-sm  text-gray-700 font-bold">
                           Customer Payment Statement
                         </label>
-                        {(function () { console.log(enrollmentData, "thi is enrollment data") })()}
+                        {(function () {
+                          console.log(enrollmentData, "thi is enrollment data");
+                        })()}
                         <div className="flex flex-col flex-1">
                           <label className="mb-1 text-sm font-medium text-gray-700">
                             Groups and Tickets
                           </label>
                           <select
-                            value={
-                              enrollmentId
-                            }
+                            value={enrollmentId}
                             onChange={handleEnrollmentChange}
-                            className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md">
+                            className="border border-gray-300 rounded px-6 py-2 shadow-sm outline-none w-full max-w-md"
+                          >
                             <option value="">Select Group | Ticket</option>
 
                             {enrollmentData.map((e) => {
-
                               return (
-                                <option
-                                  key={e?._id}
-                                  value={`${e?._id}`}>
-                                  {e?.group_id?.group_name} |{" "}
-                                  {e?.tickets}
+                                <option key={e?._id} value={`${e?._id}`}>
+                                  {e?.group_id?.group_name} | {e?.tickets}
                                 </option>
                               );
-
                             })}
-
-
-
-
                           </select>
                         </div>
                         {statementLoading ? (
@@ -2052,10 +2201,11 @@ const UserReport = () => {
                             <DataTable
                               data={activeEnrollmentData}
                               columns={CustomerPaymentStatementColumns}
-                              exportCols={CustomerPaymentStatementExportsColumns}
+                              exportCols={
+                                CustomerPaymentStatementExportsColumns
+                              }
                               exportedPdfName={`Customer Statement Report`}
                               exportedFileName={`Customer Statement.csv`}
-
                             />
                           </div>
                         ) : (
@@ -2094,7 +2244,7 @@ const UserReport = () => {
                                 </span>
                                 <span className="text-2xl font-black text-slate-800 tracking-tight">
                                   {totalTransactionAmount.toLocaleString(
-                                    "en-IN"
+                                    "en-IN",
                                   )}
                                 </span>
                               </div>
@@ -2130,11 +2280,13 @@ const UserReport = () => {
                                   .includes(input.toLowerCase())
                               }
                               className="w-full"
-                              style={{ height: "44px" }}>
+                              style={{ height: "44px" }}
+                            >
                               {dayGroup.map((time) => (
                                 <Select.Option
                                   key={time.value}
-                                  value={time.value}>
+                                  value={time.value}
+                                >
                                   {time.label}
                                 </Select.Option>
                               ))}
@@ -2255,7 +2407,8 @@ const UserReport = () => {
                                     .includes(input.toLowerCase())
                                 }
                                 className="w-full"
-                                style={{ height: "44px" }}>
+                                style={{ height: "44px" }}
+                              >
                                 <Select.Option value="">
                                   All Types
                                 </Select.Option>

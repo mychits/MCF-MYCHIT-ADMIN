@@ -964,6 +964,7 @@
 
 // export default TargetCommission;
 
+
 import React, { useEffect, useState } from "react";
 import { Select, Radio, Tabs } from "antd";
 import api from "../instance/TokenInstance";
@@ -977,6 +978,7 @@ import { FaMoneyBill } from "react-icons/fa";
 import { MdPayments } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { FiTarget } from "react-icons/fi";
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
 
 const { TabPane } = Tabs;
 
@@ -1023,6 +1025,10 @@ const TargetCommission = () => {
     total_gross_group_value: 0,
     total_gross_enrollments: 0,
   });
+
+  // ✅ Helper to sanitize string amounts to numbers for word conversion
+  const parseAmount = (val) =>
+    parseFloat(val?.toString().replace(/[^0-9.-]+/g, "")) || 0;
 
   useEffect(() => {
     const today = new Date();
@@ -1105,7 +1111,7 @@ const TargetCommission = () => {
           params,
         }
       );
-      const commissionData = res.data?.grossCommissionInfo?.map(enrollment => ({
+      const commissionData = res.data?.grossCommissionInfo?.map((enrollment) => ({
         user_name: enrollment?.user_id?.full_name || "N/A",
         phone_number: enrollment?.user_id?.phone_number || "N/A",
         group_name: enrollment?.group_id?.group_name || "N/A",
@@ -1114,9 +1120,8 @@ const TargetCommission = () => {
         group_ticket: enrollment?.tickets || "N/A",
         enrollment_date: enrollment?.createdAt?.split("T")?.[0],
         total_paid_amount: enrollment?.total_paid_amount || "0",
-        group_monthly_installment: enrollment?.group_id?.monthly_installment || "N/A",
-
-
+        group_monthly_installment:
+          enrollment?.group_id?.monthly_installment || "N/A",
       }));
       setGrossCommissionData(commissionData || []);
       setGrossCommissionSummary(res.data.grossCommissionSummary || {
@@ -1300,7 +1305,7 @@ const TargetCommission = () => {
       const [year, month] = selectedMonth.split("-");
       const firstDay = `${year}-${month}-01`;
       const lastday1 = new Date(year, month, 0).getDate();
-      const lastDay = `${year}-${month}-${String(lastday1).padStart(2, "0")}`;
+      const lastDay = `${year}-${month}-${String(lastDay).padStart(2, "0")}`;
       setTempFromDate(firstDay);
       setTempToDate(lastDay);
     }
@@ -1324,10 +1329,8 @@ const TargetCommission = () => {
       setSelectedMonth(tempSelectedMonth);
       const [year, month] = tempSelectedMonth.split("-");
       startDate = `${year}-${month}-01`;
-
       const lastDay = new Date(year, month, 0).getDate();
       endDate = `${year}-${month}-${String(lastDay).padStart(2, "0")}`;
-
     } else {
       startDate = tempFromDate;
       endDate = tempToDate;
@@ -1335,9 +1338,7 @@ const TargetCommission = () => {
     setAgentLoading(true);
     setLoading(true);
     setIsFilterApplied(true);
-
     try {
-      // Always fetch both reports regardless of active tab
       if (selectedEmployeeId === "ALL") {
         setSelectedEmployeeDetails(null);
         setTargetData({
@@ -1375,10 +1376,14 @@ const TargetCommission = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!commissionForm.agent_id) newErrors.agent_id = "Please select an agent";
+    if (!commissionForm.agent_id)
+      newErrors.agent_id = "Please select an agent";
     if (!commissionForm.amount || isNaN(commissionForm.amount))
       newErrors.amount = "Please enter a valid amount";
-    if (commissionForm.pay_type === "online" && !commissionForm.transaction_id)
+    if (
+      commissionForm.pay_type === "online" &&
+      !commissionForm.transaction_id
+    )
       newErrors.transaction_id = "Transaction ID is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -1410,8 +1415,7 @@ const TargetCommission = () => {
     user_name: item.user_id?.full_name || "N/A",
     phone_number: item.user_id?.phone_number || "N/A",
     group_name: item.group_id?.group_name || "N/A",
-    enollment_date: item.createdAt?.split("T")?.[0]
-      || "N/A",
+    enollment_date: item.createdAt?.split("T")?.[0] || "N/A",
   }));
 
   const columns = [
@@ -1428,7 +1432,6 @@ const TargetCommission = () => {
     { key: "commission_released", header: "Commission Released" },
   ];
 
-
   const grossCommissionColumns = [
     { key: "user_name", header: "Customer Name" },
     { key: "phone_number", header: "Phone Number" },
@@ -1439,9 +1442,7 @@ const TargetCommission = () => {
     { key: "group_monthly_installment", header: "First Installment Amount" },
     { key: "group_commission", header: "Commission Percentage" },
     { key: "total_paid_amount", header: "Total Paid" },
-
   ];
-
 
   const today = new Date();
   const currentMonth = `${today.getFullYear()}-${String(
@@ -1449,7 +1450,7 @@ const TargetCommission = () => {
   ).padStart(2, "0")}`;
 
   return (
-   <div className="flex-1 min-h-screen bg-gray-50">
+    <div className="flex-1 min-h-screen bg-gray-50">
       <div className="flex-1">
         <Navbar visibility={true} />
         <div className="flex-grow p-8">
@@ -1458,12 +1459,16 @@ const TargetCommission = () => {
             <h1 className="text-4xl font-bold text-gray-900">
               Commission Reports
             </h1>
-            <p className="text-gray-600 mt-2">Track and manage agent commissions and performance</p>
+            <p className="text-gray-600 mt-2">
+              Track and manage agent commissions and performance
+            </p>
           </div>
 
           {/* Filter Card */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-8">
-            <h2 className="text-lg font-semibold text-gray-800 mb-6">Report Filters</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-6">
+              Report Filters
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               {/* Agent Select */}
               <div className="flex flex-col">
@@ -1492,6 +1497,7 @@ const TargetCommission = () => {
                   ))}
                 </Select>
               </div>
+
               {/* Date Selection Mode */}
               <div className="flex flex-col">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -1502,11 +1508,16 @@ const TargetCommission = () => {
                     value={dateSelectionMode}
                     onChange={(e) => setDateSelectionMode(e.target.value)}
                   >
-                    <Radio value="month" className="text-sm">Month</Radio>
-                    <Radio value="date-range" className="text-sm">Range</Radio>
+                    <Radio value="month" className="text-sm">
+                      Month
+                    </Radio>
+                    <Radio value="date-range" className="text-sm">
+                      Range
+                    </Radio>
                   </Radio.Group>
                 </div>
               </div>
+
               {/* Date Picker Fields */}
               {dateSelectionMode === "month" ? (
                 <div className="flex flex-col">
@@ -1551,6 +1562,7 @@ const TargetCommission = () => {
                 </>
               )}
             </div>
+
             {/* Filter Button */}
             <div className="flex justify-end">
               <button
@@ -1576,28 +1588,27 @@ const TargetCommission = () => {
                     className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
                   >
                     <FiTarget className="text-blue-600 group-hover:scale-110 transition-transform" size={24} />
-                    <span className="font-medium text-gray-700 group-hover:text-blue-600">Set Target</span>
+                    <span className="font-medium text-gray-700 group-hover:text-blue-600">
+                      Set Target
+                    </span>
                   </Link>
                   <Link
                     to="/reports/target-incentive"
                     className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
                   >
                     <FileTextOutlined className="text-blue-600 group-hover:scale-110 transition-transform text-lg" />
-                    <span className="font-medium text-gray-700 group-hover:text-blue-600">Incentive Report</span>
+                    <span className="font-medium text-gray-700 group-hover:text-blue-600">
+                      Incentive Report
+                    </span>
                   </Link>
-                  {/* <Link
-                    to="/target-commission-incentive"
-                    className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
-                  >
-                    <MdPayments className="text-blue-600 group-hover:scale-110 transition-transform" size={24} />
-                    <span className="font-medium text-gray-700 group-hover:text-blue-600">Incentive / Commission Payout</span>
-                  </Link> */}
                   <Link
                     to="/payment-menu/payment-in-out-menu/payment-out/salary-payment"
                     className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
                   >
                     <FaMoneyBill className="text-blue-600 group-hover:scale-110 transition-transform" size={24} />
-                    <span className="font-medium text-gray-700 group-hover:text-blue-600">Salary Payout</span>
+                    <span className="font-medium text-gray-700 group-hover:text-blue-600">
+                      Salary Payout
+                    </span>
                   </Link>
                 </div>
               </div>
@@ -1609,197 +1620,304 @@ const TargetCommission = () => {
                   {/* Employee Details */}
                   {isFilterApplied && (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-                      {selectedEmployeeId !== "ALL" && selectedEmployeeDetails && (
-                        <>
-                          <h3 className="text-lg font-semibold text-gray-800 mb-4">Agent Information</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div>
-                              <label className="text-xs font-semibold text-gray-600 uppercase">Name</label>
-                              <input
-                                value={selectedEmployeeDetails.name || "-"}
-                                readOnly
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
-                              />
+                      {selectedEmployeeId !== "ALL" &&
+                        selectedEmployeeDetails && (
+                          <>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                              Agent Information
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                              <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">
+                                  Name
+                                </label>
+                                <input
+                                  value={selectedEmployeeDetails.name || "-"}
+                                  readOnly
+                                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">
+                                  Email
+                                </label>
+                                <input
+                                  value={selectedEmployeeDetails.email || "-"}
+                                  readOnly
+                                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">
+                                  Phone
+                                </label>
+                                <input
+                                  value={
+                                    selectedEmployeeDetails.phone_number || "-"
+                                  }
+                                  readOnly
+                                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <label className="text-xs font-semibold text-gray-600 uppercase">Email</label>
-                              <input
-                                value={selectedEmployeeDetails.email || "-"}
-                                readOnly
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
-                              />
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                              <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">
+                                  Adhaar
+                                </label>
+                                <input
+                                  value={
+                                    selectedEmployeeDetails.adhaar_no || "-"
+                                  }
+                                  readOnly
+                                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">
+                                  PAN
+                                </label>
+                                <input
+                                  value={selectedEmployeeDetails.pan_no || "-"}
+                                  readOnly
+                                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">
+                                  Pincode
+                                </label>
+                                <input
+                                  value={
+                                    selectedEmployeeDetails.pincode || "-"
+                                  }
+                                  readOnly
+                                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <label className="text-xs font-semibold text-gray-600 uppercase">Phone</label>
-                              <input
-                                value={selectedEmployeeDetails.phone_number || "-"}
-                                readOnly
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
-                              />
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                              <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">
+                                  Address
+                                </label>
+                                <input
+                                  value={selectedEmployeeDetails?.address || "-"}
+                                  readOnly
+                                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">
+                                  Joining Date
+                                </label>
+                                <input
+                                  value={
+                                    selectedEmployeeDetails?.joining_date
+                                      ? selectedEmployeeDetails.joining_date.split(
+                                          "T"
+                                        )[0]
+                                      : "-"
+                                  }
+                                  readOnly
+                                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
+                                />
+                              </div>
                             </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div>
-                              <label className="text-xs font-semibold text-gray-600 uppercase">Adhaar</label>
-                              <input
-                                value={selectedEmployeeDetails.adhaar_no || "-"}
-                                readOnly
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs font-semibold text-gray-600 uppercase">PAN</label>
-                              <input
-                                value={selectedEmployeeDetails.pan_no || "-"}
-                                readOnly
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs font-semibold text-gray-600 uppercase">Pincode</label>
-                              <input
-                                value={selectedEmployeeDetails.pincode || "-"}
-                                readOnly
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div>
-                              <label className="text-xs font-semibold text-gray-600 uppercase">
-                                Address
-                              </label>
-                              <input
-                                value={selectedEmployeeDetails?.address || "-"}
-                                readOnly
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
-                              />
-                            </div>
+                            <hr className="my-6" />
+                          </>
+                        )}
 
-                            <div>
-                              <label className="text-xs font-semibold text-gray-600 uppercase">
-                                Joining Date
-                              </label>
-                              <input
-                                value={
-                                  selectedEmployeeDetails?.joining_date
-                                    ? selectedEmployeeDetails.joining_date.split(
-                                        "T"
-                                      )[0]
-                                    : "-"
-                                }
-                                readOnly
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50 text-gray-900 font-medium mt-1"
-                              />
-                            </div>
-                          </div>
-                          <hr className="my-6" />
-                        </>
-                      )}
                       {/* Summary Section */}
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Commission Summary</h3>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                        Commission Summary
+                      </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
-                          <label className="text-xs font-semibold text-gray-600 uppercase">Net Business</label>
+                          <label className="text-xs font-semibold text-gray-600 uppercase">
+                            Net Business
+                          </label>
                           <input
-                            value={commissionTotalDetails?.actual_business || "-"}
+                            value={
+                              commissionTotalDetails?.actual_business || "-"
+                            }
                             readOnly
                             className="w-full bg-transparent text-2xl font-bold text-green-700 mt-2 border-0"
                           />
+                          <span className="text-xs font-mono text-green-700 mt-1 block">
+                            {numberToIndianWords(
+                              parseAmount(commissionTotalDetails?.actual_business)
+                            )}
+                          </span>
                         </div>
                         <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
-                          <label className="text-xs font-semibold text-gray-600 uppercase">Net Commission (1% each)</label>
+                          <label className="text-xs font-semibold text-gray-600 uppercase">
+                            Net Commission (1% each)
+                          </label>
                           <input
                             value={commissionTotalDetails?.total_actual || "-"}
                             readOnly
                             className="w-full bg-transparent text-2xl font-bold text-blue-700 mt-2 border-0"
                           />
+                          <span className="text-xs font-mono text-blue-700 mt-1 block">
+                            {numberToIndianWords(
+                              parseAmount(commissionTotalDetails?.total_actual)
+                            )}
+                          </span>
                         </div>
                         <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4">
-                          <label className="text-xs font-semibold text-gray-600 uppercase">Net Customers</label>
+                          <label className="text-xs font-semibold text-gray-600 uppercase">
+                            Net Customers
+                          </label>
                           <input
-                            value={commissionTotalDetails?.total_customers || "-"}
+                            value={
+                              commissionTotalDetails?.total_customers || "-"
+                            }
                             readOnly
                             className="w-full bg-transparent text-2xl font-bold text-purple-700 mt-2 border-0"
                           />
                         </div>
-                        {/* <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4">
-                          <label className="text-xs font-semibold text-gray-600 uppercase">Net Groups</label>
-                          <input
-                            value={commissionTotalDetails?.total_groups || "-"}
-                            readOnly
-                            className="w-full bg-transparent text-2xl font-bold text-orange-700 mt-2 border-0"
-                          />
-                        </div> */}
                       </div>
                     </div>
                   )}
+
                   {/* Target Details */}
                   {isFilterApplied &&
                     selectedEmployeeId &&
                     selectedEmployeeId !== "ALL" && (
                       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
                         <div className="flex items-center justify-between mb-6">
-                          <h3 className="text-lg font-semibold text-gray-800">Target Performance</h3>
+                          <h3 className="text-lg font-semibold text-gray-800">
+                            Target Performance
+                          </h3>
                           {targetData.achieved >= targetData.target && (
                             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-100 border border-green-300">
-                              <GiPartyPopper size={24} className="text-green-600" />
-                              <span className="text-green-700 font-semibold">Target Achieved</span>
+                              <GiPartyPopper
+                                size={24}
+                                className="text-green-600"
+                              />
+                              <span className="text-green-700 font-semibold">
+                                Target Achieved
+                              </span>
                             </div>
                           )}
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                           <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
-                            <label className="text-xs font-semibold text-gray-600 uppercase">Target Set</label>
+                            <label className="text-xs font-semibold text-gray-600 uppercase">
+                              Target Set
+                            </label>
                             <p className="text-2xl font-bold text-blue-700 mt-2">
                               {`${targetData.target?.toLocaleString("en-IN")}`}
                             </p>
+                            <span className="text-xs font-mono text-blue-700 mt-1 block">
+                              {numberToIndianWords(targetData.target || 0)}
+                            </span>
                           </div>
                           <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
-                            <label className="text-xs font-semibold text-gray-600 uppercase">Achieved</label>
+                            <label className="text-xs font-semibold text-gray-600 uppercase">
+                              Achieved
+                            </label>
                             <p className="text-2xl font-bold text-green-700 mt-2">
                               {`${targetData.achieved?.toLocaleString("en-IN")}`}
                             </p>
+                            <span className="text-xs font-mono text-green-700 mt-1 block">
+                              {numberToIndianWords(targetData.achieved || 0)}
+                            </span>
                           </div>
                           <div className="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-lg p-4">
-                            <label className="text-xs font-semibold text-gray-600 uppercase">Difference</label>
+                            <label className="text-xs font-semibold text-gray-600 uppercase">
+                              Difference
+                            </label>
                             <p className="text-2xl font-bold text-amber-700 mt-2">
-                              {`${(targetData.difference ?? "0")?.toLocaleString("en-IN")}`}
+                              {`${(
+                                targetData.difference ?? "0"
+                              )?.toLocaleString("en-IN")}`}
                             </p>
+                            <span className="text-xs font-mono text-amber-700 mt-1 block">
+                              {numberToIndianWords(
+                                Math.abs(targetData.difference || 0)
+                              )}
+                            </span>
                           </div>
                           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-lg p-4">
-                            <label className="text-xs font-semibold text-gray-600 uppercase">Total Payable Commission</label>
+                            <label className="text-xs font-semibold text-gray-600 uppercase">
+                              Total Payable Commission
+                            </label>
                             <p className="text-2xl font-bold text-emerald-700 mt-2">
-                              {`${targetData.targetCommission.toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}`}
+                              {`${targetData.targetCommission.toLocaleString(
+                                "en-IN",
+                                {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                }
+                              )}`}
                             </p>
+                            <span className="text-xs font-mono text-emerald-700 mt-1 block">
+                              {numberToIndianWords(
+                                targetData.targetCommission || 0
+                              )}
+                            </span>
                           </div>
                         </div>
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-                          <p className="text-sm font-semibold text-blue-800 mb-3">Commission Breakdown</p>
+                          <p className="text-sm font-semibold text-blue-800 mb-3">
+                            Commission Breakdown
+                          </p>
                           <ul className="space-y-2">
                             <li className="text-sm text-gray-700 flex items-center gap-2">
                               <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                              <span>Up to target (0.5%): {(Math.min(targetData.achieved, targetData.target) * 0.005).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}</span>
+                              <span>
+                                Up to target (0.5%):{" "}
+                                {(
+                                  Math.min(
+                                    targetData.achieved,
+                                    targetData.target
+                                  ) * 0.005
+                                ).toLocaleString("en-IN", {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </span>
+                              <span className="text-xs font-mono text-blue-700 ml-2">
+                                (
+                                {numberToIndianWords(
+                                  Math.min(
+                                    targetData.achieved,
+                                    targetData.target
+                                  ) * 0.005
+                                )}
+                                )
+                              </span>
                             </li>
                             {targetData.achieved > targetData.target && (
                               <li className="text-sm text-gray-700 flex items-center gap-2">
                                 <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                                <span>Beyond target (1%): {((targetData.achieved - targetData.target) * 0.01).toLocaleString("en-IN", {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                })}</span>
+                                <span>
+                                  Beyond target (1%):{" "}
+                                  {(
+                                    (targetData.achieved - targetData.target) *
+                                    0.01
+                                  ).toLocaleString("en-IN", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </span>
+                                <span className="text-xs font-mono text-green-700 ml-2">
+                                  (
+                                  {numberToIndianWords(
+                                    (targetData.achieved - targetData.target) *
+                                      0.01
+                                  )}
+                                  )
+                                </span>
                               </li>
                             )}
                           </ul>
                         </div>
                       </div>
                     )}
+
                   {/* Data Table */}
                   {loading ? (
                     <div className="flex justify-center py-20">
@@ -1836,53 +1954,68 @@ const TargetCommission = () => {
                           isFilterApplied
                             ? dateSelectionMode === "month"
                               ? new Date(`${selectedMonth}-01`).toLocaleString(
-                                "default",
-                                {
-                                  month: "long",
-                                  year: "numeric",
-                                }
-                              )
+                                  "default",
+                                  {
+                                    month: "long",
+                                    year: "numeric",
+                                  }
+                                )
                               : `${new Date(
-                                tempFromDate
-                              ).toLocaleDateString()} - ${new Date(
-                                tempToDate
-                              ).toLocaleDateString()}`
+                                  tempFromDate
+                                ).toLocaleDateString()} - ${new Date(
+                                  tempToDate
+                                ).toLocaleDateString()}`
                             : "-",
-                          `${targetData?.target?.toLocaleString("en-IN") || "0"}`,
-                          `${targetData?.achieved?.toLocaleString("en-IN") || "0"}`,
-                          `${targetData?.remaining?.toLocaleString("en-IN") || "0"
-                          }`,
-                          `${targetData?.targetCommission?.toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }) || "0.00"
-                          }`,
-                          `${commissionTotalDetails?.actual_business?.toLocaleString(
+                          `₹${targetData?.target?.toLocaleString("en-IN") || "0"} (${numberToIndianWords(
+                            targetData?.target || 0
+                          )})`,
+                          `₹${targetData?.achieved?.toLocaleString("en-IN") || "0"} (${numberToIndianWords(
+                            targetData?.achieved || 0
+                          )})`,
+                          `₹${targetData?.remaining?.toLocaleString("en-IN") || "0"} (${numberToIndianWords(
+                            targetData?.remaining || 0
+                          )})`,
+                          `₹${targetData?.targetCommission?.toLocaleString(
+                            "en-IN",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          ) || "0.00"} (${numberToIndianWords(
+                            targetData?.targetCommission || 0
+                          )})`,
+                          `₹${commissionTotalDetails?.actual_business?.toLocaleString(
                             "en-IN"
-                          ) || "0"
-                          }`,
-                          `${commissionTotalDetails?.total_actual?.toLocaleString(
+                          ) || "0"} (${numberToIndianWords(
+                            parseAmount(commissionTotalDetails?.actual_business)
+                          )})`,
+                          `₹${commissionTotalDetails?.total_actual?.toLocaleString(
                             "en-IN"
-                          ) || "0"
-                          }`,
-                          `${commissionTotalDetails?.expected_business?.toLocaleString(
+                          ) || "0"} (${numberToIndianWords(
+                            parseAmount(commissionTotalDetails?.total_actual)
+                          )})`,
+                          `₹${commissionTotalDetails?.expected_business?.toLocaleString(
                             "en-IN"
-                          ) || "0"
-                          }`,
-                          `${commissionTotalDetails?.total_estimated?.toLocaleString(
+                          ) || "0"} (${numberToIndianWords(
+                            parseAmount(commissionTotalDetails?.expected_business)
+                          )})`,
+                          `₹${commissionTotalDetails?.total_estimated?.toLocaleString(
                             "en-IN"
-                          ) || "0"
-                          }`,
+                          ) || "0"} (${numberToIndianWords(
+                            parseAmount(commissionTotalDetails?.total_estimated)
+                          )})`,
                           commissionTotalDetails?.total_customers || "0",
                           commissionTotalDetails?.total_groups || "0",
                         ]}
-                        exportedFileName={`CommissionReport-${selectedEmployeeDetails?.name || "all"
-                          }-${isFilterApplied
+                        exportedFileName={`CommissionReport-${
+                          selectedEmployeeDetails?.name || "all"
+                        }-${
+                          isFilterApplied
                             ? dateSelectionMode === "month"
                               ? selectedMonth
                               : `${tempFromDate}_to_${tempToDate}`
                             : "unfiltered"
-                          }.csv`}
+                        }.csv`}
                       />
                     </div>
                   ) : (
@@ -1902,28 +2035,59 @@ const TargetCommission = () => {
                   {/* Gross Incentive Summary Section */}
                   {isFilterApplied && (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Gross Incentive Summary</h3>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                        Gross Incentive Summary
+                      </h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
-                          <label className="text-xs font-semibold text-gray-600 uppercase">Gross Group Value</label>
+                          <label className="text-xs font-semibold text-gray-600 uppercase">
+                            Gross Group Value
+                          </label>
                           <input
-                            value={grossCommissionSummary.total_gross_group_value?.toLocaleString("en-IN") || "-"}
+                            value={
+                              grossCommissionSummary.total_gross_group_value?.toLocaleString(
+                                "en-IN"
+                              ) || "-"
+                            }
                             readOnly
                             className="w-full bg-transparent text-2xl font-bold text-green-700 mt-2 border-0"
                           />
+                          <span className="text-xs font-mono text-green-700 mt-1 block">
+                            {numberToIndianWords(
+                              grossCommissionSummary.total_gross_group_value ||
+                                0
+                            )}
+                          </span>
                         </div>
                         <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
-                          <label className="text-xs font-semibold text-gray-600 uppercase">Gross Commission Value</label>
+                          <label className="text-xs font-semibold text-gray-600 uppercase">
+                            Gross Commission Value
+                          </label>
                           <input
-                            value={grossCommissionSummary.total_gross_commission_value?.toLocaleString("en-IN") || "-"}
+                            value={
+                              grossCommissionSummary.total_gross_commission_value?.toLocaleString(
+                                "en-IN"
+                              ) || "-"
+                            }
                             readOnly
                             className="w-full bg-transparent text-2xl font-bold text-blue-700 mt-2 border-0"
                           />
+                          <span className="text-xs font-mono text-blue-700 mt-1 block">
+                            {numberToIndianWords(
+                              grossCommissionSummary.total_gross_commission_value ||
+                                0
+                            )}
+                          </span>
                         </div>
                         <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4">
-                          <label className="text-xs font-semibold text-gray-600 uppercase">Gross Enrollments</label>
+                          <label className="text-xs font-semibold text-gray-600 uppercase">
+                            Gross Enrollments
+                          </label>
                           <input
-                            value={grossCommissionSummary.total_gross_enrollments || "-"}
+                            value={
+                              grossCommissionSummary.total_gross_enrollments ||
+                              "-"
+                            }
                             readOnly
                             className="w-full bg-transparent text-2xl font-bold text-purple-700 mt-2 border-0"
                           />
@@ -1961,29 +2125,40 @@ const TargetCommission = () => {
                           isFilterApplied
                             ? dateSelectionMode === "month"
                               ? new Date(`${selectedMonth}-01`).toLocaleString(
-                                "default",
-                                {
-                                  month: "long",
-                                  year: "numeric",
-                                }
-                              )
+                                  "default",
+                                  {
+                                    month: "long",
+                                    year: "numeric",
+                                  }
+                                )
                               : `${new Date(
-                                tempFromDate
-                              ).toLocaleDateString()} - ${new Date(
-                                tempToDate
-                              ).toLocaleDateString()}`
+                                  tempFromDate
+                                ).toLocaleDateString()} - ${new Date(
+                                  tempToDate
+                                ).toLocaleDateString()}`
                             : "-",
-                          `${grossCommissionSummary.total_gross_group_value?.toLocaleString("en-IN") || "0"}`,
-                          `${grossCommissionSummary.total_gross_incentive_value?.toLocaleString("en-IN") || "0"}`,
+                          `₹${grossCommissionSummary.total_gross_group_value?.toLocaleString(
+                            "en-IN"
+                          ) || "0"} (${numberToIndianWords(
+                            grossCommissionSummary.total_gross_group_value || 0
+                          )})`,
+                          `₹${grossCommissionSummary.total_gross_incentive_value?.toLocaleString(
+                            "en-IN"
+                          ) || "0"} (${numberToIndianWords(
+                            grossCommissionSummary.total_gross_incentive_value ||
+                              0
+                          )})`,
                           `${grossCommissionSummary.total_gross_enrollments || "0"}`,
                         ]}
-                        exportedFileName={`GrossIncentiveReport-${selectedEmployeeDetails?.name || "all"
-                          }-${isFilterApplied
+                        exportedFileName={`GrossIncentiveReport-${
+                          selectedEmployeeDetails?.name || "all"
+                        }-${
+                          isFilterApplied
                             ? dateSelectionMode === "month"
                               ? selectedMonth
                               : `${tempFromDate}_to_${tempToDate}`
                             : "unfiltered"
-                          }.csv`}
+                        }.csv`}
                       />
                     </div>
                   ) : (
@@ -2000,8 +2175,6 @@ const TargetCommission = () => {
               </Tabs>
             </>
           )}
-
-
         </div>
       </div>
     </div>

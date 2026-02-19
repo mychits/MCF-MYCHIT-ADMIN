@@ -11,6 +11,7 @@ import { Collapse } from "antd";
 import { Link } from "react-router-dom";
 import { FileTextOutlined, DollarOutlined } from "@ant-design/icons";
 import { FaMoneyBill } from "react-icons/fa";
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const { RangePicker } = DatePicker;
 
@@ -222,7 +223,7 @@ const DueLoanReport = () => {
                             className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
                           >
                             <FaMoneyBill className="text-blue-500" size={30} />
-                            Loan
+                            Add Loan
                           </Link>
                           <Link
                             to="/reports/customer-loan-report"
@@ -254,13 +255,70 @@ const DueLoanReport = () => {
                 />
               </div>
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <StatCard icon={FileText} label="Total Loans" value={summaryStats.totalLoans} color="bg-blue-600" />
-              <StatCard icon={IndianRupee} label="Total Loan Amount" value={`₹${summaryStats.totalAmount}`} color="bg-purple-600" />
-              <StatCard icon={TrendingUp} label="Total Payable" value={`₹${summaryStats.totalPayable}`} color="bg-blue-600" />
-              <StatCard icon={TrendingUp} label="Total Paid" value={`₹${summaryStats.totalPaid}`} color="bg-green-600" />
-              <StatCard icon={Calendar} label="Total Balance" value={`₹${summaryStats.totalBalance}`} color="bg-orange-600" />
-            </div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+  <div className="flex flex-col">
+    <StatCard
+      icon={FileText}
+      label="Total Loans"
+      value={summaryStats.totalLoans}
+      color="bg-blue-600"
+    />
+    <span className="text-sm font-mono text-green-700 mt-2 break-words">
+      {numberToIndianWords(summaryStats.totalLoans || 0)}
+    </span>
+  </div>
+
+  <div className="flex flex-col">
+    <StatCard
+      icon={IndianRupee}
+      label="Total Loan Amount"
+      value={`₹${summaryStats.totalAmount}`}
+      color="bg-purple-600"
+    />
+    <span className="text-sm font-mono text-green-700 mt-2 break-words">
+      {numberToIndianWords(summaryStats.totalAmount || 0)}
+    </span>
+  </div>
+
+  <div className="flex flex-col">
+    <StatCard
+      icon={TrendingUp}
+      label="Total Payable"
+      value={`₹${summaryStats.totalPayable}`}
+      color="bg-blue-600"
+    />
+    <span className="text-sm font-mono text-green-700 mt-2 break-words">
+      {numberToIndianWords(summaryStats.totalPayable || 0)}
+    </span>
+  </div>
+
+  <div className="flex flex-col">
+    <StatCard
+      icon={TrendingUp}
+      label="Total Paid"
+      value={`₹${summaryStats.totalPaid}`}
+      color="bg-green-600"
+    />
+    <span className="text-sm font-mono text-green-700 mt-2 break-words">
+      {numberToIndianWords(summaryStats.totalPaid || 0)}
+    </span>
+  </div>
+
+  {/* <div className="flex flex-col">
+    <StatCard
+      icon={Calendar}
+      label="Total Balance"
+      value={`₹${summaryStats.totalBalance}`}
+      color="bg-orange-600"
+    />
+    <span className="text-sm font-mono text-green-700 mt-2 break-words">
+      {numberToIndianWords(summaryStats.totalBalance || 0)}
+    </span>
+  </div> */}
+
+</div>
+
 
             {/* FILTERS */}
             <div className="bg-white rounded-xl shadow-sm border p-6 mb-8">
@@ -350,7 +408,21 @@ const DueLoanReport = () => {
               <DataTable
                 columns={loanReportColumns}
                 data={filteredLoanReport}
-                exportedPdfName="Customer Loan Report"
+                 printHeaderKeys={[
+                  "Total Loans",
+                  "Total Loan Amount",
+                  "Total Payable",
+                  "Total Paid",
+                  "Total Outstanding",
+                ]}
+                printHeaderValues={[
+                  summaryStats.totalLoans.toLocaleString("en-IN"),
+                  `₹ ${summaryStats.totalAmount.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalPayable.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalPaid.toLocaleString("en-IN")}`,
+                  `₹ ${summaryStats.totalBalance.toLocaleString("en-IN")}`,
+                ]}
+                exportedPdfName="OutStanding Customer Loan Report"
               />
             </div>
           </>

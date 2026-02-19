@@ -6,6 +6,7 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import { Select, message } from "antd";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
+import { numberToIndianWords } from "../helpers/numberToIndianWords"; 
 
 const AllUserReport = () => {
   const [searchText, setSearchText] = useState("");
@@ -325,25 +326,25 @@ const AllUserReport = () => {
     { key: "payment_type", header: "Payment Type" },
     { key: "firstInstallment", header: "First Installment" },
     { key: "firstInstallmentStatus", header: "First Installment Status" },
-    { key: "amountPaid", header: "Amount Paid" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
+    { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
     // New penalty columns
-    { 
-      key: "totalPenalty", 
-      header: "Total Penalty",
+    // { 
+    //   key: "totalPenalty", 
+    //   header: "Total Penalty",
       
-    },
-    { 
-      key: "totalLateFee", 
-      header: "Total Late Fee",
+    // },
+    // { 
+    //   key: "totalLateFee", 
+    //   header: "Total Late Fee",
     
-    },
-    { 
-      key: "outstandingWithPenalty", 
-      header: "Outstanding with Penalty",
+    // },
+    // { 
+    //   key: "outstandingWithPenalty", 
+    //   header: "Outstanding with Penalty",
     
-    },
+    // },
     { key: "collectionArea", header: "Collection Area" },
     { key: "collectionExecutive", header: "Collection Executive" },
     { key: "statusDiv", header: "Status" },
@@ -365,13 +366,13 @@ const AllUserReport = () => {
     { key: "relationshipManager", header: "Relationship Manager" },
     { key: "payment_type", header: "Payment Type" },
     { key: "firstInstallment", header: "First Installment" },
-    { key: "amountPaid", header: "Amount Paid" },
     { key: "totalToBePaid", header: "Amount to be Paid" },
+    { key: "amountPaid", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
     // New penalty columns for Excel
-    { key: "totalPenalty", header: "Total Penalty" },
-    { key: "totalLateFee", header: "Total Late Fee" },
-    { key: "outstandingWithPenalty", header: "Outstanding with Penalty" },
+    // { key: "totalPenalty", header: "Total Penalty" },
+    // { key: "totalLateFee", header: "Total Late Fee" },
+    // { key: "outstandingWithPenalty", header: "Outstanding with Penalty" },
     { key: "collectionArea", header: "Collection Area" },
     { key: "collectionExecutive", header: "Collection Executive" },
     { key: "status", header: "Status" },
@@ -519,320 +520,144 @@ const AllUserReport = () => {
               </div>
             </div>
 
-            {/* Statistics Cards - Updated with penalty totals */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
+            {/* Statistics Cards - Redesigned Alignment */}
+     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+              {/* Total Customers */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200 flex flex-col justify-between h-full relative overflow-hidden">
+                {/* Decorative Background Icon */}
+                <div className="absolute -right-4 -top-4 text-white/10 transform rotate-12">
+                   <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                  </div>
                 </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Total Customers
-                </span>
-                <span className="text-2xl font-bold">
-                  {totals.totalCustomers}
-                </span>
+
+                <div className="relative z-10">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Total Customers</h4>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-4">{totals.totalCustomers}</p>
+                  
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-1 bg-white/30 rounded-full"></div>
+                  </div>
+                  
+                  <p className="text-sm text-white/90 font-medium leading-snug">
+                     {numberToIndianWords(totals.totalCustomers)}
+                  </p>
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                      />
+              {/* Total Groups */}
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200 flex flex-col justify-between h-full relative overflow-hidden">
+                 {/* Decorative Background Icon */}
+                 <div className="absolute -right-4 -top-4 text-white/10 transform rotate-12">
+                   <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                  </div>
                 </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Total Groups
-                </span>
-                <span className="text-2xl font-bold">{totals.totalGroups}</span>
+
+                <div className="relative z-10">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Total Groups</h4>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-4">{totals.totalGroups}</p>
+                  
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-1 bg-white/30 rounded-full"></div>
+                  </div>
+                  
+                  <p className="text-sm text-white/90 font-medium leading-snug">
+                     {numberToIndianWords(totals.totalGroups)}
+                  </p>
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"
-                      />
+              {/* Amount to be Paid */}
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200 flex flex-col justify-between h-full relative overflow-hidden">
+                 {/* Decorative Background Icon */}
+                 <div className="absolute -right-4 -top-4 text-white/10 transform rotate-12">
+                   <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
                     </svg>
-                  </div>
                 </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Amount to be Paid
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalToBePaid.toLocaleString("en-IN")}
-                </span>
+
+                <div className="relative z-10">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Amount to be Paid</h4>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-4">₹{totals.totalToBePaid.toLocaleString("en-IN")}</p>
+                  
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-1 bg-white/30 rounded-full"></div>
+                  </div>
+                  
+                  <p className="text-sm text-white/90 font-medium leading-snug">
+                     {numberToIndianWords(totals.totalToBePaid)}
+                  </p>
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                      />
+              {/* Total Profit */}
+              <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200 flex flex-col justify-between h-full relative overflow-hidden">
+                 {/* Decorative Background Icon */}
+                 <div className="absolute -right-4 -top-4 text-white/10 transform rotate-12">
+                   <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
-                  </div>
                 </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Total Profit
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalProfit.toLocaleString("en-IN")}
-                </span>
+
+                <div className="relative z-10">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Total Profit</h4>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-4">₹{totals.totalProfit.toLocaleString("en-IN")}</p>
+                  
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-1 bg-white/30 rounded-full"></div>
+                  </div>
+                  
+                  <p className="text-sm text-white/90 font-medium leading-snug">
+                     {numberToIndianWords(totals.totalProfit)}
+                  </p>
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
+              {/* Total Amount Paid */}
+              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200 flex flex-col justify-between h-full relative overflow-hidden">
+                 {/* Decorative Background Icon */}
+                 <div className="absolute -right-4 -top-4 text-white/10 transform rotate-12">
+                   <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                  </div>
                 </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Total Amount Paid
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalPaid.toLocaleString("en-IN")}
-                </span>
+
+                <div className="relative z-10">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Total Amount Paid</h4>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-4">₹{totals.totalPaid.toLocaleString("en-IN")}</p>
+                  
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-1 bg-white/30 rounded-full"></div>
+                  </div>
+                  
+                  <p className="text-sm text-white/90 font-medium leading-snug">
+                     {numberToIndianWords(totals.totalPaid)}
+                  </p>
+                </div>
               </div>
 
-              <div className="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
-                      />
+              {/* Total Balance */}
+              <div className="bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-transform duration-200 flex flex-col justify-between h-full relative overflow-hidden">
+                 {/* Decorative Background Icon */}
+                 <div className="absolute -right-4 -top-4 text-white/10 transform rotate-12">
+                   <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
                     </svg>
-                  </div>
                 </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Total Balance
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalBalance.toLocaleString("en-IN")}
-                </span>
-              </div>
-                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Total Penalty
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalPenalty.toLocaleString("en-IN")}
-                </span>
-              </div>
 
-              <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                <div className="relative z-10">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Total Balance</h4>
+                  <p className="text-4xl font-bold text-white tracking-tight mb-4">₹{totals.totalBalance.toLocaleString("en-IN")}</p>
+                  
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-1 bg-white/30 rounded-full"></div>
                   </div>
+                  
+                  <p className="text-sm text-white/90 font-medium leading-snug">
+                     {numberToIndianWords(totals.totalBalance)}
+                  </p>
                 </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Total Late Fee
-                </span>
-                <span className="text-2xl font-bold">
-                 ₹{totals.totalPenalty.toLocaleString("en-IN")}
-                </span>
-              </div>
-            </div>
-
-            {/* New Penalty Statistics Cards */}
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-          
-
-              <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Regular Penalty
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalRegularPenalty.toLocaleString("en-IN")}
-                </span>
-              </div>
-
-              <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  VC Penalty
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalVcPenalty.toLocaleString("en-IN")}
-                </span>
-              </div>
-
-              <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Manual Penalty
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalManualPenalty.toLocaleString("en-IN")}
-                </span>
-              </div>
-
-              <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform duration-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-2">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <span className="text-sm font-medium opacity-90 block mb-1">
-                  Outstanding with Penalty
-                </span>
-                <span className="text-2xl font-bold">
-                  ₹{totals.totalOutstandingWithPenalty.toLocaleString("en-IN")}
-                </span>
               </div>
             </div>
 

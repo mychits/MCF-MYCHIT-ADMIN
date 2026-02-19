@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import API from "../instance/TokenInstance";
 import { notification } from "antd";
@@ -6,15 +5,23 @@ import { useNavigate, Link } from "react-router-dom";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
 import { NavbarMenu } from "../data/menu";
-import { CloudUpload } from "lucide-react";
+import { CloudUpload, X, FileText } from "lucide-react";
 
 function ComplaintForm() {
   const [api, contextHolder] = notification.useNotification();
-  // const [designations, setDesignations] = useState([]);
   const [attachments, setAttachments] = useState([]);
-
   const navigate = useNavigate();
 
+  // --- ADDED CANCEL HANDLER ---
+  const handleCancel = () => {
+    navigate(-1);
+  };
+
+  // ✅ NEW: Function to remove a specific file from preview
+  const handleRemoveFile = (index, e) => {
+    e.stopPropagation(); // Prevents the file input dialog from opening
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const designationCategories = {
     "Management & Leadership": [
@@ -38,7 +45,7 @@ function ComplaintForm() {
       "Graphic Designer"
     ],
     "OTHERS": [
-      "others"
+      "others",
     ],
   };
 
@@ -53,6 +60,44 @@ function ComplaintForm() {
   const [errors, setErrors] = useState({});
   const [submissions, setSubmissions] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // --- UPDATED: FETCH FULL USER DETAILS ---
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const userStr = localStorage.getItem("user");
+        if (!userStr) return;
+
+        const user = JSON.parse(userStr);
+        const userId = user._id;
+
+        if (!userId) {
+          console.warn("No User ID found in localStorage");
+          return;
+        }
+
+        const res = await API.get(`/admin/get-admin/${userId}`);
+
+        setFormData(prev => ({
+          ...prev,
+          name: res.data.name || prev.name,
+          mobile: res.data.phoneNumber || prev.mobile
+        }));
+
+      } catch (error) {
+        console.error("Failed to fetch full user profile:", error);
+        try {
+          const userStr = localStorage.getItem("user");
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            setFormData(prev => ({ ...prev, name: user.admin_name }));
+          }
+        } catch (e) { }
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
 
   const handleFileChange = (e) => {
@@ -87,7 +132,6 @@ function ComplaintForm() {
     }
   };
 
-
   /* ---------------- NOTIFICATION HELPER ---------------- */
   const notify = (type, title, description) => {
     api[type]({
@@ -99,7 +143,6 @@ function ComplaintForm() {
       style: {
         lineHeight: "1.2",
       },
-
     });
   };
 
@@ -109,7 +152,6 @@ function ComplaintForm() {
     if (!/^[A-Za-z\s]{1,15}$/.test(formData.name.trim())) {
       newErrors.name = "Name must contain only alphabets and max 15 characters";
     }
-
 
     if (!/^[6-9]\d{9}$/.test(formData.mobile)) {
       newErrors.mobile = "Mobile number must start with 6-9 and be exactly 10 digits";
@@ -144,7 +186,6 @@ function ComplaintForm() {
   const submitComplaint = async (e) => {
     e.preventDefault();
 
-    // 🚫 Prevent multiple clicks
     if (isSubmitting) return;
 
     if (!validateForm(submissions)) {
@@ -153,16 +194,14 @@ function ComplaintForm() {
     }
 
     try {
-      setIsSubmitting(true); // 🔒 LOCK SUBMIT
-
-      // await API.post('complaints/create', {
-      //   userId: "123456",
-      //   ...formData,
-      // });
+      setIsSubmitting(true);
 
       const formPayload = new FormData();
 
-      formPayload.append("userId", "123456");
+      const userStr = localStorage.getItem("user");
+      const userId = userStr ? JSON.parse(userStr)._id : "123456";
+
+      formPayload.append("userId", userId);
       formPayload.append("name", formData.name);
       formPayload.append("mobile", formData.mobile);
       formPayload.append("subject", formData.subject);
@@ -175,9 +214,6 @@ function ComplaintForm() {
 
       await API.post("complaints/create", formPayload);
 
-
-
-      // Store locally to prevent frontend duplicates
       setSubmissions((prev) => [...prev, formData]);
 
       notify(
@@ -194,7 +230,7 @@ function ComplaintForm() {
         message: "",
       });
 
-
+      setAttachments([]);
       setErrors({});
 
       setTimeout(() => navigate("/help&support"), 1500);
@@ -213,25 +249,9 @@ function ComplaintForm() {
         );
       }
     } finally {
-      setIsSubmitting(false); // 🔓 UNLOCK SUBMIT
+      setIsSubmitting(false);
     }
   };
-
-
-
-  // useEffect(() => {
-  //   const fetchDesignations = async () => {
-  //     try {
-  //       const res = await API.get("/designation/get-designation");
-  //       setDesignations(res.data);
-  //     } catch (error) {
-  //       console.error("Failed to load designations", error);
-  //     }
-  //   };
-
-  //   fetchDesignations();
-  // }, []);
-
 
   return (
     <>
@@ -244,9 +264,21 @@ function ComplaintForm() {
 
           {/* ---------------- FORM ---------------- */}
           <div className="min-h-screen flex items-start justify-center bg-gray-100 px-4 py-24">
-            <div className="w-full max-w-xl bg-white rounded-xl shadow-md border p-8">
+            <div className="w-full max-w-xl bg-white rounded-xl shadow-md border p-8 relative">
+
+              {/* --- CANCEL BUTTON --- */}
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"
+                title="Cancel"
+              >
+                <X size={24} />
+              </button>
+              {/* --------------------- */}
+
               <form onSubmit={submitComplaint} className="space-y-6">
-                <h2 className="text-2xl font-semibold text-indigo-800 text-center">
+                <h2 className="text-2xl font-semibold text-indigo-800 text-center pr-8">
                   Raise a Support Ticket
                 </h2>
 
@@ -261,15 +293,18 @@ function ComplaintForm() {
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          name: e.target.value.replace(/[^A-Za-z\s]/g, ""),
+                          name: e.target.value.replace(/[^A-Za-z\s-_]/g, ""),
                         })
                       }
-                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2
+               focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
                     />
+
                     {errors.name && (
                       <p className="text-red-500 text-sm mt-1">{errors.name}</p>
                     )}
                   </div>
+
                 </div>
 
                 {/* MOBILE */}
@@ -343,8 +378,6 @@ function ComplaintForm() {
                       ))}
                     </select>
 
-
-
                     {errors.designation && (
                       <p className="text-red-500 text-sm mt-1">
                         {errors.designation}
@@ -352,7 +385,6 @@ function ComplaintForm() {
                     )}
                   </div>
                 </div>
-
 
                 {/* MESSAGE */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -375,21 +407,15 @@ function ComplaintForm() {
                   </div>
                 </div>
 
-                {/* ATTACH DOCUMENT */}
+                {/* ✅ UPDATED: ATTACH DOCUMENT WITH PREVIEW AND FILE NAME */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <label className="text-gray-600">Attachment</label>
 
                   <div className="col-span-2">
                     <label
                       htmlFor="attachment"
-                      className="flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                      className="relative flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden"
                     >
-                      <CloudUpload size={40} className="text-gray-400 mb-2" />
-                      <p className="text-sm font-medium text-gray-700">Attach Documents</p>
-                      <p className="text-xs text-gray-500">
-                        PDF, PNG, JPG, JPEG (Max 5MB)
-                      </p>
-
                       <input
                         id="attachment"
                         type="file"
@@ -398,21 +424,69 @@ function ComplaintForm() {
                         accept=".pdf,.png,.jpg,.jpeg"
                         onChange={handleFileChange}
                       />
-                    </label>
 
-                    {attachments.length > 0 && (
-                      <ul className="mt-2 space-y-1">
-                        {attachments.map((file, index) => (
-                          <li key={index} className="text-sm text-green-600">
-                            📎 {file.name}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                      {/* Condition 1: No files selected -> Show Upload Icon */}
+                      {attachments.length === 0 && (
+                        <div className="flex flex-col items-center justify-center z-10 pointer-events-none">
+                          <CloudUpload size={40} className="text-gray-400 mb-2" />
+                          <p className="text-sm font-medium text-gray-700">Attach Documents</p>
+                          <p className="text-xs text-gray-500">
+                            PDF, PNG, JPG, JPEG (Max 5MB)
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Condition 2: Files selected -> Show Previews Grid */}
+                      {attachments.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2 w-full h-full p-2 overflow-y-auto z-10 bg-white/50">
+                          {attachments.map((file, index) => (
+                            <div key={index} className="relative group h-24 w-full rounded border overflow-hidden bg-gray-100 flex-shrink-0 flex flex-col">
+
+                              {/* Preview Section */}
+                              <div className="flex-1 relative">
+                                {file.type.startsWith('image/') ? (
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="preview"
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex flex-col items-center justify-center h-full w-full text-gray-500">
+                                    <FileText size={28} />
+                                    <span className="text-[10px] truncate w-full text-center px-1 mt-1">PDF</span>
+                                  </div>
+                                )}
+
+                                {/* Remove Button */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleRemoveFile(index, e)}
+                                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 shadow-sm transition transform scale-90 hover:scale-100"
+                                  title="Remove file"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+
+                              {/* ✅ NEW: File Name Display */}
+                              <div className="bg-white border-t border-gray-200 p-1">
+                                <p className="text-[10px] text-gray-700 truncate text-center" title={file.name}>
+                                  {file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* Add More Indicator */}
+                          <div className="relative h-24 w-full rounded border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-gray-50 transition">
+                            <span className="text-2xl font-bold">+</span>
+                            <span className="text-[10px] mt-1">Add More</span>
+                          </div>
+                        </div>
+                      )}
+                    </label>
                   </div>
                 </div>
-
-
 
                 {/* SUBMIT */}
                 <div className="flex justify-end">
@@ -423,9 +497,7 @@ function ComplaintForm() {
                                                ${isSubmitting
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700 text-white"}`} >
-
                     {isSubmitting ? "Submitting..." : "Submit"}
-
                   </button>
                 </div>
               </form>

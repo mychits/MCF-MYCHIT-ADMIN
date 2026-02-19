@@ -16,6 +16,7 @@ import {
   FiUsers,
   FiCreditCard,
 } from "react-icons/fi";
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const CollectionExecutiveReport = () => {
   const [groups, setGroups] = useState([]);
@@ -52,7 +53,7 @@ const CollectionExecutiveReport = () => {
   const [selectedCollectionExecutive, setSelectedCollectionExecutive] = useState("");
   const [payments, setPayments] = useState([]);
   const [showAllPaymentModes, setShowAllPaymentModes] = useState(false);
-  const [employees,setEmployees] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
     group_id: "",
     user_id: "",
@@ -62,7 +63,7 @@ const CollectionExecutiveReport = () => {
     amount: "",
     pay_type: "cash",
     transaction_id: "",
-    collection_executive:"",
+    collection_executive: "",
   });
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -81,7 +82,7 @@ const CollectionExecutiveReport = () => {
     ) {
       const showPaymentsModes =
         userObj.admin_access_right_id?.access_permissions?.edit_payment ===
-        "true"
+          "true"
           ? true
           : false;
       setShowAllPaymentModes(showPaymentsModes);
@@ -98,7 +99,7 @@ const CollectionExecutiveReport = () => {
     ) {
       const isModify =
         userObj.admin_access_right_id?.access_permissions?.edit_payment ===
-        "true"
+          "true"
           ? true
           : false;
       setHideAccountType(isModify);
@@ -109,7 +110,7 @@ const CollectionExecutiveReport = () => {
       try {
         const [emplys] = await Promise.all([
           api.get("/agent/collection-executive"),
-        
+
         ]);
         const emps = emplys?.data?.collectionExecutive.map((emp) => ({
           _id: emp?._id?._id,
@@ -118,9 +119,9 @@ const CollectionExecutiveReport = () => {
           selected_type: "agent_type",
         }));
         setEmployees(emps);
-       
+
       } catch (error) {
-     
+
         setEmployees([]);
       }
     })();
@@ -280,7 +281,7 @@ const CollectionExecutiveReport = () => {
             userId: selectedCustomers,
             pay_type: selectedPaymentMode,
             account_type: selectedAccountType,
-            collection_executive:selectedCollectionExecutive
+            collection_executive: selectedCollectionExecutive
           },
           signal: abortController.signal,
         });
@@ -390,7 +391,7 @@ const CollectionExecutiveReport = () => {
       ? [{ key: "account_type", header: "Account Type" }]
       : []),
     { key: "collected_by", header: "Collected By" },
-   
+
     { key: "action", header: "Action" },
   ];
 
@@ -504,7 +505,7 @@ const CollectionExecutiveReport = () => {
   return (
     <>
       <div className="min-w-screen bg-gray-50 min-h-screen">
-         <div className="flex-1 mt-30">
+        <div className="flex-1 mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}
@@ -580,7 +581,7 @@ const CollectionExecutiveReport = () => {
                     className="w-full"
                     size="large"
                   >
-                  
+
                     {employees.map((group) => (
                       <Select.Option key={group?._id} value={group?._id}>
                         {group?.full_name} - {group.phone_number}
@@ -739,16 +740,28 @@ const CollectionExecutiveReport = () => {
             <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md border border-gray-100 p-6 mb-6 hover:shadow-lg transition-all duration-300">
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
-                  <p className="text-sm font-semibold text-gray-500 tracking-wide uppercase">
+                  {/* Label */}
+                  <p className="text-xs font-semibold text-gray-500 tracking-widest uppercase mb-3">
                     Total Amount
                   </p>
-                  <p className="text-4xl font-extrabold text-gray-900 mt-1">
+
+                  {/* Amount */}
+                  <p className="text-4xl font-bold text-gray-900 leading-none">
                     ₹{payments || 0}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+
+                  {/* Amount in Words */}
+                  <p className="text-sm text-green-700 mt-2 leading-relaxed max-w-md">
+                    {numberToIndianWords(payments || 0)}
+                  </p>
+
+                  {/* Date */}
+                  <p className="text-xs text-gray-400 mt-4">
                     Updated as of {new Date().toLocaleDateString()}
                   </p>
                 </div>
+
+
 
                 <div className="relative"></div>
               </div>
@@ -944,7 +957,7 @@ const CollectionExecutiveReport = () => {
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 View Auction
               </h3>
-              <form className="space-y-6" onSubmit={() => {}}>
+              <form className="space-y-6" onSubmit={() => { }}>
                 <div>
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -956,7 +969,7 @@ const CollectionExecutiveReport = () => {
                     type="text"
                     name="group_id"
                     value={currentUpdateGroup?.group_id?.group_name}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the Group Name"
                     readOnly
@@ -1010,7 +1023,7 @@ const CollectionExecutiveReport = () => {
                     type="text"
                     name="group_id"
                     value={`${currentUpdateGroup?.user_id?.full_name} | ${currentUpdateGroup?.ticket}`}
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the User Name"
                     readOnly
@@ -1032,7 +1045,7 @@ const CollectionExecutiveReport = () => {
                       currentUpdateGroup?.group_id?.group_value -
                       currentUpdateGroup?.win_amount
                     }
-                    onChange={() => {}}
+                    onChange={() => { }}
                     id="name"
                     placeholder="Enter the Bid Amount"
                     readOnly
@@ -1140,7 +1153,7 @@ const CollectionExecutiveReport = () => {
                       type="date"
                       name="auction_date"
                       value={currentUpdateGroup?.auction_date}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly
@@ -1158,7 +1171,7 @@ const CollectionExecutiveReport = () => {
                       type="date"
                       name="next_date"
                       value={currentUpdateGroup?.next_date}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       id="date"
                       placeholder="Enter the Date"
                       readOnly

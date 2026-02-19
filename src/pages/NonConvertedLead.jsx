@@ -3,6 +3,8 @@ import { Select, Spin } from "antd";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const groupOptions = [
   { value: "Today", label: "Today" },
   { value: "Yesterday", label: "Yesterday" },
@@ -519,8 +521,8 @@ const NonConvertedLead = () => {
           lead?.lead_agent?.name
             ? `${lead?.lead_agent?.name} | ${lead?.lead_agent?.phone_number}`
             : lead?.lead_customer?.full_name
-            ? `${lead?.lead_customer?.full_name} | ${lead?.lead_customer?.phone_number}`
-            : "N/A",
+              ? `${lead?.lead_customer?.full_name} | ${lead?.lead_customer?.phone_number}`
+              : "N/A",
       }));
 
       setLeadTableData(formatted);
@@ -589,9 +591,8 @@ const NonConvertedLead = () => {
               setSelectedLabel("Custom");
             }}
             disabled={!isCustomMode}
-            className={`w-full h-11 border rounded-lg px-3 ${
-              !isCustomMode ? "bg-gray-100" : "border-gray-300"
-            }`}
+            className={`w-full h-11 border rounded-lg px-3 ${!isCustomMode ? "bg-gray-100" : "border-gray-300"
+              }`}
           />
         </div>
 
@@ -606,9 +607,8 @@ const NonConvertedLead = () => {
               setSelectedLabel("Custom");
             }}
             disabled={!isCustomMode}
-            className={`w-full h-11 border rounded-lg px-3 ${
-              !isCustomMode ? "bg-gray-100" : "border-gray-300"
-            }`}
+            className={`w-full h-11 border rounded-lg px-3 ${!isCustomMode ? "bg-gray-100" : "border-gray-300"
+              }`}
           />
         </div>
 
@@ -660,6 +660,9 @@ const NonConvertedLead = () => {
           <div className="text-center">
             <p className="text-sm text-gray-600">Total Non-Converted Leads</p>
             <p className="text-xl font-bold text-blue-700">{leadTableData.length}</p>
+            <span className={`text-sm font-mono text-blue-700 pl-3`}>
+              {numberToIndianWords(leadTableData.length || 0)}
+            </span>
           </div>
 
           <div className="text-center">
@@ -673,6 +676,16 @@ const NonConvertedLead = () => {
                 ).length
               }
             </p>
+            <span className="text-sm font-mono text-green-700 pl-3">
+              {numberToIndianWords(
+                leadTableData.filter((l) =>
+                  customers.some(
+                    (c) => `${c.full_name} | ${c.phone_number}` === l.referredBy
+                  )
+                ).length || 0
+              )}
+            </span>
+
           </div>
 
           <div className="text-center">
@@ -687,6 +700,14 @@ const NonConvertedLead = () => {
                 ).length
               }
             </p>
+            <span className={`text-sm font-mono text-purple-700 pl-3`}>
+              {numberToIndianWords(leadTableData.filter((l) =>
+                employees.some(
+                  (e) =>
+                    `${e.full_name || e.name} | ${e.phone_number}` === l.referredBy
+                )
+              ).length || 0)}
+            </span>
           </div>
 
           <div className="text-center">
@@ -700,6 +721,13 @@ const NonConvertedLead = () => {
                 ).length
               }
             </p>
+            <span className={`text-sm font-mono text-orange-700 pl-3`}>
+              {numberToIndianWords(leadTableData.filter((l) =>
+                agents.some(
+                  (a) => `${a.name} | ${a.phone_number}` === l.referredBy
+                )
+              ).length || 0)}
+            </span>
           </div>
         </div>
 

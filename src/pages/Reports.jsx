@@ -43,6 +43,10 @@ import { MdPersonOff } from "react-icons/md";
 import { FaMobileAlt } from "react-icons/fa";
 import { PiMoneyDuotone } from "react-icons/pi";
 import { TfiGift } from "react-icons/tfi";
+import { FiAward } from "react-icons/fi";
+import { GiThorHammer } from "react-icons/gi";
+import { CiBank } from "react-icons/ci";
+import { IoCashOutline } from "react-icons/io5";
 const subMenus = [
   {
     id:"1",
@@ -113,7 +117,7 @@ const subMenus = [
     id:"7",
     title: "Loan Summary Report",
     link: "/reports/customer-loan-report",
-    Icon: GiMoneyStack,
+    Icon: CiBank,
     category: "Loan",
     color: "from-cyan-500 to-cyan-600",
   },
@@ -131,7 +135,7 @@ const subMenus = [
     title: "Loan Completion Report",
     link: "/reports/loan-completion-report",
     category: "Loan",
-    Icon: GiMoneyStack,
+    Icon: IoCashOutline,
     color: "from-blue-500 to-blue-600",
     isNew: false,
   },
@@ -204,7 +208,7 @@ const subMenus = [
      id:"16",
     title: "Auction Report",
     link: "/reports/auction-report",
-    Icon: RiAuctionFill,
+    Icon: GiThorHammer,
     category: "Auction",
     color: "from-pink-500 to-pink-600",
   },
@@ -213,6 +217,14 @@ const subMenus = [
     title: "Auction Filter Report",
     link: "/reports/auction-filter-report",
     Icon: RiAuctionFill,
+    category: "Auction",
+    color: "from-pink-500 to-pink-600",
+  },
+   {
+     id:"&*#$%",
+    title: "Prized Customer Report",
+    link: "/reports/prized-customer-report",
+    Icon: FiAward,
     category: "Auction",
     color: "from-pink-500 to-pink-600",
   },

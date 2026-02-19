@@ -15,6 +15,8 @@ import { Dropdown, Select } from "antd";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const AuctionReport = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -52,7 +54,7 @@ const AuctionReport = () => {
   const onGlobalSearchChangeHandler = (e) => {
     setSearchText(e.target.value);
   };
-    const [alertConfig, setAlertConfig] = useState({
+  const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
     type: "info",
@@ -100,7 +102,7 @@ const AuctionReport = () => {
     setSelectedAuctionGroupId(groupId);
     handleGroupAuctionChange(groupId);
   };
-   const formatPayDate = (dateString) => {
+  const formatPayDate = (dateString) => {
     const date = new Date(dateString);
     const options = { day: "numeric", month: "short", year: "numeric" };
     return date.toLocaleDateString("en-US", options).replace(",", " ");
@@ -138,11 +140,11 @@ const AuctionReport = () => {
               phone_number: group.user_id?.phone_number,
               ticket: group.ticket,
               bid_amount: parseInt(group.divident) + parseInt(group.commission),
-               status: !group?.isPrized
-              ? "Un Prized"
-              : group?.isPrized === "true"
-              ? "Prized"
-              : "Un Prized",
+              status: !group?.isPrized
+                ? "Un Prized"
+                : group?.isPrized === "true"
+                  ? "Prized"
+                  : "Un Prized",
               auction_type:
                 group?.auction_type.charAt(0).toUpperCase() +
                 group?.auction_type.slice(1) +
@@ -206,7 +208,7 @@ const AuctionReport = () => {
     { key: "bid_amount", header: "Bid Amount" },
     { key: "amount", header: "Win Amount" },
     { key: "auction_type", header: "Auction Type" },
-     { key: "status", header: "Status" },
+    { key: "status", header: "Status" },
     { key: "action", header: "Action" },
   ];
 
@@ -243,10 +245,10 @@ const AuctionReport = () => {
       }
     }
   };
-const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
+  const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
   return (
     <>
-         <div className="flex-1 min-h-screen">
+      <div className="flex-1 min-h-screen">
         <div className="flex-1 mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
@@ -265,10 +267,10 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
             <div className="mt-6 mb-8">
               <div className="flex justify-center items-center w-full gap-4 bg-blue-50 p-2 w-30 h-40  rounded-3xl  border   space-x-2 mb-10">
                 <div className="mb-2">
-                <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
-                  Auction Group
-                </label>
-                
+                  <label className="block text-lg text-gray-500 text-center font-semibold mb-2">
+                    Auction Group
+                  </label>
+
                   <Select
                     showSearch
                     popupMatchSelectWidth={false}
@@ -279,7 +281,7 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     filterOption={(input, option) =>
                       option.children.toString().toLowerCase().includes(input.toLowerCase())
                     }
-                    
+
                   >
                     {groups.map((group) => (
                       <option key={group._id} value={group._id}>
@@ -297,7 +299,7 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                     updateHandler={handleUpdateModalOpen}
                     data={filterOption(TableAuctions, searchText)}
                     columns={columns}
-                     exportedPdfName={`Auction Report`}
+                    exportedPdfName={`Auction Report`}
                     printHeaderKeys={["Group Name"]}
                     printHeaderValues={[
                       selectednewGroup?.group_name || "N/A",
@@ -306,20 +308,55 @@ const selectednewGroup = groups.find(g => g._id === selectedAuctionGroupId);
                   />
 
                   {/* ✅ Summary Section */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-white p-6 rounded-lg shadow mt-6 text-center">
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-700">Total Customers</h4>
-                      <p className="text-xl font-bold text-blue-700">{totalCustomers}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-white p-6 rounded-xl shadow-sm mt-6">
+
+                    {/* Total Customers */}
+                    <div className="flex flex-col items-center">
+                      <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide">
+                        Total Customers
+                      </h4>
+
+                      <p className="mt-2 text-2xl font-bold text-blue-700">
+                        {totalCustomers || 0}
+                      </p>
+
+                      <p className="mt-1 text-xs text-gray-400 text-center leading-snug">
+                        {numberToIndianWords(totalCustomers || 0)}
+                      </p>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-700">Total Bid Amount</h4>
-                      <p className="text-xl font-bold text-green-700">₹{totalBidAmount}</p>
+
+                    {/* Total Bid Amount */}
+                    <div className="flex flex-col items-center">
+                      <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide">
+                        Total Bid Amount
+                      </h4>
+
+                      <p className="mt-2 text-2xl font-bold text-green-700">
+                        ₹{(totalBidAmount || 0).toLocaleString("en-IN")}
+                      </p>
+
+                      <p className="mt-1 text-xs text-gray-400 text-center leading-snug">
+                        {numberToIndianWords(Math.floor(totalBidAmount || 0))}
+                      </p>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-700">Total Win Amount</h4>
-                      <p className="text-xl font-bold text-red-700">₹{totalWinAmount}</p>
+
+                    {/* Total Win Amount */}
+                    <div className="flex flex-col items-center">
+                      <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide">
+                        Total Win Amount
+                      </h4>
+
+                      <p className="mt-2 text-2xl font-bold text-red-700">
+                        ₹{(totalWinAmount || 0).toLocaleString("en-IN")}
+                      </p>
+
+                      <p className="mt-1 text-xs text-gray-400 text-center leading-snug">
+                        {numberToIndianWords(Math.floor(totalWinAmount || 0))}
+                      </p>
                     </div>
+
                   </div>
+
                 </>
               ) : (
                 <CircularLoader isLoading={isLoading} />

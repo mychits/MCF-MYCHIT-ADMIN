@@ -14,6 +14,7 @@ import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import { Select } from "antd";
 import CircularLoader from "../components/loaders/CircularLoader";
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const { RangePicker } = DatePicker;
 
@@ -53,10 +54,10 @@ const PigmySummaryReport = () => {
           referredBy: pigmy?.referred_employee
             ? pigmy?.referred_employee?.name
             : pigmy?.referred_agent
-            ? pigmy?.referred_agent
-            : pigmy?.referred_customer
-            ? pigmy?.referred_customer?.full_name
-            : "N/A",
+              ? pigmy?.referred_agent
+              : pigmy?.referred_customer
+                ? pigmy?.referred_customer?.full_name
+                : "N/A",
           customerId: pigmy?.customer?.customer_id || "N/A",
           customerName: pigmy?.customer?.full_name || "N/A",
           customerPhone: pigmy?.customer?.phone_number || "N/A",
@@ -134,17 +135,21 @@ const PigmySummaryReport = () => {
       (sum, pigmy) => sum + pigmy.totalpigmyAmount,
       0
     );
+    const totalPayablePigmy = filtered.reduce(
+      (sum, pigmy) => sum + Number(pigmy.amount || 0),0
+    )
     const avgDuration =
       filtered.length > 0
         ? filtered.reduce((sum, pigmy) => {
-            const dur = pigmy.Duration !== "N/A" ? Number(pigmy.Duration) : 0;
-            return sum + dur;
-          }, 0) / filtered.length
+          const dur = pigmy.Duration !== "N/A" ? Number(pigmy.Duration) : 0;
+          return sum + dur;
+        }, 0) / filtered.length
         : 0;
 
     return {
       totalPigmy: filtered.length,
       totalAmount: totalAmount,
+      totalPayable: totalPayablePigmy,
       avgDuration: avgDuration.toFixed(1),
       uniqueCustomers: new Set(filtered.map((p) => p.customerId)).size,
     };
@@ -158,11 +163,11 @@ const PigmySummaryReport = () => {
     { key: "pigmyIds", header: "Pigmy ID" },
     { key: "pigmyStartDate", header: "Start Date" },
     { key: "Duration", header: "Duration (months)" },
-    {key: "amount", header: "Daily Pay"},
-    {key: "totalpigmyAmount", header: "Amount Paid"},
+    { key: "amount", header: "Daily Pay" },
+    { key: "totalpigmyAmount", header: "Amount Paid" },
     { key: "referredType", header: "Referred Type" },
     { key: "referredBy", header: "Referred By" },
-  
+
   ];
 
   const StatCard = ({ icon: Icon, label, value, color, suffix = "" }) => (
@@ -213,32 +218,70 @@ const PigmySummaryReport = () => {
           <>
             {/* Summary Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <StatCard
-                icon={PiggyBank}
-                label="Total Pigmy Accounts"
-                value={summaryStats.totalPigmy}
-                color="bg-gradient-to-br from-pink-500 to-pink-600"
-              />
-              <StatCard
-                icon={TrendingUp}
-                label="Total Amount Collected"
-                value={`₹${summaryStats.totalAmount.toLocaleString("en-IN")}`}
-                color="bg-gradient-to-br from-green-500 to-green-600"
-              />
-              <StatCard
-                icon={Clock}
-                label="Average Duration"
-                value={summaryStats.avgDuration}
-                suffix="months"
-                color="bg-gradient-to-br from-blue-500 to-blue-600"
-              />
-              <StatCard
-                icon={Users}
-                label="Unique Customers"
-                value={summaryStats.uniqueCustomers}
-                color="bg-gradient-to-br from-purple-500 to-purple-600"
-              />
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={PiggyBank}
+                  label="Total Pigmy Accounts"
+                  value={summaryStats.totalPigmy}
+                  color="bg-gradient-to-br from-pink-500 to-pink-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.totalPigmy || 0)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={TrendingUp}
+                  label="Total Amount Collected"
+                  value={`₹${summaryStats.totalAmount?.toLocaleString("en-IN") || 0}`}
+                  color="bg-gradient-to-br from-green-500 to-green-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.totalAmount || 0)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={TrendingUp}
+                  label="Total Payable"
+                  value={`₹${summaryStats.totalPayable?.toLocaleString("en-IN") || 0}`}
+                  color="bg-gradient-to-br from-orange-500 to-orange-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.totalPayable || 0)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={Clock}
+                  label="Average Duration"
+                  value={summaryStats.avgDuration}
+                  suffix="months"
+                  color="bg-gradient-to-br from-blue-500 to-blue-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.avgDuration || 0)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={Users}
+                  label="Unique Customers"
+                  value={summaryStats.uniqueCustomers}
+                  color="bg-gradient-to-br from-purple-500 to-purple-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.uniqueCustomers || 0)}
+                </span>
+              </div>
+
             </div>
+
 
             {/* Filters Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
@@ -383,6 +426,20 @@ const PigmySummaryReport = () => {
               <DataTable
                 columns={PigmyReportColumns}
                 data={filteredPigmyReport}
+                 printHeaderKeys={[
+                  "Total Pigmy",
+                  "Total Pigmy Amount",
+                  "Total Payable",
+                  "Average Duration",
+                  "Unique Customers",
+                ]}
+                printHeaderValues={[
+                  summaryStats.totalPigmy,
+                  `₹ ${summaryStats.totalAmount}`,
+                  `₹ ${summaryStats.totalPayable}`,
+                  `₹ ${summaryStats.avgDuration}`,
+                  `₹ ${summaryStats.uniqueCustomers}`,
+                ]}
                 exportedPdfName="Pigmy Summary Report"
               />
             </div>

@@ -42,9 +42,12 @@ const AuctionPage = () => {
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "auction_date", header: "Auction Date" },
-    { key: "group_name", header: "Group Name" },
     { key: "user_name", header: "Winner Name" },
+    { key: "group_name", header: "Group Name" },
     { key: "ticket", header: "Ticket" },
+    { key: "totalPaidAmount", header: "Total Paid Amount" },
+    { key: "totalPayable", header: "Total Payable" },
+    { key: "balance", header: "Balance" },
     { key: "win_amount", header: "Winning Amount" },
     { key: "bid_amount", header: "Bid Amount" },
     { key: "dividend", header: "Dividend" },
@@ -59,6 +62,9 @@ const AuctionPage = () => {
     { key: "group_name", header: "Group Name" },
     { key: "user_name", header: "Winner Name" },
     { key: "ticket", header: "Ticket" },
+    { key: "totalPayableRaw", header: "Total Payable" },
+    { key: "totalPaidAmountRaw", header: "Total Paid Amount" },
+    { key: "balanceRaw", header: "Balance" },
     { key: "win_amount_raw", header: "Winning Amount" },
     { key: "bid_amount", header: "Bid Amount" },
     { key: "dividend_raw", header: "Dividend" },
@@ -95,34 +101,52 @@ const AuctionPage = () => {
       const response = await api.get("/auction", { params });
 
       if (response.data && response.data?.data) {
-        const formattedData = response.data?.data.map((item, index) => ({
-          ...item,
-          id: index + 1,
-          auction_date: item.auction_date ? dayjs(item?.auction_date).format("YYYY-MM-DD") : "N/A",
-          group_name: item.group_id?.group_name || "N/A",
-          user_name: item.user_id?.full_name || "N/A",
-          win_amount: `₹${item.win_amount?.toLocaleString()}`,
-          win_amount_raw: item?.win_amount,
-          dividend: `₹${item?.divident?.toLocaleString()}`,
-          dividend_raw: item?.divident,
-          auction_type: <Tag color={item.auction_type === 'free' ? 'purple' : 'blue'}>{item.auction_type?.toUpperCase()}</Tag>,
-          auction_type_raw: item?.auction_type,
-          prized: <Tag color={item?.isPrized === 'true' ? 'green' : 'red'}>{item?.isPrized ? "Yes" : "No"}</Tag>,
-          bid_amount: parseInt(item.divident) + parseInt(item.commission),
-          prized_raw: item?.isPrized ? "Yes" : "No",
-          action: (
-            <div className="flex justify-center">
-              <Tooltip title="View Details">
-                <button
-                  onClick={() => handleViewAuction(item)}
-                  className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100"
-                >
-                  <FaEye />
-                </button>
-              </Tooltip>
-            </div>
-          ),
-        }));
+        const formattedData = response.data?.data.map((item, index) => {
+
+          const totalPaid = item?.payments?.totalPaidAmount || 0;
+          const totalPayable = item?.auctions?.to_be_paid_amount || 0;
+
+
+          return ({
+
+
+            id: index + 1,
+            auction_date: item.auction_date ? dayjs(item?.auction_date).format("YYYY-MM-DD") : "N/A",
+            group_name: item.group_id?.group_name || "N/A",
+            user_name: item.user_id?.full_name || "N/A",
+            ticket: item?.ticket,
+            balance: `${item.auctions?.balance?.toLocaleString("en-IN")}`,
+            balanceRaw: item.auctions?.balance,
+            totalPaidAmount: `${totalPaid?.toLocaleString("en-IN") || 0}`,
+            totalPaidAmountRaw: totalPaid || 0,
+            totalPayable: `${totalPayable?.toLocaleString("en-IN") || 0}`,
+            totalPayableRaw: totalPayable || 0,
+            win_amount: `₹${item.win_amount?.toLocaleString()}`,
+            win_amount_raw: item?.win_amount,
+            dividend: `₹${item?.divident?.toLocaleString()}`,
+            dividend_raw: item?.divident,
+            auction_type: <Tag color={item.auction_type === 'free' ? 'purple' : 'blue'}>{item.auction_type?.toUpperCase()}</Tag>,
+            auction_type_raw: item?.auction_type,
+            prized: <Tag color={item?.isPrized === 'true' ? 'green' : 'red'}>{item?.isPrized ? "Yes" : "No"}</Tag>,
+            bid_amount: parseInt(item.divident) + parseInt(item.commission),
+            prized_raw: item?.isPrized ? "Yes" : "No",
+            action: (
+              <div className="flex justify-center">
+                <Tooltip title="View Details">
+                  <button
+                    onClick={() => handleViewAuction(item)}
+                    className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100"
+                  >
+                    <FaEye />
+                  </button>
+                </Tooltip>
+              </div>
+            ),
+          })
+
+
+
+        });
         console.log(formattedData)
         setAuctions(formattedData);
       }

@@ -13,6 +13,8 @@ import { fieldSize } from "../data/fieldSize";
 
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
+  import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const Group = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -681,6 +683,9 @@ const Group = () => {
                       {errors.app_display_vacany_seat}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.app_display_vacany_seat || 0)}
+              </span>     
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -706,6 +711,9 @@ const Group = () => {
                       {errors.group_value}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.group_value || 0)}
+              </span>     
                 </div>
                 <div className="w-1/2">
                   <label
@@ -730,6 +738,9 @@ const Group = () => {
                       {errors.group_install}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.group_install || 0)}
+              </span>     
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -755,6 +766,9 @@ const Group = () => {
                       {errors.group_members}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.group_members || 0)}
+              </span>     
                 </div>
                 <div className="w-1/2">
                   <label
@@ -778,6 +792,9 @@ const Group = () => {
                       {errors.group_duration}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.group_duration || 0)}
+              </span>     
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -803,6 +820,9 @@ const Group = () => {
                       {errors.daily_installment}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.daily_installment || 0)}
+              </span>     
                 </div>
                 <div className="w-1/2">
                   <label
@@ -826,6 +846,9 @@ const Group = () => {
                       {errors.weekly_installment}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.weekly_installment || 0)}
+              </span>     
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -851,6 +874,9 @@ const Group = () => {
                       {errors.monthly_installment}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.monthly_installment || 0)}
+              </span>     
                 </div>
                 <div className="w-1/2">
                   <label
@@ -874,6 +900,9 @@ const Group = () => {
                       {errors.reg_fee}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.reg_fee || 0)}
+              </span>     
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -947,6 +976,9 @@ const Group = () => {
                       {errors.minimum_bid}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.minimum_bid || 0)}
+              </span>     
                 </div>
                 <div className="w-1/2">
                   <label
@@ -970,6 +1002,9 @@ const Group = () => {
                       {errors.maximum_bid}
                     </p>
                   )}
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.maximum_bid || 0)}
+              </span>     
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -985,6 +1020,9 @@ const Group = () => {
                     placeholder="Enter Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.commission || 0)}
+              </span>     
                 </div>
 
                 <div className="w-1/2">
@@ -999,6 +1037,9 @@ const Group = () => {
                     placeholder="Enter Group Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.group_commission || 0)}
+              </span>     
                 </div>
 
                 <div className="w-1/2">
@@ -1013,6 +1054,9 @@ const Group = () => {
                     placeholder="Enter Incentives"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                    <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(formData.incentives || 0)}
+              </span>     
                 </div>
               </div>
 
@@ -1153,6 +1197,9 @@ const Group = () => {
                       {errors.app_display_vacany_seat}
                     </p>
                   )}
+                                      <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.app_display_vacany_seat || 0)}
+              </span>  
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1178,6 +1225,9 @@ const Group = () => {
                       {errors.group_value}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.group_value || 0)}
+              </span> 
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1202,6 +1252,9 @@ const Group = () => {
                       {errors.group_install}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.group_install || 0)}
+              </span> 
                 </div>
               </div>
 
@@ -1228,6 +1281,9 @@ const Group = () => {
                       {errors.group_members}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.group_members || 0)}
+              </span> 
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1251,6 +1307,9 @@ const Group = () => {
                       {errors.group_duration}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.group_duration || 0)}
+              </span> 
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1276,6 +1335,9 @@ const Group = () => {
                       {errors.daily_installment}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.daily_installment || 0)}
+              </span> 
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1299,6 +1361,9 @@ const Group = () => {
                       {errors.weekly_installment}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.weekly_installment || 0)}
+              </span> 
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1324,6 +1389,9 @@ const Group = () => {
                       {errors.monthly_installment}
                     </p>
                   )}
+                                                          <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.monthly_installment || 0)}
+              </span> 
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1347,6 +1415,9 @@ const Group = () => {
                       {errors.reg_fee}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.reg_fee || 0)}
+              </span> 
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1420,6 +1491,9 @@ const Group = () => {
                       {errors.minimum_bid}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.minimum_bid || 0)}
+              </span> 
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1443,6 +1517,9 @@ const Group = () => {
                       {errors.maximum_bid}
                     </p>
                   )}
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.maximum_bid || 0)}
+              </span> 
                 </div>
               </div>
 
@@ -1459,6 +1536,9 @@ const Group = () => {
                     placeholder="Enter Commission"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.commission || 0)}
+              </span> 
                 </div>
 
                 <div className="w-1/2">
@@ -1473,6 +1553,9 @@ const Group = () => {
                     placeholder="Enter Group Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.group_commission || 0)}
+              </span> 
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
@@ -1486,6 +1569,9 @@ const Group = () => {
                     placeholder="Enter Incentives"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
+                                                        <span className={`text-sm font-mono text-green-700 `}>
+                {numberToIndianWords(updateFormData.incentives || 0)}
+              </span> 
                 </div>
               </div>
 

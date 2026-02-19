@@ -11,6 +11,8 @@ import DataTable from "../components/layouts/Datatable";
 import { Select } from "antd";
 import CircularLoader from "../components/loaders/CircularLoader";
 
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const { RangePicker } = DatePicker;
 
 const LoanCompletionReport = () => {
@@ -26,7 +28,7 @@ const LoanCompletionReport = () => {
     const fetchLoanReport = async () => {
       try {
         const response = await api.get(`/payment/customers/loan-report`);
-        console.info(response, " test fvdfhjdfgjhgf");
+       
 
         // const formattedData = response.data.loanReports.map((loan, index) => ({
         //   id: loan?._id,
@@ -53,34 +55,34 @@ const LoanCompletionReport = () => {
         //   referredBy: loan?.referredBy || "N/A",
         // }));
         const formattedData = response.data.loanReports
-  .filter(loan => loan?.status === "Completed")
-  .map((loan, index) => ({
-    id: loan?._id,
-    slNo: index + 1,
-    loanIds: loan?.loan_id || "N/A",
-    loanAmountValue: loan?.loan_amount || 0,
+          .filter(loan => loan?.status === "Completed")
+          .map((loan, index) => ({
+            id: loan?._id,
+            slNo: index + 1,
+            loanIds: loan?.loan_id || "N/A",
+            loanAmountValue: loan?.loan_amount || 0,
 
-    customerId: loan?.borrower?.customer_id || "N/A",
-    customerName: loan?.borrower?.full_name || "N/A",
-    customerPhone: loan?.borrower?.phone_number || "N/A",
-    daily_payment_amount: loan?.daily_payment_amount || "N/A",
+            customerId: loan?.borrower?.customer_id || "N/A",
+            customerName: loan?.borrower?.full_name || "N/A",
+            customerPhone: loan?.borrower?.phone_number || "N/A",
+            daily_payment_amount: loan?.daily_payment_amount || "N/A",
 
-    loanStartDate: loan?.start_date
-      ? new Date(loan.start_date).toLocaleDateString("en-GB")
-      : "N/A",
-    loanStartDateObj: loan?.start_date ? new Date(loan.start_date) : null,
-    // payableLoanDays: loan?.days_count && `${loan?.days_count || 0} Days`,
-    payableLoanDays: loan?.days_count,
+            loanStartDate: loan?.start_date
+              ? new Date(loan.start_date).toLocaleDateString("en-GB")
+              : "N/A",
+            loanStartDateObj: loan?.start_date ? new Date(loan.start_date) : null,
+            // payableLoanDays: loan?.days_count && `${loan?.days_count || 0} Days`,
+            payableLoanDays: loan?.days_count,
 
-    loanServiceCharges: loan?.service_charges ?? 0,
-    loanAmount: loan?.double_loan_amount ?? 0,
-    payableAmount: loan?.amount_payable ?? 0,
-    totalLoanAmount: loan?.total_paid_amount ?? 0,
-    loanBalance: loan?.balance ?? 0,
+            loanServiceCharges: loan?.service_charges ?? 0,
+            loanAmount: loan?.double_loan_amount ?? 0,
+            payableAmount: loan?.amount_payable ?? 0,
+            totalLoanAmount: loan?.total_paid_amount ?? 0,
+            loanBalance: loan?.balance ?? 0,
 
-    status: loan.status, // always "Completed" now
-    referredBy: loan?.referredBy || "N/A",
-  }));
+            status: loan.status, // always "Completed" now
+            referredBy: loan?.referredBy || "N/A",
+          }));
 
         setLoanReportTable(formattedData);
       } catch (error) {
@@ -161,12 +163,12 @@ const LoanCompletionReport = () => {
     { key: "customerPhone", header: "Phone Number" },
     { key: "loanStartDate", header: "Loan Start Date" },
     { key: "loanServiceCharges", header: "Service Charges" },
-    {key: "daily_payment_amount", header: "Daily Payment"},
+    { key: "daily_payment_amount", header: "Daily Payment" },
     { key: "loanAmount", header: "Loan Amount" },
-    {key: "payableLoanDays", header :"Loan Age (in Days)"},
+    { key: "payableLoanDays", header: "Loan Age (in Days)" },
     { key: "payableAmount", header: "Loan Payable" },
     { key: "totalLoanAmount", header: "Total Paid" },
-    {key: "status", header: "Status"},
+    { key: "status", header: "Status" },
     { key: "referredBy", header: "Referred By" },
 
     { key: "loanBalance", header: "Balance" },
@@ -205,66 +207,112 @@ const LoanCompletionReport = () => {
           </div>
         ) : (
           <>
-          <div className="my-6">
-                <Collapse
-                  items={[
-                    {
-                      key: "1",
-                      label: (
-                        <span className="font-semibold text-gray-800 text-base">
-                          Shortcut Keys
-                        </span>
-                      ),
-                      children: (
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                          <Link
-                            to="/other-service-menu/loan"
-                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
-                          >
-                            <FaMoneyBill className="text-blue-500" size={30} />
-                            Loan
-                          </Link>
-                          <Link
-                            to="/reports/customer-loan-report"
-                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
-                          >
-                            <FileTextOutlined
-                              className="text-blue-500"
-                              size={30}
-                            />
-                            Loan Summary Report
-                          </Link>
-                          <Link
-                            to="/reports/loan-due-report"
-                            className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
-                          >
-                            <DollarOutlined
-                              className="text-blue-500"
-                              size={30}
-                            />
-                            OutStanding Loan Report
-                          </Link>
+            <div className="my-6">
+              <Collapse
+                items={[
+                  {
+                    key: "1",
+                    label: (
+                      <span className="font-semibold text-gray-800 text-base">
+                        Shortcut Keys
+                      </span>
+                    ),
+                    children: (
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <Link
+                          to="/other-service-menu/loan"
+                          className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                        >
+                          <FaMoneyBill className="text-blue-500" size={30} />
+                          Add Loan
+                        </Link>
+                        <Link
+                          to="/reports/customer-loan-report"
+                          className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                        >
+                          <FileTextOutlined
+                            className="text-blue-500"
+                            size={30}
+                          />
+                          Loan Summary Report
+                        </Link>
+                        <Link
+                          to="/reports/loan-due-report"
+                          className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                        >
+                          <DollarOutlined
+                            className="text-blue-500"
+                            size={30}
+                          />
+                          OutStanding Loan Report
+                        </Link>
 
-                          
 
-                         
 
-                          
-                        </div>
-                      ),
-                    },
-                  ]}
-                  defaultActiveKey={["1"]}
-                  className="rounded-lg border border-gray-200 bg-white shadow-sm"
-                />
-              </div>
+
+
+
+                      </div>
+                    ),
+                  },
+                ]}
+                defaultActiveKey={["1"]}
+                className="rounded-lg border border-gray-200 bg-white shadow-sm"
+              />
+            </div>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <StatCard icon={FileText} label="Total Loans" value={summaryStats.totalLoans} color="bg-blue-600" />
-              <StatCard icon={IndianRupee} label="Total Loan Amount" value={`₹${summaryStats.totalAmount}`} color="bg-purple-600" />
-              <StatCard icon={TrendingUp} label="Total Paid" value={`₹${summaryStats.totalPaid}`} color="bg-green-600" />
-              <StatCard icon={Calendar} label="Total Balance" value={`₹${summaryStats.totalBalance}`} color="bg-orange-600" />
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={FileText}
+                  label="Total Loans"
+                  value={summaryStats.totalLoans}
+                  color="bg-blue-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.totalLoans || 0)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={IndianRupee}
+                  label="Total Loan Amount"
+                  value={`₹${summaryStats.totalAmount}`}
+                  color="bg-purple-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.totalAmount || 0)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={TrendingUp}
+                  label="Total Paid"
+                  value={`₹${summaryStats.totalPaid}`}
+                  color="bg-green-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.totalPaid || 0)}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <StatCard
+                  icon={Calendar}
+                  label="Total Balance"
+                  value={`₹${summaryStats.totalBalance}`}
+                  color="bg-orange-600"
+                />
+                <span className="text-sm font-mono text-green-700 mt-2 break-words pl-3">
+                  {numberToIndianWords(summaryStats.totalBalance || 0)}
+                </span>
+              </div>
+
             </div>
+
 
             {/* FILTERS */}
             <div className="bg-white rounded-xl shadow-sm border p-6 mb-8">
@@ -354,7 +402,8 @@ const LoanCompletionReport = () => {
               <DataTable
                 columns={loanReportColumns}
                 data={filteredLoanReport}
-                exportedPdfName="Customer Loan Report"
+                
+                exportedPdfName="Customer Completion Loan Report"
               />
             </div>
           </>

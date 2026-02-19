@@ -179,6 +179,9 @@ import CustomerLoanWhatsappMenu from "../pages/CustomerLoanWhatsAppMenu";
 import Visitor from "../pages/Visitor";
 import VisitorList from "../pages/VisitorList";
 import AuctionFilterReport from "../pages/AuctionFilterReport";
+import prizedCustomerReport from "../pages/PrizedCustomerReport";
+import PrizedCustomerReport from "../pages/PrizedCustomerReport";
+import EmployeeTasks from "../components/employee/EmployeeTasks";
 import AddGroupForm from "../pages/AddGroupForm";
 const mainRoutes = createBrowserRouter([
   {
@@ -198,6 +201,14 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <HelpAndSupport/>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/my-tasks",
+    element: (
+      <ProtectedRoute>
+        <EmployeeTasks/>
       </ProtectedRoute>
     ),
   },
@@ -954,6 +965,7 @@ const mainRoutes = createBrowserRouter([
       {path: "loan-due-report", element: <DueLoanReport/>},
       {path: "date-wise-reward-points", element: <DateWiseRewardreport/>},
       {path: "auction-filter-report", element: <AuctionFilterReport/>},
+        {path: "prized-customer-report", element: <PrizedCustomerReport/>},
       
     ],
   },

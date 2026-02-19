@@ -16,6 +16,9 @@ import { IoMdMore } from "react-icons/io";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { fieldSize } from "../data/fieldSize";
+
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
 const Auction = () => {
   const [groups, setGroups] = useState([]);
   const [TableAuctions, setTableAuctions] = useState([]);
@@ -648,7 +651,12 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+
+                     <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(groupInfo?.group_value || 0)}
+                                </span>
                   </div>
+                  
                   <div className="w-1/2">
                     <label
                       className="block mb-2 text-sm font-medium text-gray-900"
@@ -665,6 +673,10 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(groupInfo?.group_install || 0)}
+                                </span>
                   </div>
                 </div>
                 {groupInfo.group_type === "double" && (
@@ -760,6 +772,9 @@ const handleChangeUser = (value) => {
                       {errors.bid_amount}
                     </p>
                   )}
+                    <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(formData?.bid_amount || 0)}
+                                </span>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
                   <div className="w-1/2">
@@ -779,6 +794,9 @@ const handleChangeUser = (value) => {
                       disabled
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(formData?.commission || 0)}
+                                </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -797,6 +815,9 @@ const handleChangeUser = (value) => {
                       disabled
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(formData?.win_amount || 0)}
+                                </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
@@ -817,6 +838,9 @@ const handleChangeUser = (value) => {
                       disabled
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(formData?.divident || 0)}
+                                </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -835,6 +859,9 @@ const handleChangeUser = (value) => {
                       disabled
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(formData?.divident_head || 0)}
+                                </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -853,6 +880,9 @@ const handleChangeUser = (value) => {
                       disabled
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(formData?.payable || 0)}
+                                </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
@@ -980,6 +1010,9 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(groupInfo?.group_value || 0)}
+                                </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -997,6 +1030,9 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(currentUpdateGroup?.group_id?.group_install || 0)}
+                                </span>
                   </div>
                 </div>
                 {currentUpdateGroup?.group_id?.group_type === "double" && (
@@ -1064,6 +1100,10 @@ const handleChangeUser = (value) => {
                     readOnly
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                   />
+                    <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords( currentUpdateGroup?.group_id?.group_value -
+                      currentUpdateGroup?.win_amount || 0)}
+                                </span>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
                   <div className="w-1/2">
@@ -1082,6 +1122,9 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(currentUpdateGroup?.commission || 0)}
+                                </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -1099,6 +1142,9 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(currentUpdateGroup?.win_amount || 0)}
+                                </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
@@ -1118,6 +1164,9 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(currentUpdateGroup?.divident || 0)}
+                                </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -1135,6 +1184,9 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(currentUpdateGroup?.divident_head || 0)}
+                                </span>
                   </div>
                   <div className="w-1/2">
                     <label
@@ -1152,6 +1204,9 @@ const handleChangeUser = (value) => {
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     />
+                      <span className={`text-sm font-mono`}>
+                                  {numberToIndianWords(currentUpdateGroup?.payable || 0)}
+                                </span>
                   </div>
                 </div>
                 <div className="flex flex-row justify-between space-x-4">
