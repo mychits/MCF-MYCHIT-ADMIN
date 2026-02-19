@@ -1,5 +1,12 @@
 import { IoMdClose } from "react-icons/io";
 
+const formatLabel = (key) => {
+  return key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+
 const ReConfirmModal = ({
   isOpen,
   title = "Confirm Details",
@@ -23,52 +30,22 @@ const ReConfirmModal = ({
 
         <h2 className="text-xl font-bold mb-4">{title}</h2>
 
-        <div className="space-y-3 max-h-96 overflow-y-auto">
-          <div className="flex justify-between border-b pb-2 text-sm">
-            <span className="font-medium text-gray-600">Full Name</span>
-            <span className="text-gray-900">{data?.full_name}</span>
-          </div>
-
-          <div className="flex justify-between border-b pb-2 text-sm">
-            <span className="font-medium text-gray-600">Email</span>
-            <span className="text-gray-900">{data?.email}</span>
-          </div>
-
-          <div className="flex justify-between border-b pb-2 text-sm">
-            <span className="font-medium text-gray-600">Phone Number</span>
-            <span className="text-gray-900">{data?.phone_number}</span>
-          </div>
-                 <div className="flex justify-between border-b pb-2 text-sm">
-            <span className="font-medium text-gray-600">Password</span>
-            <span className="text-gray-900">{data?.password}</span>
-          </div>
-          
-          <div className="flex justify-between border-b pb-2 text-sm">
-            <span className="font-medium text-gray-600">Pincode</span>
-            <span className="text-gray-900">{data?.pincode}</span>
-          </div>
-
-          <div className="flex justify-between border-b pb-2 text-sm">
-            <span className="font-medium text-gray-600">Adhaar Number</span>
-            <span className="text-gray-900">{data?.adhaar_no}</span>
-          </div>
-
-   <div className="flex justify-between border-b pb-2 text-sm">
-            <span className="font-medium text-gray-600">Pan Number</span>
-            <span className="text-gray-900">{data?.pan_no}</span>
-          </div>
-
-         <div className="flex justify-between border-b pb-2 text-sm">
-  <span className="font-medium text-gray-600 w-32 shrink-0">
-    Address
-  </span>
-  <span className="text-gray-900 break-words">
-    {data?.address}
-  </span>
+   <div className="space-y-3 max-h-96 overflow-y-auto">
+  {Object.entries(data || {})?.map(([key, value]) => (
+    <div
+      key={key}
+      className="flex justify-between border-b pb-2 text-sm"
+    >
+      <span className="font-medium text-gray-600 capitalize">
+        {formatLabel(key)}
+      </span>
+      <span className="text-gray-900 break-words mr-2">
+        {value || "-"}
+      </span>
+    </div>
+  ))}
 </div>
 
-          {/* Add other fields similarly */}
-        </div>
 
         <div className="flex justify-end gap-4 mt-6">
           <button

@@ -1378,8 +1378,8 @@ const UserReport = () => {
 
   return (
     <>
-      <div className="w-screen min-h-screen">
-        <div className="flex mt-30">
+      <div className="flex-1 min-h-screen overflow-hidden">
+        <div className="flex-1 mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}

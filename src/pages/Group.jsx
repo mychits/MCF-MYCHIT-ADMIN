@@ -13,7 +13,7 @@ import { fieldSize } from "../data/fieldSize";
 
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
-  import { numberToIndianWords } from "../helpers/numberToIndianWords"
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const Group = () => {
   const [groups, setGroups] = useState([]);
@@ -26,7 +26,7 @@ const Group = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [deletionGroupName,setDeletionGroupName] = useState("")
+  const [deletionGroupName, setDeletionGroupName] = useState("")
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const onGlobalSearchChangeHandler = (e) => {
@@ -279,8 +279,8 @@ const Group = () => {
     if (!data.start_date) {
       newErrors.start_date = "Start Date is required";
     }
-    if(!data.app_display_vacany_seat){
-      newErrors.app_display_vacany_seat = "Please Enter Display Vacant Seat" 
+    if (!data.app_display_vacany_seat) {
+      newErrors.app_display_vacany_seat = "Please Enter Display Vacant Seat"
     }
 
     if (formData.end_date && !data.end_date) {
@@ -448,9 +448,9 @@ const Group = () => {
   };
 
   const handleDeleteGroup = async (e) => {
-    
-  console.log(currentGroup.group_name,"hhkkljl" ,deletionGroupName)
-    if (currentGroup && deletionGroupName.toString().trim() === currentGroup.group_name ) {
+
+    console.log(currentGroup.group_name, "hhkkljl", deletionGroupName)
+    if (currentGroup && deletionGroupName.toString().trim() === currentGroup.group_name) {
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
         setAlertConfig({
@@ -498,7 +498,7 @@ const Group = () => {
     { key: "members", header: "Group Members" },
     { key: "installment", header: "Group Installment" },
     { key: "daily_installment", header: "Daily Installment" },
-    {key: "app_display_vacany_seat", header: "App Display Vacany Seat"},
+    { key: "app_display_vacany_seat", header: "App Display Vacany Seat" },
     { key: "weekly_installment", header: "Weekly Installment" },
     { key: "monthly_installment", header: "Monthly Installment" },
     { key: "relationship_manager", header: "Relationship Manager" },
@@ -619,43 +619,43 @@ const Group = () => {
                 )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
-              <div className="w-1/2">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Relationship Manager <span className="text-red-500 ">*</span>
-                </label>
-                <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select or Search Relationship Manager"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="relationship_manager"
-                  filterOption={(input, option) => {
-                    const text = `${option.children}`; // Coerce children to string
-                    return text.toLowerCase().includes(input.toLowerCase());
-                  }}
-                  value={formData?.relationship_manager || undefined}
-                  onChange={(value) =>
-                    handleAntDSelect("relationship_manager", value)
-                  }
-                >
-                  {(Array.isArray(employees) ? employees : []).map(
-                    (employee) => (
-                      <Select.Option key={employee?._id} value={employee?._id}>
-                        {employee?.name} | {employee?.phone_number}
-                      </Select.Option>
-                    )
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="category"
+                  >
+                    Relationship Manager <span className="text-red-500 ">*</span>
+                  </label>
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select or Search Relationship Manager"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="relationship_manager"
+                    filterOption={(input, option) => {
+                      const text = `${option.children}`; // Coerce children to string
+                      return text.toLowerCase().includes(input.toLowerCase());
+                    }}
+                    value={formData?.relationship_manager || undefined}
+                    onChange={(value) =>
+                      handleAntDSelect("relationship_manager", value)
+                    }
+                  >
+                    {(Array.isArray(employees) ? employees : []).map(
+                      (employee) => (
+                        <Select.Option key={employee?._id} value={employee?._id}>
+                          {employee?.name} | {employee?.phone_number}
+                        </Select.Option>
+                      )
+                    )}
+                  </Select>
+                  {errors.relationship_manager && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.relationship_manager}
+                    </p>
                   )}
-                </Select>
-                {errors.relationship_manager && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.relationship_manager}
-                  </p>
-                )}
-              </div>
-              <div className="w-1/2">
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
@@ -677,9 +677,9 @@ const Group = () => {
                       {errors.app_display_vacany_seat}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.app_display_vacany_seat || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.app_display_vacany_seat || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -705,9 +705,9 @@ const Group = () => {
                       {errors.group_value}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_value || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_value || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -732,9 +732,9 @@ const Group = () => {
                       {errors.group_install}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_install || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_install || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -760,9 +760,9 @@ const Group = () => {
                       {errors.group_members}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_members || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_members || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -786,9 +786,9 @@ const Group = () => {
                       {errors.group_duration}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_duration || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_duration || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -814,9 +814,9 @@ const Group = () => {
                       {errors.daily_installment}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.daily_installment || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.daily_installment || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -840,9 +840,9 @@ const Group = () => {
                       {errors.weekly_installment}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.weekly_installment || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.weekly_installment || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -868,9 +868,9 @@ const Group = () => {
                       {errors.monthly_installment}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.monthly_installment || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.monthly_installment || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -894,9 +894,9 @@ const Group = () => {
                       {errors.reg_fee}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.reg_fee || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.reg_fee || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -970,9 +970,9 @@ const Group = () => {
                       {errors.minimum_bid}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.minimum_bid || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.minimum_bid || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -996,9 +996,9 @@ const Group = () => {
                       {errors.maximum_bid}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.maximum_bid || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.maximum_bid || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1014,9 +1014,9 @@ const Group = () => {
                     placeholder="Enter Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.commission || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.commission || 0)}
+                  </span>
                 </div>
 
                 <div className="w-1/2">
@@ -1031,9 +1031,9 @@ const Group = () => {
                     placeholder="Enter Group Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_commission || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_commission || 0)}
+                  </span>
                 </div>
 
                 <div className="w-1/2">
@@ -1048,9 +1048,9 @@ const Group = () => {
                     placeholder="Enter Incentives"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.incentives || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.incentives || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -1133,43 +1133,43 @@ const Group = () => {
                 )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
-              <div className="w-1/2">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Relationship Manager <span className="text-red-500 ">*</span>
-                </label>
-                <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select or Search Relationship Manager"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="relationship_manager"
-                  filterOption={(input, option) => {
-                    const text = `${option.children}`; // Coerce children to string
-                    return text.toLowerCase().includes(input.toLowerCase());
-                  }}
-                  value={updateFormData?.relationship_manager || undefined}
-                  onChange={(value) =>
-                    handleAntInputDSelect("relationship_manager", value)
-                  }
-                >
-                  {(Array.isArray(employees) ? employees : []).map(
-                    (employee) => (
-                      <Select.Option key={employee?._id} value={employee?._id}>
-                        {employee?.name} | {employee?.phone_number}
-                      </Select.Option>
-                    )
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="category"
+                  >
+                    Relationship Manager <span className="text-red-500 ">*</span>
+                  </label>
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select or Search Relationship Manager"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="relationship_manager"
+                    filterOption={(input, option) => {
+                      const text = `${option.children}`; // Coerce children to string
+                      return text.toLowerCase().includes(input.toLowerCase());
+                    }}
+                    value={updateFormData?.relationship_manager || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("relationship_manager", value)
+                    }
+                  >
+                    {(Array.isArray(employees) ? employees : []).map(
+                      (employee) => (
+                        <Select.Option key={employee?._id} value={employee?._id}>
+                          {employee?.name} | {employee?.phone_number}
+                        </Select.Option>
+                      )
+                    )}
+                  </Select>
+                  {errors.relationship_manager && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.relationship_manager}
+                    </p>
                   )}
-                </Select>
-                {errors.relationship_manager && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.relationship_manager}
-                  </p>
-                )}
-              </div>
-              <div className="w-1/2">
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
@@ -1191,9 +1191,9 @@ const Group = () => {
                       {errors.app_display_vacany_seat}
                     </p>
                   )}
-                                      <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.app_display_vacany_seat || 0)}
-              </span>  
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.app_display_vacany_seat || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1219,9 +1219,9 @@ const Group = () => {
                       {errors.group_value}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_value || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_value || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1246,9 +1246,9 @@ const Group = () => {
                       {errors.group_install}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_install || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_install || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -1275,9 +1275,9 @@ const Group = () => {
                       {errors.group_members}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_members || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_members || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1301,9 +1301,9 @@ const Group = () => {
                       {errors.group_duration}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_duration || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_duration || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1329,9 +1329,9 @@ const Group = () => {
                       {errors.daily_installment}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.daily_installment || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.daily_installment || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1355,9 +1355,9 @@ const Group = () => {
                       {errors.weekly_installment}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.weekly_installment || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.weekly_installment || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1383,9 +1383,9 @@ const Group = () => {
                       {errors.monthly_installment}
                     </p>
                   )}
-                                                          <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.monthly_installment || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.monthly_installment || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1409,9 +1409,9 @@ const Group = () => {
                       {errors.reg_fee}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.reg_fee || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.reg_fee || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1485,9 +1485,9 @@ const Group = () => {
                       {errors.minimum_bid}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.minimum_bid || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.minimum_bid || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1511,9 +1511,9 @@ const Group = () => {
                       {errors.maximum_bid}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.maximum_bid || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.maximum_bid || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -1530,9 +1530,9 @@ const Group = () => {
                     placeholder="Enter Commission"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.commission || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.commission || 0)}
+                  </span>
                 </div>
 
                 <div className="w-1/2">
@@ -1547,9 +1547,9 @@ const Group = () => {
                     placeholder="Enter Group Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_commission || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_commission || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
@@ -1563,9 +1563,9 @@ const Group = () => {
                     placeholder="Enter Incentives"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.incentives || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.incentives || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -1598,7 +1598,7 @@ const Group = () => {
                   e.preventDefault();
                   handleDeleteGroup();
                 }}
-                
+
                 className="space-y-6"
               >
                 <div>
@@ -1619,7 +1619,7 @@ const Group = () => {
                     placeholder="Enter the Group Name"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    onChange={(e)=>setDeletionGroupName(e.target.value)}
+                    onChange={(e) => setDeletionGroupName(e.target.value)}
                   />
                 </div>
                 <button

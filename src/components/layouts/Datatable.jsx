@@ -544,6 +544,8 @@ const DataTable = ({
         </div>
       </Modal>
        <div className="max-h-[calc(100vh-330px)] overflow-y-auto print:max-h-none print:overflow-visible">
+
+           {/* <div className="border rounded-lg overflow-hidden whitespace-normal"> */}
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>

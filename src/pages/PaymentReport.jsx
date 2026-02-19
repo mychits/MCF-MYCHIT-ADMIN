@@ -528,8 +528,8 @@ const PaymentReport = () => {
 
   return (
     <>
-      <div className="relative flex flex-col [height:calc(100vh-100px)] overflow-y-auto">
-        <div className="flex ">
+      <div className="relative flex flex-col [height:calc(100vh-100px)] ">
+        <div className="flex-1 ">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}
@@ -545,7 +545,7 @@ const PaymentReport = () => {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent p-2">
                 Reports - Payment
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 mt-2 ml-2">
                 Track and manage all receipt transactions
               </p>
             </div>

@@ -184,7 +184,7 @@ const AuctionPage = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex-1">
 
       <CustomAlert
         type={alertConfig.type}
