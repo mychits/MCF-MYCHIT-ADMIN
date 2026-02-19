@@ -156,7 +156,7 @@ const PrizedCustomerReport = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex-1">
       <div className="flex-grow p-7 bg-gray-50 min-h-screen">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">

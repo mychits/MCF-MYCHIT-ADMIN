@@ -13,7 +13,7 @@ import { fieldSize } from "../data/fieldSize";
 
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
-  import { numberToIndianWords } from "../helpers/numberToIndianWords"
+import { numberToIndianWords } from "../helpers/numberToIndianWords"
 
 const Group = () => {
   const [groups, setGroups] = useState([]);
@@ -26,7 +26,7 @@ const Group = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [deletionGroupName,setDeletionGroupName] = useState("")
+  const [deletionGroupName, setDeletionGroupName] = useState("")
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const onGlobalSearchChangeHandler = (e) => {
@@ -62,41 +62,41 @@ const Group = () => {
     app_display_vacany_seat: "",
   });
   const [errors, setErrors] = useState({});
-  // const [employees, setEmployees] = useState([]);
-  // const [updateFormData, setUpdateFormData] = useState({
-  //   group_name: "",
-  //   group_type: "",
-  //   group_value: "",
-  //   group_install: "",
-  //   group_members: "",
-  //   group_duration: "",
-  //   start_date: "",
-  //   end_date: "",
-  //   minimum_bid: "",
-  //   maximum_bid: "",
-  //   commission: "",
-  //   group_commission: "",
-  //   incentives: "",
-  //   reg_fee: "",
-  //   monthly_installment: "",
-  //   weekly_installment: "",
-  //   daily_installment: "",
-  //   relationship_manager: "",
-  //   app_display_vacany_seat: "",
-  // });
-  // useEffect(() => {
-  //   async function getEmployees() {
-  //     try {
-  //       const response = await api.get("/employee");
-  //       const responseData = response.data?.employee;
-  //       setEmployees(responseData ? responseData : []);
-  //     } catch (error) {
-  //       setEmployees([]);
-  //       console.log("Error Fetching Employees");
-  //     }
-  //   }
-  //   getEmployees();
-  // }, []);
+  const [employees, setEmployees] = useState([]);
+  const [updateFormData, setUpdateFormData] = useState({
+    group_name: "",
+    group_type: "",
+    group_value: "",
+    group_install: "",
+    group_members: "",
+    group_duration: "",
+    start_date: "",
+    end_date: "",
+    minimum_bid: "",
+    maximum_bid: "",
+    commission: "",
+    group_commission: "",
+    incentives: "",
+    reg_fee: "",
+    monthly_installment: "",
+    weekly_installment: "",
+    daily_installment: "",
+    relationship_manager: "",
+    app_display_vacany_seat: "",
+  });
+  useEffect(() => {
+    async function getEmployees() {
+      try {
+        const response = await api.get("/employee");
+        const responseData = response.data?.employee;
+        setEmployees(responseData ? responseData : []);
+      } catch (error) {
+        setEmployees([]);
+        console.log("Error Fetching Employees");
+      }
+    }
+    getEmployees();
+  }, []);
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -207,119 +207,119 @@ const Group = () => {
     }));
   };
 
-  // const validateForm = (type) => {
-  //   const newErrors = {};
+  const validateForm = (type) => {
+    const newErrors = {};
 
-  //   const data = type === "addGroup" ? formData : updateFormData;
+    const data = type === "addGroup" ? formData : updateFormData;
 
-  //   if (!data.group_name.trim()) {
-  //     newErrors.group_name = "Group Name is required";
-  //   }
+    if (!data.group_name.trim()) {
+      newErrors.group_name = "Group Name is required";
+    }
 
-  //   if (!data.group_type) {
-  //     newErrors.group_type = "Group Type is required";
-  //   }
-  //   if (!data.group_value) {
-  //     newErrors.group_value = "Group Value is required";
-  //   } else if (isNaN(data.group_value) || data.group_value <= 0) {
-  //     newErrors.group_value = "Group Value must be greater than zero (no";
-  //   }
+    if (!data.group_type) {
+      newErrors.group_type = "Group Type is required";
+    }
+    if (!data.group_value) {
+      newErrors.group_value = "Group Value is required";
+    } else if (isNaN(data.group_value) || data.group_value <= 0) {
+      newErrors.group_value = "Group Value must be greater than zero (no";
+    }
 
-  //   if (!data.group_install) {
-  //     newErrors.group_install = "Group Installment Amount is required";
-  //   } else if (
-  //     !data.group_install ||
-  //     isNaN(data.group_install) ||
-  //     data.group_install <= 0
-  //   ) {
-  //     newErrors.group_install =
-  //       "Group Installment Amount must be greater than zero (no symbols).";
-  //   }
+    if (!data.group_install) {
+      newErrors.group_install = "Group Installment Amount is required";
+    } else if (
+      !data.group_install ||
+      isNaN(data.group_install) ||
+      data.group_install <= 0
+    ) {
+      newErrors.group_install =
+        "Group Installment Amount must be greater than zero (no symbols).";
+    }
 
-  //   if (!data.group_members) {
-  //     newErrors.group_members = "Group Members is required";
-  //   } else if (
-  //     !data.group_members ||
-  //     isNaN(data.group_members) ||
-  //     data.group_members <= 0
-  //   ) {
-  //     newErrors.group_members =
-  //       "Group Members must be greater than zero (no symbols).";
-  //   }
-  //   if (!data.relationship_manager) {
-  //     newErrors.relationship_manager = "Relationship Manager is required";
-  //   }
-  //   if (!data.monthly_installment) {
-  //     newErrors.monthly_installment = "Monthly Installment is required";
-  //   }
-  //   if (!data.weekly_installment) {
-  //     newErrors.weekly_installment = "Weekly Installment is required";
-  //   }
-  //   if (!data.daily_installment) {
-  //     newErrors.daily_installment = "Daily Installment is required";
-  //   }
-  //   if (!data.group_duration) {
-  //     newErrors.group_duration = "Group Duration is required";
-  //   } else if (
-  //     !data.group_duration ||
-  //     isNaN(data.group_duration) ||
-  //     data.group_duration <= 0
-  //   ) {
-  //     newErrors.group_duration =
-  //       "Group Duration must be greater than zero (no symbols).";
-  //   }
+    if (!data.group_members) {
+      newErrors.group_members = "Group Members is required";
+    } else if (
+      !data.group_members ||
+      isNaN(data.group_members) ||
+      data.group_members <= 0
+    ) {
+      newErrors.group_members =
+        "Group Members must be greater than zero (no symbols).";
+    }
+    if (!data.relationship_manager) {
+      newErrors.relationship_manager = "Relationship Manager is required";
+    }
+    if (!data.monthly_installment) {
+      newErrors.monthly_installment = "Monthly Installment is required";
+    }
+    if (!data.weekly_installment) {
+      newErrors.weekly_installment = "Weekly Installment is required";
+    }
+    if (!data.daily_installment) {
+      newErrors.daily_installment = "Daily Installment is required";
+    }
+    if (!data.group_duration) {
+      newErrors.group_duration = "Group Duration is required";
+    } else if (
+      !data.group_duration ||
+      isNaN(data.group_duration) ||
+      data.group_duration <= 0
+    ) {
+      newErrors.group_duration =
+        "Group Duration must be greater than zero (no symbols).";
+    }
 
-  //   if (!data.reg_fee) {
-  //     newErrors.reg_fee = "Registration Fee is required";
-  //   } else if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
-  //     newErrors.reg_fee =
-  //       "Registration Fee must be a zero or greater than zero (no symbols).";
-  //   }
+    if (!data.reg_fee) {
+      newErrors.reg_fee = "Registration Fee is required";
+    } else if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
+      newErrors.reg_fee =
+        "Registration Fee must be a zero or greater than zero (no symbols).";
+    }
 
-  //   if (!data.start_date) {
-  //     newErrors.start_date = "Start Date is required";
-  //   }
-  //   if(!data.app_display_vacany_seat){
-  //     newErrors.app_display_vacany_seat = "Please Enter Display Vacant Seat" 
-  //   }
+    if (!data.start_date) {
+      newErrors.start_date = "Start Date is required";
+    }
+    if (!data.app_display_vacany_seat) {
+      newErrors.app_display_vacany_seat = "Please Enter Display Vacant Seat"
+    }
 
-  //   if (formData.end_date && !data.end_date) {
-  //     newErrors.end_date = "End Date is required";
-  //   } else if (
-  //     formData.end_date &&
-  //     new Date(data.end_date) < new Date(data.start_date)
-  //   ) {
-  //     newErrors.end_date = "End Date cannot be earlier than Start Date";
-  //   }
+    if (formData.end_date && !data.end_date) {
+      newErrors.end_date = "End Date is required";
+    } else if (
+      formData.end_date &&
+      new Date(data.end_date) < new Date(data.start_date)
+    ) {
+      newErrors.end_date = "End Date cannot be earlier than Start Date";
+    }
 
-  //   if (!data.minimum_bid) {
-  //     newErrors.minimum_bid = "Minimum Bid is required";
-  //   } else if (
-  //     !data.minimum_bid ||
-  //     isNaN(data.minimum_bid) ||
-  //     data.minimum_bid <= 0
-  //   ) {
-  //     newErrors.minimum_bid =
-  //       "Minimum Bid must be greater than zero (no symbols).";
-  //   }
+    if (!data.minimum_bid) {
+      newErrors.minimum_bid = "Minimum Bid is required";
+    } else if (
+      !data.minimum_bid ||
+      isNaN(data.minimum_bid) ||
+      data.minimum_bid <= 0
+    ) {
+      newErrors.minimum_bid =
+        "Minimum Bid must be greater than zero (no symbols).";
+    }
 
-  //   if (!data.maximum_bid) {
-  //     newErrors.maximum_bid = "Maximum Bid is required";
-  //   } else if (
-  //     !data.maximum_bid ||
-  //     isNaN(data.maximum_bid) ||
-  //     data.maximum_bid <= 0
-  //   ) {
-  //     newErrors.maximum_bid =
-  //       "Maximum Bid must be greater than zero (no symbols).";
-  //   } else if (parseFloat(data.maximum_bid) < parseFloat(data.minimum_bid)) {
-  //     newErrors.maximum_bid =
-  //       "Maximum Bid must be greater than or equal to Minimum Bid";
-  //   }
+    if (!data.maximum_bid) {
+      newErrors.maximum_bid = "Maximum Bid is required";
+    } else if (
+      !data.maximum_bid ||
+      isNaN(data.maximum_bid) ||
+      data.maximum_bid <= 0
+    ) {
+      newErrors.maximum_bid =
+        "Maximum Bid must be greater than zero (no symbols).";
+    } else if (parseFloat(data.maximum_bid) < parseFloat(data.minimum_bid)) {
+      newErrors.maximum_bid =
+        "Maximum Bid must be greater than or equal to Minimum Bid";
+    }
 
-  //   setErrors(newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -448,9 +448,9 @@ const Group = () => {
   };
 
   const handleDeleteGroup = async (e) => {
-    
-  console.log(currentGroup.group_name,"hhkkljl" ,deletionGroupName)
-    if (currentGroup && deletionGroupName.toString().trim() === currentGroup.group_name ) {
+
+    console.log(currentGroup.group_name, "hhkkljl", deletionGroupName)
+    if (currentGroup && deletionGroupName.toString().trim() === currentGroup.group_name) {
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
         setAlertConfig({
@@ -498,7 +498,7 @@ const Group = () => {
     { key: "members", header: "Group Members" },
     { key: "installment", header: "Group Installment" },
     { key: "daily_installment", header: "Daily Installment" },
-    {key: "app_display_vacany_seat", header: "App Display Vacany Seat"},
+    { key: "app_display_vacany_seat", header: "App Display Vacany Seat" },
     { key: "weekly_installment", header: "Weekly Installment" },
     { key: "monthly_installment", header: "Monthly Installment" },
     { key: "relationship_manager", header: "Relationship Manager" },
@@ -528,7 +528,7 @@ const Group = () => {
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Groups</h1>
-                {/* <button
+                <button
                   onClick={() => {
                     setShowModal(true);
                     setErrors({});
@@ -536,13 +536,7 @@ const Group = () => {
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
                   + Add Group
-                </button> */}
-                        <button
-  onClick={() => window.open("/add-group", "_blank")}
-  className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
->
-  + Add Group
-</button>
+                </button>
               </div>
             </div>
 
@@ -566,7 +560,7 @@ const Group = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
           </div>
         </div>
-        {/* <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
+        <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">Add Group</h3>
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
@@ -625,43 +619,43 @@ const Group = () => {
                 )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
-              <div className="w-1/2">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Relationship Manager <span className="text-red-500 ">*</span>
-                </label>
-                <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select or Search Relationship Manager"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="relationship_manager"
-                  filterOption={(input, option) => {
-                    const text = `${option.children}`; // Coerce children to string
-                    return text.toLowerCase().includes(input.toLowerCase());
-                  }}
-                  value={formData?.relationship_manager || undefined}
-                  onChange={(value) =>
-                    handleAntDSelect("relationship_manager", value)
-                  }
-                >
-                  {(Array.isArray(employees) ? employees : []).map(
-                    (employee) => (
-                      <Select.Option key={employee?._id} value={employee?._id}>
-                        {employee?.name} | {employee?.phone_number}
-                      </Select.Option>
-                    )
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="category"
+                  >
+                    Relationship Manager <span className="text-red-500 ">*</span>
+                  </label>
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select or Search Relationship Manager"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="relationship_manager"
+                    filterOption={(input, option) => {
+                      const text = `${option.children}`; // Coerce children to string
+                      return text.toLowerCase().includes(input.toLowerCase());
+                    }}
+                    value={formData?.relationship_manager || undefined}
+                    onChange={(value) =>
+                      handleAntDSelect("relationship_manager", value)
+                    }
+                  >
+                    {(Array.isArray(employees) ? employees : []).map(
+                      (employee) => (
+                        <Select.Option key={employee?._id} value={employee?._id}>
+                          {employee?.name} | {employee?.phone_number}
+                        </Select.Option>
+                      )
+                    )}
+                  </Select>
+                  {errors.relationship_manager && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.relationship_manager}
+                    </p>
                   )}
-                </Select>
-                {errors.relationship_manager && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.relationship_manager}
-                  </p>
-                )}
-              </div>
-              <div className="w-1/2">
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
@@ -683,9 +677,9 @@ const Group = () => {
                       {errors.app_display_vacany_seat}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.app_display_vacany_seat || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.app_display_vacany_seat || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -711,9 +705,9 @@ const Group = () => {
                       {errors.group_value}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_value || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_value || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -738,9 +732,9 @@ const Group = () => {
                       {errors.group_install}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_install || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_install || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -766,9 +760,9 @@ const Group = () => {
                       {errors.group_members}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_members || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_members || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -792,9 +786,9 @@ const Group = () => {
                       {errors.group_duration}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_duration || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_duration || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -820,9 +814,9 @@ const Group = () => {
                       {errors.daily_installment}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.daily_installment || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.daily_installment || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -846,9 +840,9 @@ const Group = () => {
                       {errors.weekly_installment}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.weekly_installment || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.weekly_installment || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -874,9 +868,9 @@ const Group = () => {
                       {errors.monthly_installment}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.monthly_installment || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.monthly_installment || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -900,9 +894,9 @@ const Group = () => {
                       {errors.reg_fee}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.reg_fee || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.reg_fee || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -976,9 +970,9 @@ const Group = () => {
                       {errors.minimum_bid}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.minimum_bid || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.minimum_bid || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1002,9 +996,9 @@ const Group = () => {
                       {errors.maximum_bid}
                     </p>
                   )}
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.maximum_bid || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.maximum_bid || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1020,9 +1014,9 @@ const Group = () => {
                     placeholder="Enter Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.commission || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.commission || 0)}
+                  </span>
                 </div>
 
                 <div className="w-1/2">
@@ -1037,9 +1031,9 @@ const Group = () => {
                     placeholder="Enter Group Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.group_commission || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.group_commission || 0)}
+                  </span>
                 </div>
 
                 <div className="w-1/2">
@@ -1054,9 +1048,9 @@ const Group = () => {
                     placeholder="Enter Incentives"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                    <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(formData.incentives || 0)}
-              </span>     
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(formData.incentives || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -1071,8 +1065,8 @@ const Group = () => {
               </div>
             </form>
           </div>
-        </Modal> */}
-        {/* <Modal
+        </Modal>
+        <Modal
           isVisible={showModalUpdate}
           onClose={() => setShowModalUpdate(false)}
         >
@@ -1139,43 +1133,43 @@ const Group = () => {
                 )}
               </div>
               <div className="flex flex-row justify-between space-x-4">
-              <div className="w-1/2">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="category"
-                >
-                  Relationship Manager <span className="text-red-500 ">*</span>
-                </label>
-                <Select
-                  className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                  placeholder="Select or Search Relationship Manager"
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  name="relationship_manager"
-                  filterOption={(input, option) => {
-                    const text = `${option.children}`; // Coerce children to string
-                    return text.toLowerCase().includes(input.toLowerCase());
-                  }}
-                  value={updateFormData?.relationship_manager || undefined}
-                  onChange={(value) =>
-                    handleAntInputDSelect("relationship_manager", value)
-                  }
-                >
-                  {(Array.isArray(employees) ? employees : []).map(
-                    (employee) => (
-                      <Select.Option key={employee?._id} value={employee?._id}>
-                        {employee?.name} | {employee?.phone_number}
-                      </Select.Option>
-                    )
+                <div className="w-1/2">
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                    htmlFor="category"
+                  >
+                    Relationship Manager <span className="text-red-500 ">*</span>
+                  </label>
+                  <Select
+                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                    placeholder="Select or Search Relationship Manager"
+                    popupMatchSelectWidth={false}
+                    showSearch
+                    name="relationship_manager"
+                    filterOption={(input, option) => {
+                      const text = `${option.children}`; // Coerce children to string
+                      return text.toLowerCase().includes(input.toLowerCase());
+                    }}
+                    value={updateFormData?.relationship_manager || undefined}
+                    onChange={(value) =>
+                      handleAntInputDSelect("relationship_manager", value)
+                    }
+                  >
+                    {(Array.isArray(employees) ? employees : []).map(
+                      (employee) => (
+                        <Select.Option key={employee?._id} value={employee?._id}>
+                          {employee?.name} | {employee?.phone_number}
+                        </Select.Option>
+                      )
+                    )}
+                  </Select>
+                  {errors.relationship_manager && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.relationship_manager}
+                    </p>
                   )}
-                </Select>
-                {errors.relationship_manager && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.relationship_manager}
-                  </p>
-                )}
-              </div>
-              <div className="w-1/2">
+                </div>
+                <div className="w-1/2">
                   <label
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
@@ -1197,9 +1191,9 @@ const Group = () => {
                       {errors.app_display_vacany_seat}
                     </p>
                   )}
-                                      <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.app_display_vacany_seat || 0)}
-              </span>  
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.app_display_vacany_seat || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1225,9 +1219,9 @@ const Group = () => {
                       {errors.group_value}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_value || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_value || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1252,9 +1246,9 @@ const Group = () => {
                       {errors.group_install}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_install || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_install || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -1281,9 +1275,9 @@ const Group = () => {
                       {errors.group_members}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_members || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_members || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1307,9 +1301,9 @@ const Group = () => {
                       {errors.group_duration}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_duration || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_duration || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1335,9 +1329,9 @@ const Group = () => {
                       {errors.daily_installment}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.daily_installment || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.daily_installment || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1361,9 +1355,9 @@ const Group = () => {
                       {errors.weekly_installment}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.weekly_installment || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.weekly_installment || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1389,9 +1383,9 @@ const Group = () => {
                       {errors.monthly_installment}
                     </p>
                   )}
-                                                          <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.monthly_installment || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.monthly_installment || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1415,9 +1409,9 @@ const Group = () => {
                       {errors.reg_fee}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.reg_fee || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.reg_fee || 0)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1491,9 +1485,9 @@ const Group = () => {
                       {errors.minimum_bid}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.minimum_bid || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.minimum_bid || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label
@@ -1517,9 +1511,9 @@ const Group = () => {
                       {errors.maximum_bid}
                     </p>
                   )}
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.maximum_bid || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.maximum_bid || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -1536,9 +1530,9 @@ const Group = () => {
                     placeholder="Enter Commission"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.commission || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.commission || 0)}
+                  </span>
                 </div>
 
                 <div className="w-1/2">
@@ -1553,9 +1547,9 @@ const Group = () => {
                     placeholder="Enter Group Commission"
                     className={`no-spinner bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.group_commission || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.group_commission || 0)}
+                  </span>
                 </div>
                 <div className="w-1/2">
                   <label className="block mb-2 text-sm font-medium text-gray-900">
@@ -1569,9 +1563,9 @@ const Group = () => {
                     placeholder="Enter Incentives"
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-                                                        <span className={`text-sm font-mono text-green-700 `}>
-                {numberToIndianWords(updateFormData.incentives || 0)}
-              </span> 
+                  <span className={`text-sm font-mono text-green-700 `}>
+                    {numberToIndianWords(updateFormData.incentives || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -1586,7 +1580,7 @@ const Group = () => {
               </div>
             </form>
           </div>
-        </Modal> */}
+        </Modal>
         <Modal
           isVisible={showModalDelete}
           onClose={() => {
@@ -1604,7 +1598,7 @@ const Group = () => {
                   e.preventDefault();
                   handleDeleteGroup();
                 }}
-                
+
                 className="space-y-6"
               >
                 <div>
@@ -1625,7 +1619,7 @@ const Group = () => {
                     placeholder="Enter the Group Name"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    onChange={(e)=>setDeletionGroupName(e.target.value)}
+                    onChange={(e) => setDeletionGroupName(e.target.value)}
                   />
                 </div>
                 <button
