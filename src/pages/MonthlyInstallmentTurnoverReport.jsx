@@ -113,8 +113,9 @@ const MonthlyInstallmentTurnoverReport = () => {
 
  return (
   <>
-    <div className="min-h-screen w-screen bg-gray-50">
-      <div className="flex">
+  <div className="w-full overflow-x-hidden">
+
+      <div>
         <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} />
 
         <div className="flex-grow p-6">

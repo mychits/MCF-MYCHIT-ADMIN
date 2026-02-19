@@ -60,41 +60,41 @@ const Group = () => {
     app_display_vacany_seat: "",
   });
   const [errors, setErrors] = useState({});
-  const [employees, setEmployees] = useState([]);
-  const [updateFormData, setUpdateFormData] = useState({
-    group_name: "",
-    group_type: "",
-    group_value: "",
-    group_install: "",
-    group_members: "",
-    group_duration: "",
-    start_date: "",
-    end_date: "",
-    minimum_bid: "",
-    maximum_bid: "",
-    commission: "",
-    group_commission: "",
-    incentives: "",
-    reg_fee: "",
-    monthly_installment: "",
-    weekly_installment: "",
-    daily_installment: "",
-    relationship_manager: "",
-    app_display_vacany_seat: "",
-  });
-  useEffect(() => {
-    async function getEmployees() {
-      try {
-        const response = await api.get("/employee");
-        const responseData = response.data?.employee;
-        setEmployees(responseData ? responseData : []);
-      } catch (error) {
-        setEmployees([]);
-        console.log("Error Fetching Employees");
-      }
-    }
-    getEmployees();
-  }, []);
+  // const [employees, setEmployees] = useState([]);
+  // const [updateFormData, setUpdateFormData] = useState({
+  //   group_name: "",
+  //   group_type: "",
+  //   group_value: "",
+  //   group_install: "",
+  //   group_members: "",
+  //   group_duration: "",
+  //   start_date: "",
+  //   end_date: "",
+  //   minimum_bid: "",
+  //   maximum_bid: "",
+  //   commission: "",
+  //   group_commission: "",
+  //   incentives: "",
+  //   reg_fee: "",
+  //   monthly_installment: "",
+  //   weekly_installment: "",
+  //   daily_installment: "",
+  //   relationship_manager: "",
+  //   app_display_vacany_seat: "",
+  // });
+  // useEffect(() => {
+  //   async function getEmployees() {
+  //     try {
+  //       const response = await api.get("/employee");
+  //       const responseData = response.data?.employee;
+  //       setEmployees(responseData ? responseData : []);
+  //     } catch (error) {
+  //       setEmployees([]);
+  //       console.log("Error Fetching Employees");
+  //     }
+  //   }
+  //   getEmployees();
+  // }, []);
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -205,119 +205,119 @@ const Group = () => {
     }));
   };
 
-  const validateForm = (type) => {
-    const newErrors = {};
+  // const validateForm = (type) => {
+  //   const newErrors = {};
 
-    const data = type === "addGroup" ? formData : updateFormData;
+  //   const data = type === "addGroup" ? formData : updateFormData;
 
-    if (!data.group_name.trim()) {
-      newErrors.group_name = "Group Name is required";
-    }
+  //   if (!data.group_name.trim()) {
+  //     newErrors.group_name = "Group Name is required";
+  //   }
 
-    if (!data.group_type) {
-      newErrors.group_type = "Group Type is required";
-    }
-    if (!data.group_value) {
-      newErrors.group_value = "Group Value is required";
-    } else if (isNaN(data.group_value) || data.group_value <= 0) {
-      newErrors.group_value = "Group Value must be greater than zero (no";
-    }
+  //   if (!data.group_type) {
+  //     newErrors.group_type = "Group Type is required";
+  //   }
+  //   if (!data.group_value) {
+  //     newErrors.group_value = "Group Value is required";
+  //   } else if (isNaN(data.group_value) || data.group_value <= 0) {
+  //     newErrors.group_value = "Group Value must be greater than zero (no";
+  //   }
 
-    if (!data.group_install) {
-      newErrors.group_install = "Group Installment Amount is required";
-    } else if (
-      !data.group_install ||
-      isNaN(data.group_install) ||
-      data.group_install <= 0
-    ) {
-      newErrors.group_install =
-        "Group Installment Amount must be greater than zero (no symbols).";
-    }
+  //   if (!data.group_install) {
+  //     newErrors.group_install = "Group Installment Amount is required";
+  //   } else if (
+  //     !data.group_install ||
+  //     isNaN(data.group_install) ||
+  //     data.group_install <= 0
+  //   ) {
+  //     newErrors.group_install =
+  //       "Group Installment Amount must be greater than zero (no symbols).";
+  //   }
 
-    if (!data.group_members) {
-      newErrors.group_members = "Group Members is required";
-    } else if (
-      !data.group_members ||
-      isNaN(data.group_members) ||
-      data.group_members <= 0
-    ) {
-      newErrors.group_members =
-        "Group Members must be greater than zero (no symbols).";
-    }
-    if (!data.relationship_manager) {
-      newErrors.relationship_manager = "Relationship Manager is required";
-    }
-    if (!data.monthly_installment) {
-      newErrors.monthly_installment = "Monthly Installment is required";
-    }
-    if (!data.weekly_installment) {
-      newErrors.weekly_installment = "Weekly Installment is required";
-    }
-    if (!data.daily_installment) {
-      newErrors.daily_installment = "Daily Installment is required";
-    }
-    if (!data.group_duration) {
-      newErrors.group_duration = "Group Duration is required";
-    } else if (
-      !data.group_duration ||
-      isNaN(data.group_duration) ||
-      data.group_duration <= 0
-    ) {
-      newErrors.group_duration =
-        "Group Duration must be greater than zero (no symbols).";
-    }
+  //   if (!data.group_members) {
+  //     newErrors.group_members = "Group Members is required";
+  //   } else if (
+  //     !data.group_members ||
+  //     isNaN(data.group_members) ||
+  //     data.group_members <= 0
+  //   ) {
+  //     newErrors.group_members =
+  //       "Group Members must be greater than zero (no symbols).";
+  //   }
+  //   if (!data.relationship_manager) {
+  //     newErrors.relationship_manager = "Relationship Manager is required";
+  //   }
+  //   if (!data.monthly_installment) {
+  //     newErrors.monthly_installment = "Monthly Installment is required";
+  //   }
+  //   if (!data.weekly_installment) {
+  //     newErrors.weekly_installment = "Weekly Installment is required";
+  //   }
+  //   if (!data.daily_installment) {
+  //     newErrors.daily_installment = "Daily Installment is required";
+  //   }
+  //   if (!data.group_duration) {
+  //     newErrors.group_duration = "Group Duration is required";
+  //   } else if (
+  //     !data.group_duration ||
+  //     isNaN(data.group_duration) ||
+  //     data.group_duration <= 0
+  //   ) {
+  //     newErrors.group_duration =
+  //       "Group Duration must be greater than zero (no symbols).";
+  //   }
 
-    if (!data.reg_fee) {
-      newErrors.reg_fee = "Registration Fee is required";
-    } else if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
-      newErrors.reg_fee =
-        "Registration Fee must be a zero or greater than zero (no symbols).";
-    }
+  //   if (!data.reg_fee) {
+  //     newErrors.reg_fee = "Registration Fee is required";
+  //   } else if (!data.reg_fee || isNaN(data.reg_fee) || data.reg_fee < 0) {
+  //     newErrors.reg_fee =
+  //       "Registration Fee must be a zero or greater than zero (no symbols).";
+  //   }
 
-    if (!data.start_date) {
-      newErrors.start_date = "Start Date is required";
-    }
-    if(!data.app_display_vacany_seat){
-      newErrors.app_display_vacany_seat = "Please Enter Display Vacant Seat" 
-    }
+  //   if (!data.start_date) {
+  //     newErrors.start_date = "Start Date is required";
+  //   }
+  //   if(!data.app_display_vacany_seat){
+  //     newErrors.app_display_vacany_seat = "Please Enter Display Vacant Seat" 
+  //   }
 
-    if (formData.end_date && !data.end_date) {
-      newErrors.end_date = "End Date is required";
-    } else if (
-      formData.end_date &&
-      new Date(data.end_date) < new Date(data.start_date)
-    ) {
-      newErrors.end_date = "End Date cannot be earlier than Start Date";
-    }
+  //   if (formData.end_date && !data.end_date) {
+  //     newErrors.end_date = "End Date is required";
+  //   } else if (
+  //     formData.end_date &&
+  //     new Date(data.end_date) < new Date(data.start_date)
+  //   ) {
+  //     newErrors.end_date = "End Date cannot be earlier than Start Date";
+  //   }
 
-    if (!data.minimum_bid) {
-      newErrors.minimum_bid = "Minimum Bid is required";
-    } else if (
-      !data.minimum_bid ||
-      isNaN(data.minimum_bid) ||
-      data.minimum_bid <= 0
-    ) {
-      newErrors.minimum_bid =
-        "Minimum Bid must be greater than zero (no symbols).";
-    }
+  //   if (!data.minimum_bid) {
+  //     newErrors.minimum_bid = "Minimum Bid is required";
+  //   } else if (
+  //     !data.minimum_bid ||
+  //     isNaN(data.minimum_bid) ||
+  //     data.minimum_bid <= 0
+  //   ) {
+  //     newErrors.minimum_bid =
+  //       "Minimum Bid must be greater than zero (no symbols).";
+  //   }
 
-    if (!data.maximum_bid) {
-      newErrors.maximum_bid = "Maximum Bid is required";
-    } else if (
-      !data.maximum_bid ||
-      isNaN(data.maximum_bid) ||
-      data.maximum_bid <= 0
-    ) {
-      newErrors.maximum_bid =
-        "Maximum Bid must be greater than zero (no symbols).";
-    } else if (parseFloat(data.maximum_bid) < parseFloat(data.minimum_bid)) {
-      newErrors.maximum_bid =
-        "Maximum Bid must be greater than or equal to Minimum Bid";
-    }
+  //   if (!data.maximum_bid) {
+  //     newErrors.maximum_bid = "Maximum Bid is required";
+  //   } else if (
+  //     !data.maximum_bid ||
+  //     isNaN(data.maximum_bid) ||
+  //     data.maximum_bid <= 0
+  //   ) {
+  //     newErrors.maximum_bid =
+  //       "Maximum Bid must be greater than zero (no symbols).";
+  //   } else if (parseFloat(data.maximum_bid) < parseFloat(data.minimum_bid)) {
+  //     newErrors.maximum_bid =
+  //       "Maximum Bid must be greater than or equal to Minimum Bid";
+  //   }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -526,7 +526,7 @@ const Group = () => {
             <div className="mt-6 mb-8">
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Groups</h1>
-                <button
+                {/* <button
                   onClick={() => {
                     setShowModal(true);
                     setErrors({});
@@ -534,7 +534,13 @@ const Group = () => {
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
                   + Add Group
-                </button>
+                </button> */}
+                        <button
+  onClick={() => window.open("/add-group", "_blank")}
+  className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
+>
+  + Add Group
+</button>
               </div>
             </div>
 
@@ -558,7 +564,7 @@ const Group = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
           </div>
         </div>
-        <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
+        {/* <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
           <div className="py-6 px-5 lg:px-8 text-left">
             <h3 className="mb-4 text-xl font-bold text-gray-900">Add Group</h3>
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
@@ -1021,8 +1027,8 @@ const Group = () => {
               </div>
             </form>
           </div>
-        </Modal>
-        <Modal
+        </Modal> */}
+        {/* <Modal
           isVisible={showModalUpdate}
           onClose={() => setShowModalUpdate(false)}
         >
@@ -1494,7 +1500,7 @@ const Group = () => {
               </div>
             </form>
           </div>
-        </Modal>
+        </Modal> */}
         <Modal
           isVisible={showModalDelete}
           onClose={() => {

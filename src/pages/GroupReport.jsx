@@ -546,7 +546,8 @@ const GroupReport = () => {
                           <p>loading...</p>
                         ) : (
                           <div className="mt-10">
-                            <div className="flex gap-4">
+                               <div className="flex gap-4 mt-5">
+                        
                              <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
 
                                 <label className="mb-1 text-sm font-medium text-gray-700">
@@ -577,7 +578,7 @@ const GroupReport = () => {
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
                               </div>
-                             <div className="flex flex-col w-full md:w-1/4 lg:w-1/5">
+                             <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
 
                                 <label className="mb-1 text-sm font-medium text-gray-700">
                                   Group Value
@@ -590,9 +591,7 @@ const GroupReport = () => {
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
                               </div>
-                            </div>
-                            <div className="flex gap-4 mt-5">
-                           <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
+                                   <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
 
                                 <label className="mb-1 text-sm font-medium text-gray-700">
                                   Group Installment Amount
@@ -605,7 +604,10 @@ const GroupReport = () => {
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
                               </div>
-                              <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
+                            </div>
+                              <div className="flex gap-4 mt-5">
+                        
+                             <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
                                   Group Members
                                 </label>
@@ -614,10 +616,10 @@ const GroupReport = () => {
                                   placeholder="Enter Group Members"
                                   value={group.group_members}
                                   readonly
-                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                               className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
                               </div>
-                              <div className="flex flex-col w-full md:w-1/4 lg:w-1/5">
+                              <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
                                   Group Duration
                                 </label>
@@ -629,9 +631,7 @@ const GroupReport = () => {
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
                               </div>
-                            </div>
-                            <div className="flex gap-4 mt-5">
-                           <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
+                                <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
                                   Earned Commission
                                 </label>
@@ -658,7 +658,10 @@ const GroupReport = () => {
                                   className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
                                 />
                               </div>
-                             <div className="flex flex-col w-full md:w-1/4 lg:w-1/5">
+                            </div>
+                            <div className="flex gap-4 mt-5">
+                        
+                              <div className="flex flex-col w-full md:w-1/3 lg:w-1/4">
                                 <label className="mb-1 text-sm font-medium text-gray-700">
                                   Vacant
                                 </label>
@@ -667,9 +670,10 @@ const GroupReport = () => {
                                   placeholder="Enter Vacant"
                                   value={availableTickets.length || "-"}
                                   readonly
-                                  className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-full"
+                                className="border border-gray-300 rounded px-4 py-2 shadow-sm outline-none w-[300px]"
                                 />
                               </div>
+                              
                             </div>
                             <div className="mt-10">
                               <h3 className="text-lg font-medium mb-4">

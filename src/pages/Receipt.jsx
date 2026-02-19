@@ -527,8 +527,8 @@ const Receipt = () => {
 
   return (
     <>
-     <div className="relative flex flex-col [height:calc(100vh-100px)] overflow-y-auto">
-        <div className="flex mt-30">
+     <div className="relative flex flex-col [height:calc(100vh-100px)] ">
+        <div className="flex-1 mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}
