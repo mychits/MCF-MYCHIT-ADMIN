@@ -240,23 +240,25 @@ const EnrollmentReport = () => {
   ];
 
   return (
-    <div className="w-screen">
+ <div className="w-full overflow-x-hidden">
+
       <div>
         <Navbar
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
           visibility={true}
         />
-        <div className=" flex mt-30">
+        <div className=" flex-1 mt-30">
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}
             message={alertConfig.message}
           />
-          <div className="flex-grow p-7">
+          <div className="flex-1 p-7">
             <h1 className="font-bold text-2xl"> Reports - Enrollment </h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">
-                <div className="flex justify-start items-center w-screen gap-4">
+           <div className="flex justify-start items-center w-full gap-4 flex-wrap">
+
                   <div className="mb-2">
                     <label>Filter Option</label>
                     {/* <select
@@ -402,12 +404,15 @@ const EnrollmentReport = () => {
               </div>
             </div>
             {TableGroups && TableGroups.length > 0 && !isLoading ? (
+              <div className="w-full overflow-x-auto scrollbar-thin">
+
               <DataTable
                 data={filterOption(TableGroups, searchText)}
                 columns={columns}
                 exportedPdfName={`Enrollment Report`}
                 exportedFileName={`Enrollment Report.csv`}
               />
+              </div>
             ) : (
               <div className="flex w-full justify-center items-center">
                 <CircularLoader

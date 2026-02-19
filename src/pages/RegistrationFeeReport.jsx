@@ -470,8 +470,8 @@ const RegistrationFeeReport = () => {
 
   return (
     <>
-      <div className="w-screen">
-        <div className="flex mt-30">
+      <div className="flex-1">
+        <div className="flex-1 mt-30">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}

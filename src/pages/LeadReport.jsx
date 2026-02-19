@@ -521,19 +521,19 @@ const LeadReport = () => {
     }
   };
   return (
-    <div className="w-screen">
+    <div className="w-full overflow-x-hidden">
       <div>
         <Navbar
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
           visibility={true}
         />
-        <div className=" flex mt-30">
+   <div className=" flex-1 mt-30">
           <CustomAlert
             type={alertConfig.type}
             isVisible={alertConfig.visibility}
             message={alertConfig.message}
           />
-          <div className="flex-grow p-7">
+          <div className="flex-1 p-7">
             <h1 className="font-bold text-2xl">Reports - Lead </h1>
             <div className="mt-6 mb-8">
               <div className="mb-2">

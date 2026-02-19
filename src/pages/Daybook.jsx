@@ -294,16 +294,12 @@ const Daybook = () => {
       header: "Category",
     },
     { key: "collected_by", header: "Collected By" },
-  ];
-
-
+  ]
+  
 
   return (
-    <div className="relative flex flex-col [height:calc(100vh-100px)] overflow-y-auto">
-      <Navbar
-        onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
-        visibility={true}
-      />
+   <div className="relative flex flex-col [height:calc(100vh-100px)] ">
+      <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
       <div className="flex-grow p-8 bg-slate-50 min-h-screen">
         {/* Professional Header & Summary Dashboard */}
         <div className="mb-8">

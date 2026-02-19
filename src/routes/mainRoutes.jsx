@@ -182,6 +182,7 @@ import AuctionFilterReport from "../pages/AuctionFilterReport";
 import prizedCustomerReport from "../pages/PrizedCustomerReport";
 import PrizedCustomerReport from "../pages/PrizedCustomerReport";
 import EmployeeTasks from "../components/employee/EmployeeTasks";
+import AddGroupForm from "../pages/AddGroupForm";
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -1126,6 +1127,7 @@ const mainRoutes = createBrowserRouter([
       {path: "/market-menu/whatsapp-marketing/customer-whatsapp-marketing/customer-welcome-message", element: <CustomerWelcomeWhatsappMessage/>},
       {path: "/market-menu/whatsapp-marketing/customer-whatsapp-marketing/customer-chitplan-message", element: <CustomerChitPlanWhatsappMessage/>},
       {path: "/market-menu/whatsapp-marketing/loan-whatsapp-marketing/due-loan-message",element: <DueLoanWhatsappMessage/>},
+        {path: "/add-group",element: <AddGroupForm/>},
        
    
   
