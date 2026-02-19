@@ -14,13 +14,21 @@ import {
   Row,
   Col,
   Empty,
+  Typography,
+   Divider,
 } from "antd";
+const { Text, Title } = Typography;
 import Navbar from "../components/layouts/Navbar";
 import { IoMdMore } from "react-icons/io";
 import {
   ArrowUpOutlined,
-  ArrowDownOutlined,
-  WalletOutlined,
+  ArrowDownOutlined, 
+  WalletOutlined, 
+  GlobalOutlined, 
+  LinkOutlined, 
+  SafetyCertificateOutlined,
+  BankOutlined,
+  DollarCircleOutlined
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import filterOption from "../helpers/filterOption";
@@ -51,6 +59,11 @@ const Daybook = () => {
   // New States for IN/OUT
   const [selectedTransactionType, setSelectedTransactionType] = useState("All");
   const [totals, setTotals] = useState({ in: 0, out: 0, net: 0 });
+  const [modeTotals, setModeTotals] = useState({
+    cash: 0,
+    online: 0,
+    link: 0,
+  });
 
   const onGlobalSearchChangeHandler = (e) => setSearchText(e.target.value);
 
@@ -130,6 +143,10 @@ const Daybook = () => {
           let tin = 0,
             tout = 0;
 
+          let cash = 0;
+          let online = 0;
+          let link = 0;
+
           const formattedData = response.data.map((item, index) => {
             const amt = Number(item.amount || 0);
             if (item.type === "IN") tin += amt;
@@ -199,6 +216,19 @@ const Daybook = () => {
             else chit += amt; // default chit
           });
 
+          response.data.forEach((item) => {
+            const amt = Number(item.amount || 0);
+
+            // Only count collections (IN)
+            if (item.type !== "IN") return;
+
+            const mode = (item.pay_type || "").toLowerCase();
+
+            if (mode === "cash") cash += amt;
+            else if (mode === "online") online += amt;
+            else if (mode.includes("link")) link += amt;
+          });
+
           setCategoryTotals({
             chit,
             loan,
@@ -207,6 +237,11 @@ const Daybook = () => {
           });
 
           setTotals({ in: tin, out: tout, net: tin - tout });
+          setModeTotals({
+            cash,
+            online,
+            link,
+          });
           setFilteredAuction(response.data);
 
           const finalTable =
@@ -294,12 +329,14 @@ const Daybook = () => {
       header: "Category",
     },
     { key: "collected_by", header: "Collected By" },
-  ]
-  
+  ];
 
   return (
-   <div className="relative flex flex-col [height:calc(100vh-100px)] ">
-      <Navbar onGlobalSearchChangeHandler={onGlobalSearchChangeHandler} visibility={true} />
+    <div className="relative flex flex-col [height:calc(100vh-100px)] ">
+      <Navbar
+        onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
+        visibility={true}
+      />
       <div className="flex-grow p-8 bg-slate-50 min-h-screen">
         {/* Professional Header & Summary Dashboard */}
         <div className="mb-8">
@@ -309,7 +346,7 @@ const Daybook = () => {
           </p>
         </div>
 
-        <Row gutter={[16, 16]} className="mb-8">
+        {/* <Row gutter={[16, 16]} className="mb-8">
           <Col xs={24} md={8}>
             <Card className="shadow-sm border-l-4 border-green-500">
               <Statistic
@@ -321,7 +358,7 @@ const Daybook = () => {
                     <ArrowUpOutlined />₹
                   </>
                 }
-                valueStyle={{ color: "#3f8600" }}
+                valueStyle={{ color: "#059669" }}
               />
             </Card>
             <span className={`text-sm font-mono text-green-700 pl-3`}>
@@ -339,91 +376,248 @@ const Daybook = () => {
                     <ArrowDownOutlined /> ₹
                   </>
                 }
-                valueStyle={{ color: "#cf1322" }}
+                valueStyle={{ color: "#dc2626" }}
               />
             </Card>
             <span className={`text-sm font-mono text-red-700 pl-3`}>
               {numberToIndianWords(totals.out || 0)}
             </span>
           </Col>
-          {/* <Col xs={24} md={8}>
-            <Card className="shadow-sm border-l-4 border-blue-500 bg-blue-50/20">
-              <Statistic
-                title="Net Balance"
-                value={totals.net}
-                precision={2}
-                prefix={
-                  <>
-                    <WalletOutlined />₹
-                  </>
-                }
-                valueStyle={{ color: "#096dd9" }}
-              />
-            </Card>
-            <span
-              className={`text-sm font-mono ${totals.net < 0 ? "text-red-700" : "text-green-700"} pl-3`}
-            >
-              {numberToIndianWords(totals.net || 0)}
-            </span>
-          </Col> */}
-        </Row>
-        <Row gutter={[16, 16]} className="mb-8">
-          <Col xs={24} sm={12} md={6}>
-            <Card className="border-l-4 border-emerald-500 shadow-sm">
+          <Col xs={24} md={8}>
+            <Card className="shadow-sm border-l-4 border-indigo-500">
               <Statistic
                 title="Chit Collections"
                 value={categoryTotals.chit}
-                prefix="₹"
-                valueStyle={{ color: "#059669" }}
+                precision={2}
+                prefix={
+                  <>
+                    <ArrowDownOutlined /> ₹
+                  </>
+                }
+                valueStyle={{ color: "#4f46e5" }}
               />
-              <div className="text-xs text-emerald-700 font-mono">
-                {numberToIndianWords(categoryTotals.chit || 0)}
-              </div>
             </Card>
+            <span className={`text-sm font-mono text-indigo-700 pl-3`}>
+              {numberToIndianWords(categoryTotals.chit || 0)}
+            </span>
           </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <Card className="border-l-4 border-purple-500 shadow-sm">
+        </Row>
+        <Row gutter={[16, 16]} className="mb-8">
+          <Col xs={24} md={8}>
+            <Card className="shadow-sm border-l-4 border-orange-500">
               <Statistic
                 title="Loan Collections"
                 value={categoryTotals.loan}
-                prefix="₹"
-                valueStyle={{ color: "#7c3aed" }}
+                precision={2}
+                prefix={
+                  <>
+                    <ArrowUpOutlined />₹
+                  </>
+                }
+                valueStyle={{ color: "#d97706" }}
               />
-              <div className="text-xs text-purple-700 font-mono">
-                {numberToIndianWords(categoryTotals.loan || 0)}
-              </div>
             </Card>
+            <span className={`text-sm font-mono text-orange-700 pl-3`}>
+              {numberToIndianWords(categoryTotals.loan || 0)}
+            </span>
           </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <Card className="border-l-4 border-orange-500 shadow-sm">
+          <Col xs={24} md={8}>
+            <Card className="shadow-sm border-l-4 border-green-800">
               <Statistic
                 title="Pigme Collections"
                 value={categoryTotals.pigme}
-                prefix="₹"
-                valueStyle={{ color: "#ea580c" }}
+                precision={2}
+                prefix={
+                  <>
+                    <ArrowDownOutlined /> ₹
+                  </>
+                }
+                valueStyle={{ color: "#0d9488" }}
               />
-              <div className="text-xs text-orange-700 font-mono">
-                {numberToIndianWords(categoryTotals.pigme || 0)}
-              </div>
             </Card>
+            <span className={`text-sm font-mono text-green-800 pl-3`}>
+              {numberToIndianWords(categoryTotals.pigme || 0)}
+            </span>
           </Col>
-
-          <Col xs={24} sm={12} md={6}>
-            <Card className="border-l-4 border-indigo-500 shadow-sm">
+          <Col xs={24} md={8}>
+            <Card className="shadow-sm border-l-4 border-pink-500">
               <Statistic
                 title="Registration Fees"
                 value={categoryTotals.registration}
-                prefix="₹"
-                valueStyle={{ color: "#4f46e5" }}
+                precision={2}
+                prefix={
+                  <>
+                    <ArrowDownOutlined /> ₹
+                  </>
+                }
+                valueStyle={{ color: "#db2777" }}
               />
-              <div className="text-xs text-indigo-700 font-mono">
-                {numberToIndianWords(categoryTotals.registration || 0)}
+            </Card>
+            <span className={`text-sm font-mono text-pink-700 pl-3`}>
+              {numberToIndianWords(categoryTotals.registration || 0)}
+            </span>
+          </Col>
+        </Row>
+        <Row gutter={[16, 16]} className="mb-8">
+          <Col xs={24} md={8}>
+            <Card className="shadow-sm border-l-4 border-green-500">
+              <Statistic
+                title="Cash Collection"
+                value={modeTotals.cash}
+                precision={2}
+                prefix={
+                  <>
+                    <ArrowUpOutlined />₹
+                  </>
+                }
+                valueStyle={{ color: "#15803d" }}
+              />
+            </Card>
+            <span className={`text-sm font-mono text-green-700 pl-3`}>
+              {numberToIndianWords(modeTotals.cash || 0)}
+            </span>
+          </Col>
+          <Col xs={24} md={8}>
+            <Card className="shadow-sm border-l-4 border-blue-800">
+              <Statistic
+                title="Online Collection"
+                value={modeTotals.online}
+                precision={2}
+                prefix={
+                  <>
+                    <ArrowDownOutlined /> ₹
+                  </>
+                }
+                valueStyle={{ color: "#2563eb" }}
+              />
+            </Card>
+            <span className={`text-sm font-mono text-blue-800 pl-3`}>
+              {numberToIndianWords(modeTotals.online || 0)}
+            </span>
+          </Col>
+          <Col xs={24} md={8}>
+            <Card className="shadow-sm border-l-4 border-purple-500">
+              <Statistic
+                title="Payment Link Collection"
+                value={modeTotals.link}
+                precision={2}
+                prefix={
+                  <>
+                    <ArrowDownOutlined /> ₹
+                  </>
+                }
+                valueStyle={{ color: "#7c3aed" }}
+              />
+            </Card>
+            <span className={`text-sm font-mono text-purple-700 pl-3`}>
+              {numberToIndianWords(modeTotals.link || 0)}
+            </span>
+          </Col>
+        </Row> */}
+
+        <div className="p-6 bg-gray-50 rounded-2xl">
+      {/* SECTION: Overview */}
+      <div className="mb-6">
+        <Title level={4} className="!mb-4 text-gray-700">Financial Overview</Title>
+        <Row gutter={[20, 20]}>
+          <Col xs={24} md={12}>
+            <Card className="shadow-md hover:shadow-lg transition-all duration-300 border-none rounded-xl bg-gradient-to-br from-white to-green-50/30 overflow-hidden relative">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500" />
+              <Statistic
+                title={<Text strong className="text-gray-500 uppercase tracking-wider text-xs">Total IN (Collections)</Text>}
+                value={totals.in}
+                precision={2}
+                prefix={<ArrowUpOutlined className="text-emerald-500" />}
+                valueStyle={{ color: "#065f46", fontWeight: '700', fontSize: '1.8rem' }}
+              />
+              <div className="mt-2 py-1 px-2 bg-emerald-100/50 rounded inline-block">
+                <Text className="text-xs font-medium text-emerald-800 italic">
+                  {numberToIndianWords(totals.in || 0)}
+                </Text>
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} md={12}>
+            <Card className="shadow-md hover:shadow-lg transition-all duration-300 border-none rounded-xl bg-gradient-to-br from-white to-red-50/30 overflow-hidden relative">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500" />
+              <Statistic
+                title={<Text strong className="text-gray-500 uppercase tracking-wider text-xs">Total OUT (Payouts)</Text>}
+                value={totals.out}
+                precision={2}
+                prefix={<ArrowDownOutlined className="text-rose-500" />}
+                valueStyle={{ color: "#9f1239", fontWeight: '700', fontSize: '1.8rem' }}
+              />
+              <div className="mt-2 py-1 px-2 bg-rose-100/50 rounded inline-block">
+                <Text className="text-xs font-medium text-rose-800 italic">
+                  {numberToIndianWords(totals.out || 0)}
+                </Text>
               </div>
             </Card>
           </Col>
         </Row>
+      </div>
+
+      <Divider />
+
+      {/* SECTION: Categories */}
+      <div className="mb-6">
+        <Title level={4} className="!mb-4 text-gray-700">Category Breakdown</Title>
+        <Row gutter={[16, 16]}>
+          {[
+            { title: "Chit Collections", val: categoryTotals.chit, color: "#6366f1", bg: "indigo", icon: <BankOutlined /> },
+            { title: "Loan Collections", val: categoryTotals.loan, color: "#f59e0b", bg: "orange", icon: <DollarCircleOutlined /> },
+            { title: "Pigme Collections", val: categoryTotals.pigme, color: "#0d9488", bg: "teal", icon: <WalletOutlined /> },
+            { title: "Registration Fees", val: categoryTotals.registration, color: "#db2777", bg: "pink", icon: <SafetyCertificateOutlined /> }
+          ].map((item, idx) => (
+            <Col xs={24} sm={12} md={6} key={idx}>
+              <Card size="small" className="hover:-translate-y-1 transition-transform duration-300 shadow-md border-gray-100 rounded-lg ">
+                <Statistic
+                  title={<span className="text-gray-400 font-medium">{item.title}</span>}
+                  value={item.val}
+                  precision={2}
+                  prefix={<span style={{ color: item.color, marginRight: 4 }}>{item.icon}</span>}
+                  valueStyle={{ color: item.color, fontSize: '1.25rem', fontWeight: '600' }}
+                />
+                <div className="mt-1">
+                  <Text type="secondary" className="text-[10px] uppercase font-mono leading-none">
+                    {numberToIndianWords(item.val || 0)}
+                  </Text>
+                </div>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </div>
+
+      {/* SECTION: Payment Modes */}
+      <div className="mb-6">
+        <Title level={4} className="!mb-4 text-gray-700">Payment Modes</Title>
+        <Row gutter={[16, 16]}>
+          {[
+            { title: "Cash", val: modeTotals.cash, color: "#16a34a", icon: <WalletOutlined /> },
+            { title: "Online", val: modeTotals.online, color: "#2563eb", icon: <GlobalOutlined /> },
+            { title: "Payment Link", val: modeTotals.link, color: "#7c3aed", icon: <LinkOutlined /> }
+          ].map((mode, idx) => (
+            <Col xs={24} md={8} key={idx}>
+              <Card className="bg-white border-none rounded-xl shadow-lg">
+                <Statistic
+                  title={<span className="text-gray-400">{mode.title} Collection</span>}
+                  value={mode.val}
+                  precision={2}
+                  valueStyle={{ color: '#000', fontWeight: 'bold' }}
+                  prefix={<span style={{ color: mode.color }}>{mode.icon}</span>}
+                />
+                <Text className="text-gray-900 text-[11px] font-mono italic">
+                  {numberToIndianWords(mode.val || 0)}
+                </Text>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </div>
+    </div>
+
+        
 
         {/* Existing Filters Card */}
         <div className="bg-white rounded-xl shadow-md border p-6 mb-6">
@@ -652,6 +846,9 @@ const Daybook = () => {
               printHeaderKeys={[
                 "Total IN",
                 "Total OUT",
+                "Cash Collection",
+                "Online Collection",
+                "Payment Link",
                 "Chit Collections",
                 "Loan Collections",
                 "Pigme Collections",
@@ -660,6 +857,9 @@ const Daybook = () => {
               printHeaderValues={[
                 `₹ ${totals.in.toLocaleString("en-IN")}`,
                 `₹ ${totals.out.toLocaleString("en-IN")}`,
+                `₹ ${modeTotals.cash.toLocaleString("en-IN")}`,
+                `₹ ${modeTotals.online.toLocaleString("en-IN")}`,
+                `₹ ${modeTotals.link.toLocaleString("en-IN")}`,
                 `₹ ${categoryTotals.chit.toLocaleString("en-IN")}`,
                 `₹ ${categoryTotals.loan.toLocaleString("en-IN")}`,
                 `₹ ${categoryTotals.pigme.toLocaleString("en-IN")}`,
