@@ -275,6 +275,14 @@ const mainRoutes = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+    {
+    path: "/add-new-group",
+    element: (
+      <ProtectedRoute>
+        <AddGroupForm />
+      </ProtectedRoute>
+    ),
+  },
 
          {
     path: "/reward-menu",

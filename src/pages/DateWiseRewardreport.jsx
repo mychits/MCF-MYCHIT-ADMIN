@@ -97,7 +97,7 @@ const DateWiseRewardreport = () => {
   return (
     <div>
       <Navbar />
-      <div className="flex mt-20">
+      <div className="flex-1 mt-20">
         <div className="flex-grow p-7">
           <h1 className="text-2xl font-semibold mb-6">
             Date Wise Reward Points

@@ -80,10 +80,11 @@ const AddGroupForm = ({
     }));
   };
 
-    const handleAntDSelect = (field, value) => {
+    const handleAntDSelect = (field, value,option) => {
     setFormData((prevData) => ({
       ...prevData,
       [field]: value,
+      ...(field === "relationship_manager" ? { relationship_manager_select: option } : {}),
     }));
 
     setErrors((prevErrors) => ({
@@ -286,6 +287,11 @@ const handleSubmit = async () => {
       reg_fee: "",
       app_display_vacany_seat: "",
     });
+   // Delay closing so alert can show
+    setTimeout(() => {
+      window.close();
+    }, 2000); // 2 seconds
+
 
   } catch (error) {
     console.error("Error adding group:", error);
@@ -377,8 +383,8 @@ const handleSubmit = async () => {
                                 return text.toLowerCase().includes(input.toLowerCase());
                             }}
                             value={formData?.relationship_manager || undefined}
-                            onChange={(value) =>
-                                handleAntDSelect("relationship_manager", value)
+                            onChange={(value,option) =>
+                                handleAntDSelect("relationship_manager", value,option.children[0])
                             }
                         >
                             {(Array.isArray(employees) ? employees : []).map(

@@ -449,7 +449,6 @@ const Group = () => {
 
   const handleDeleteGroup = async (e) => {
 
-    console.log(currentGroup.group_name, "hhkkljl", deletionGroupName)
     if (currentGroup && deletionGroupName.toString().trim() === currentGroup.group_name) {
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
@@ -529,9 +528,12 @@ const Group = () => {
               <div className="flex justify-between items-center w-full">
                 <h1 className="text-2xl font-semibold">Groups</h1>
                 <button
-                  onClick={() => {
-                    setShowModal(true);
-                    setErrors({});
+                  // onClick={() => {
+                  //   setShowModal(true);
+                  //   setErrors({});
+                  // }}
+                  onClick={() => {  
+                    window.open("/add-new-group", "_blank");
                   }}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >

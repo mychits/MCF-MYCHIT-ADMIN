@@ -17,6 +17,7 @@ const ReConfirmModal = ({
   cancelText = "Edit",
 }) => {
   if (!isOpen) return null; // ✅ exit early if modal is closed
+console.log('data',data);
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
@@ -30,22 +31,27 @@ const ReConfirmModal = ({
 
         <h2 className="text-xl font-bold mb-4">{title}</h2>
 
-   <div className="space-y-3 max-h-96 overflow-y-auto">
-  {Object.entries(data || {})?.map(([key, value]) => (
-    <div
-      key={key}
-      className="flex justify-between border-b pb-2 text-sm"
-    >
-      <span className="font-medium text-gray-600 capitalize">
-        {formatLabel(key)}
-      </span>
-      <span className="text-gray-900 break-words mr-2">
-        {value || "-"}
-      </span>
-    </div>
-  ))}
+     <div className="space-y-3 max-h-96 overflow-y-auto">
+  {Object.entries(data)
+    // Remove track_source and any original field that has a "_select" counterpart
+    .filter(([key]) => key !== "track_source")
+    .filter(([key]) => {
+      // If this key ends with "_select", keep it
+      if (key.endsWith("_select")) return true;
+      // Otherwise, only keep keys that do NOT have a "_select" version in data
+      return !data[`${key}_select`];
+    })
+    .map(([key, value]) => {
+      // Remove "_select" suffix from label if present
+      const label = formatLabel(key.replace(/_select$/, ""));
+      return (
+        <div key={key} className="flex justify-between border-b pb-2 text-sm">
+          <span className="font-medium">{label}</span>
+          <span className="mr-2">{value}</span>
+        </div>
+      );
+    })}
 </div>
-
 
         <div className="flex justify-end gap-4 mt-6">
           <button

@@ -259,7 +259,7 @@ const EmployeeStatement = () => {
 
       <div className="flex mt-20">
         <Sidebar />
-        <div className="flex-grow p-7">
+        <div className="flex-grow p-7 overflow-x-hidden overflow-y-scroll">
        
           <section className="mb-8">
             <h1 className="text-lg font-bold font-mono p-2">Quick Navigator</h1>
