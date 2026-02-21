@@ -1277,8 +1277,8 @@ const UserReport = () => {
     { key: "description", header: "Description" },
     { key: "due", header: "Due Amount" },
     { key: "paydate", header: "Paid Date" },
-    { key: "paid", header: "Paid Amount" },
-    {key: "received", header: "Received Amount"},
+    { key: "paid", header: "Credit Amount" },
+    {key: "received", header: "Debit Amount"},
     { key: "balance", header: "Balance" },
   ];
   const CustomerPaymentStatementExportsColumns = [
