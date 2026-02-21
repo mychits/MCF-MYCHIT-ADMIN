@@ -547,7 +547,7 @@ const DataTable = ({
 
            {/* <div className="border rounded-lg overflow-hidden whitespace-normal"> */}
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+         <thead className="bg-gray-50 sticky top-0 z-20">
             <tr>
               {safeColumns.map((column) => (
                 <th

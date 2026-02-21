@@ -28,8 +28,9 @@ import {
   LinkOutlined, 
   SafetyCertificateOutlined,
   BankOutlined,
-  DollarCircleOutlined
+ 
 } from "@ant-design/icons";
+import { FaIndianRupeeSign } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import filterOption from "../helpers/filterOption";
 import { numberToIndianWords } from "../helpers/numberToIndianWords";
@@ -565,7 +566,7 @@ const Daybook = () => {
         <Row gutter={[16, 16]}>
           {[
             { title: "Chit Collections", val: categoryTotals.chit, color: "#6366f1", bg: "indigo", icon: <BankOutlined /> },
-            { title: "Loan Collections", val: categoryTotals.loan, color: "#f59e0b", bg: "orange", icon: <DollarCircleOutlined /> },
+            { title: "Loan Collections", val: categoryTotals.loan, color: "#f59e0b", bg: "orange", icon: "₹" },
             { title: "Pigme Collections", val: categoryTotals.pigme, color: "#0d9488", bg: "teal", icon: <WalletOutlined /> },
             { title: "Registration Fees", val: categoryTotals.registration, color: "#db2777", bg: "pink", icon: <SafetyCertificateOutlined /> }
           ].map((item, idx) => (

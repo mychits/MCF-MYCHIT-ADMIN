@@ -292,10 +292,11 @@ const User = () => {
     };
     fetchGroupData();
   }, [reloadTrigger]);
-  const handleAntDSelect = (field, value) => {
+  const handleAntDSelect = (field, value,option) => {
     setFormData((prevData) => ({
       ...prevData,
       [field]: value,
+      ...(field === "collection_area" ? { collection_area_select: option } : {}),
     }));
 
     setErrors((prevErrors) => ({
@@ -959,8 +960,8 @@ const User = () => {
                       .includes(input.toLowerCase())
                   }
                   value={formData?.collection_area || undefined}
-                  onChange={(value) =>
-                    handleAntDSelect("collection_area", value)
+                  onChange={(value,option) =>
+                    handleAntDSelect("collection_area", value,option.children)
                   }
                 >
                   {areas.map((area) => (

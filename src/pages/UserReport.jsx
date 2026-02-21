@@ -907,6 +907,7 @@ const UserReport = () => {
         const balanceValue = Number(statement?.balance || 0);
         const paidValue = Number(statement?.paid || 0);
         const dueValue = Number(statement?.due || 0);
+        const receivedValue = Number(statement?.received || 0);
 
         const isNegative = balanceValue < 0;
         const isNotPaidRow =
@@ -928,6 +929,7 @@ const UserReport = () => {
           rawDescription: statement?.description,
           rawDue: dueValue,
           rawPaid: paidValue,
+          rawReceived: receivedValue,
 
           // ---------- UI ----------
 
@@ -967,11 +969,23 @@ const UserReport = () => {
           paid: (
             <div
               className={`font-bold text-sm ${
-                paidValue > 0 ? "text-emerald-600" : "text-slate-400"
+                receivedValue > 0 ? "text-emerald-600" : "text-slate-400"
               }`}
             >
               {paidValue > 0
                 ? `+ ₹${paidValue.toLocaleString("en-IN")}`
+                : "Not Paid"}
+            </div>
+          ),
+
+           received: (
+            <div
+              className={`font-bold text-sm ${
+                receivedValue > 0 ? "text-emerald-600" : "text-slate-400"
+              }`}
+            >
+              {receivedValue > 0
+                ? `+ ₹${receivedValue.toLocaleString("en-IN")}`
                 : "Not Paid"}
             </div>
           ),
@@ -1263,7 +1277,8 @@ const UserReport = () => {
     { key: "description", header: "Description" },
     { key: "due", header: "Due Amount" },
     { key: "paydate", header: "Paid Date" },
-    { key: "paid", header: "Paid Amount" },
+    { key: "paid", header: "Credit Amount" },
+    {key: "received", header: "Debit Amount"},
     { key: "balance", header: "Balance" },
   ];
   const CustomerPaymentStatementExportsColumns = [
