@@ -22,6 +22,7 @@ import {
   FaSearch,
   FaUserTie,
 } from "react-icons/fa";
+import { IoIosPeople } from "react-icons/io";
 import { Tag } from "antd";
 import {
   ClockCircleOutlined,
@@ -322,6 +323,27 @@ const Home = () => {
 
   ];
   const shortcuts = [
+        {
+      label: "Quick Search",
+      icon: SiQuicklook,
+      path: "/quick-search",
+      bg: "bg-yellow-50 hover:bg-yellow-100",
+      text: "text-yellow-700",
+    },
+        {
+      label: "Accounts",
+      icon: FaBriefcase,
+      path: "/payment-menu",
+      bg: "bg-indigo-50 hover:bg-indigo-100",
+      text: "text-indigo-700",
+    },
+        {
+      label: "Visitors",
+      icon: IoIosPeople,
+      path: "/visitorsection",
+      bg: "bg-purple-50 hover:purple-100",
+      text: "text-orange-700",
+    },
     {
       label: "Marketing",
       icon: FaBullhorn,
@@ -336,13 +358,7 @@ const Home = () => {
       bg: "bg-blue-50 hover:bg-blue-100",
       text: "text-blue-700",
     },
-    {
-      label: "Accounts",
-      icon: FaBriefcase,
-      path: "/payment-menu",
-      bg: "bg-indigo-50 hover:bg-indigo-100",
-      text: "text-indigo-700",
-    },
+
     {
       label: "Approvals",
       icon: FaCheckCircle,
@@ -357,13 +373,7 @@ const Home = () => {
       bg: "bg-purple-50 hover:bg-purple-100",
       text: "text-purple-700",
     },
-    {
-      label: "Quick Search",
-      icon: SiQuicklook,
-      path: "/quick-search",
-      bg: "bg-yellow-50 hover:bg-yellow-100",
-      text: "text-yellow-700",
-    },
+
     {
       label: "HR",
       icon: FaUserTie,

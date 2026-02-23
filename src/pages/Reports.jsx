@@ -4,6 +4,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { MdOutlinePending } from "react-icons/md";
 import { TbMoneybag } from "react-icons/tb";
 import { HiOutlineBanknotes } from "react-icons/hi2";
+import { BsArrowLeftShort, BsChevronDown } from "react-icons/bs";
 import { TiCancel } from "react-icons/ti";
 import {
   FaCalendarDays,
@@ -28,7 +29,7 @@ import { TbReportSearch } from "react-icons/tb";
 import { MdOutlinePayment } from "react-icons/md";
 import { SlCalender } from "react-icons/sl";
 import { RiReceiptLine } from "react-icons/ri";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { BiGrid } from "react-icons/bi";
 import { TbList } from "react-icons/tb";
 import { BsCalendarDate } from "react-icons/bs";
@@ -407,6 +408,8 @@ const Reports = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [viewType, setViewType] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
+    const [open, setOpen] = useState(true);
+      const ref = useRef(null);
 
 
   const filteredMenus = subMenus
@@ -425,8 +428,22 @@ const Reports = () => {
         {<Navbar />}
         <Sidebar />
 
-        <div className="w-[300px] bg-gray-50 min-h-screen p-4 border-r border-gray-200">
-          {filteredMenus.map(({ title, link, Icon, red }) => (
+        <div
+          className={`${open ? "w-[300px]" : "w-[100px]"
+            } bg-gray-50 min-h-screen p-4 border-r border-gray-200`}
+        >
+          <div
+            ref={ref}
+            className={` min-h-screen max-h-auto p-5 pt-8  ${open ? "w-64" : "w-20"
+              } duration-300 relative`}
+              >
+                <BsArrowLeftShort
+                  className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-5 border border-secondary cursor-pointer ${!open && "rotate-180"
+                    }`}
+                  onClick={() => setOpen(!open)}
+                />
+          
+          {subMenus?.map(({ title, link, Icon, red }) => (
             <NavLink
               key={link}
               to={link}
@@ -441,13 +458,15 @@ const Reports = () => {
                   <Icon
                     className={`${isActive ? "animate-bounce" : "text-black"}`}
                   />
-                  <span className="text-black">{title}</span>
+                  
+                  <span className={`text-black ${!open && "hidden"
+                      }`}>{title}</span>
                 </>
               )}
             </NavLink>
           ))}
         </div>
-
+      </div>
      <div className="flex-grow p-3 overflow-hidden ">
           {location.pathname === "/reports" ? (
             <>
