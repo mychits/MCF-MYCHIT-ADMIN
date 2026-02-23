@@ -183,11 +183,21 @@ import prizedCustomerReport from "../pages/PrizedCustomerReport";
 import PrizedCustomerReport from "../pages/PrizedCustomerReport";
 import EmployeeTasks from "../components/employee/EmployeeTasks";
 import AddGroupForm from "../pages/AddGroupForm";
+
+
+import Register from "../pages/Registration";
+
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
   },
+
+    {
+    path:"/register",
+    element: <Register />
+  },
+  
   {
     path: "/dashboard",
     element: (

@@ -1,5 +1,5 @@
 import { IoIosLogOut } from "react-icons/io";
-import { MdMenu } from "react-icons/md";
+import { MdMenu, MdVerifiedUser } from "react-icons/md";
 import { IoIosNotifications } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
@@ -14,21 +14,55 @@ import { Button, Input } from "antd";
 import { RiSettings3Line } from "react-icons/ri";
 import { FiUser } from "react-icons/fi";
 import { CheckCircle } from "lucide-react";
-import API from "../../instance/TokenInstance"; // <--- ADDED THIS IMPORT
+import API from "../../instance/TokenInstance";
+// Icons added for the Notification redesign
+import { FiUsers, FiSmartphone, FiDollarSign, FiCreditCard, FiArrowRight } from "react-icons/fi";
 
 const Navbar = ({
   onGlobalSearchChangeHandler = () => { },
   visibility = false,
 }) => {
   const [adminName, setAdminName] = useState("");
+  const [roleTitle, setRoleTitle] = useState("");
   const [onload, setOnload] = useState(true);
   const [showProfileCard, setShowProfileCard] = useState(false);
-
 
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef(null);
 
   const profileRef = useRef(null);
+
+  const [pendingApprovals, setPendingApprovals] = useState();
+
+  useEffect(() => {
+    const fetchPendingApprovals = async () => {
+      try {
+        const response = await API.get("/approvals/count");
+        setPendingApprovals(response?.data);
+      } catch (error) {
+        console.error("Error fetching pending approvals", error);
+      }
+    };
+
+    fetchPendingApprovals();
+  }, []);
+
+  console.log("pending approvals", pendingApprovals?.data);
+
+  const getPendingCount = (categoryId) => {
+    if (!pendingApprovals?.data) return 0;
+
+    switch (categoryId) {
+      case 1:
+        return pendingApprovals.data.unapproved_users;
+      case 2:
+        return pendingApprovals.data.unapproved_enrollments;
+      case 3:
+        return pendingApprovals.data.unapproved_loans;
+      default:
+        return 0;
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -38,15 +72,41 @@ const Navbar = ({
   }, []);
 
   useEffect(() => {
-    try {
-      const usr = localStorage.getItem("user");
-      if (usr) {
-        const admin = JSON.parse(usr);
-        setAdminName(admin?.admin_name || "Super Admin");
+    const fetchUserData = async () => {
+      try {
+        const usr = localStorage.getItem("user");
+        if (usr) {
+          const admin = JSON.parse(usr);
+          setAdminName(admin?.admin_name || "Super Admin");
+
+          if (admin.admin_access_right_id && typeof admin.admin_access_right_id === 'object') {
+            setRoleTitle(admin.admin_access_right_id.title);
+          }
+          else if (admin._id) {
+            try {
+              const response = await API.get("/admin/me");
+              const fullUserData = response.data?.data || response.data;
+
+              if (fullUserData?.admin_access_right_id?.title) {
+                setRoleTitle(fullUserData.admin_access_right_id.title);
+              } else {
+                setRoleTitle("Admin");
+              }
+            } catch (apiError) {
+              console.error("Failed to fetch role details:", apiError);
+              setRoleTitle("Admin");
+            }
+          } else {
+            setRoleTitle("Admin");
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse user from localStorage:", e);
+        setRoleTitle("Admin");
       }
-    } catch (e) {
-      console.error("Failed to parse user from localStorage:", e);
-    }
+    };
+
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -76,26 +136,34 @@ const Navbar = ({
     window.location.href = "/";
   };
 
+  // --- UPDATED: Added Icons to quickApprovals for the new design ---
   const quickApprovals = [
     {
       title: "Payment Link Transactions",
       href: "/payment-link-transactions",
       color: "text-green-600",
+      icon: <FiCreditCard className="text-lg" />,
     },
     {
       title: "Unverified Customers",
       href: "/approval-menu/un-approved-customer",
       color: "text-blue-600",
+      count: getPendingCount(1),
+      icon: <FiUsers className="text-lg" />,
     },
     {
       title: "Mobile Enrollments",
       href: "/approval-menu/mobile-app-enroll",
       color: "text-amber-600",
+      count: getPendingCount(2),
+      icon: <FiSmartphone className="text-lg" />,
     },
     {
       title: "Unapproved Loans",
       href: "/approval-menu/un-approved-loans",
       color: "text-red-600",
+      count: getPendingCount(3),
+      icon: <FiDollarSign className="text-lg" />,
     },
   ];
 
@@ -103,33 +171,24 @@ const Navbar = ({
   useEffect(() => {
     const fetchMyTaskCount = async () => {
       try {
-        // 1. Get User ID
         const userStr = localStorage.getItem("user");
         if (!userStr) return;
         const user = JSON.parse(userStr);
         const myId = user._id;
 
-        // 2. Fetch Complaints
         const res = await API.get("/complaints/all");
         const complaints = res.data?.data || [];
 
-        // 3. Filter using the EXACT logic from EmployeeTasks.js
         const myPendingTickets = complaints.filter((item) => {
-
-          // Case A: No assignment
           if (!item.assignedTo) return false;
 
-          // Case B: assignedTo is an Object
           let assignedId = null;
           if (typeof item.assignedTo === "object" && item.assignedTo._id) {
             assignedId = item.assignedTo._id;
-          }
-          // Case C: assignedTo is a String
-          else if (typeof item.assignedTo === "string") {
+          } else if (typeof item.assignedTo === "string") {
             assignedId = item.assignedTo;
           }
 
-          // Strict String Comparison + Check if NOT Closed
           const isAssignedToMe = String(assignedId) === String(myId);
           const isPending = item.status !== "Closed";
 
@@ -188,7 +247,8 @@ const Navbar = ({
     flex justify-between items-center py-2 px-10
     transition-all duration-700 ease-out transform
     ${onload ? "opacity-0 -translate-y-5" : "opacity-100 translate-y-0"}
-  `}>
+  `}
+        >
           <div className="text-2xl flex items-center gap-2 font-bold py-4 uppercase">
             <AiTwotoneGold />
             <p>MyChits</p>
@@ -205,13 +265,15 @@ const Navbar = ({
             className={({ isActive }) =>
               isActive ? "text-white font-bold " : "text-white font-medium "
             }
-            to={"/reports/group-report"}>
+            to={"/reports/group-report"}
+          >
             {({ isActive }) => (
               <Button
                 className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
                   ? "bg-blue-200 text-blue-900 font-bold"
                   : "font-semibold"
-                  }  `}>
+                  }  `}
+              >
                 Group Report
               </Button>
             )}
@@ -221,13 +283,15 @@ const Navbar = ({
             className={({ isActive }) =>
               isActive ? "text-white font-bold" : "text-white font-medium "
             }
-            to={"/reports/daybook"}>
+            to={"/reports/daybook"}
+          >
             {({ isActive }) => (
               <Button
                 className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
                   ? "bg-blue-200 text-blue-900 font-bold"
                   : "font-semibold"
-                  }  `}>
+                  }  `}
+              >
                 Day Book
               </Button>
             )}
@@ -236,13 +300,15 @@ const Navbar = ({
             className={({ isActive }) =>
               isActive ? "text-white font-bold " : "text-white font-medium "
             }
-            to={"/reports"}>
+            to={"/reports"}
+          >
             {({ isActive }) => (
               <Button
                 className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
                   ? "bg-blue-200 text-blue-900 font-bold"
                   : "font-semibold"
-                  }  `}>
+                  }  `}
+              >
                 Reports
               </Button>
             )}
@@ -251,13 +317,15 @@ const Navbar = ({
             className={({ isActive }) =>
               isActive ? "text-white font-bold" : "text-white font-medium "
             }
-            to={"/reports/receipt"}>
+            to={"/reports/receipt"}
+          >
             {({ isActive }) => (
               <Button
                 className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
                   ? "bg-blue-200 text-blue-900 font-bold"
                   : "font-semibold"
-                  }  `}>
+                  }  `}
+              >
                 Receipt Report
               </Button>
             )}
@@ -267,13 +335,15 @@ const Navbar = ({
             className={({ isActive }) =>
               isActive ? "text-white font-bold" : "text-white font-medium"
             }
-            to={"/reports/user-report"}>
+            to={"/reports/user-report"}
+          >
             {({ isActive }) => (
               <Button
                 className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4  border ${isActive
                   ? "bg-blue-200 text-blue-900 font-bold"
                   : "font-semibold"
-                  }  `}>
+                  }  `}
+              >
                 Customer Report
               </Button>
             )}
@@ -283,13 +353,15 @@ const Navbar = ({
             className={({ isActive }) =>
               isActive ? "text-white font-bold" : "text-white font-medium"
             }
-            to={"/reports/employee-report"}>
+            to={"/reports/employee-report"}
+          >
             {({ isActive }) => (
               <Button
                 className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive
                   ? "bg-blue-200 text-blue-900 font-bold"
                   : "font-semibold"
-                  }  `}>
+                  }  `}
+              >
                 Employee Report
               </Button>
             )}
@@ -299,29 +371,29 @@ const Navbar = ({
             className={({ isActive }) =>
               isActive ? "text-white font-bold" : "text-white font-medium"
             }
-            to={"/reports/lead-report"}>
+            to={"/reports/lead-report"}
+          >
             {({ isActive }) => (
               <Button
                 className={` pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive
                   ? "bg-blue-200 text-blue-900 font-bold"
                   : "font-semibold"
-                  }  `}>
+                  }  `}
+              >
                 Lead Report
               </Button>
             )}
           </NavLink>
 
-          {/* --- ADDED MY TASKS LINK HERE --- */}
           <NavLink to={"/my-tasks"}>
             {({ isActive }) => (
               <Button
-                className={`pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive ? "bg-blue-200 text-blue-900 font-bold" : "font-semibold"
+                className={`pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive
+                  ? "bg-blue-200 text-blue-900 font-bold"
+                  : "font-semibold"
                   }`}
               >
-               
                 My Tickets
-
-                {/* BADGE */}
                 {taskCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white shadow-sm">
                     {taskCount > 9 ? "9+" : taskCount}
@@ -332,157 +404,138 @@ const Navbar = ({
           </NavLink>
 
           <div className="flex items-center gap-4">
-            {/* REDESIGNED NOTIFICATION BLOCK */}
-            <div className="relative" ref={notificationRef}>
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className={`relative w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${showNotifications
-                  ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg"
-                  : "bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 hover:from-blue-50 hover:to-blue-100 shadow-sm"
-                  }`}>
-                <IoIosNotifications className="text-2xl" />
-                <span className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">4</span>
-                </span>
-              </button>
 
-              {showNotifications && (
-                <div className="absolute right-0 mt-4 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-slide-down">
-                  {/* Header with gradient */}
-                  <div className="px-6 py-5 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-bold text-lg">Pending Approvals</h3>
-                        <p className="text-blue-100 text-xs mt-0.5">
-                          Action required on these items
-                        </p>
-                      </div>
-                      <div className="bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                        <span className="text-sm font-bold">4</span>
-                      </div>
-                    </div>
-                  </div>
+            {/* --- REDESIGNED NOTIFICATION BLOCK ONLY --- */}
+<div className="relative" ref={notificationRef}>
+  {/* Bell Trigger */}
+  <button
+    onClick={() => setShowNotifications(!showNotifications)}
+    className={`relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+      showNotifications 
+        ? "bg-slate-100 text-blue-600" 
+        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+    }`}
+  >
+    <IoIosNotifications className="text-2xl" />
+    
+    {/* Professional Floating Badge */}
+    {(getPendingCount(1) + getPendingCount(2) + getPendingCount(3)) > 0 && (
+      <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] px-1.5 items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full border-[2.5px] border-white shadow-sm ring-1 ring-black/5">
+        {getPendingCount(1) + getPendingCount(2) + getPendingCount(3)}
+      </span>
+    )}
+  </button>
 
-                  {/* Body with enhanced styling */}
-                  <div className="max-h-80 overflow-y-auto custom-scrollbar">
-                    {quickApprovals.map((item, index) => (
-                      <Link
-                        key={index}
-                        to={item.href}
-                        onClick={() => setShowNotifications(false)}
-                        className="flex items-center gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 border-b border-gray-100 last:border-0 group">
-                        <div className="flex-1 min-w-0">
-                          <p
-                            className={`font-semibold text-sm ${item.color} group-hover:text-blue-900 transition-colors`}>
-                            {item.title}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            Requires immediate attention
-                          </p>
-                        </div>
+  {/* Dropdown Panel */}
+  {showNotifications && (
+    <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.12)] border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+      
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
+        <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">Pending Actions</h3>
+        <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+           {getPendingCount(1) + getPendingCount(2) + getPendingCount(3)} TOTAL
+        </span>
+      </div>
 
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold ${item.color === "text-blue-600"
-                              ? "bg-blue-100 text-blue-700"
-                              : item.color === "text-amber-600"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-red-100 text-red-700"
-                              }`}>
-                            Pending
-                          </span>
-                          <svg
-                            className="w-5 h-5 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* Footer */}
-                </div>
-              )}
+      {/* Body List */}
+      <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+        {quickApprovals.map((item, index) => (
+          <Link
+            key={index}
+            to={item.href}
+            onClick={() => setShowNotifications(false)}
+            className="group flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors"
+          >
+            {/* Minimal Icon Container */}
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-slate-50 group-hover:bg-white border border-transparent group-hover:border-slate-200 transition-all ${item.color}`}>
+              {item.icon}
             </div>
 
-            {/* REDESIGNED PROFILE BLOCK */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-slate-800 group-hover:text-blue-600 truncate transition-colors">
+                {item.title}
+              </p>
+              <p className="text-[11px] text-slate-400 font-medium">
+                {item.count > 0 ? `${item.count} items to review` : "No pending items"}
+              </p>
+            </div>
+
+            {/* Subtle Action Arrow */}
+            <div className="text-slate-300 group-hover:text-blue-500 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+
+    </div>
+  )}
+</div>
+            {/* --- END REDESIGNED NOTIFICATION BLOCK --- */}
+
+
+            {/* PROFILE BLOCK (UNCHANGED) */}
             <div className="relative" ref={profileRef}>
+              {/* Trigger Button */}
               <button
                 onClick={() => setShowProfileCard(!showProfileCard)}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${showProfileCard
-                  ? "bg-blue-700"
-                  : "bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 hover:from-indigo-50 hover:to-indigo-100 shadow-sm"
-                  }`}>
-                <CgProfile className="text-2xl" />
+                className={`group relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 focus:outline-none ${showProfileCard ? "ring-4 ring-blue-700/20 rotate-12 scale-110" : "hover:ring-4 hover:ring-blue-50 hover:scale-105"
+                  }`}
+              >
+                <div className={`absolute inset-0 rounded-full transition-all duration-500 ${showProfileCard ? "bg-blue-700 shadow-lg shadow-blue-200" : "bg-white border border-gray-200 shadow-sm"
+                  }`} />
+                <CgProfile className={`relative z-10 text-2xl transition-colors duration-300 ${showProfileCard ? "text-white" : "text-blue-700"}`} />
               </button>
 
               {showProfileCard && (
-                <div className="absolute right-0 mt-4 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-slide-down">
-                  {/* Header with gradient and avatar */}
-                  <div className="relative h-28 bg-blue-900">
-                    <div className="absolute inset-0 bg-black/10"></div>
-                    <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-                      <div className="w-24 h-24 rounded-2xl bg-white shadow-xl flex items-center justify-center ring-4 ring-white">
-                        <CgProfile className="text-5xl text-indigo-600" />
+                <div className="absolute right-0 mt-6 w-[320px] bg-white rounded-[24px] shadow-[0_20px_50px_rgba(29,78,216,0.15)] border border-blue-50 overflow-hidden z-50 animate-in fade-in zoom-in-95 slide-in-from-top-4 duration-300 origin-top-right">
+                  <div className="h-24 bg-gradient-to-br from-blue-700 to-blue-500 opacity-10 absolute w-full"></div>
+
+                  <div className="relative flex flex-col items-center pt-10 pb-6 px-6">
+                    <div className="relative group">
+                      <div className="absolute -inset-1 bg-blue-700 rounded-full blur opacity-20"></div>
+                      <div className="relative w-24 h-24 rounded-full bg-white p-1.5 shadow-xl">
+                        <div className="w-full h-full rounded-full bg-blue-50 flex items-center justify-center overflow-hidden border border-blue-100">
+                          <CgProfile className="text-5xl text-blue-700" />
+                        </div>
                       </div>
+
+                      {/* --- Instagram Verified Badge --- */}
+                      <div className="absolute bottom-1 right-1 drop-shadow-md">
+                        <svg viewBox="0 0 24 24" className="w-7 h-7 fill-blue-500 animate-in zoom-in duration-500 delay-200">
+                          <path d="M22.5 12.5c0-1.58-.8-2.47-1.3-3.07a3 3 0 0 1-.82-2.31c0-1.61-.43-2.5-1.09-3.11s-1.5-.92-3.11-.92a3 3 0 0 1-2.31-.82c-.6-.5-1.49-1.3-3.07-1.3s-2.47.8-3.07 1.3a3 3 0 0 1-2.31.82c-1.61 0-2.5.43-3.11 1.09S1.4 5.78 1.4 7.39a3 3 0 0 1-.82 2.31c-.5.6-1.3 1.49-1.3 3.07s.8 2.47 1.3 3.07a3 3 0 0 1 .82 2.31c0 1.61.43 2.5 1.09 3.11s1.5.92 3.11.92a3 3 0 0 1 2.31.82c.6.5 1.49 1.3 3.07 1.3s2.47-.8 3.07-1.3a3 3 0 0 1 2.31-.82c1.61 0 2.5-.43 3.11-1.09s.92-1.5.92-3.11a3 3 0 0 1 .82-2.31c.5-.6 1.3-1.49 1.3-3.07z" />
+                          <path fill="white" d="M10.7 16l-3.3-3.3 1.4-1.4 1.9 1.9 5.3-5.3 1.4 1.4z" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 text-center">
+                      <h3 className="text-2xl font-extrabold text-slate-800 tracking-tight flex items-center justify-center gap-1">
+                        {adminName}
+                      </h3>
+                      <p className="text-sm font-bold text-blue-700/70 mt-1 uppercase tracking-widest">{roleTitle}</p>
                     </div>
                   </div>
 
-                  {/* Profile Info */}
-                  <div className="pt-16 px-6 pb-6">
-                    <div className="text-center mb-6">
-                      <h3 className="font-bold text-xl text-gray-800">
-                        {adminName}
-                      </h3>
-
-                      <div className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-green-50 rounded-full">
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span className="text-xs font-semibold text-green-700">
-                          Active Now
-                        </span>
-                      </div>
+                  <div className="px-8 py-4 space-y-1">
+                    <div className="group flex items-center justify-between py-4 border-b border-blue-50 hover:bg-blue-50/30 transition-colors rounded-xl px-2">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status</span>
+                      <span className="flex items-center gap-1.5 text-sm font-bold text-emerald-600">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Online
+                      </span>
                     </div>
+                  </div>
 
-                    {/* Stats Cards */}
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
-                        <p className="text-xs text-blue-600 font-medium mb-1">
-                          Last Login
-                        </p>
-                        <p className="text-sm font-bold text-blue-900">
-                          {new Date().toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </div>
-                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center">
-                        <p className="text-xs text-purple-600 font-medium mb-1">
-                          Session
-                        </p>
-                        <p className="text-sm font-bold text-purple-900">
-                          Active
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="space-y-2">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
-                        <IoIosLogOut className="text-lg" />
-                        <span className="text-sm font-semibold">Logout</span>
-                      </button>
-                    </div>
+                  <div className="p-6 pt-2">
+                    <button onClick={handleLogout} className="group w-full flex items-center justify-center gap-3 py-4 bg-blue-700 hover:bg-blue-800 text-white rounded-2xl transition-all duration-300 shadow-xl shadow-blue-100 active:scale-95">
+                      <IoIosLogOut className="text-xl transition-transform duration-300 group-hover:-translate-x-1" />
+                      <span className="text-sm font-black uppercase tracking-widest">Logout</span>
+                    </button>
                   </div>
                 </div>
               )}
