@@ -40,6 +40,19 @@ const StaffMenu = () => {
       href: "/staff-menu/employee-menu/employee-statement",
       stats: "Employee Statement",
     },
+
+        {
+      id: 3,
+      title: "Employee Target",
+      description: "Manage employee Target",
+      icon: <Briefcase className="w-8 h-8" />,
+      color: "from-amber-600 to-amber-700",
+      lightColor: "bg-amber-50",
+      borderColor: "border-amber-200",
+      href: "/staff-menu/employee-menu/employee-target",
+      stats: "Employee Target",
+    },
+
   ];
 
   return (
@@ -112,6 +125,7 @@ const StaffMenu = () => {
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">Quick Tips</h3>
                 <p className="text-slate-700">Use the Employee directory to manage personnel, update employee information and Provide Designation all in one place. </p>
                 <p className="text-slate-700">Use the Attendance directory to manage attendance, update and submit attendance information. </p>
+                 <p className="text-slate-700">Use the Target directory to manage employee target, update and submit target information. </p>
               </div>
             </div>
           </div>

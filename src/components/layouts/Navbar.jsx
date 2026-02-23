@@ -2,7 +2,7 @@ import { IoIosLogOut } from "react-icons/io";
 import { MdMenu, MdVerifiedUser } from "react-icons/md";
 import { IoIosNotifications } from "react-icons/io";
 import { Link } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { NavbarMenu } from "../../data/menu";
 import ResponsiveMenu from "./ResponsiveMenu";
 import Modal from "../modals/Modal";
@@ -31,6 +31,11 @@ const Navbar = ({
   const notificationRef = useRef(null);
 
   const profileRef = useRef(null);
+
+  // --- AUTO LOGOUT CONFIGURATION ---
+  const AUTO_LOGOUT_TIME = 15 * 60 * 1000; // 15 Minutes in milliseconds
+  const inactivityTimerRef = useRef(null);
+  // ----------------------------------
 
   const [pendingApprovals, setPendingApprovals] = useState();
 
@@ -135,6 +140,42 @@ const Navbar = ({
     localStorage.clear();
     window.location.href = "/";
   };
+
+  // --- AUTO LOGOUT LOGIC START ---
+  const resetInactivityTimer = useCallback(() => {
+    // Clear existing timer if it exists
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    
+    // Set a new timer
+    inactivityTimerRef.current = setTimeout(() => {
+      console.log("Session expired due to inactivity.");
+      handleLogout();
+    }, AUTO_LOGOUT_TIME);
+  }, [AUTO_LOGOUT_TIME]);
+
+  useEffect(() => {
+    // Events that count as user activity
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll'];
+    
+    // Start the timer initially when component mounts
+    resetInactivityTimer();
+
+    // Add event listeners
+    activityEvents.forEach((event) => {
+      window.addEventListener(event, resetInactivityTimer);
+    });
+
+    // Cleanup: remove listeners and clear timer on unmount
+    return () => {
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      activityEvents.forEach((event) => {
+        window.removeEventListener(event, resetInactivityTimer);
+      });
+    };
+  }, [resetInactivityTimer]);
+  // --- AUTO LOGOUT LOGIC END ---
 
   // --- UPDATED: Added Icons to quickApprovals for the new design ---
   const quickApprovals = [
@@ -406,75 +447,75 @@ const Navbar = ({
           <div className="flex items-center gap-4">
 
             {/* --- REDESIGNED NOTIFICATION BLOCK ONLY --- */}
-<div className="relative" ref={notificationRef}>
-  {/* Bell Trigger */}
-  <button
-    onClick={() => setShowNotifications(!showNotifications)}
-    className={`relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
-      showNotifications 
-        ? "bg-slate-100 text-blue-600" 
-        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-    }`}
-  >
-    <IoIosNotifications className="text-2xl" />
-    
-    {/* Professional Floating Badge */}
-    {(getPendingCount(1) + getPendingCount(2) + getPendingCount(3)) > 0 && (
-      <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] px-1.5 items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full border-[2.5px] border-white shadow-sm ring-1 ring-black/5">
-        {getPendingCount(1) + getPendingCount(2) + getPendingCount(3)}
-      </span>
-    )}
-  </button>
+            <div className="relative" ref={notificationRef}>
+              {/* Bell Trigger */}
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className={`relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                  showNotifications 
+                    ? "bg-slate-100 text-blue-600" 
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <IoIosNotifications className="text-2xl" />
+                
+                {/* Professional Floating Badge */}
+                {(getPendingCount(1) + getPendingCount(2) + getPendingCount(3)) > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] px-1.5 items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full border-[2.5px] border-white shadow-sm ring-1 ring-black/5">
+                    {getPendingCount(1) + getPendingCount(2) + getPendingCount(3)}
+                  </span>
+                )}
+              </button>
 
-  {/* Dropdown Panel */}
-  {showNotifications && (
-    <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.12)] border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-      
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
-        <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">Pending Actions</h3>
-        <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-           {getPendingCount(1) + getPendingCount(2) + getPendingCount(3)} TOTAL
-        </span>
-      </div>
+              {/* Dropdown Panel */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.12)] border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                  
+                  {/* Header */}
+                  <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">Pending Actions</h3>
+                    <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                      {getPendingCount(1) + getPendingCount(2) + getPendingCount(3)} TOTAL
+                    </span>
+                  </div>
 
-      {/* Body List */}
-      <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
-        {quickApprovals.map((item, index) => (
-          <Link
-            key={index}
-            to={item.href}
-            onClick={() => setShowNotifications(false)}
-            className="group flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors"
-          >
-            {/* Minimal Icon Container */}
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-slate-50 group-hover:bg-white border border-transparent group-hover:border-slate-200 transition-all ${item.color}`}>
-              {item.icon}
+                  {/* Body List */}
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                    {quickApprovals.map((item, index) => (
+                      <Link
+                        key={index}
+                        to={item.href}
+                        onClick={() => setShowNotifications(false)}
+                        className="group flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors"
+                      >
+                        {/* Minimal Icon Container */}
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg bg-slate-50 group-hover:bg-white border border-transparent group-hover:border-slate-200 transition-all ${item.color}`}>
+                          {item.icon}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-800 group-hover:text-blue-600 truncate transition-colors">
+                            {item.title}
+                          </p>
+                          <p className="text-[11px] text-slate-400 font-medium">
+                            {item.count > 0 ? `${item.count} items to review` : "No pending items"}
+                          </p>
+                        </div>
+
+                        {/* Subtle Action Arrow */}
+                        <div className="text-slate-300 group-hover:text-blue-500 transition-colors">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+
+
+                </div>
+              )}
             </div>
-
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-800 group-hover:text-blue-600 truncate transition-colors">
-                {item.title}
-              </p>
-              <p className="text-[11px] text-slate-400 font-medium">
-                {item.count > 0 ? `${item.count} items to review` : "No pending items"}
-              </p>
-            </div>
-
-            {/* Subtle Action Arrow */}
-            <div className="text-slate-300 group-hover:text-blue-500 transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-
-    </div>
-  )}
-</div>
             {/* --- END REDESIGNED NOTIFICATION BLOCK --- */}
 
 
