@@ -183,11 +183,25 @@ import prizedCustomerReport from "../pages/PrizedCustomerReport";
 import PrizedCustomerReport from "../pages/PrizedCustomerReport";
 import EmployeeTasks from "../components/employee/EmployeeTasks";
 import AddGroupForm from "../pages/AddGroupForm";
+
+import Register from "../pages/Registration";
+
+import AgentTarget from "../pages/AgentTarget";
+import EmployeeTarget from "../pages/EmployeeTarget";
+import AgentMenu from "../pages/AgentMenu";
+
+
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
   },
+
+    {
+    path:"/register",
+    element: <Register />
+  },
+  
   {
     path: "/dashboard",
     element: (
@@ -600,6 +614,14 @@ const mainRoutes = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+      {
+    path: "/staff-menu/agent-menu",
+    element: (
+      <ProtectedRoute>
+        <AgentMenu />
+      </ProtectedRoute>
+    ),
+  },
   {
     path: "/staff-menu/employee-menu/employee",
     element: (
@@ -624,6 +646,16 @@ const mainRoutes = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+
+     {
+    path: "/staff-menu/employee-menu/employee-target",
+    element: (
+      <ProtectedRoute>
+        <EmployeeTarget />
+      </ProtectedRoute>
+    ),
+  },
+
   {
     path: "/week-group",
     element: (
@@ -780,10 +812,19 @@ const mainRoutes = createBrowserRouter([
     ),
   },
   {
-    path: "/staff-menu/agent",
+    path: "/staff-menu/agent-menu/agent",
     element: (
       <ProtectedRoute>
         <Agent />
+      </ProtectedRoute>
+    ),
+  },
+
+  {
+    path: "/staff-menu/agent-menu/agent-target",
+    element: (
+      <ProtectedRoute>
+        <AgentTarget />
       </ProtectedRoute>
     ),
   },

@@ -41,6 +41,7 @@ const AdministrativePrivileges = () => {
     name: "",
     password: "",
     phoneNumber: "",
+     email: "",
     admin_access_right_id: "",
   });
   const [errors, setErrors] = useState({});
@@ -174,6 +175,14 @@ const AdministrativePrivileges = () => {
     if (!data.phoneNumber || isNaN(data.phoneNumber)) {
       newErrors.phoneNumber = "Phone Number is required";
     }
+
+     if (!data.email || !data.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+       // Basic regex for email format
+       newErrors.email = "Email is invalid";
+    }
+
     if (!data.admin_access_right_id) {
       newErrors.admin_access_right_id = "Select Admin Access Right";
     }
@@ -205,6 +214,7 @@ const AdministrativePrivileges = () => {
           name: "",
           phoneNumber: "",
           password: "",
+           email: "",
           admin_access_right_id: "",
         });
       } else {
@@ -454,6 +464,32 @@ const AdministrativePrivileges = () => {
                   <p className="text-red-500 text-sm mt-1">{errors.password}</p>
                 )}
               </div>
+
+               <div>
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="email"
+                >
+                  Email <span className="text-red-500 ">*</span>
+                </label>
+                <Input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  id="email"
+                  placeholder="Enter Sub Admin Email"
+                  required
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+            
               <div>
                 <label
                   className="block mb-2 text-sm font-medium text-gray-900"
