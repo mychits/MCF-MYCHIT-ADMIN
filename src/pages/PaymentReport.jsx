@@ -9,7 +9,31 @@ import { BsEye } from "react-icons/bs";
 import UploadModal from "../components/modals/UploadModal";
 import axios from "axios";
 import url from "../data/Url";
-import { Select, Dropdown } from "antd";
+import {
+  Select,
+  Dropdown,
+  Input,
+  Tag,
+  Card,
+  Statistic,
+  Row,
+  Col,
+  Empty,
+  Typography,
+  Divider,
+} from "antd";
+const { Text, Title } = Typography;
+
+import {
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  WalletOutlined,
+  GlobalOutlined,
+  LinkOutlined,
+  SafetyCertificateOutlined,
+  BankOutlined,
+} from "@ant-design/icons";
+
 import DataTable from "../components/layouts/Datatable";
 import CustomAlert from "../components/alerts/CustomAlert";
 import EndlessCircularLoader from "../components/loaders/EndlessCircularLoader";
@@ -20,7 +44,7 @@ import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { fieldSize } from "../data/fieldSize";
 
-import { numberToIndianWords } from "../helpers/numberToIndianWords"
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
 
 const PaymentReport = () => {
   const [groups, setGroups] = useState([]);
@@ -62,6 +86,11 @@ const PaymentReport = () => {
   const [collectionAdmin, setCollectionAdmin] = useState("");
   const [agents, setAgents] = useState([]);
   const [admins, setAdmins] = useState([]);
+  const [modeTotals, setModeTotals] = useState({
+    cash: 0,
+    online: 0,
+    link: 0,
+  });
 
   const [showAllPaymentModes, setShowAllPaymentModes] = useState(false);
   const [formData, setFormData] = useState({
@@ -76,6 +105,12 @@ const PaymentReport = () => {
     collected_by: collectionAgent,
     admin_type: collectionAdmin,
     collection_time: "",
+  });
+  const [categoryTotals, setCategoryTotals] = useState({
+    chit: 0,
+    loan: 0,
+    pigme: 0,
+    registration: 0,
   });
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -93,7 +128,7 @@ const PaymentReport = () => {
     ) {
       const showPaymentsModes =
         userObj.admin_access_right_id?.access_permissions?.edit_payment ===
-          "true"
+        "true"
           ? true
           : false;
       setShowAllPaymentModes(showPaymentsModes);
@@ -109,7 +144,7 @@ const PaymentReport = () => {
     ) {
       const isModify =
         userObj.admin_access_right_id?.access_permissions?.edit_payment ===
-          "true"
+        "true"
           ? true
           : false;
       setHideAccountType(isModify);
@@ -307,17 +342,21 @@ const PaymentReport = () => {
         console.info(response.data, "testing account type");
         if (response.data && response.data.length > 0) {
           const validPayments = response.data.filter(
-            (payment) => payment.group_id !== null
+            (payment) => payment.group_id !== null,
           );
 
           setFilteredAuction(validPayments);
 
           const totalAmount = validPayments.reduce(
             (sum, payment) => sum + Number(payment.amount || 0),
-            0
+            0,
           );
           console.info(totalAmount, "check amount");
           setPayments(totalAmount);
+
+          let cash = 0;
+          let online = 0;
+          let link = 0;
 
           const formattedData = validPayments.map((group, index) => ({
             _id: group?._id,
@@ -355,19 +394,63 @@ const PaymentReport = () => {
                           <Link
                             target="_blank"
                             to={`/print/${group._id}`}
-                            className="text-blue-600 ">
+                            className="text-blue-600 "
+                          >
                             Print
                           </Link>
                         ),
                       },
                     ],
                   }}
-                  placement="bottomLeft">
+                  placement="bottomLeft"
+                >
                   <IoMdMore className="text-bold" />
                 </Dropdown>
               </div>
             ),
           }));
+          let chit = 0,
+            loan = 0,
+            pigme = 0,
+            registration = 0;
+
+          response.data.forEach((item) => {
+           
+
+            const amt = Number(item.amount || 0);
+            const pf = (item.pay_for || "Chit").toLowerCase();
+
+            if (pf.includes("loan")) loan += amt;
+            else if (pf.includes("pigme")) pigme += amt;
+            else if (pf.includes("reg")) registration += amt;
+            else chit += amt; // default chit
+          });
+
+          response.data.forEach((item) => {
+            const amt = Number(item.amount || 0);
+
+            // Only count collections (IN)
+           
+
+            const mode = (item.pay_type || "").toLowerCase();
+
+            if (mode === "cash") cash += amt;
+            else if (mode === "online") online += amt;
+            else if (mode.includes("link")) link += amt;
+          });
+
+          setCategoryTotals({
+            chit,
+            loan,
+            pigme,
+            registration,
+          });
+
+          setModeTotals({
+            cash,
+            online,
+            link,
+          });
 
           setTableDaybook(formattedData);
         } else {
@@ -549,6 +632,207 @@ const PaymentReport = () => {
                 Track and manage all receipt transactions
               </p>
             </div>
+            <div className="p-6 bg-gray-50 rounded-2xl">
+              {/* SECTION: Overview */}
+              <div className="mb-6">
+                <Title level={4} className="!mb-4 text-gray-700">
+                  Financial Overview
+                </Title>
+                <Row gutter={[20, 20]}>
+                  <Col xs={24} md={12}>
+                    <Card className="shadow-md hover:shadow-lg transition-all duration-300 border-none rounded-xl bg-gradient-to-br from-white to-green-50/30 overflow-hidden relative">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500" />
+                      <Statistic
+                        title={
+                          <Text
+                            strong
+                            className="text-gray-500 uppercase tracking-wider text-xs"
+                          >
+                            Total IN (Collections)
+                          </Text>
+                        }
+                        value={payments
+      ? Number(payments).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+      : "0.00"}
+                        precision={2}
+                        prefix={
+                          <ArrowUpOutlined className="text-emerald-500" />
+                        }
+                        valueStyle={{
+                          color: "#065f46",
+                          fontWeight: "700",
+                          fontSize: "1.8rem",
+                        }}
+                      />
+                      <div className="mt-2 py-1 px-2 bg-emerald-100/50 rounded inline-block">
+                        <Text className="text-xs font-medium text-emerald-800 italic">
+                           {payments
+                            ? `${numberToIndianWords(Number(payments))} Only`
+                            : "Zero Only"}
+                        </Text>
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <Card className="shadow-md hover:shadow-lg transition-all duration-300 border-none rounded-xl bg-gradient-to-br from-white to-red-50/30 overflow-hidden relative">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500" />
+                      <Statistic
+                        title={
+                          <Text
+                            strong
+                            className="text-gray-500 uppercase tracking-wider text-xs"
+                          >
+                            Total OUT (Payouts)
+                          </Text>
+                        }
+                        // value={totals.out}
+                        precision={2}
+                        prefix={<ArrowDownOutlined className="text-rose-500" />}
+                        valueStyle={{
+                          color: "#9f1239",
+                          fontWeight: "700",
+                          fontSize: "1.8rem",
+                        }}
+                      />
+                      <div className="mt-2 py-1 px-2 bg-rose-100/50 rounded inline-block">
+                        <Text className="text-xs font-medium text-rose-800 italic"></Text>
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
+              </div>
+
+              <Divider />
+
+              {/* SECTION: Categories */}
+              <div className="mb-6">
+                <Title level={4} className="!mb-4 text-gray-700">
+                  Category Breakdown
+                </Title>
+                <Row gutter={[16, 16]}>
+                  {[
+                    {
+                      title: "Chit Collections",
+                      val: categoryTotals.chit,
+                      color: "#6366f1",
+                      bg: "indigo",
+                      icon: <BankOutlined />,
+                    },
+                    {
+                      title: "Loan Collections",
+                      val: categoryTotals.loan,
+                      color: "#f59e0b",
+                      bg: "orange",
+                      icon: "₹",
+                    },
+                    {
+                      title: "Pigme Collections",
+                      val: categoryTotals.pigme,
+                      color: "#0d9488",
+                      bg: "teal",
+                      icon: <WalletOutlined />,
+                    },
+                    {
+                      title: "Registration Fees",
+                      val: categoryTotals.registration,
+                      color: "#db2777",
+                      bg: "pink",
+                      icon: <SafetyCertificateOutlined />,
+                    },
+                  ].map((item, idx) => (
+                    <Col xs={24} sm={12} md={6} key={idx}>
+                      <Card
+                        size="small"
+                        className="hover:-translate-y-1 transition-transform duration-300 shadow-md border-gray-100 rounded-lg "
+                      >
+                        <Statistic
+                          title={
+                            <span className="text-gray-400 font-medium">
+                              {item.title}
+                            </span>
+                          }
+                          value={item.val}
+                          precision={2}
+                          prefix={
+                            <span style={{ color: item.color, marginRight: 4 }}>
+                              {item.icon}
+                            </span>
+                          }
+                          valueStyle={{
+                            color: item.color,
+                            fontSize: "1.25rem",
+                            fontWeight: "600",
+                          }}
+                        />
+                        <div className="mt-1">
+                          <Text
+                            type="secondary"
+                            className="text-[10px] uppercase font-mono leading-none"
+                          >
+                            {numberToIndianWords(item.val || 0)}
+                          </Text>
+                        </div>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </div>
+
+              {/* SECTION: Payment Modes */}
+              <div className="mb-6">
+                <Title level={4} className="!mb-4 text-gray-700">
+                  Payment Modes
+                </Title>
+                <Row gutter={[16, 16]}>
+                  {[
+                    {
+                      title: "Cash",
+                      val: modeTotals.cash,
+                      color: "#16a34a",
+                      icon: <WalletOutlined />,
+                    },
+                    {
+                      title: "Online",
+                      val: modeTotals.online,
+                      color: "#2563eb",
+                      icon: <GlobalOutlined />,
+                    },
+                    {
+                      title: "Payment Link",
+                      val: modeTotals.link,
+                      color: "#7c3aed",
+                      icon: <LinkOutlined />,
+                    },
+                  ].map((mode, idx) => (
+                    <Col xs={24} md={8} key={idx}>
+                      <Card className="bg-white border-none rounded-xl shadow-lg">
+                        <Statistic
+                          title={
+                            <span className="text-gray-400">
+                              {mode.title} Collection
+                            </span>
+                          }
+                          value={mode.val}
+                          precision={2}
+                          valueStyle={{ color: "#000", fontWeight: "bold" }}
+                          prefix={
+                            <span style={{ color: mode.color }}>
+                              {mode.icon}
+                            </span>
+                          }
+                        />
+                        <Text className="text-gray-900 text-[11px] font-mono italic">
+                          {numberToIndianWords(mode.val || 0)}
+                        </Text>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </div>
+            </div>
 
             <div className="mt-6 mb-8">
               {/* Filters Section */}
@@ -558,7 +842,8 @@ const PaymentReport = () => {
                     className="w-5 h-5 text-indigo-600"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24">
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -587,7 +872,8 @@ const PaymentReport = () => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      className="w-full h-11">
+                      className="w-full h-11"
+                    >
                       {groupOptions.map((time) => (
                         <Select.Option key={time.value} value={time.value}>
                           {time.label}
@@ -641,7 +927,8 @@ const PaymentReport = () => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      className="w-full h-11">
+                      className="w-full h-11"
+                    >
                       <Select.Option value={""}>All</Select.Option>
                       {groups.map((group) => (
                         <Select.Option key={group._id} value={group._id}>
@@ -668,7 +955,8 @@ const PaymentReport = () => {
                       }
                       placeholder="Search Or Select Customer"
                       onChange={(groupId) => setSelectedCustomers(groupId)}
-                      className="w-full h-11">
+                      className="w-full h-11"
+                    >
                       <Select.Option value="">All</Select.Option>
                       {filteredUsers.map((group) => (
                         <Select.Option key={group?._id} value={group?._id}>
@@ -700,7 +988,6 @@ const PaymentReport = () => {
                       }
                       className="w-full"
                       style={{ height: "44px" }}
-
                       options={[
                         { label: "Cash", value: "cash" },
                         { label: "Online", value: "online" },
@@ -734,7 +1021,7 @@ const PaymentReport = () => {
                         { label: "Chit", value: "Chit" },
                         { label: "Pigme", value: "Pigme" },
                         { label: "Loan", value: "Loan" },
-                        {label: "Registration", value: "Registration"}
+                        { label: "Registration", value: "Registration" },
                       ]}
                     />
                   </div>
@@ -757,7 +1044,8 @@ const PaymentReport = () => {
                             .toLowerCase()
                             .includes(input.toLowerCase())
                         }
-                        className="w-full h-11">
+                        className="w-full h-11"
+                      >
                         <Select.Option value="">
                           Select Account Type
                         </Select.Option>
@@ -799,12 +1087,14 @@ const PaymentReport = () => {
                           .toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      className="w-full h-11">
+                      className="w-full h-11"
+                    >
                       <Select.Option value="">All</Select.Option>
                       {[...new Set(agents), ...new Set(admins)].map((dt) => (
                         <Select.Option
                           key={dt?._id}
-                          value={`${dt._id}|${dt.selected_type}`}>
+                          value={`${dt._id}|${dt.selected_type}`}
+                        >
                           {dt.selected_type === "admin_type"
                             ? "Admin | "
                             : "Agent | "}
@@ -833,12 +1123,13 @@ const PaymentReport = () => {
                     <div className="space-y-2">
                       <div>
                         <span className="text-white text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/90">
-                          ₹{payments
-                            ? Number(payments).toLocaleString('en-IN', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
-                            })
-                            : '0.00'}
+                          ₹
+                          {payments
+                            ? Number(payments).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })
+                            : "0.00"}
                         </span>
                       </div>
 
@@ -846,7 +1137,7 @@ const PaymentReport = () => {
                         <span className="text-emerald-100/90 text-lg font-medium leading-tight break-words">
                           {payments
                             ? `${numberToIndianWords(Number(payments))} Only`
-                            : 'Zero Only'}
+                            : "Zero Only"}
                         </span>
                       </div>
                     </div>
@@ -873,7 +1164,8 @@ const PaymentReport = () => {
                       className="w-5 h-5 text-indigo-600"
                       fill="none"
                       stroke="currentColor"
-                      viewBox="0 0 24 24">
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -889,6 +1181,25 @@ const PaymentReport = () => {
                   <DataTable
                     data={filterOption(TableDaybook, searchText)}
                     columns={columns}
+                    printHeaderKeys={[
+              
+                "Cash Collection",
+                "Online Collection",
+                "Payment Link",
+                "Chit Collections",
+                "Loan Collections",
+                "Pigme Collections",
+                "Registration Fees",
+              ]}
+              printHeaderValues={[
+                `₹ ${modeTotals.cash.toLocaleString("en-IN")}`,
+                `₹ ${modeTotals.online.toLocaleString("en-IN")}`,
+                `₹ ${modeTotals.link.toLocaleString("en-IN")}`,
+                `₹ ${categoryTotals.chit.toLocaleString("en-IN")}`,
+                `₹ ${categoryTotals.loan.toLocaleString("en-IN")}`,
+                `₹ ${categoryTotals.pigme.toLocaleString("en-IN")}`,
+                `₹ ${categoryTotals.registration.toLocaleString("en-IN")}`,
+              ]}
                     exportedPdfName={`Receipt Report`}
                     exportedFileName={`Reports Receipt.csv`}
                   />
