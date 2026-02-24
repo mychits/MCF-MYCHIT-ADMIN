@@ -43,6 +43,9 @@ const Daybook = () => {
   const [filteredAuction, setFilteredAuction] = useState([]);
   const todayString = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(todayString);
+  const [selectedFromDate, setSelectedFromDate] = useState(todayString);
+  const [selectedToDate, setSelectedToDate] = useState(todayString);
+
   const [showFilterField, setShowFilterField] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState([]);
@@ -109,16 +112,63 @@ const Daybook = () => {
     fetchData();
   }, []);
 
-  const handleSelectFilter = (value) => {
+  // const handleSelectFilter = (value) => {
+  //   setSelectedLabel(value);
+  //   setShowFilterField(value === "Custom");
+  //   const today = new Date();
+  //   const fmt = (d) => d.toISOString().slice(0, 10);
+  //   if (value === "Today") setSelectedDate(fmt(today));
+  //   else if (value === "Yesterday")
+  //     setSelectedDate(fmt(new Date(today.setDate(today.getDate() - 1))));
+  //   else if (value === "Twodaysago")
+  //     setSelectedDate(fmt(new Date(today.setDate(today.getDate() - 2))));
+  // };
+
+    const groupOptions = [
+    { value: "Today", label: "Today" },
+    { value: "Yesterday", label: "Yesterday" },
+    { value: "ThisMonth", label: "This Month" },
+    { value: "LastMonth", label: "Last Month" },
+    { value: "ThisYear", label: "This Year" },
+    { value: "Custom", label: "Custom" },
+  ];
+
+   const handleSelectFilter = (value) => {
     setSelectedLabel(value);
-    setShowFilterField(value === "Custom");
+    //const { value } = e.target;
+    setShowFilterField(false);
+
     const today = new Date();
-    const fmt = (d) => d.toISOString().slice(0, 10);
-    if (value === "Today") setSelectedDate(fmt(today));
-    else if (value === "Yesterday")
-      setSelectedDate(fmt(new Date(today.setDate(today.getDate() - 1))));
-    else if (value === "Twodaysago")
-      setSelectedDate(fmt(new Date(today.setDate(today.getDate() - 2))));
+    const formatDate = (date) => date.toLocaleDateString("en-CA");
+
+    if (value === "Today") {
+      const formatted = formatDate(today);
+      setSelectedFromDate(formatted);
+      setSelectedToDate(formatted);
+    } else if (value === "Yesterday") {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const formatted = formatDate(yesterday);
+      setSelectedFromDate(formatted);
+      setSelectedToDate(formatted);
+    } else if (value === "ThisMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "LastMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const end = new Date(today.getFullYear(), today.getMonth(), 0);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "ThisYear") {
+      const start = new Date(today.getFullYear(), 0, 1);
+      const end = new Date(today.getFullYear(), 11, 31);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "Custom") {
+      setShowFilterField(true);
+    }
   };
 
   useEffect(() => {
@@ -128,7 +178,8 @@ const Daybook = () => {
         setIsLoading(true);
         const response = await api.get(`/payment/daybook`, {
           params: {
-            pay_date: selectedDate,
+            from_date: selectedFromDate,
+            to_date: selectedToDate,
             groupId: selectedAuctionGroupId,
             userId: selectedCustomers,
             pay_type: selectedPaymentMode,
@@ -265,7 +316,8 @@ const Daybook = () => {
     return () => abortController.abort();
   }, [
     selectedAuctionGroupId,
-    selectedDate,
+    selectedToDate,
+    selectedFromDate,
     selectedPaymentMode,
     selectedCustomers,
     selectedAccountType,
@@ -633,36 +685,58 @@ const Daybook = () => {
               </Select>
             </div> */}
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500">
-                DATE RANGE
-              </label>
-              <Select
-                className="w-full h-10"
-                value={selectedLabel}
-                onChange={handleSelectFilter}
-                options={[
-                  { value: "Today", label: "Today" },
-                  { value: "Yesterday", label: "Yesterday" },
-                  { value: "Twodaysago", label: "Two Days Ago" },
-                  { value: "Custom", label: "Custom" },
-                ]}
-              />
-            </div>
+            <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Filter Option
+                    </label>
+                    <Select
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      onChange={handleSelectFilter}
+                      value={selectedLabel}
+                      placeholder="Search Or Select Filter"
+                      filterOption={(input, option) =>
+                        option.children
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      className="w-full h-11"
+                    >
+                      {groupOptions.map((time) => (
+                        <Select.Option key={time.value} value={time.value}>
+                          {time.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
 
             {showFilterField && (
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 ">
-                  CUSTOM DATE
-                </label>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="h-10 rounded-md"
-                />
-              </div>
-            )}
+                    <>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          From Date
+                        </label>
+                        <input
+                          type="date"
+                          value={selectedFromDate}
+                          onChange={(e) => setSelectedFromDate(e.target.value)}
+                          className="w-full h-11 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          To Date
+                        </label>
+                        <input
+                          type="date"
+                          value={selectedToDate}
+                          onChange={(e) => setSelectedToDate(e.target.value)}
+                          className="w-full h-11 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                        />
+                      </div>
+                    </>
+                  )}
 
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500">GROUP</label>
@@ -843,7 +917,7 @@ const Daybook = () => {
               data={filterOption(TableDaybook, searchText)}
               columns={columns}
               exportCols={exportCols}
-              exportedPdfName={`Daybook_${selectedDate}`}
+              exportedPdfName={`Daybook_${new Date().getDate()}`}
               printHeaderKeys={[
                 "Total IN",
                 "Total OUT",
