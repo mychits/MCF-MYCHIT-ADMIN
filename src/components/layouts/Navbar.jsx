@@ -144,8 +144,8 @@ const Navbar = ({
   // --- ROBUST AUTO LOGOUT LOGIC (FIXED) ---
   useEffect(() => {
     // CONFIGURATION: 1 Minute total, warning at 10s remaining
-    const AUTO_LOGOUT_TIME = 15 * 60 * 1000; 
-    const WARNING_TIME =  10 * 60 * 1000;         
+    const AUTO_LOGOUT_TIME = 60 * 60 * 1000; 
+    const WARNING_TIME =  50 * 60 * 1000;         
     const WARNING_START_TIME = AUTO_LOGOUT_TIME - WARNING_TIME; 
 
     let inactivityTimer;
