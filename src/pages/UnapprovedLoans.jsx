@@ -3,26 +3,16 @@ import {
   message,
   Dropdown,
   Menu,
-  Drawer,
   Button,
   Input,
   Form,
   Modal,
-  Typography,
-  Space,
-  Divider,
-  InputNumber,
   Select,
   DatePicker,
 } from "antd";
 import {
   MoreOutlined,
-  UserOutlined,
   CheckCircleOutlined,
-  EditOutlined,
-  CloseOutlined,
-  DollarOutlined,
-  CalendarOutlined,
 } from "@ant-design/icons";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
@@ -32,78 +22,55 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import moment from "moment";
 import { fieldSize } from "../data/fieldSize";
 
-const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
 const UnapprovedLoans = () => {
   const [tableData, setTableData] = useState([]);
-  // Initialize loading to true so the spinner shows immediately on mount
   const [loading, setLoading] = useState(true);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedLoan, setSelectedLoan] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [users, setUsers] = useState([]);
   const [agents, setAgents] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [selectedLoan, setSelectedLoan] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [form] = Form.useForm();
 
-  // Fetch users, agents, and employees data in parallel
+  // Fetch master data (Users, Agents, Employees)
   useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await api.get("/user/get-user");
-      return response.data;
-    };
-
-    const fetchAgents = async () => {
-      const response = await api.get("/agent/get");
-      return response.data?.agent;
-    };
-
-    const fetchEmployees = async () => {
-      const response = await api.get("/employee");
-      return response.data?.employee;
-    };
-
     const fetchMasterData = async () => {
       try {
-        // Wait for all three master data calls to finish
-        const [usersData, agentsData, employeesData] = await Promise.all([
-          fetchUsers(),
-          fetchAgents(),
-          fetchEmployees(),
+        const [usersRes, agentsRes, employeesRes] = await Promise.all([
+          api.get("/user/get-user"),
+          api.get("/agent/get"),
+          api.get("/employee"),
         ]);
 
-        setUsers(usersData);
-        setAgents(agentsData);
-        setEmployees(employeesData);
-
-        // We do NOT set setLoading(false) here yet.
-        // We wait for the loans to fetch as well in the next effect.
+        setUsers(usersRes.data);
+        setAgents(agentsRes.data?.agent);
+        setEmployees(employeesRes.data?.employee);
       } catch (error) {
         console.error("Error fetching master data:", error);
         message.error("Failed to load initial data");
-        setLoading(false); // Stop loading if master data fails
+        setLoading(false);
       }
     };
 
     fetchMasterData();
   }, []);
 
-  // Fetch loans only after users are available
+  // Fetch Loan Approval Requests
   useEffect(() => {
     const fetchLoans = async () => {
-      // Ensure users are loaded before trying to map them
       if (users.length === 0) return;
 
       try {
-        setLoading(true); // Ensure loading is true while fetching loans
+        setLoading(true);
+
+        // Fetching from Loan Approval Requests Model
         const loanRes = await api.get("/loans/get-loan-approval-request");
         const loans = loanRes.data.data || [];
 
-        // Map synchronously using the 'users' state
         const formatted = loans.map((loan, index) => {
           const user = users.find((u) => u._id === loan.user_id);
 
@@ -132,9 +99,14 @@ const UnapprovedLoans = () => {
             address: user?.address || "-",
             loan_amount: loan.loan_amount,
             loan_purpose: loan.loan_purpose,
+            
+            // EXACT LOGIC FROM UNAPPROVED CUSTOMER
+            // Taking createdAt from the API response and splitting the timestamp
+            createdAt: loan.createdAt ? loan.createdAt.split("T")[0] : "-",
+            
             approval_status: (
               <span className="inline-block px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full">
-                Pending
+                {loan.approval_status}
               </span>
             ),
             actions: (
@@ -154,7 +126,6 @@ const UnapprovedLoans = () => {
         console.error(err);
         message.error("Failed to fetch loan requests");
       } finally {
-        // All data (Master + Loans) is now loaded. Stop the loader.
         setLoading(false);
       }
     };
@@ -197,9 +168,7 @@ const UnapprovedLoans = () => {
         return;
       }
 
-      const formattedStartDate = moment(formValues.start_date).format(
-        "YYYY-MM-DD",
-      );
+      const formattedStartDate = moment(formValues.start_date).format("YYYY-MM-DD");
       const formattedEndDate = moment(formValues.end_date).format("YYYY-MM-DD");
 
       await api.put(`/loans/update-loan-approval-request/${selectedLoan._id}`, {
@@ -240,6 +209,7 @@ const UnapprovedLoans = () => {
     { key: "address", header: "Address" },
     { key: "loan_amount", header: "Loan Amount" },
     { key: "loan_purpose", header: "Loan Purpose" },
+    { key: "createdAt", header: "Created Date" }, // <--- Column Added Here
     { key: "approval_status", header: "Approval Status" },
     { key: "actions", header: "Actions" },
   ];
@@ -392,8 +362,7 @@ const UnapprovedLoans = () => {
             </Form.Item>
           </div>
 
-        
-            <Form.Item
+          <Form.Item
             name="referred_type"
             label="Referred Type"
             rules={[{ required: true, message: "Select referred type" }]}
@@ -416,202 +385,109 @@ const UnapprovedLoans = () => {
                 ),
               )}
             </Select>
-          </Form.Item> 
-          {/* Conditional Fields — Clean Layout */}
-<Form.Item noStyle shouldUpdate={(prev, curr) => prev.referred_type !== curr.referred_type}>
-  {({ getFieldValue }) => {
-    const type = getFieldValue("referred_type");
-
-    if (type === "Customer") {
-      return (
-        <Form.Item
-          name="referred_customer"
-          label="Referred Customer"
-          rules={[{ required: true, message: "Select customer" }]}
-        >
-          <Select
-            placeholder="Select Referred Customer"
-            className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-            showSearch
-            popupMatchSelectWidth={false}
-            filterOption={(input, option) =>
-              option?.children?.toString().toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {users.map((user) => (
-              <Select.Option key={user._id} value={user._id}>
-                {user.full_name} | {user.phone_number}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-      );
-    }
-
-    if (type === "Employee") {
-      return (
-        <Form.Item
-          name="referred_employee"
-          label="Referred Employee"
-          rules={[{ required: true, message: "Select employee" }]}
-        >
-          <Select
-            placeholder="Select Employee"
-            className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-            showSearch
-            popupMatchSelectWidth={false}
-            filterOption={(input, option) =>
-              option?.children?.toString().toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {employees.map((emp) => (
-              <Select.Option key={emp._id} value={emp._id}>
-                {emp.name} | {emp.phone_number}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-      );
-    }
-
-    if (type === "Agent") {
-      return (
-        <Form.Item
-          name="referred_agent"
-          label="Referred Agent"
-          rules={[{ required: true, message: "Select agent" }]}
-        >
-          <Select
-            placeholder="Select Agent"
-            className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-            showSearch
-            popupMatchSelectWidth={false}
-            filterOption={(input, option) =>
-              option?.children?.toString().toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {agents.map((agent) => (
-              <Select.Option key={agent._id} value={agent._id}>
-                {agent.name} | {agent.phone_number}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-      );
-    }
-
-    if (type === "Others") {
-      return (
-        <Form.Item
-          name="referred_others"
-          label="Referred By"
-          rules={[{ required: true, message: "Enter reference name" }]}
-        >
-          <Input
-            placeholder="Enter reference name"
-            className="h-14 rounded-lg"
-          />
-        </Form.Item>
-      );
-    }
-
-    return null;
-  }}
-</Form.Item>
-
-
-       
-          {/* <Form.Item shouldUpdate>
-            {({ getFieldValue }) =>
-              getFieldValue("referred_type") === "Customer" && (
-                <Form.Item
-                  name="referred_customer"
-                  label="Referred Customer"
-                  rules={[{ required: true, message: "Select customer" }]}
-                >
-                  <Select
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    showSearch
-                    popupMatchSelectWidth={false}
-                    filterOption={(input, option) => {
-                      const text =
-                        option?.children?.toString().toLowerCase() || "";
-                      return text.includes(input.toLowerCase());
-                    }}
-                    placeholder="Select Referred Customer"
-                  >
-                    {users.map((user) => (
-                      <Select.Option key={user._id} value={user._id}>
-                        {user.full_name} | {user.phone_number}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              )
-            }
           </Form.Item>
 
-          <Form.Item shouldUpdate>
-            {({ getFieldValue }) =>
-              getFieldValue("referred_type") === "Employee" && (
-                <Form.Item
-                  name="referred_employee"
-                  label="Referred Employee"
-                  rules={[{ required: true, message: "Select employee" }]}
-                >
-                  <Select
-                    placeholder="Select Employee"
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    showSearch
-                    popupMatchSelectWidth={false}
-                    filterOption={(input, option) => {
-                      const text =
-                        option?.children?.toString().toLowerCase() || "";
-                      return text.includes(input.toLowerCase());
-                    }}
+          {/* Conditional Fields */}
+          <Form.Item noStyle shouldUpdate={(prev, curr) => prev.referred_type !== curr.referred_type}>
+            {({ getFieldValue }) => {
+              const type = getFieldValue("referred_type");
+
+              if (type === "Customer") {
+                return (
+                  <Form.Item
+                    name="referred_customer"
+                    label="Referred Customer"
+                    rules={[{ required: true, message: "Select customer" }]}
                   >
-                    {employees.map((emp) => (
-                      <Select.Option key={emp._id} value={emp._id}>
-                        {emp.name} | {emp.phone_number}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              )
-            }
+                    <Select
+                      placeholder="Select Referred Customer"
+                      className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      filterOption={(input, option) =>
+                        option?.children?.toString().toLowerCase().includes(input.toLowerCase())
+                      }
+                    >
+                      {users.map((user) => (
+                        <Select.Option key={user._id} value={user._id}>
+                          {user.full_name} | {user.phone_number}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                );
+              }
+
+              if (type === "Employee") {
+                return (
+                  <Form.Item
+                    name="referred_employee"
+                    label="Referred Employee"
+                    rules={[{ required: true, message: "Select employee" }]}
+                  >
+                    <Select
+                      placeholder="Select Employee"
+                      className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      filterOption={(input, option) =>
+                        option?.children?.toString().toLowerCase().includes(input.toLowerCase())
+                      }
+                    >
+                      {employees.map((emp) => (
+                        <Select.Option key={emp._id} value={emp._id}>
+                          {emp.name} | {emp.phone_number}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                );
+              }
+
+              if (type === "Agent") {
+                return (
+                  <Form.Item
+                    name="referred_agent"
+                    label="Referred Agent"
+                    rules={[{ required: true, message: "Select agent" }]}
+                  >
+                    <Select
+                      placeholder="Select Agent"
+                      className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      filterOption={(input, option) =>
+                        option?.children?.toString().toLowerCase().includes(input.toLowerCase())
+                      }
+                    >
+                      {agents.map((agent) => (
+                        <Select.Option key={agent._id} value={agent._id}>
+                          {agent.name} | {agent.phone_number}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                );
+              }
+
+              if (type === "Others") {
+                return (
+                  <Form.Item
+                    name="referred_others"
+                    label="Referred By"
+                    rules={[{ required: true, message: "Enter reference name" }]}
+                  >
+                    <Input
+                      placeholder="Enter reference name"
+                      className="h-14 rounded-lg"
+                    />
+                  </Form.Item>
+                );
+              }
+
+              return null;
+            }}
           </Form.Item>
-
-          <Form.Item shouldUpdate>
-            {({ getFieldValue }) =>
-              getFieldValue("referred_type") === "Agent" && (
-                <Form.Item
-                  name="referred_agent"
-                  label="Referred Agent"
-                  rules={[{ required: true, message: "Select agent" }]}
-                >
-                  <Select
-                    placeholder="Select Agent"
-                    className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
-                    showSearch
-                    popupMatchSelectWidth={false}
-                    filterOption={(input, option) => {
-                      const text =
-                        option?.children?.toString().toLowerCase() || "";
-                      return text.includes(input.toLowerCase());
-                    }}
-                  >
-                    {agents.map((agent) => (
-                      <Select.Option key={agent._id} value={agent._id}>
-                        {agent.name} | {agent.phone_number}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              )
-            }
-          </Form.Item>  */}
-
-          
 
           {/* Note */}
           <Form.Item name="note" label="Note">

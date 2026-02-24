@@ -3,12 +3,14 @@ import { useEffect, useState, useMemo } from "react";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
-import { FiDollarSign, FiUsers, FiCheckCircle, FiXCircle, FiFilter, FiCalendar, FiFileText } from "react-icons/fi";
+import { FiUsers, FiCheckCircle, FiXCircle, FiFilter, FiCalendar, FiFileText } from "react-icons/fi";
 import { Select } from "antd";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 
 import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
+import { FaRupeeSign } from "react-icons/fa";
 
 // const PaymentSummary = () => {
 //   const [searchText, setSearchText] = useState("");
@@ -1503,7 +1505,7 @@ const PaymentSummary = () => {
                   </div>
 
                   <div className="p-3 bg-green-100 rounded-lg">
-                    <FiDollarSign className="text-green-600 text-xl" />
+                    <FaRupeeSign className="text-green-600 text-xl" />
                   </div>
                 </div>
               </div>
@@ -1568,7 +1570,7 @@ const PaymentSummary = () => {
                 {/* GROUP */}
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-blue-100 rounded-lg">
-                    <FiDollarSign className="text-blue-600 text-xl" />
+                    <FaRupeeSign className="text-blue-600 text-xl" />
                   </div>
 
                   <div>
@@ -1591,7 +1593,7 @@ const PaymentSummary = () => {
                 {/* LOAN */}
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-purple-100 rounded-lg">
-                    <FiDollarSign className="text-purple-600 text-xl" />
+                    <FaRupeeSign className="text-purple-600 text-xl" />
                   </div>
 
                   <div>
@@ -1614,7 +1616,7 @@ const PaymentSummary = () => {
                 {/* PIGME */}
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-pink-100 rounded-lg">
-                    <FiDollarSign className="text-pink-600 text-xl" />
+                    <FaRupeeSign className="text-pink-600 text-xl" />
                   </div>
 
                   <div>

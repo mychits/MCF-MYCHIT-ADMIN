@@ -6,7 +6,7 @@
 // import Navbar from "../components/layouts/Navbar";
 // import Modal from "../components/modals/Modal";
 // import { GiPartyPopper } from "react-icons/gi";
-// import { FileTextOutlined, DollarOutlined } from "@ant-design/icons";
+// import { FileTextOutlined } from "@ant-design/icons";
 // import { Collapse } from "antd";
 // import { FaMoneyBill } from "react-icons/fa";
 // import { MdPayments } from "react-icons/md";
@@ -973,7 +973,7 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import Navbar from "../components/layouts/Navbar";
 import Modal from "../components/modals/Modal";
 import { GiPartyPopper } from "react-icons/gi";
-import { FileTextOutlined, DollarOutlined } from "@ant-design/icons";
+import { FileTextOutlined } from "@ant-design/icons";
 import { FaMoneyBill } from "react-icons/fa";
 import { MdPayments } from "react-icons/md";
 import { Link } from "react-router-dom";

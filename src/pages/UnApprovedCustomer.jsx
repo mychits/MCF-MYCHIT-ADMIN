@@ -423,7 +423,7 @@ const UnApprovedCustomer = () => {
     { key: "customer_id", header: "Customer Id" },
     { key: "name", header: "Customer Name" },
     { key: "phone_number", header: "Customer Phone Number" },
-    {key: "createdAt", header: "Joined On"},
+        { key: "createdAt", header: "Joined On" },
     { key: "address", header: "Customer Address" },
     { key: "pincode", header: "Customer Pincode" },
     { key: "collection_area", header: "Area" },

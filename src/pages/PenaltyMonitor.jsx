@@ -41,7 +41,7 @@ import {
   MessageOutlined,
   WarningOutlined,
   ClockCircleOutlined,
-  DollarCircleOutlined,
+
   SendOutlined,
   DownOutlined,
   ArrowLeftOutlined,
@@ -56,6 +56,8 @@ import {
 import { AiFillBackward } from "react-icons/ai";
 import Sidebar from "../components/layouts/Sidebar";
 import { useNavigate } from 'react-router-dom';
+
+import { FaRupeeSign } from "react-icons/fa";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -1242,7 +1244,7 @@ const PenaltyMonitor = () => {
                       Late (No Penalty)
                     </Button>
                     <Button
-                      icon={<DollarCircleOutlined />}
+                      icon={<FaRupeeSign />}
                       type="primary"
                       onClick={() => openSendModal("latePenaltyApplied")}
                       disabled={!selectedRows.some((u) => u.hasPenaltyOrLateFee)}

@@ -9,9 +9,11 @@ import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import Loader from "../components/loaders/CircularLoader";
 import { Collapse } from "antd";
 import { Link } from "react-router-dom";
-import { FileTextOutlined, DollarOutlined } from "@ant-design/icons";
+import { FileTextOutlined} from "@ant-design/icons";
 import { FaMoneyBill } from "react-icons/fa";
 import { numberToIndianWords } from "../helpers/numberToIndianWords";
+
+import { FaRupeeSign } from "react-icons/fa";
 
 const today = new Date();
 const currentYear = today.getFullYear();
@@ -482,9 +484,9 @@ const AgentTarget = () => {
                             to="/reports/target-commission"
                             className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
                           >
-                            <DollarOutlined
+                            <FaRupeeSign
                               className="text-blue-500"
-                              size={30}
+                              size={20}
                             />
                             Commission Report
                           </Link>

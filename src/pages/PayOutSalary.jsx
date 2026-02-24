@@ -12,7 +12,9 @@ import SettingSidebar from "../components/layouts/SettingSidebar";
 import SalarySlipPrint from "../components/printFormats/SalarySlipPrint";
 import { IoMdMore } from "react-icons/io";
 import EditSalaryModal from "../components/modals/EditSalaryModal";
-import { DollarOutlined, CalendarOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {  CalendarOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
+
+import { FaRupeeSign } from "react-icons/fa";
 
 const PayoutSalary = () => {
   const paymentFor = "salary";
