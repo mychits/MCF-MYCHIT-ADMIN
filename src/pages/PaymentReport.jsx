@@ -706,7 +706,7 @@ const PaymentReport = () => {
 
   return (
     <>
-      <div className="relative flex flex-col [height:calc(100vh-100px)] ">
+     <div className="relative flex flex-col [height:calc(100vh-100px)] overflow-x-auto ">
         <div className="flex-1 ">
           <Navbar
             onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
