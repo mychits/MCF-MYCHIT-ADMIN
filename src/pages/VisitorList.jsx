@@ -509,9 +509,9 @@ export default function VisitorList() {
   return (
     <>
       <Navbar />
-      <div className="flex w-screen mt-14 min-h-screen">
+      <div className="flex mt-14 min-h-screen">
         <Sidebar />
-        <div className="flex-1 p-6 mt-8 relative">
+        <div className="flex-1 p-6 mt-8 relative overflow-auto">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-2xl font-bold">Visitor Management</h2>
