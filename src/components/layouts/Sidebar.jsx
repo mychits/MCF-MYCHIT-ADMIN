@@ -48,6 +48,7 @@ import { TbGraph } from "react-icons/tb";
 import { useLocation } from "react-router-dom";
 
 import { MdAdminPanelSettings } from "react-icons/md";
+import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 
 const MenuSidebar = [
   {
@@ -433,6 +434,14 @@ const MenuSidebar = [
       },
     ],
   },
+
+   {
+    id: "$201",
+    title: "Bid Request",
+    icon: <LiaFileInvoiceDollarSolid />,
+    link: "/bid-request",
+  },
+
 ];
 
 const Sidebar = () => {

@@ -2,16 +2,20 @@ import { useState, useEffect } from "react";
 import API from "../instance/TokenInstance";
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
-import { Select, Tabs, Badge, Input } from "antd";
+import { Select, Tabs, Badge, Input, Button } from "antd";
+// Added Lucide Icons to match the reference implementation style
+import { Edit, Trash2 } from "lucide-react"; 
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Modal from "../components/modals/Modal";
 
-// NOTE: Ensure you import this from your data file, or use this definition
 const fieldSize = { height: "h-14" };
 
 export default function VisitorList() {
   const [openModal, setOpenModal] = useState(false);
+
+  // ADDED STATE: To track which dropdown is open
+  const [openActionId, setOpenActionId] = useState(null);
 
   const [formData, setFormData] = useState({
     visitorType: "Guest",
@@ -177,6 +181,48 @@ export default function VisitorList() {
     }
   };
 
+  // CHANGED: Added handleEdit function
+  const handleEdit = (record) => {
+    setOpenActionId(null); // Close dropdown on edit
+    setFormData({
+      ...record, // Spread existing data
+      visitorType: record.visitorType,
+      name: record.name,
+      phone: record.phone,
+      email: record.email,
+      description: record.description,
+      purpose: record.purpose,
+      dateTime: record.dateTime,
+      meetPerson: record.meetPerson,
+      chitGroup: record.chitGroup,
+      customerId: record.customerId,
+      groupNameDisplay: record.groupName || "",
+      ticketNumber: record.ticketNumber || ""
+    });
+    
+    setOpenModal(true);
+
+    // If editing a Customer, ensure their enrollment details are loaded
+    if (record.visitorType === 'Customers' && record.customerId) {
+      handleCustomerSelect(record.customerId);
+    }
+  };
+
+  // ADDED: Handle Delete Function
+  const handleDelete = async (id) => {
+    setOpenActionId(null); // Close dropdown on delete
+    if (window.confirm("Are you sure you want to delete this visitor?")) {
+      try {
+        await API.delete(`/visitors/${id}`);
+        alert("Visitor Deleted Successfully");
+        fetchVisitors();
+      } catch (error) {
+        console.error("Error deleting visitor:", error);
+        alert("Failed to delete visitor");
+      }
+    }
+  };
+
   useEffect(() => {
     fetchVisitors();
     fetchAgents();
@@ -213,12 +259,6 @@ export default function VisitorList() {
       newErrors.phone = "Phone must start with 6-9 and be 10 digits.";
     }
 
-    //  if (/^\d{0,10}$/.test(value)) {
-    //   setFormData({ ...formData, phone: value });
-    // }
-    // if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-    //   newErrors.email = "Please enter a valid email address.";
-    // }
     if (!formData.purpose) newErrors.purpose = "Purpose of Visit required.";
     if (!formData.dateTime) newErrors.dateTime = "Date & Time is required.";
     if (!formData.meetPerson) newErrors.meetPerson = "Please select whom to meet.";
@@ -233,10 +273,16 @@ export default function VisitorList() {
     if (!validateForm()) return;
 
     try {
-      const response = await API.post("/visitors", formData);
-      alert("Visitor Added Successfully");
+      // Determine if we are updating or creating
+      const isUpdate = !!formData._id; 
+      const apiUrl = isUpdate ? `/visitors/${formData._id}` : "/visitors";
+      const apiMethod = isUpdate ? API.put : API.post;
 
-      setFormData({
+      const response = await apiMethod(apiUrl, formData);
+      alert(isUpdate ? "Visitor Updated Successfully" : "Visitor Added Successfully");
+
+      // Reset form logic
+      const resetState = {
         visitorType: "Guest",
         name: "",
         phone: "",
@@ -249,7 +295,12 @@ export default function VisitorList() {
         customerId: "",
         groupNameDisplay: "",
         ticketNumber: ""
-      });
+      };
+      
+      // Clear ID from reset state if it exists
+      if(resetState._id) delete resetState._id;
+
+      setFormData(resetState);
       setOpenModal(false);
       fetchVisitors();
     } catch (error) {
@@ -293,20 +344,60 @@ export default function VisitorList() {
     return `${day}/${month}/${year} ${hoursStr}:${minutes} ${ampm}`;
   };
 
-  const formattedData = visitors.map((visitor, index) => {
-    const type = (visitor.visitorType || "Guest").trim();
+  const formattedData = visitors.map((item, index) => {
+    const type = (item.visitorType || "Guest").trim();
     return {
-      ...visitor,
+      ...item,
       slNo: index + 1,
-      visitorId: visitor.visitorId || "N/A",
+      visitorId: item.visitorId || "N/A",
       visitorType: type.charAt(0).toUpperCase() + type.slice(1),
-      agentName: getMeetPersonName(visitor.meetPerson),
-      groupName: getGroupName(visitor.chitGroup),
-      formattedDate: formatDateTime(visitor.dateTime),
-      purpose: visitor.purpose || "-",
-      description: visitor.description || "-",
-      email: visitor.email || "-",
-      _id: visitor._id
+      agentName: getMeetPersonName(item.meetPerson),
+      groupName: getGroupName(item.chitGroup),
+      formattedDate: formatDateTime(item.dateTime),
+      purpose: item.purpose || "-",
+      description: item.description || "-",
+      email: item.email || "-",
+      _id: item._id,
+      // CHANGED: Added Action Column implementation matching the reference
+      action: (
+        <div className="relative text-center">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenActionId(openActionId === item._id ? null : item._id);
+            }}
+            className="p-2 rounded-full hover:bg-gray-200"
+          >
+            ⋮
+          </button>
+          {openActionId === item._id && (
+            <div className="absolute right-6 top-10 bg-white border rounded-lg shadow-lg w-40 z-50">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(item);
+                  setOpenActionId(null);
+                }}
+                className="flex items-center gap-2 w-full px-4 py-2 hover:bg-gray-100 text-blue-600"
+              >
+                <Edit size={18} />
+                <span>Edit</span>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(item._id);
+                  setOpenActionId(null);
+                }}
+                className="flex items-center gap-2 w-full px-4 py-2 hover:bg-gray-100 text-red-600"
+              >
+                <Trash2 size={18} />
+                <span>Delete</span>
+              </button>
+            </div>
+          )}
+        </div>
+      ),
     };
   });
 
@@ -321,6 +412,7 @@ export default function VisitorList() {
     { key: "description", header: "Description" },
     { key: "formattedDate", header: "Date & Time" },
     { key: "agentName", header: "Whom to Meet" },
+    { key: "action", header: "Action" }, // Ensure this key exists
   ];
 
   const customerColumns = [
@@ -335,6 +427,7 @@ export default function VisitorList() {
     { key: "description", header: "Description" },
     { key: "formattedDate", header: "Date & Time" },
     { key: "agentName", header: "Whom to Meet" },
+    { key: "action", header: "Action" }, // Ensure this key exists
   ];
 
   const counts = {
@@ -451,11 +544,11 @@ export default function VisitorList() {
             )}
           </div>
 
-          {/* --- MODAL COMPONENT (MATCHING USER.JS STYLE) --- */}
+          {/* --- MODAL COMPONENT --- */}
           <Modal isVisible={openModal} onClose={() => setOpenModal(false)}>
             <div className="py-6 px-5 lg:px-8 text-left">
               <h3 className="mb-4 text-xl font-bold text-gray-900">
-                Add Visitor
+                {formData._id ? "Edit Visitor" : "Add Visitor"}
               </h3>
               <form className="space-y-6" onSubmit={handleSubmit} noValidate>
 
@@ -628,7 +721,6 @@ export default function VisitorList() {
                             }
                           }}
                           id="phone"
-
                           placeholder="Enter Phone Number"
                           className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 ${errors.phone ? 'border-red-500' : ''}`}
                         />
@@ -747,14 +839,14 @@ export default function VisitorList() {
                   )}
                 </div>
 
-                {/* Submit Button - Matching User.js Style */}
+                {/* Submit Button */}
                 <div className="w-full flex justify-end">
                   <button
                     type="submit"
                     className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
                     focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                   >
-                    Submit Details
+                    {formData._id ? "Update Details" : "Submit Details"}
                   </button>
                 </div>
               </form>
