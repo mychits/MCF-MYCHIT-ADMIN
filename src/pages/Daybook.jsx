@@ -176,7 +176,7 @@ const Daybook = () => {
     const fetchPayments = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get(`/payment/daybook`, {
+        const response = await api.get(`/payment/day-book`, {
           params: {
             from_date: selectedFromDate,
             to_date: selectedToDate,
