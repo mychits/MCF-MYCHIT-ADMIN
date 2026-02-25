@@ -7,11 +7,13 @@ import Navbar from "../components/layouts/Navbar";
 import Modal from "../components/modals/Modal";
 import { GiPartyPopper } from "react-icons/gi";
 import { Link } from "react-router-dom";
-import { FileTextOutlined, DollarOutlined } from "@ant-design/icons";
+import { FileTextOutlined } from "@ant-design/icons";
 import { FaMoneyBill } from "react-icons/fa";
 import { MdPayments } from "react-icons/md";
 import { FiTarget } from "react-icons/fi";
 import { numberToIndianWords } from "../helpers/numberToIndianWords";
+
+import { FaRupeeSign } from "react-icons/fa";
 
 const { TabPane } = Tabs;
 
@@ -610,7 +612,7 @@ const TargetIncentive = () => {
                     to="/reports/target-commission"
                     className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
                   >
-                    <DollarOutlined className="text-blue-600 group-hover:scale-110 transition-transform text-lg" />
+                    <FaRupeeSign className="text-blue-600 group-hover:scale-110 transition-transform text-lg" />
                     <span className="font-medium text-gray-700 group-hover:text-blue-600">
                       Incentive Report
                     </span>

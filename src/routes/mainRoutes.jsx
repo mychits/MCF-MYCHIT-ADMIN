@@ -189,6 +189,8 @@ import Register from "../pages/Registration";
 import AgentTarget from "../pages/AgentTarget";
 import EmployeeTarget from "../pages/EmployeeTarget";
 import AgentMenu from "../pages/AgentMenu";
+import BidRequest from "../pages/BidRequest";
+import CreateBidRequest from '../pages/CreateBidRequest';
 
 
 const mainRoutes = createBrowserRouter([
@@ -255,6 +257,23 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ComplaintForm/>
+      </ProtectedRoute>
+    ),
+  },
+
+  {
+    path: "/bid-request",
+    element: (
+      <ProtectedRoute>
+        <BidRequest/>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/bid-request/create",
+    element: (
+      <ProtectedRoute>
+        <CreateBidRequest/>
       </ProtectedRoute>
     ),
   },

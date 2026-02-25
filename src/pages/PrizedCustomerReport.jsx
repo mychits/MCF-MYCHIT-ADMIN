@@ -4,8 +4,10 @@ import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { Select, Modal as AntModal, DatePicker, Tag, Empty, Tooltip } from "antd";
-import { FaFileInvoiceDollar, FaEye, FaUserShield } from "react-icons/fa";
+import {FaEye, FaUserShield } from "react-icons/fa";
 import dayjs from "dayjs";
+
+import { FaRupeeSign } from "react-icons/fa";
 
 const { RangePicker } = DatePicker;
 
@@ -160,7 +162,7 @@ const PrizedCustomerReport = () => {
       <div className="flex-grow p-7 bg-gray-50 min-h-screen">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FaFileInvoiceDollar className="text-blue-900" /> Prized Customer Report
+            <FaRupeeSign className="text-blue-900" /> Prized Customer Report
           </h1>
         </div>
 

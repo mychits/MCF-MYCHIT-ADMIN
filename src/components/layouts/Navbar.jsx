@@ -16,7 +16,9 @@ import { FiUser } from "react-icons/fi";
 import { CheckCircle } from "lucide-react";
 import API from "../../instance/TokenInstance";
 // Icons added for the Notification redesign
-import { FiUsers, FiSmartphone, FiDollarSign, FiCreditCard, FiArrowRight } from "react-icons/fi";
+import { FiUsers, FiSmartphone, FiCreditCard, FiArrowRight } from "react-icons/fi";
+import { FaRupeeSign } from "react-icons/fa";
+import { GiReceiveMoney } from "react-icons/gi";
 
 const Navbar = ({
   onGlobalSearchChangeHandler = () => { },
@@ -29,14 +31,12 @@ const Navbar = ({
 
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef(null);
-
   const profileRef = useRef(null);
 
-  // --- AUTO LOGOUT CONFIGURATION ---
-  const AUTO_LOGOUT_TIME = 15 * 60 * 1000; // 15 Minutes in milliseconds
-  const inactivityTimerRef = useRef(null);
-  // ----------------------------------
-
+  // --- AUTO LOGOUT STATE ---
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [countdown, setCountdown] = useState(10);
+  
   const [pendingApprovals, setPendingApprovals] = useState();
 
   useEffect(() => {
@@ -141,43 +141,71 @@ const Navbar = ({
     window.location.href = "/";
   };
 
-  // --- AUTO LOGOUT LOGIC START ---
-  const resetInactivityTimer = useCallback(() => {
-    // Clear existing timer if it exists
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current);
-    }
-    
-    // Set a new timer
-    inactivityTimerRef.current = setTimeout(() => {
-      console.log("Session expired due to inactivity.");
-      handleLogout();
-    }, AUTO_LOGOUT_TIME);
-  }, [AUTO_LOGOUT_TIME]);
-
+  // --- ROBUST AUTO LOGOUT LOGIC (FIXED) ---
   useEffect(() => {
-    // Events that count as user activity
-    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll'];
-    
-    // Start the timer initially when component mounts
-    resetInactivityTimer();
+    // CONFIGURATION: 1 Minute total, warning at 10s remaining
+    const AUTO_LOGOUT_TIME = 60 * 60 * 1000; 
+    const WARNING_TIME =  10 * 60 * 1000;         
+    const WARNING_START_TIME = AUTO_LOGOUT_TIME - WARNING_TIME; 
 
-    // Add event listeners
-    activityEvents.forEach((event) => {
-      window.addEventListener(event, resetInactivityTimer);
-    });
+    let inactivityTimer;
+    let countdownInterval;
 
-    // Cleanup: remove listeners and clear timer on unmount
-    return () => {
-      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
-      activityEvents.forEach((event) => {
-        window.removeEventListener(event, resetInactivityTimer);
-      });
+    // 1. Perform Logout
+    const performLogout = () => {
+      clearTimeout(inactivityTimer);
+      clearInterval(countdownInterval);
+      localStorage.clear();
+      window.location.href = "/";
     };
-  }, [resetInactivityTimer]);
-  // --- AUTO LOGOUT LOGIC END ---
 
-  // --- UPDATED: Added Icons to quickApprovals for the new design ---
+    // 2. Start Countdown Modal
+    const startCountdown = () => {
+      setShowWarningModal(true);
+      setCountdown(Math.floor(WARNING_TIME / 1000));
+
+      countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            performLogout();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    };
+
+    // 3. Reset Timers (Triggers on User Activity)
+    const resetTimers = () => {
+      clearTimeout(inactivityTimer);
+      clearInterval(countdownInterval);
+
+      if (showWarningModal) {
+        setShowWarningModal(false);
+      }
+
+      inactivityTimer = setTimeout(() => {
+        startCountdown();
+      }, WARNING_START_TIME);
+    };
+
+    // 4. Attach Listeners
+    const events = ['mousemove', 'keydown', 'click', 'scroll'];
+    events.forEach((event) => window.addEventListener(event, resetTimers));
+
+    // 5. Initial Start
+    resetTimers();
+
+    // 6. Cleanup
+    return () => {
+      clearTimeout(inactivityTimer);
+      clearInterval(countdownInterval);
+      events.forEach((event) => window.removeEventListener(event, resetTimers));
+    };
+  }, []); // Empty Dependency Array ensures this runs ONLY ONCE
+
+  // --- END AUTO LOGOUT LOGIC ---
+
   const quickApprovals = [
     {
       title: "Payment Link Transactions",
@@ -204,7 +232,7 @@ const Navbar = ({
       href: "/approval-menu/un-approved-loans",
       color: "text-red-600",
       count: getPendingCount(3),
-      icon: <FiDollarSign className="text-lg" />,
+      icon: <GiReceiveMoney  className="text-lg" />,
     },
   ];
 
@@ -589,6 +617,46 @@ const Navbar = ({
         </div>
       </nav>
       <ResponsiveMenu open={open} menu={NavbarMenu} />
+
+      {/* --- AUTO LOGOUT WARNING POPUP --- */}
+      {showWarningModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all animate-in zoom-in-95 duration-200 border border-blue-50 text-center">
+            
+            {/* Warning Icon */}
+            <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4 mx-auto animate-bounce">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            
+            <h2 className="text-2xl font-extrabold text-slate-800 mb-2">Session Expiring</h2>
+            <p className="text-slate-500 mb-6">
+              You have been inactive for a while. You will be logged out in 
+              <span className="font-bold text-amber-600 mx-1 text-xl">{countdown}</span> seconds.
+            </p>
+
+            <div className="flex gap-4 w-full">
+              <button 
+                onClick={handleLogout}
+                className="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
+              >
+                Logout Now
+              </button>
+              {/* 
+                 Note: We don't need an explicit onClick handler here to reset the timer.
+                 The 'click' event listener attached to 'window' inside the useEffect 
+                 will automatically catch this click and reset the timer.
+              */}
+              <button 
+                className="flex-1 py-3 px-4 rounded-xl bg-blue-700 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all hover:scale-105 active:scale-95"
+              >
+                Continue Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

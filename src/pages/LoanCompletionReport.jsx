@@ -4,7 +4,7 @@ import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import { Collapse } from "antd";
 import { Link } from "react-router-dom";
-import { FileTextOutlined, DollarOutlined } from "@ant-design/icons";
+import { FileTextOutlined } from "@ant-design/icons";
 import { FaMoneyBill } from "react-icons/fa";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -12,6 +12,8 @@ import { Select } from "antd";
 import CircularLoader from "../components/loaders/CircularLoader";
 
 import { numberToIndianWords } from "../helpers/numberToIndianWords"
+
+import { FaRupeeSign } from "react-icons/fa";
 
 const { RangePicker } = DatePicker;
 
@@ -240,7 +242,7 @@ const LoanCompletionReport = () => {
                           to="/reports/loan-due-report"
                           className="flex text-base items-center gap-2 border  border-gray-200 rounded-lg px-4 py-2 text-gray-700 hover:border-blue-500 hover:text-blue-600 transition-colors"
                         >
-                          <DollarOutlined
+                          <FaRupeeSign
                             className="text-blue-500"
                             size={30}
                           />

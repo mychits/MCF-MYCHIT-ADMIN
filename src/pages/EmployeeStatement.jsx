@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Select, Tag, Space, Typography, Table, Button } from "antd";
 import {
-  DollarCircleOutlined,
   TeamOutlined,
   PlusCircleOutlined,
   MinusCircleOutlined,
@@ -21,6 +20,8 @@ import DataTable from "../components/layouts/Datatable";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import api from "../instance/TokenInstance";
+
+import { FaRupeeSign } from "react-icons/fa";
 
 const { Text, Title } = Typography;
 

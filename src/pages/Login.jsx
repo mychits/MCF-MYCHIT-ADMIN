@@ -26,6 +26,8 @@ const Login = () => {
   const [resetError, setResetError] = useState("");
   const [isResetLoading, setIsResetLoading] = useState(false);
 
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -36,6 +38,9 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsLoginLoading(true); 
+
     try {
       const response = await api.post(`/admin/login`, {
         phoneNumber,
@@ -44,8 +49,10 @@ const Login = () => {
       const { token } = response.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(response?.data?.admin));
+      
       navigate("/dashboard");
     } catch (error) {
+      setIsLoginLoading(false); 
       setError("Invalid phone number or password.");
       console.error("Login error:", error);
     }
@@ -153,16 +160,22 @@ const Login = () => {
               <label htmlFor="phoneNumber" className="block text-sm font-medium leading-6 text-gray-900 mb-1">
                 Phone Number
               </label>
-              <input
-                id="phoneNumber"
-                name="phoneNumber"
-                type="text"
-                required
-                autoComplete="phoneNumber"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="block w-full rounded-md border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 px-3"
-              />
+              <div className="relative">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <span className="text-gray-500 sm:text-sm">+91</span>
+                </div>
+                <input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  type="text"
+                  required
+                  autoComplete="phoneNumber"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="block w-full rounded-md border-0 py-2.5 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
+                  placeholder="Enter phone number"
+                />
+              </div>
             </div>
 
             <div>
@@ -221,9 +234,20 @@ const Login = () => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center items-center gap-2 rounded-md bg-blue-600 px-3 py-3 text-lg font-semibold leading-6 text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all duration-200"
+                disabled={isLoginLoading}
+                className="flex w-full justify-center items-center gap-2 rounded-md bg-blue-600 px-3 py-3 text-lg font-semibold leading-6 text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Login
+                {isLoginLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
           </form>
@@ -269,14 +293,19 @@ const Login = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Phone Number
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={resetPhone}
-                    onChange={(e) => setResetPhone(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Enter registered phone number"
-                  />
+                  <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <span className="text-gray-500 sm:text-sm">+91</span>
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      value={resetPhone}
+                      onChange={(e) => setResetPhone(e.target.value)}
+                      className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"
+                      placeholder="Enter registered phone number"
+                    />
+                  </div>
                 </div>
                 <button
                   type="submit"
@@ -293,7 +322,7 @@ const Login = () => {
               <form onSubmit={handleResetPassword} className="space-y-4">
                 {/* Helper Text to confirm phone number */}
                 <div className="text-xs text-center text-gray-500 bg-gray-50 py-1 rounded">
-                    Resetting for: <span className="font-bold text-gray-800">{resetPhone}</span>
+                    Resetting for: <span className="font-bold text-gray-800">+91 {resetPhone}</span>
                 </div>
 
                 <div>

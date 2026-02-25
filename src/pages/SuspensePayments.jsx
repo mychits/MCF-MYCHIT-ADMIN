@@ -26,7 +26,7 @@ import {
   LoadingOutlined,
   ExclamationCircleOutlined,
   CalendarOutlined,
-  DollarOutlined,
+
   CreditCardOutlined,
   BankOutlined,
   SafetyOutlined,

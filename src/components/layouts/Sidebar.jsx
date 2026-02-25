@@ -1,5 +1,6 @@
 import { Fragment, useRef, useState } from "react";
 import { BsArrowLeftShort, BsChevronDown } from "react-icons/bs";
+import { FiChevronLeft } from "react-icons/fi";
 import { RiDashboardFill } from "react-icons/ri";
 import { SiGoogleanalytics } from "react-icons/si";
 import { TbCategoryPlus } from "react-icons/tb";
@@ -48,6 +49,7 @@ import { TbGraph } from "react-icons/tb";
 import { useLocation } from "react-router-dom";
 
 import { MdAdminPanelSettings } from "react-icons/md";
+import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 
 const MenuSidebar = [
   {
@@ -433,6 +435,14 @@ const MenuSidebar = [
       },
     ],
   },
+
+   {
+    id: "$201",
+    title: "Bid Request",
+    icon: <LiaFileInvoiceDollarSolid />,
+    link: "/bid-request",
+  },
+
 ];
 
 const Sidebar = () => {
@@ -460,7 +470,7 @@ const Sidebar = () => {
       className={`bg-secondary min-h-screen max-h-auto p-5 pt-8  ${open ? "w-64" : "w-20"
         } duration-300 relative`}
     >
-      <BsArrowLeftShort
+      <FiChevronLeft
         className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-9 border border-secondary cursor-pointer ${!open && "rotate-180"
           }`}
         onClick={() => setOpen(!open)}

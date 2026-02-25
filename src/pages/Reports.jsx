@@ -22,6 +22,7 @@ import {
 import { MdCalendarMonth } from "react-icons/md";
 import { FaPersonWalkingArrowLoopLeft } from "react-icons/fa6";
 import { RiMoneyRupeeCircleFill, RiAuctionFill } from "react-icons/ri";
+import { FiChevronLeft } from "react-icons/fi";
 import { MdOutlinePayments } from "react-icons/md";
 import { LiaCalculatorSolid } from "react-icons/lia";
 import { GiMoneyStack } from "react-icons/gi";
@@ -57,17 +58,17 @@ const subMenus = [
     category: "Payments",
     color: "from-blue-500 to-blue-600",
   },
-  {
-     id:"2",
-    title: "Receipt Report",
-    link: "/reports/receipt",
-    Icon: MdOutlineReceiptLong,
-    category: "Payments",
-    color: "from-green-500 to-green-600",
-  },
+  // {
+  //    id:"2",
+  //   title: "Receipt Report",
+  //   link: "/reports/receipt",
+  //   Icon: MdOutlineReceiptLong,
+  //   category: "Payments",
+  //   color: "from-green-500 to-green-600",
+  // },
     {
      id:"&&%",
-    title: "Payment Report",
+    title: "Receipt Report",
     link: "/reports/payment-report",
     Icon: MdOutlinePayments ,
     category: "Payments",
@@ -437,7 +438,7 @@ const Reports = () => {
             className={` min-h-screen max-h-auto p-5 pt-8  ${open ? "w-64" : "w-20"
               } duration-300 relative`}
               >
-                <BsArrowLeftShort
+                <FiChevronLeft
                   className={`bg-white text-secondary text-3xl rounded-full absolute -right-3 top-5 border border-secondary cursor-pointer ${!open && "rotate-180"
                     }`}
                   onClick={() => setOpen(!open)}
@@ -447,20 +448,27 @@ const Reports = () => {
             <NavLink
               key={link}
               to={link}
-              className={({ isActive }) =>
-                `whitespace-nowrap my-2 flex items-center gap-2 font-medium rounded-3xl hover:bg-gray-300 p-3 ${
-                  red ? "text-red-800" : "text-gray-900"
-                } ${isActive ? "bg-gray-200 border-r-8 border-blue-300" : ""}`
-              }
-            >
+             className={({ isActive }) =>
+      `my-2 flex items-center gap-3 font-medium rounded-r-3xl transition-all duration-200 p-3 ${
+        red ? "text-red-800" : "text-gray-900"
+      } ${
+        isActive 
+          ? "bg-gray-200 border-l-4 border-blue-500 w-full translate-x-1 shadow-sm" 
+          : "hover:bg-gray-300 w-[95%]"
+      }`
+    }
+  >
               {({ isActive }) => (
                 <>
-                  <Icon
+                    <Icon
+                  size={20}
                     className={`${isActive ? "animate-bounce" : "text-black"}`}
                   />
                   
-                  <span className={`text-black ${!open && "hidden"
-                      }`}>{title}</span>
+                 <span className={`text-black block max-w-[150px] leading-tight  
+                          ${!open && "hidden"}`}>
+                    {title}
+                  </span>
                 </>
               )}
             </NavLink>

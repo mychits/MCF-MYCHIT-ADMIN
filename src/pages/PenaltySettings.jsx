@@ -39,13 +39,13 @@ import {
   SettingOutlined,
   ClockCircleOutlined,
   PercentageOutlined,
-  DollarOutlined,
+
   CalendarOutlined,
   PlusOutlined,
   InfoCircleOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
-  DollarCircleOutlined,
+
   WarningOutlined,
   ScheduleOutlined,
   MoneyCollectOutlined,

@@ -995,7 +995,7 @@ const UserReport = () => {
               <div className="text-right">
                 <div
                   className={`text-sm font-black ${
-                    isNegative ? "text-green-600" : "text-rose-900"
+                    isNegative ? "text-rose-900" : "text-green-600"
                   }`}
                 >
                   ₹{Math.abs(balanceValue).toLocaleString("en-IN")}
@@ -1003,10 +1003,10 @@ const UserReport = () => {
 
                 <div
                   className={`text-[9px] font-bold uppercase tracking-widest ${
-                    isNegative ? "text-emerald-400" : "text-rose-500"
+                    isNegative ? "text-rose-400" : "text-emerald-500"
                   }`}
                 >
-                  {isNegative ? "Debit / Outstanding" : "Credit / Settled"}
+                  {isNegative ? "Outstanding" : "Settled"}
                 </div>
               </div>
 
@@ -2475,4 +2475,4 @@ const UserReport = () => {
 
 export default UserReport;
 
-// Date Range in transaction section is not working properly why
+
