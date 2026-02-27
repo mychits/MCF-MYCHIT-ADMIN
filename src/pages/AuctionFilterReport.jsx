@@ -20,6 +20,12 @@ const AuctionPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [viewLoader, setViewLoader] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [overview, setOverview] = useState({
+  totalAuctions: 0,
+  totalPaidAmount: 0,
+  totalPayable: 0,
+  totalBalance: 0,
+});
 
   const [filters, setFilters] = useState({
     groupId: "",
@@ -101,6 +107,14 @@ const AuctionPage = () => {
       const response = await api.get("/auction", { params });
 
       if (response.data && response.data?.data) {
+        if (response.data.overview) {
+    setOverview({
+      totalAuctions: response.data.overview.totalAuctions || 0,
+      totalPaidAmount: response.data.overview.totalPaidAmount || 0,
+      totalPayable: response.data.overview.totalPayable || 0,
+      totalBalance: response.data.overview.totalBalance || 0,
+    });
+  }
         const formattedData = response.data?.data.map((item, index) => {
 
           const totalPaid = item?.payments?.totalPaidAmount || 0;
@@ -200,6 +214,42 @@ const AuctionPage = () => {
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-100">
+          {/* ================= OVERVIEW CARDS ================= */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+
+  {/* Total Auctions */}
+  <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-5 shadow-md">
+    <p className="text-sm opacity-90">Total Auctions</p>
+    <h2 className="text-2xl font-bold mt-1">
+      {overview.totalAuctions}
+    </h2>
+  </div>
+
+  {/* Total Paid */}
+  <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-5 shadow-md">
+    <p className="text-sm opacity-90">Total Paid Amount</p>
+    <h2 className="text-2xl font-bold mt-1">
+      ₹{overview.totalPaidAmount?.toLocaleString("en-IN")}
+    </h2>
+  </div>
+
+  {/* Total Payable */}
+  <div className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl p-5 shadow-md">
+    <p className="text-sm opacity-90">Total Payable</p>
+    <h2 className="text-2xl font-bold mt-1">
+      ₹{overview.totalPayable?.toLocaleString("en-IN")}
+    </h2>
+  </div>
+
+  {/* Balance */}
+  <div className="bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-xl p-5 shadow-md">
+    <p className="text-sm opacity-90">Total Balance</p>
+    <h2 className="text-2xl font-bold mt-1">
+      ₹{overview.totalBalance?.toLocaleString("en-IN")}
+    </h2>
+  </div>
+
+</div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
             <div>

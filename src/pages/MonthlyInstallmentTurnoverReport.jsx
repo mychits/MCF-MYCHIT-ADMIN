@@ -86,6 +86,7 @@ const MonthlyInstallmentTurnoverReport = () => {
             monthlyInstallment: group?.group_id?.monthly_installment,
             userName: group?.user_id?.full_name,
             ticket: group?.ticket,
+            monthlyPaid: group?.monthlyPaid,
             totalPaid: group?.totalPaid,
             status: group?.status === "true" ? "Paid" : "Not Paid",
           })
@@ -106,7 +107,7 @@ const MonthlyInstallmentTurnoverReport = () => {
     { key: "group", header: "Group Name" },
     { key: "ticket", header: "Ticket" },
     { key: "monthlyInstallment", header: "Monthly Installment Turnover" },
-   
+    {key: "monthlyPaid", header: "Monthly Paid"},
     { key: "totalPaid", header: "Total Paid" },
     { key: "status", header: "Status" },
   ];

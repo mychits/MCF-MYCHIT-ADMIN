@@ -206,14 +206,14 @@ const subMenus = [
     category: "Finance",
     color: "from-orange-500 to-orange-600",
   },
-  {
-     id:"16",
-    title: "Auction Report",
-    link: "/reports/auction-report",
-    Icon: GiThorHammer,
-    category: "Auction",
-    color: "from-pink-500 to-pink-600",
-  },
+  // {
+  //    id:"16",
+  //   title: "Auction Report",
+  //   link: "/reports/auction-report",
+  //   Icon: GiThorHammer,
+  //   category: "Auction",
+  //   color: "from-pink-500 to-pink-600",
+  // },
  {
      id:"&*#$%",
     title: "Auction Filter Report",
