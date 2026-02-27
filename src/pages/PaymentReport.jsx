@@ -597,6 +597,33 @@ const PaymentReport = () => {
     { key: "action", header: "Action" },
   ];
 
+    const exportCols = [
+    { key: "id", header: "SL. NO" },
+    { key: "date", header: "Paid Date" },
+    { key: "transaction_date", header: "Transaction Date" },
+    { key: "group", header: "Group Name" },
+    { key: "name", header: "Customer Name" },
+    {
+      key: "type_raw",
+      header: "Type",
+    },
+    { key: "category", header: "Category" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "receipt_no", header: "Receipt Number" },
+    { key: "old_receipt_no", header: "Old Receipt" },
+    { key: "ticket", header: "Ticket" },
+    { key: "amount_raw", header: "Amount" },
+    { key: "mode", header: "Payment Mode" },
+    ...(hideAccountType
+      ? [{ key: "account_type", header: "Account Type" }]
+      : []),
+    { key: "collection_time", header: "Collection Time" },
+    { key: "collected_by", header: "Collected By" },
+    { key: "action", header: "Action" },
+  ];
+
+  
+
   useEffect(() => {
     if (groupInfo && formData.bid_amount) {
       const commission = (groupInfo.group_value * 5) / 100 || 0;
@@ -676,6 +703,8 @@ const PaymentReport = () => {
       console.error("Error fetching auction:", error);
     }
   };
+
+
 
   const handleFileSubmit = async (e) => {
     e.preventDefault();
@@ -1293,6 +1322,7 @@ const PaymentReport = () => {
                   <DataTable
                     data={filterOption(TableDaybook, searchText)}
                     columns={columns}
+                    exportCols={exportCols}
                     printHeaderKeys={[
                       "Cash Collection",
                       "Online Collection",

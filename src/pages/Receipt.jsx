@@ -469,7 +469,30 @@ const Receipt = () => {
     { key: "collected_by", header: "Collected By" },
     { key: "action", header: "Action" },
   ];
-
+  const exportCols = [
+    { key: "id", header: "SL" },
+    { key: "transaction_date", header: "Transaction Date" },
+    { key: "payment_type", header: "Payment Type" },
+    { key: "pay_date", header: "Payment Date" },
+    {
+      key: "type_raw",
+      header: "Type",
+    },
+    { key: "group", header: "Group/Reason" },
+    { key: "name", header: "Customer" },
+    { key: "ticket", header: "Ticket" },
+    { key: "receipt", header: "Receipt" },
+    {
+      key: "amount_raw",
+      header: "Amount",
+    },
+    { key: "mode", header: "Mode" },
+    {
+      key: "category",
+      header: "Category",
+    },
+    { key: "collected_by", header: "Collected By" },
+  ];
   useEffect(() => {
     if (groupInfo && formData.bid_amount) {
       const commission = (groupInfo.group_value * 5) / 100 || 0;
@@ -979,6 +1002,7 @@ const Receipt = () => {
                   <DataTable
                     data={filterOption(TableDaybook, searchText)}
                     columns={columns}
+                    exportCols={exportCols}
                     exportedPdfName={`Receipt Report`}
                     exportedFileName={`Reports Receipt.csv`}
                   />
