@@ -36,7 +36,7 @@ const Navbar = ({
   // --- AUTO LOGOUT STATE ---
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [countdown, setCountdown] = useState(10);
-  
+
   const [pendingApprovals, setPendingApprovals] = useState();
 
   useEffect(() => {
@@ -143,15 +143,13 @@ const Navbar = ({
 
   // --- ROBUST AUTO LOGOUT LOGIC (FIXED) ---
   useEffect(() => {
-    // CONFIGURATION: 1 Minute total, warning at 10s remaining
-    const AUTO_LOGOUT_TIME = 60 * 60 * 1000; 
-    const WARNING_TIME =  10 * 60 * 1000;         
-    const WARNING_START_TIME = AUTO_LOGOUT_TIME - WARNING_TIME; 
+    const AUTO_LOGOUT_TIME = 2 * 60 * 1000;  // 1 hour
+    const WARNING_TIME = 1 * 60 * 1000;      // 10 minutes
+    const WARNING_START_TIME = AUTO_LOGOUT_TIME - WARNING_TIME; // 50 min
 
-    let inactivityTimer;
-    let countdownInterval;
+    let inactivityTimer = null;
+    let countdownInterval = null;
 
-    // 1. Perform Logout
     const performLogout = () => {
       clearTimeout(inactivityTimer);
       clearInterval(countdownInterval);
@@ -159,7 +157,6 @@ const Navbar = ({
       window.location.href = "/";
     };
 
-    // 2. Start Countdown Modal
     const startCountdown = () => {
       setShowWarningModal(true);
       setCountdown(Math.floor(WARNING_TIME / 1000));
@@ -167,6 +164,7 @@ const Navbar = ({
       countdownInterval = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
+            clearInterval(countdownInterval);
             performLogout();
             return 0;
           }
@@ -175,32 +173,43 @@ const Navbar = ({
       }, 1000);
     };
 
-    // 3. Reset Timers (Triggers on User Activity)
-    const resetTimers = () => {
-      clearTimeout(inactivityTimer);
-      clearInterval(countdownInterval);
-
-      if (showWarningModal) {
-        setShowWarningModal(false);
-      }
-
+    const startInactivityTimer = () => {
       inactivityTimer = setTimeout(() => {
         startCountdown();
       }, WARNING_START_TIME);
     };
 
-    // 4. Attach Listeners
-    const events = ['mousemove', 'keydown', 'click', 'scroll'];
-    events.forEach((event) => window.addEventListener(event, resetTimers));
+    const resetTimers = () => {
+      // ❗ Don't reset while popup is open
+      if (showWarningModal) return;
 
-    // 5. Initial Start
-    resetTimers();
+      clearTimeout(inactivityTimer);
+      startInactivityTimer();
+    };
 
-    // 6. Cleanup
+    // Continue Session handler
+    const continueSession = () => {
+      clearInterval(countdownInterval);
+      setShowWarningModal(false);
+      startInactivityTimer(); // restart 1 hour
+    };
+
+    // Attach to window so button can access
+    window.continueSession = continueSession;
+
+    const events = ["mousemove", "keydown", "scroll"];
+    events.forEach((event) =>
+      window.addEventListener(event, resetTimers)
+    );
+
+    startInactivityTimer();
+
     return () => {
       clearTimeout(inactivityTimer);
       clearInterval(countdownInterval);
-      events.forEach((event) => window.removeEventListener(event, resetTimers));
+      events.forEach((event) =>
+        window.removeEventListener(event, resetTimers)
+      );
     };
   }, []); // Empty Dependency Array ensures this runs ONLY ONCE
 
@@ -232,7 +241,7 @@ const Navbar = ({
       href: "/approval-menu/un-approved-loans",
       color: "text-red-600",
       count: getPendingCount(3),
-      icon: <GiReceiveMoney  className="text-lg" />,
+      icon: <GiReceiveMoney className="text-lg" />,
     },
   ];
 
@@ -479,14 +488,13 @@ const Navbar = ({
               {/* Bell Trigger */}
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className={`relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
-                  showNotifications 
-                    ? "bg-slate-100 text-blue-600" 
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                }`}
+                className={`relative w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${showNotifications
+                  ? "bg-slate-100 text-blue-600"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
               >
                 <IoIosNotifications className="text-2xl" />
-                
+
                 {/* Professional Floating Badge */}
                 {(getPendingCount(1) + getPendingCount(2) + getPendingCount(3)) > 0 && (
                   <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] px-1.5 items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full border-[2.5px] border-white shadow-sm ring-1 ring-black/5">
@@ -498,7 +506,7 @@ const Navbar = ({
               {/* Dropdown Panel */}
               {showNotifications && (
                 <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.12)] border border-slate-200 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-                  
+
                   {/* Header */}
                   <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
                     <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">Pending Actions</h3>
@@ -622,22 +630,22 @@ const Navbar = ({
       {showWarningModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all animate-in zoom-in-95 duration-200 border border-blue-50 text-center">
-            
+
             {/* Warning Icon */}
             <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4 mx-auto animate-bounce">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
-            
+
             <h2 className="text-2xl font-extrabold text-slate-800 mb-2">Session Expiring</h2>
             <p className="text-slate-500 mb-6">
-              You have been inactive for a while. You will be logged out in 
+              You have been inactive for a while. You will be logged out in
               <span className="font-bold text-amber-600 mx-1 text-xl">{countdown}</span> seconds.
             </p>
 
             <div className="flex gap-4 w-full">
-              <button 
+              <button
                 onClick={handleLogout}
                 className="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
               >
@@ -648,7 +656,8 @@ const Navbar = ({
                  The 'click' event listener attached to 'window' inside the useEffect 
                  will automatically catch this click and reset the timer.
               */}
-              <button 
+              <button
+                onClick={() => window.continueSession()}
                 className="flex-1 py-3 px-4 rounded-xl bg-blue-700 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-800 transition-all hover:scale-105 active:scale-95"
               >
                 Continue Session
