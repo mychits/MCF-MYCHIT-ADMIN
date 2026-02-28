@@ -997,7 +997,7 @@ const UserReport = () => {
               <div className="text-right">
                 <div
                   className={`text-sm font-black ${
-                    isNegative ? "text-rose-900" : "text-green-600"
+                    isNegative ? "text-green-900" : "text-rose-600"
                   }`}
                 >
                   ₹{Math.abs(balanceValue).toLocaleString("en-IN")}
@@ -1005,10 +1005,10 @@ const UserReport = () => {
 
                 <div
                   className={`text-[9px] font-bold uppercase tracking-widest ${
-                    isNegative ? "text-rose-400" : "text-emerald-500"
+                    isNegative ? "text-emerald-400" : "text-rose-500"
                   }`}
                 >
-                  {isNegative ? "Outstanding" : "Settled"}
+                  {isNegative ? "Settled" : "Outstanding"}
                 </div>
               </div>
 
