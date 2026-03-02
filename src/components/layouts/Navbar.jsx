@@ -39,18 +39,18 @@ const Navbar = ({
 
   const [pendingApprovals, setPendingApprovals] = useState();
 
-  useEffect(() => {
-    const fetchPendingApprovals = async () => {
-      try {
-        const response = await API.get("/approvals/count");
-        setPendingApprovals(response?.data);
-      } catch (error) {
-        console.error("Error fetching pending approvals", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchPendingApprovals = async () => {
+  //     try {
+  //       const response = await API.get("/approvals/count");
+  //       setPendingApprovals(response?.data);
+  //     } catch (error) {
+  //       console.error("Error fetching pending approvals", error);
+  //     }
+  //   };
 
-    fetchPendingApprovals();
-  }, []);
+  //   fetchPendingApprovals();
+  // }, []);
 
   console.log("pending approvals", pendingApprovals?.data);
 
