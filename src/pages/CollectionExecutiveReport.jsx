@@ -428,18 +428,18 @@ const CollectionExecutiveReport = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await api.post("/payment/add-payment", formData);
-      if (response.status === 201) {
-        alert("Payment Added Successfully");
-        setShowModal(false);
-      }
-    } catch (error) {
-      console.error("Error submitting payment data:", error);
-    }
-  };
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await api.post("/payment/add-payment", formData);
+  //     if (response.status === 201) {
+  //       alert("Payment Added Successfully");
+  //       setShowModal(false);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error submitting payment data:", error);
+  //   }
+  // };
 
   const handleDeleteModalOpen = async (groupId) => {
     try {
@@ -797,7 +797,7 @@ const CollectionExecutiveReport = () => {
               </div>
             )}
           </div>
-          <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
+          {/* <Modal isVisible={showModal} onClose={() => setShowModal(false)}>
             <div className="py-6 px-5 lg:px-8 text-left">
               <h3 className="mb-4 text-xl font-bold text-gray-900">
                 Add Payment
@@ -948,7 +948,7 @@ const CollectionExecutiveReport = () => {
                 </button>
               </form>
             </div>
-          </Modal>
+          </Modal> */}
           <Modal
             isVisible={showModalUpdate}
             onClose={() => setShowModalUpdate(false)}

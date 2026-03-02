@@ -8,7 +8,18 @@ import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { Input, Space, Table, Tag } from "antd";
 import Fuse from "fuse.js";
 import { Link, useNavigate } from "react-router-dom";
-import { FiSearch, FiFilter, FiUser, FiPhone, FiMapPin, FiHash, FiCheckCircle, FiMap, FiSun, FiMoon } from "react-icons/fi";
+import {
+  FiSearch,
+  FiFilter,
+  FiUser,
+  FiPhone,
+  FiMapPin,
+  FiHash,
+  FiCheckCircle,
+  FiMap,
+  FiSun,
+  FiMoon,
+} from "react-icons/fi";
 
 const QuickSearch = () => {
   const { Search } = Input;
@@ -19,8 +30,11 @@ const QuickSearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [areas, setAreas] = useState([]);
   const [reloadTrigger, setReloadTrigger] = useState(0);
-  const [theme, setTheme] = useState('light'); // light or dark
-
+  const [theme, setTheme] = useState("light"); // light or dark
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 100,
+  });
   const filters = [
     { id: "1", filterName: "Customer ID", key: "customer_id", icon: FiHash },
     { id: "2", filterName: "Name", key: "name", icon: FiUser },
@@ -28,7 +42,12 @@ const QuickSearch = () => {
     { id: "4", filterName: "Address", key: "address", icon: FiMapPin },
     { id: "5", filterName: "Pincode", key: "pincode", icon: FiHash },
     { id: "6", filterName: "Area", key: "customer_area", icon: FiMap },
-    { id: "7", filterName: "Status", key: "customer_status", icon: FiCheckCircle },
+    {
+      id: "7",
+      filterName: "Status",
+      key: "customer_status",
+      icon: FiCheckCircle,
+    },
   ];
 
   const [activeFilters, setActiveFilters] = useState(filters.map((f) => f.id));
@@ -57,7 +76,7 @@ const QuickSearch = () => {
     const fetchCollectionArea = async () => {
       try {
         const response = await api.get(
-          "/collection-area-request/get-collection-area-data"
+          "/collection-area-request/get-collection-area-data",
         );
         setAreas(response.data);
       } catch (error) {
@@ -108,55 +127,55 @@ const QuickSearch = () => {
   }, [reloadTrigger]);
 
   const columns = [
-    { 
-      dataIndex: "id", 
-      title: "SL. NO", 
+    {
+      dataIndex: "id",
+      title: "SL. NO",
       key: "id",
       width: 80,
-      fixed: 'left'
+      fixed: "left",
     },
-    { 
-      dataIndex: "customer_id", 
-      title: "Customer ID", 
+    {
+      dataIndex: "customer_id",
+      title: "Customer ID",
       key: "customer_id",
-      width: 130
+      width: 130,
     },
-    { 
-      dataIndex: "name", 
-      title: "Customer Name", 
+    {
+      dataIndex: "name",
+      title: "Customer Name",
       key: "name",
-      width: 200
+      width: 200,
     },
     {
       dataIndex: "phone_number",
       title: "Phone Number",
       key: "phone_number",
-      width: 150
+      width: 150,
     },
-    { 
-      dataIndex: "address", 
-      title: "Address", 
+    {
+      dataIndex: "address",
+      title: "Address",
       key: "address",
-      width: 300
+      width: 300,
     },
-    { 
-      dataIndex: "pincode", 
-      title: "Pincode", 
+    {
+      dataIndex: "pincode",
+      title: "Pincode",
       key: "pincode",
-      width: 100
+      width: 100,
     },
-    { 
-      dataIndex: "collection_area", 
-      title: "Collection Area", 
+    {
+      dataIndex: "collection_area",
+      title: "Collection Area",
       key: "collection_area",
-      width: 150
+      width: 150,
     },
     {
       dataIndex: "customer_status",
       title: "Status",
       key: "customer_status",
       width: 100,
-      fixed: 'right',
+      fixed: "right",
       render: (text) => (
         <Tag color={text === "active" || text === "Active" ? "green" : "red"}>
           {text}
@@ -169,18 +188,20 @@ const QuickSearch = () => {
     setActiveFilters((prev) =>
       prev.includes(id)
         ? prev.filter((filterId) => filterId !== id)
-        : [...prev, id]
+        : [...prev, id],
     );
   };
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div
+      className={`min-h-screen transition-colors duration-300 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}
+    >
       <div className="flex mt-20">
         <Sidebar />
         <Navbar visibility={true} />
@@ -195,21 +216,27 @@ const QuickSearch = () => {
 
         <div className="flex-grow p-6 lg:p-8 w-full">
           {/* Header with Theme Toggle */}
-          <div className={`flex items-center justify-between mb-8 pb-6 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div
+            className={`flex items-center justify-between mb-8 pb-6 border-b ${isDark ? "border-gray-700" : "border-gray-200"}`}
+          >
             <div>
-              <h1 className={`text-3xl font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <h1
+                className={`text-3xl font-bold mb-1 ${isDark ? "text-white" : "text-gray-900"}`}
+              >
                 Quick Search
               </h1>
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p
+                className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}
+              >
                 Search and filter customer records efficiently
               </p>
             </div>
             <button
               onClick={toggleTheme}
               className={`p-3 rounded-lg transition-all duration-200 ${
-                isDark 
-                  ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
-                  : 'bg-white text-gray-700 hover:bg-gray-100 shadow-sm'
+                isDark
+                  ? "bg-gray-800 text-yellow-400 hover:bg-gray-700"
+                  : "bg-white text-gray-700 hover:bg-gray-100 shadow-sm"
               }`}
             >
               {isDark ? <FiSun size={20} /> : <FiMoon size={20} />}
@@ -217,23 +244,34 @@ const QuickSearch = () => {
           </div>
 
           {/* Search Filters Section */}
-          <div className={`rounded-xl mb-6 p-6 transition-colors duration-300 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'
-          }`}>
+          <div
+            className={`rounded-xl mb-6 p-6 transition-colors duration-300 ${
+              isDark
+                ? "bg-gray-800 border border-gray-700"
+                : "bg-white border border-gray-200 shadow-sm"
+            }`}
+          >
             <div className="flex items-center gap-3 mb-5">
-              <FiFilter className={`${isDark ? 'text-blue-400' : 'text-blue-600'}`} size={20} />
-              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <FiFilter
+                className={`${isDark ? "text-blue-400" : "text-blue-600"}`}
+                size={20}
+              />
+              <h2
+                className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
+              >
                 Search Filters
               </h2>
-              <span className={`ml-auto text-xs font-medium px-3 py-1 rounded-full ${
-                isDark 
-                  ? 'bg-gray-700 text-gray-300' 
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
+              <span
+                className={`ml-auto text-xs font-medium px-3 py-1 rounded-full ${
+                  isDark
+                    ? "bg-gray-700 text-gray-300"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
                 {activeFilters.length} / {filters.length} Active
               </span>
             </div>
-            
+
             <div className="flex flex-wrap gap-3">
               {filters.map((filter) => {
                 const isActive = activeFilters.includes(filter.id);
@@ -245,11 +283,11 @@ const QuickSearch = () => {
                     className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
                         ? isDark
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm'
+                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                          : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
                         : isDark
-                          ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                          ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600"
+                          : "bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
                     }`}
                   >
                     <Icon size={16} />
@@ -261,16 +299,25 @@ const QuickSearch = () => {
           </div>
 
           {/* Search Bar Section */}
-          <div className={`rounded-xl mb-6 p-6 transition-colors duration-300 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'
-          }`}>
+          <div
+            className={`rounded-xl mb-6 p-6 transition-colors duration-300 ${
+              isDark
+                ? "bg-gray-800 border border-gray-700"
+                : "bg-white border border-gray-200 shadow-sm"
+            }`}
+          >
             <div className="flex items-center gap-3 mb-4">
-              <FiSearch className={`${isDark ? 'text-blue-400' : 'text-blue-600'}`} size={20} />
-              <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <FiSearch
+                className={`${isDark ? "text-blue-400" : "text-blue-600"}`}
+                size={20}
+              />
+              <h2
+                className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
+              >
                 Search Customers
               </h2>
             </div>
-            
+
             <Search
               placeholder="Search by customer ID, name, phone, address..."
               allowClear
@@ -285,27 +332,39 @@ const QuickSearch = () => {
           </div>
 
           {/* Results Table */}
-          <div className={`rounded-xl overflow-hidden transition-colors duration-300 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'
-          }`}>
+          <div
+            className={`rounded-xl overflow-hidden transition-colors duration-300 ${
+              isDark
+                ? "bg-gray-800 border border-gray-700"
+                : "bg-white border border-gray-200 shadow-sm"
+            }`}
+          >
             {TableUsers?.length > 0 && !isLoading ? (
               <Table
                 scroll={{ x: 1300 }}
                 title={() => (
-                  <div className={`flex items-center justify-between p-5 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+                  <div
+                    className={`flex items-center justify-between p-5 ${isDark ? "bg-gray-800" : "bg-white"}`}
+                  >
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        isDark ? 'bg-blue-600' : 'bg-blue-600'
-                      }`}>
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          isDark ? "bg-blue-600" : "bg-blue-600"
+                        }`}
+                      >
                         <FiUser className="text-white" size={20} />
                       </div>
                       <div>
-                        <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        <h3
+                          className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                        >
                           Customer Records
                         </h3>
-                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                          {searchText 
-                            ? `${fuse.search(searchText).length} results found` 
+                        <p
+                          className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}
+                        >
+                          {searchText
+                            ? `${fuse.search(searchText).length} results found`
                             : `Total ${TableUsers.length} customers`}
                         </p>
                       </div>
@@ -319,10 +378,28 @@ const QuickSearch = () => {
                     ? fuse.search(searchText).map((res) => res.item)
                     : TableUsers
                 }
+                // pagination={{
+                //   pageSize: 100,
+                //   showSizeChanger: true,
+                //   showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                // }}
                 pagination={{
-                  pageSize: 10,
+                  ...pagination,
                   showSizeChanger: true,
-                  showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} of ${total} items`,
+                  onChange: (page, pageSize) => {
+                    setPagination({
+                      current: page,
+                      pageSize: pageSize || 50, // fallback to 50
+                    });
+                  },
+                  onShowSizeChange: (current, size) => {
+                    setPagination({
+                      current: 1, // reset to first page
+                      pageSize: 50, // force 50 when changed
+                    });
+                  },
                 }}
                 onRow={(record) => {
                   return {
@@ -335,8 +412,8 @@ const QuickSearch = () => {
                       }
                     },
                     style: { cursor: "pointer" },
-                    className: isDark 
-                      ? "hover:bg-gray-700 transition-colors duration-150" 
+                    className: isDark
+                      ? "hover:bg-gray-700 transition-colors duration-150"
                       : "hover:bg-blue-50 transition-colors duration-150",
                   };
                 }}

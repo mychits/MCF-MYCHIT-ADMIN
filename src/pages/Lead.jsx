@@ -15,6 +15,7 @@ import { fieldSize } from "../data/fieldSize";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { FaWhatsappSquare } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+
 const Lead = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -36,6 +37,7 @@ const Lead = () => {
   const whatsappEnable = true;
   const [leadShowModal, setLeadShowModal] = useState(false);
   const [selectedLeadData, setSelectedLeadData] = useState(null);
+
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -46,6 +48,7 @@ const Lead = () => {
     message: "Something went wrong!",
     type: "info",
   });
+
   const handleGroupChange = async (event) => {
     const groupId = event.target.value;
     setSelectedGroup(groupId);
@@ -73,11 +76,11 @@ const Lead = () => {
     lead_needs: "",
     note: "",
   });
+
   useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/group/get-group-admin");
-
         setGroups(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -86,9 +89,9 @@ const Lead = () => {
     fetchGroups();
   }, [reloadTrigger]);
 
-    const handleAssignTask = (leadId, leadTypeName) => {
-  navigate("/task", { state: { leadId , leadTypeName } }); //  pass leadId
-}
+  const handleAssignTask = (leadId, leadTypeName) => {
+    navigate("/task", { state: { leadId, leadTypeName } }); //  pass leadId
+  };
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -99,6 +102,7 @@ const Lead = () => {
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
           id: index + 1,
+          lead_id: group?.lead_id, // <--- ADDED LEAD_ID
           name: group?.lead_name,
           phone: group?.lead_phone,
           profession: group?.lead_profession,
@@ -108,15 +112,15 @@ const Lead = () => {
           lead_type: group.lead_type,
           note: group?.note,
           lead_type_name:
-  group.lead_type === "customer"
-    ? group?.lead_customer?.full_name
-    : group.lead_type === "agent" || group.lead_type === "employee"
-      ? group?.lead_agent?.name
-      : "",
+            group.lead_type === "customer"
+              ? group?.lead_customer?.full_name
+              : group.lead_type === "agent" || group.lead_type === "employee"
+              ? group?.lead_agent?.name
+              : "",
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
-                trigger={['click']}
+                trigger={["click"]}
                 menu={{
                   items: [
                     {
@@ -133,7 +137,6 @@ const Lead = () => {
                     {
                       key: "2",
                       label: (
-                       
                         <Tooltip title="Lead to Customer">
                           <div
                             className="text-purple-900 cursor-pointer font-bold"
@@ -146,7 +149,7 @@ const Lead = () => {
                         </Tooltip>
                       ),
                     },
-                     {
+                    {
                       key: "3",
                       label: (
                         <div
@@ -210,7 +213,7 @@ const Lead = () => {
   //   };
   //   fetchAgents();
   // }, [reloadTrigger]);
-   useEffect(() => {
+  useEffect(() => {
     const fetchAgent = async () => {
       try {
         const response = await api.get("/agent/get");
@@ -221,6 +224,7 @@ const Lead = () => {
     };
     fetchAgent();
   }, [reloadTrigger]);
+
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
@@ -245,7 +249,7 @@ const Lead = () => {
     }));
   };
 
-   const handleSoftRemove = async (leadId) => {
+  const handleSoftRemove = async (leadId) => {
     try {
       await api.put(`/lead/soft-delete-lead/${leadId}`);
       setReloadTrigger((prev) => prev + 1);
@@ -272,6 +276,7 @@ const Lead = () => {
 
     setErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -280,6 +285,7 @@ const Lead = () => {
     }));
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
+
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addLead" ? formData : updateFormData;
@@ -308,7 +314,7 @@ const Lead = () => {
     if (data.lead_type === "agent" && !data.lead_agent) {
       newErrors.lead_agent = "Agent selection is required";
     }
-     if (data.lead_type === "employee" && !data.lead_agent) {
+    if (data.lead_type === "employee" && !data.lead_agent) {
       newErrors.lead_agent = "Agent selection is required";
     }
     if (!data.lead_needs.toString()) {
@@ -431,10 +437,10 @@ const Lead = () => {
   };
 
   const regex = {
-  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,      // Validates email format
-  pincode: /^\d{6}$/,                       // Validates 6 digits for pincode
-  adhaar: /^\d{12}$/                        // Validates 12 digits for Aadhar number
-};
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Validates email format
+    pincode: /^\d{6}$/, // Validates 6 digits for pincode
+    adhaar: /^\d{12}$/, // Validates 12 digits for Aadhar number
+  };
 
   const validateConvertToCustomer = (data) => {
     const newErrors = {};
@@ -446,8 +452,6 @@ const Lead = () => {
     if (!data.phone_number || !/^[6-9]\d{9}$/.test(data.phone_number)) {
       newErrors.phone_number = "Valid phone number is required";
     }
-
-
 
     if (!data.password) {
       newErrors.password = "Password is required";
@@ -461,9 +465,9 @@ const Lead = () => {
       newErrors.adhaar_no = "Invalid Aadhar number (12 digits required)";
     }
 
-   if (data.pan_no && data.pan_no.trim().length !== 10) {
-  newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
-}
+    if (data.pan_no && data.pan_no.trim().length !== 10) {
+      newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
+    }
 
     if (!data.address || data.address.trim().length < 3) {
       newErrors.address = "Address should be at least 3 characters";
@@ -506,6 +510,7 @@ const Lead = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    { key: "lead_id", header: "Lead ID" }, // <--- ADDED LEAD_ID COLUMN
     { key: "name", header: "Lead Name" },
     { key: "phone", header: "Lead Phone Number" },
     { key: "profession", header: "Lead Profession" },
@@ -518,7 +523,7 @@ const Lead = () => {
     { key: "action", header: "Action" },
   ];
 
-   const handleConvertCustomerSubmit = async (e) => {
+  const handleConvertCustomerSubmit = async (e) => {
     e.preventDefault();
 
     const valid = validateConvertToCustomer(formData);
@@ -771,7 +776,7 @@ const Lead = () => {
                     Lead Work/Profession{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                 
+
                   <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Lead Work/Profession "
@@ -849,7 +854,7 @@ const Lead = () => {
                 >
                   Lead Source Type <span className="text-red-500 ">*</span>
                 </label>
-           
+
                 <Select
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                   placeholder="Select Lead Source Type "
@@ -889,7 +894,7 @@ const Lead = () => {
                     >
                       Customers
                     </label>
-                  
+
                     <Select
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Customer"
@@ -931,7 +936,7 @@ const Lead = () => {
                     >
                       Agent
                     </label>
-                  
+
                     <Select
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Agent"
@@ -972,7 +977,7 @@ const Lead = () => {
                     >
                       Employee
                     </label>
-                   
+
                     <Select
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Employee"
@@ -1164,7 +1169,7 @@ const Lead = () => {
                     Lead Work/Profession{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                 
+
                   <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Lead Work/Profession "
@@ -1406,7 +1411,7 @@ const Lead = () => {
                     >
                       Employee
                     </label>
-                  
+
                     <Select
                       className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Employee"
@@ -1571,7 +1576,7 @@ const Lead = () => {
                     required
                     className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-               
+
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
