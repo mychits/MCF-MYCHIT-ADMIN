@@ -393,6 +393,12 @@ const MenuSidebar = [
         link: "http://prod-new-gold-chit.s3-website.eu-north-1.amazonaws.com/",
         newTab: true,
       },
+       {
+        id: "#4",
+        title: "Petty CashBook",
+        link: "https://pettycashbook.mychits.online/",
+        newTab: true,
+      },
       {
         id: "#2",
         title: "Chit Plans Admin",
