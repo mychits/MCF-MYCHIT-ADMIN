@@ -4,16 +4,17 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Select, Dropdown } from "antd";
+import { Select, Dropdown, Collapse } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { fieldSize } from "../data/fieldSize";
+const { Panel } = Collapse;
 
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 
-import { numberToIndianWords } from "../helpers/numberToIndianWords"
+import { numberToIndianWords } from "../helpers/numberToIndianWords";
 
 const Group = () => {
   const [groups, setGroups] = useState([]);
@@ -26,7 +27,7 @@ const Group = () => {
   const [currentUpdateGroup, setCurrentUpdateGroup] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [deletionGroupName, setDeletionGroupName] = useState("")
+  const [deletionGroupName, setDeletionGroupName] = useState("");
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const onGlobalSearchChangeHandler = (e) => {
@@ -60,6 +61,8 @@ const Group = () => {
     daily_installment: "",
     relationship_manager: "",
     app_display_vacany_seat: "",
+    auction_processing_type: "",
+    auction_mode: "",
   });
   const [errors, setErrors] = useState({});
   const [employees, setEmployees] = useState([]);
@@ -83,6 +86,8 @@ const Group = () => {
     daily_installment: "",
     relationship_manager: "",
     app_display_vacany_seat: "",
+    auction_processing_type: "",
+    auction_mode: "",
   });
   useEffect(() => {
     async function getEmployees() {
@@ -121,6 +126,8 @@ const Group = () => {
           members: group?.group_members,
           app_display_vacany_seat: group?.app_display_vacany_seat,
           date: group?.createdAt,
+          auction_processing_type: group?.auction_processing_type,
+          auction_mode: group?.auction_mode,
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
@@ -279,8 +286,16 @@ const Group = () => {
     if (!data.start_date) {
       newErrors.start_date = "Start Date is required";
     }
+
+    if (!data.auction_mode) {
+      newErrors.auction_mode = "auction mode is required";
+    }
+    if (!data.auction_processing_type) {
+      newErrors.auction_processing_type =
+        "auction processing type is required ";
+    }
     if (!data.app_display_vacany_seat) {
-      newErrors.app_display_vacany_seat = "Please Enter Display Vacant Seat"
+      newErrors.app_display_vacany_seat = "Please Enter Display Vacant Seat";
     }
 
     if (formData.end_date && !data.end_date) {
@@ -358,6 +373,8 @@ const Group = () => {
           relationship_manager: "",
           monthly_installment: "",
           app_display_vacany_seat: "",
+          auction_processing_type: "",
+          auction_mode: "",
         });
       } else {
         console.log(errors);
@@ -368,7 +385,7 @@ const Group = () => {
   };
 
   const filteredGroups = groups.filter((group) =>
-    group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
+    group.group_name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleDeleteModalOpen = async (groupId) => {
@@ -408,6 +425,8 @@ const Group = () => {
         weekly_installment: response?.data?.weekly_installment,
         daily_installment: response?.data?.daily_installment,
         app_display_vacany_seat: response?.data?.app_display_vacany_seat,
+        auction_processing_type: response?.data?.auction_processing_type,
+        auction_mode: response?.data?.auction_mode,
       });
       setShowModalUpdate(true);
       setErrors({});
@@ -448,8 +467,10 @@ const Group = () => {
   };
 
   const handleDeleteGroup = async (e) => {
-
-    if (currentGroup && deletionGroupName.toString().trim() === currentGroup.group_name) {
+    if (
+      currentGroup &&
+      deletionGroupName.toString().trim() === currentGroup.group_name
+    ) {
       try {
         await api.delete(`/group/delete-group/${currentGroup._id}`);
         setAlertConfig({
@@ -474,7 +495,7 @@ const Group = () => {
       if (isValid) {
         await api.put(
           `/group/update-group/${currentUpdateGroup._id}`,
-          updateFormData
+          updateFormData,
         );
         setShowModalUpdate(false);
         setAlertConfig({
@@ -532,7 +553,7 @@ const Group = () => {
                   //   setShowModal(true);
                   //   setErrors({});
                   // }}
-                  onClick={() => {  
+                  onClick={() => {
                     window.open("/add-new-group", "_blank");
                   }}
                   className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
@@ -626,7 +647,8 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Relationship Manager <span className="text-red-500 ">*</span>
+                    Relationship Manager{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
@@ -645,10 +667,13 @@ const Group = () => {
                   >
                     {(Array.isArray(employees) ? employees : []).map(
                       (employee) => (
-                        <Select.Option key={employee?._id} value={employee?._id}>
+                        <Select.Option
+                          key={employee?._id}
+                          value={employee?._id}
+                        >
                           {employee?.name} | {employee?.phone_number}
                         </Select.Option>
-                      )
+                      ),
                     )}
                   </Select>
                   {errors.relationship_manager && (
@@ -662,7 +687,8 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    App Display Vacany Seat <span className="text-red-500 ">*</span>
+                    App Display Vacany Seat{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -1140,7 +1166,8 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="category"
                   >
-                    Relationship Manager <span className="text-red-500 ">*</span>
+                    Relationship Manager{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
@@ -1159,10 +1186,13 @@ const Group = () => {
                   >
                     {(Array.isArray(employees) ? employees : []).map(
                       (employee) => (
-                        <Select.Option key={employee?._id} value={employee?._id}>
+                        <Select.Option
+                          key={employee?._id}
+                          value={employee?._id}
+                        >
                           {employee?.name} | {employee?.phone_number}
                         </Select.Option>
-                      )
+                      ),
                     )}
                   </Select>
                   {errors.relationship_manager && (
@@ -1176,7 +1206,8 @@ const Group = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="date"
                   >
-                    App Display Vacany Seat <span className="text-red-500 ">*</span>
+                    App Display Vacany Seat{" "}
+                    <span className="text-red-500 ">*</span>
                   </label>
                   <input
                     type="number"
@@ -1194,7 +1225,9 @@ const Group = () => {
                     </p>
                   )}
                   <span className={`text-sm font-mono text-green-700 `}>
-                    {numberToIndianWords(updateFormData.app_display_vacany_seat || 0)}
+                    {numberToIndianWords(
+                      updateFormData.app_display_vacany_seat || 0,
+                    )}
                   </span>
                 </div>
               </div>
@@ -1358,7 +1391,9 @@ const Group = () => {
                     </p>
                   )}
                   <span className={`text-sm font-mono text-green-700 `}>
-                    {numberToIndianWords(updateFormData.weekly_installment || 0)}
+                    {numberToIndianWords(
+                      updateFormData.weekly_installment || 0,
+                    )}
                   </span>
                 </div>
               </div>
@@ -1386,7 +1421,9 @@ const Group = () => {
                     </p>
                   )}
                   <span className={`text-sm font-mono text-green-700 `}>
-                    {numberToIndianWords(updateFormData.monthly_installment || 0)}
+                    {numberToIndianWords(
+                      updateFormData.monthly_installment || 0,
+                    )}
                   </span>
                 </div>
                 <div className="w-1/2">
@@ -1570,6 +1607,86 @@ const Group = () => {
                   </span>
                 </div>
               </div>
+              <Collapse
+                defaultActiveKey={["1"]}
+                className="bg-white rounded-xl shadow-md border border-gray-200"
+              >
+                <Panel
+                  header={
+                    <span className="text-sm font-semibold text-gray-800">
+                      Auction Details
+                    </span>
+                  }
+                  key="1"
+                >
+                  <div className="flex flex-row justify-between space-x-4">
+                    {/* Auction Processing Type */}
+                    <div className="w-1/2">
+                      <label className="block mb-2 text-sm font-medium text-gray-700">
+                        Auction Processing Type
+                      </label>
+                      <Select
+                        className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                        placeholder="Select Processing Type"
+                        popupMatchSelectWidth={false}
+                        showSearch
+                        name="auction_processing_type"
+                        filterOption={(input, option) =>
+                          option.children
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        value={
+                          updateFormData?.auction_processing_type || undefined
+                        }
+                        onChange={(value) =>
+                          handleAntInputDSelect(
+                            "auction_processing_type",
+                            value,
+                          )
+                        }
+                      >
+                        {["SYSTEM", "MANUAL"].map((stype) => (
+                          <Select.Option key={stype} value={stype}>
+                            {stype.charAt(0).toUpperCase() +
+                              stype.slice(1).toLowerCase()}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </div>
+
+                    {/* Auction Mode */}
+                    <div className="w-1/2">
+                      <label className="block mb-2 text-sm font-medium text-gray-700">
+                        Auction Mode
+                      </label>
+                      <Select
+                        className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                        placeholder="Select Auction Mode"
+                        popupMatchSelectWidth={false}
+                        showSearch
+                        name="auction_mode"
+                        filterOption={(input, option) =>
+                          option.children
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        value={updateFormData?.auction_mode || undefined}
+                        onChange={(value) =>
+                          handleAntInputDSelect("auction_mode", value)
+                        }
+                      >
+                        {["ONLINE", "OFFLINE"].map((stype) => (
+                          <Select.Option key={stype} value={stype}>
+                            {stype.charAt(0).toUpperCase() +
+                              stype.slice(1).toLowerCase()}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </div>
+                  </div>
+                </Panel>
+              </Collapse>
 
               <div className="w-full flex justify-end">
                 <button
@@ -1600,7 +1717,6 @@ const Group = () => {
                   e.preventDefault();
                   handleDeleteGroup();
                 }}
-
                 className="space-y-6"
               >
                 <div>

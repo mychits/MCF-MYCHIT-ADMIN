@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { Select } from "antd";
+import { Select,Collapse } from "antd";
 import api from "../instance/TokenInstance";
 import ReConfirmModal from "../components/modals/ReConfirmModal";
 import CustomAlert from "../components/alerts/CustomAlert";
-
+const { Panel } = Collapse;
 
 
 const AddGroupForm = ({
@@ -32,6 +32,8 @@ const AddGroupForm = ({
         daily_installment: "",
         relationship_manager: "",
         app_display_vacany_seat: "",
+        auction_processing_type: "",
+          auction_mode: "",
     });
     const [updateFormData, setUpdateFormData] = useState({
         group_name: "",
@@ -53,6 +55,8 @@ const AddGroupForm = ({
         daily_installment: "",
         relationship_manager: "",
         app_display_vacany_seat: "",
+        auction_processing_type: "",
+          auction_mode: "",
     });
       const [alertConfig, setAlertConfig] = useState({
         visibility: false,
@@ -286,6 +290,8 @@ const handleSubmit = async () => {
       daily_installment: "",
       reg_fee: "",
       app_display_vacany_seat: "",
+      auction_processing_type: "",
+          auction_mode: "",
     });
    // Delay closing so alert can show
     setTimeout(() => {
@@ -757,6 +763,79 @@ const handleSubmit = async () => {
                         />
                     </div>
                 </div>
+
+               <Collapse
+  defaultActiveKey={["1"]}
+  className="bg-white rounded-xl shadow-md border border-gray-200"
+>
+  <Panel
+    header={
+      <span className="text-sm font-semibold text-gray-800">
+        Auction Details
+      </span>
+    }
+    key="1"
+  >
+    <div className="flex flex-row justify-between space-x-4">
+      
+      {/* Auction Processing Type */}
+      <div className="w-1/2">
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+          Auction Processing Type
+        </label>
+        <Select
+          className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+          placeholder="Select Auction Processing Type"
+          popupMatchSelectWidth={false}
+          showSearch
+          name="auction_processing_type"
+          filterOption={(input, option) =>
+            option.children.toLowerCase().includes(input.toLowerCase())
+          }
+          value={formData?.auction_processing_type || undefined}
+          onChange={(value) =>
+            handleAntDSelect("auction_processing_type", value)
+          }
+        >
+          {["SYSTEM", "MANUAL"].map((stype) => (
+            <Select.Option key={stype} value={stype}>
+              {stype.charAt(0).toUpperCase() +
+                stype.slice(1).toLowerCase()}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+
+      {/* Auction Mode */}
+      <div className="w-1/2">
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+          Auction Mode
+        </label>
+        <Select
+          className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+          placeholder="Select Auction Mode"
+          popupMatchSelectWidth={false}
+          showSearch
+          name="auction_mode"
+          filterOption={(input, option) =>
+            option.children.toLowerCase().includes(input.toLowerCase())
+          }
+          value={formData?.auction_mode || undefined}
+          onChange={(value) =>
+            handleAntDSelect("auction_mode", value)
+          }
+        >
+          {["ONLINE", "OFFLINE"].map((stype) => (
+            <Select.Option key={stype} value={stype}>
+              {stype.charAt(0).toUpperCase() +
+                stype.slice(1).toLowerCase()}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+    </div>
+  </Panel>
+</Collapse>
 
                 <div className="w-full flex justify-center p-2">
                     <button
