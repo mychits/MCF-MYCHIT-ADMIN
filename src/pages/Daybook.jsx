@@ -344,6 +344,10 @@ const Daybook = () => {
     registration: 0,
   });
 
+
+
+
+
   const columns = [
     { key: "id", header: "SL" },
     { key: "transaction_date", header: "Transaction Date" },
@@ -1022,6 +1026,7 @@ const Daybook = () => {
               data={filterOption(TableDaybook, searchText)}
               columns={columns}
               exportCols={exportCols}
+              exportedFileName = {`Daybook_`}
               exportedPdfName={`Daybook_${new Date().getDate()}`}
               printHeaderKeys={[
                 "Total IN",

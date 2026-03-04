@@ -140,7 +140,15 @@ const DataTable = ({
   );
 
   const exportToExcel = () => {
-    const date = new Date().toISOString().split("T")[0];
+    // const date = new Date().toISOString().split("T")[0];
+  const now = new Date();
+
+const fileNameExcel = `${now.getFullYear()}-${
+  String(now.getMonth() + 1).padStart(2, "0")
+}-${String(now.getDate()).padStart(2, "0")}_${
+  String(now.getHours()).padStart(2, "0")
+}-${String(now.getMinutes()).padStart(2, "0")
+}-${String(now.getSeconds()).padStart(2, "0")}`;
 
     // Filter columns based on selection
     const selectedCols = exportColumns.filter(
@@ -161,7 +169,7 @@ const DataTable = ({
     const a = document.createElement("a");
     a.href = url;
     const fileBaseName = exportedFileName.replace(/\.csv$/i, "").trim();
-    a.download = `${fileBaseName}_${date}.csv`;
+    a.download = `${fileBaseName}_${fileNameExcel}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
 
