@@ -63,6 +63,7 @@ const Group = () => {
     app_display_vacany_seat: "",
     auction_processing_type: "",
     auction_mode: "",
+    group_code: "",
   });
   const [errors, setErrors] = useState({});
   const [employees, setEmployees] = useState([]);
@@ -88,6 +89,7 @@ const Group = () => {
     app_display_vacany_seat: "",
     auction_processing_type: "",
     auction_mode: "",
+    group_code: "",
   });
   useEffect(() => {
     async function getEmployees() {
@@ -128,6 +130,7 @@ const Group = () => {
           date: group?.createdAt,
           auction_processing_type: group?.auction_processing_type,
           auction_mode: group?.auction_mode,
+          group_code: group?.group_code,
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
@@ -512,6 +515,7 @@ const Group = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    {key: "group_code", header: "Group Code"},
     { key: "name", header: "Group Name" },
     { key: "type", header: "Group Type" },
     { key: "value", header: "Group Value" },
