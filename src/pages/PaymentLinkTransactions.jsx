@@ -143,8 +143,8 @@ const PaymentLinkTransactions = () => {
                 data={tableTransactions}
                 columns={columns}
                 exportCols={exportColumns}
-                exportedPdfName="Payment_Link_Transactions"
-                exportedFileName="Payment_Transactions.csv"
+                exportedPdfName="Payment Link Transactions"
+                exportedFileName="Payment Transactions.csv"
               />
             ) : (
               <div className="p-20 text-center text-gray-400 italic">

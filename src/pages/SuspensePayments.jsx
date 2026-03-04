@@ -396,7 +396,7 @@ const SuspensePayments = () => {
               <Spin indicator={<LoadingOutlined spin />} size="large" />
             </div>
           ) : paymentsData.length > 0 ? (
-            <DataTable columns={columns} data={paymentsData} />
+            <DataTable columns={columns} data={paymentsData} exportedFileName="Suspense Payment.csv" exportedPdfName="Suspense Payment" />
           ) : (
             <Empty description="No Payment Records Found" />
           )}

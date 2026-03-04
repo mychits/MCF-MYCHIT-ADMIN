@@ -293,7 +293,7 @@ const FailedPaymentLinks = () => {
                 }))}
                 columns={columns}
                 exportedPdfName="Payment Failed Link"
-                exportedFileName={`Failed-Payment-Links-${new Date().toISOString().split('T')[0]}.csv`}
+                exportedFileName={`Failed-Payment-Links.csv`}
               />
             ) : (
               <CircularLoader

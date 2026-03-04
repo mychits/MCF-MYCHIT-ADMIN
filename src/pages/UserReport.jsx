@@ -1879,7 +1879,7 @@ const UserReport = () => {
                                           ? NetTotalprofit - Totalpaid
                                           : "",
                                       ]}
-                                      exportedFileName={`CustomerChitReport.csv`}
+                                      exportedFileName={`Customer Report.csv`}
                                     />
                                   </div>
                                 )}
@@ -2117,6 +2117,7 @@ const UserReport = () => {
                             <div className="mt-10">
                               <DataTable
                                 exportedPdfName="Customer Ledger Report"
+                                exportedFileName="Customer Ledger Report.csv"
                                 printHeaderKeys={[
                                   "Customer Name",
                                   "Customer Id",

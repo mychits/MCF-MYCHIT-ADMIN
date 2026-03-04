@@ -879,7 +879,8 @@ const CustomerRewards = () => {
 
           {/* ================= TABLE ================= */}
           {rewardTable.length > 0 && !isLoading ? (
-            <DataTable columns={rewardColumns} data={rewardTable} />
+            <DataTable columns={rewardColumns} data={rewardTable} exportedPdfName="Customer Rewards"
+                     exportedFileName={`CustomerRewards.csv`}/>
           ) : (
             <CircularLoader
               isLoading={isLoading}

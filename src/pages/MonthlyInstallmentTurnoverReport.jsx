@@ -203,7 +203,7 @@ const MonthlyInstallmentTurnoverReport = () => {
               "Name","Phone Number","Expected Turnover","Total Turnover","Total Customers",
             ]}
             printHeaderValues={[summaryData.agentName,summaryData.phone_number,summaryData.expectedTurnover,summaryData.totalTurnover,summaryData.totalCustomers]}
-            exportedFileName={`Monthly Installment Turnover ${summaryData.agentName}`}
+            exportedFileName={`Monthly Installment Turnover ${summaryData.agentName}.csv`}
             />
           ) : (
             <div className="w-full h-40 flex justify-center items-center text-lg font-semibold">

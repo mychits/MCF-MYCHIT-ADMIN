@@ -441,6 +441,7 @@ const PigmySummaryReport = () => {
                   `₹ ${summaryStats.uniqueCustomers}`,
                 ]}
                 exportedPdfName="Pigmy Summary Report"
+                exportedFileName="Pigmy Summary Report.csv"
               />
             </div>
           </>

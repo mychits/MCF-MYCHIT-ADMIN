@@ -977,6 +977,7 @@ const Enroll = () => {
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableEnrolls, searchText)}
                 columns={columns}
+                exportedPdfName="Enrollments"
                 exportedFileName={`Enrollments-${
                   TableEnrolls.length > 0
                     ? TableEnrolls[0].name +

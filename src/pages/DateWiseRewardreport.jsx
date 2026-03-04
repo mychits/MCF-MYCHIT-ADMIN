@@ -147,7 +147,7 @@ const DateWiseRewardreport = () => {
               Continue
             </Button>
           </div>
-          <DataTable data={rewardtable} columns={columns} />
+          <DataTable data={rewardtable} columns={columns} exportedFileName="DateWise Reward Report.csv" exportedPdfName="DateWise Reward Report" />
         </div>
       </div>
     </div>

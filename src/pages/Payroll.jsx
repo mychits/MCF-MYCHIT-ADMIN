@@ -748,8 +748,8 @@ const Payroll = () => {
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableEmployees, searchText)}
                 columns={columns}
-                exportedPdfName="Employee"
-                exportedFileName={`Employees.csv`}
+                exportedPdfName="Employee Payroll"
+                exportedFileName={`Employees Payroll.csv`}
               />
             ) : (
               <CircularLoader

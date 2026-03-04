@@ -566,7 +566,7 @@ const SalaryPayment = () => {
                 className="w-full"
               />
             ) : allSalaryPayments.length > 0 ? (
-              <DataTable columns={columns} data={allSalaryPayments} />
+              <DataTable columns={columns} data={allSalaryPayments} exportedFileName="Salary Payments.csv" exportedPdfName="Salary Payments" />
             ) : (
               <Empty description="No Salary Payment Data Found" />
             )}

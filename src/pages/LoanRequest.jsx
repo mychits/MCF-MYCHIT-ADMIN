@@ -96,7 +96,7 @@ function LoanRequest() {
                                 data={formattedData}
                                 columns={columns}
                                 exportedFileName="Loan_Requests.csv"
-                                exportedPdfName="Loan_Requests.pdf"
+                                exportedPdfName="Loan Requests.pdf"
                             />
                         )}
                     </div>

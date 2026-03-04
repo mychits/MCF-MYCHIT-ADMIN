@@ -1610,7 +1610,7 @@ const UserRegistrationSourceSummaryReport = () => {
 
             {/* TABLE */}
             {trackTableData && !isLoading ? (
-              <DataTable data={trackTableData} columns={trackColumns} />
+              <DataTable data={trackTableData} columns={trackColumns} exportedFileName="User Registration Source Summary Report.csv" exportedPdfName="User Registration Source Summary Report" />
             ) : (
               <CircularLoader
                 isLoading={isLoading}

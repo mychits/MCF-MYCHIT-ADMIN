@@ -1143,7 +1143,7 @@ function BidRequest() {
                             <DataTable
                                 data={formattedBidData}
                                 columns={columns}
-                                exportedFileName="Bid_Requests.csv"
+                                exportedFileName="Bid Requests.csv"
                                 exportedPdfName="Bid_Requests.pdf"
                                 printHeaderKeys={[
                                     "Total Requests",

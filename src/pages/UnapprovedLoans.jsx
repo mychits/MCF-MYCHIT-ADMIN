@@ -229,7 +229,7 @@ const UnapprovedLoans = () => {
             data={tableData}
             columns={columns}
             exportedPdfName="Unapproved Loans"
-            exportedFileName="unapproved_loans.csv"
+            exportedFileName="Unapproved Loans.csv"
           />
         ) : (
           <CircularLoader

@@ -501,10 +501,10 @@ const LeadWhatsappWelcomeMessage = () => {
                   data={filteredUsers}
                   columns={Auctioncolumns}
                   catcher="_id"
-                  exportedPdfName="Bid Winner"
+                  exportedPdfName="Lead Welcome Message"
                   printHeaderKeys={["Group Name"]}
                   printHeaderValues={[groupFilter]}
-                  exportedFileName={`Bid Winner.csv`}
+                  exportedFileName={`Lead Welcome Message.csv`}
                 />
               </div>
             )}

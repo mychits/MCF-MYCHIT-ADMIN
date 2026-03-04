@@ -563,10 +563,10 @@ const LeadReferredByWhatsappMessage = () => {
                   data={filteredUsers}
                   columns={Auctioncolumns}
                   catcher="_id"
-                  exportedPdfName="Bid Winner"
+                  exportedPdfName="Lead Refferred Whatsapp Message"
                   printHeaderKeys={["Group Name"]}
                   printHeaderValues={[groupFilter]}
-                  exportedFileName={`Bid Winner.csv`}
+                  exportedFileName={`Lead Refferred Whatsapp Message.csv`}
                 />
               </div>
             )}

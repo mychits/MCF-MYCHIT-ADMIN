@@ -885,7 +885,7 @@ console.log(rewardState.activeRewards, "rewardState.activeRewards");
 
               {/* ================= TABLE ================= */}
               {rewardTable.length > 0 && !isLoading ? (
-                <DataTable columns={rewardColumns} data={rewardTable} />
+                <DataTable columns={rewardColumns} data={rewardTable} exportedFileName="Employee Reward Points.csv" exportedPdfName="Employee Reward Points" />
               ) : (
                 <CircularLoader
                   isLoading={isLoading}

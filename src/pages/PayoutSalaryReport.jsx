@@ -1151,8 +1151,8 @@ const PayoutSalaryReport = () => {
               <DataTable
                 data={salaryPayments}
                 columns={salaryColumns}
-                exportedPdfName="PayOut Salary"
-                exportedFileName="PayOut Salary.csv"
+                exportedPdfName="PayOut Salary Report"
+                exportedFileName="PayOut Salary Report.csv"
               />
             ) : (
               <div className="mt-10 text-center text-gray-500">

@@ -1501,7 +1501,8 @@ const InActiveUserReport = () => {
                                       <DataTable
                                         data={filteredBorrowerData}
                                         columns={loanColumns}
-                                        exportedFileName={`CustomerReport.csv`}
+                                        exportedFileName={`Customer Loan Report.csv`}
+                                        exportedPdfName="Customer Loan Report"
                                       />
                                     </div>
                                   )}
@@ -1515,6 +1516,7 @@ const InActiveUserReport = () => {
                                         data={filteredPigmeData}
                                         columns={pigmeColumns}
                                         exportedFileName={`PigmeCustomerReport.csv`}
+                                        exportedPdfName="PigmeCustomerReport"
                                       />
                                     </div>
                                   )}
@@ -1937,6 +1939,7 @@ const InActiveUserReport = () => {
                             <div className="mt-10">
                               <DataTable
                                 exportedPdfName="Customer Ledger Report"
+                                exportedFileName="Customer Ledger Report.csv"
                                 printHeaderKeys={[
                                   "Customer Name",
                                   "Customer Id",
