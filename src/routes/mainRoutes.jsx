@@ -191,6 +191,8 @@ import EmployeeTarget from "../pages/EmployeeTarget";
 import AgentMenu from "../pages/AgentMenu";
 import BidRequest from "../pages/BidRequest";
 import CreateBidRequest from '../pages/CreateBidRequest';
+import LoanRequest from "../pages/LoanRequest";
+import CreateLoanRequest from "../pages/CreateLoanRequest";
 
 
 const mainRoutes = createBrowserRouter([
@@ -274,6 +276,23 @@ const mainRoutes = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <CreateBidRequest/>
+      </ProtectedRoute>
+    ),
+  },
+
+  {
+    path: "/loan-request",
+    element: (
+      <ProtectedRoute>
+        <LoanRequest/>
+      </ProtectedRoute>
+    ),
+  },
+   {
+    path: "/loan-request/create",
+    element: (
+      <ProtectedRoute>
+        <CreateLoanRequest/>
       </ProtectedRoute>
     ),
   },

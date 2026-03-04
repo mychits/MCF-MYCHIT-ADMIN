@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, DatePicker, Button, Select, notification, Spin } from "antd";
+import { Form, Input, DatePicker, TimePicker, Button, Select, notification, Spin } from "antd";
 import API from "../instance/TokenInstance";
 import dayjs from "dayjs";
 
@@ -9,7 +9,6 @@ function CreateBidRequest() {
     const [api, contextHolder] = notification.useNotification();
     const [createForm] = Form.useForm();
     
-    // ✅ FIX: Initialize loadingUsers as true so the loader shows immediately on mount
     const [users, setUsers] = useState([]);
     const [loadingUsers, setLoadingUsers] = useState(true); 
     const [loading, setLoading] = useState(false);
@@ -42,20 +41,52 @@ function CreateBidRequest() {
         }
     };
 
-    // ✅ FETCH GROUPS
+    // ✅ FETCH GROUPS WITH AGENT & REFERRAL DATA
     const fetchCreateCustomerDetails = async (userId) => {
         try {
-            console.log("Fetching details for User ID:", userId);
-            
             const response = await API.post(`/enroll/get-user-tickets-report/${userId}`);
             const dataList = response.data || response.data?.data || [];
 
+            // DEBUG: Check what is coming from the API
+            // console.log("API Response Data:", dataList);
+
             if (dataList && dataList.length > 0) {
                 const groupsData = await Promise.all(dataList.map(async (item) => {
-                    const enrollment = item?.enrollment;
-                    const groupData = enrollment?.group;
+                    const enrollment = item?.enrollment; // This is the Enrollment Object
+                    const groupData = enrollment?.group;   // This is the Group Object
+                    
                     const auctionsDone = await fetchAuctionCount(groupData?._id);
                     
+                    // --- EXTRACT REFERRAL DATA ---
+                    // LOGIC UPDATE: Check Enrollment First (matches Table Controller), then Group.
+                    
+                    let referredType = "N/A";
+                    let referredBy = "N/A";
+                    let agentName = "N/A";
+
+                    // 1. Check Agent in Enrollment (As per your Table Controller logic)
+                    if (enrollment?.agent?.name) {
+                        referredType = "Agent";
+                        agentName = enrollment.agent.name;
+                        referredBy = `${enrollment.agent.name} | ${enrollment.agent.phone_number}`;
+                    } 
+                    // 2. Check Agent in Group (Fallback)
+                    else if (groupData?.agent?.name) {
+                        referredType = "Agent";
+                        agentName = groupData.agent.name;
+                        referredBy = `${groupData.agent.name} | ${groupData.agent.phone_number}`;
+                    }
+                    // 3. Check Referred Customer
+                    else if (groupData?.referred_customer?.full_name) {
+                        referredType = "Customer";
+                        referredBy = `${groupData.referred_customer.full_name} | ${groupData.referred_customer.phone_number}`;
+                    } 
+                    // 4. Check Referred Lead
+                    else if (groupData?.referred_lead?.lead_name) {
+                        referredType = "Lead";
+                        referredBy = `${groupData.referred_lead.lead_name} | ${groupData.referred_lead.agent_number}`;
+                    }
+
                     return {
                         id: groupData?._id,
                         groupName: groupData?.group_name || "No Group Name",
@@ -63,7 +94,12 @@ function CreateBidRequest() {
                         startDate: groupData?.start_date ? groupData.start_date.split("T")[0] : "N/A",
                         endDate: groupData?.end_date ? groupData.end_date.split("T")[0] : "N/A",
                         auctionsDone: auctionsDone,
-                        enrollmentId: enrollment?._id 
+                        enrollmentId: enrollment?._id,
+                        
+                        // ✅ Store extracted fields
+                        agentName: agentName,
+                        referredType: referredType,
+                        referredBy: referredBy
                     };
                 }));
                 
@@ -79,7 +115,12 @@ function CreateBidRequest() {
                         selectedGroupIndex: 0,
                         startDate: group.startDate,
                         endDate: group.endDate,
-                        auctionsDone: group.auctionsDone
+                        auctionsDone: group.auctionsDone,
+                        
+                        // ✅ Set Form Values for Referral Section
+                        agentName: group.agentName,
+                        referredType: group.referredType,
+                        referredBy: group.referredBy
                     });
                 }
             } else {
@@ -89,6 +130,11 @@ function CreateBidRequest() {
                 });
                 setCreateGroups([]);
                 setSelectedEnrollmentId(null);
+                createForm.setFieldsValue({ 
+                    agentName: "N/A",
+                    referredType: "N/A",
+                    referredBy: "N/A" 
+                });
             }
         } catch (error) {
             console.error("Error fetching customer details:", error);
@@ -111,7 +157,10 @@ function CreateBidRequest() {
                 mobileNumber: cPhone,
                 subscriberId: userId,
                 groupName: "Loading...",
-                ticketNumber: "Loading..."
+                ticketNumber: "Loading...",
+                agentName: "Loading...",
+                referredType: "Loading...",
+                referredBy: "Loading..."
             });
             setCreateGroups([]);
             setSelectedCreateGroupIndex(0);
@@ -131,7 +180,10 @@ function CreateBidRequest() {
                 selectedGroupIndex: index,
                 startDate: selectedGroup.startDate,
                 endDate: selectedGroup.endDate,
-                auctionsDone: selectedGroup.auctionsDone
+                auctionsDone: selectedGroup.auctionsDone,
+                agentName: selectedGroup.agentName,
+                referredType: selectedGroup.referredType,
+                referredBy: selectedGroup.referredBy
             });
         }
     };
@@ -149,6 +201,8 @@ function CreateBidRequest() {
                 return;
             }
 
+            const formattedTime = values.auctionTime ? values.auctionTime.format('HH:mm') : null;
+
             const payload = {
                 date: values.date ? values.date.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
                 subscriberId: values.subscriberId,
@@ -157,6 +211,10 @@ function CreateBidRequest() {
                 groupName: selectedGroup.groupName,
                 ticketNumber: selectedGroup.ticketNumber,
                 auctionDate: values.auctionDate ? values.auctionDate.format('YYYY-MM-DD') : null,
+                auction_time: formattedTime, 
+                agentName: selectedGroup.agentName, // ✅ Include in payload
+                referredType: selectedGroup.referredType, // ✅ Include in payload
+                referredBy: selectedGroup.referredBy,
                 groupId: selectedGroup.id,
                 ...(selectedGroup.enrollmentId && { enrollmentId: selectedGroup.enrollmentId }),
             };
@@ -215,9 +273,7 @@ function CreateBidRequest() {
                                         showSearch
                                         placeholder="Type name or phone number..."
                                         onChange={handleCreateCustomerSelect}
-                                        // ✅ LOADER PROP: This connects the state to the Select's internal spinner
                                         loading={loadingUsers}
-                                        // ✅ FALLBACK: Shows "Searching..." while loading in the dropdown
                                         notFoundContent={loadingUsers ? <Spin size="small" /> : "No customers found"}
                                         filterOption={(input, option) => 
                                             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
@@ -236,11 +292,7 @@ function CreateBidRequest() {
                                     <label className="block font-semibold text-gray-700 mb-1">
                                         Subscriber Name
                                     </label>
-                                    <Form.Item 
-                                        name="subscriberName" 
-                                        rules={[{ required: true, message: 'Required!' }]} 
-                                        className="mb-0"
-                                    >
+                                    <Form.Item name="subscriberName" rules={[{ required: true, message: 'Required!' }]} className="mb-0">
                                         <Input readOnly className="bg-gray-100 border-gray-300" />
                                     </Form.Item>
                                 </div>
@@ -248,11 +300,7 @@ function CreateBidRequest() {
                                     <label className="block font-semibold text-gray-700 mb-1">
                                         Mobile Number
                                     </label>
-                                    <Form.Item 
-                                        name="mobileNumber" 
-                                        rules={[{ required: true, message: 'Required!' }]} 
-                                        className="mb-0"
-                                    >
+                                    <Form.Item name="mobileNumber" rules={[{ required: true, message: 'Required!' }]} className="mb-0">
                                         <Input readOnly className="bg-gray-100 border-gray-300" />
                                     </Form.Item>
                                 </div>
@@ -286,12 +334,8 @@ function CreateBidRequest() {
                                                     className="py-3"
                                                 >
                                                     <div className="flex flex-col justify-center py-1">
-                                                        <span className="font-semibold text-gray-900 text-base">
-                                                            {group.groupName}
-                                                        </span>
-                                                        <span className="text-xs text-gray-500 mt-0.5">
-                                                            Ticket: {group.ticketNumber}
-                                                        </span>
+                                                        <span className="font-semibold text-gray-900 text-base">{group.groupName}</span>
+                                                        <span className="text-xs text-gray-500 mt-0.5">Ticket: {group.ticketNumber}</span>
                                                     </div>
                                                 </Option>
                                             ))}
@@ -300,25 +344,19 @@ function CreateBidRequest() {
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                                         <div>
-                                            <label className="block font-semibold text-gray-700 mb-1">
-                                                Start Date
-                                            </label>
+                                            <label className="block font-semibold text-gray-700 mb-1">Start Date</label>
                                             <Form.Item name="startDate" className="mb-0">
                                                 <Input readOnly className="bg-blue-50 border-blue-200 text-blue-900 font-semibold h-10" />
                                             </Form.Item>
                                         </div>
                                         <div>
-                                            <label className="block font-semibold text-gray-700 mb-1">
-                                                End Date
-                                            </label>
+                                            <label className="block font-semibold text-gray-700 mb-1">End Date</label>
                                             <Form.Item name="endDate" className="mb-0">
                                                 <Input readOnly className="bg-blue-50 border-blue-200 text-blue-900 font-semibold h-10" />
                                             </Form.Item>
                                         </div>
                                         <div>
-                                            <label className="block font-semibold text-gray-700 mb-1">
-                                                Auctions Done
-                                            </label>
+                                            <label className="block font-semibold text-gray-700 mb-1">Auctions Done</label>
                                             <Form.Item name="auctionsDone" className="mb-0">
                                                 <Input readOnly className="bg-green-50 border-green-200 text-green-900 font-bold text-center h-10" />
                                             </Form.Item>
@@ -335,17 +373,13 @@ function CreateBidRequest() {
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block font-semibold text-gray-700 mb-1">
-                                        Primary Group Name
-                                    </label>
+                                    <label className="block font-semibold text-gray-700 mb-1">Primary Group Name</label>
                                     <Form.Item name="groupName" className="mb-0">
                                         <Input readOnly className="bg-blue-50 border-blue-300 font-semibold" />
                                     </Form.Item>
                                 </div>
                                 <div>
-                                    <label className="block font-semibold text-gray-700 mb-1">
-                                        Primary Ticket Number
-                                    </label>
+                                    <label className="block font-semibold text-gray-700 mb-1">Primary Ticket Number</label>
                                     <Form.Item name="ticketNumber" className="mb-0">
                                         <Input readOnly className="bg-blue-50 border-blue-300 font-semibold" />
                                     </Form.Item>
@@ -362,38 +396,24 @@ function CreateBidRequest() {
                                     <label className="block font-semibold text-gray-700 mb-1">
                                         Auction Date <span className="text-red-500">*</span>
                                     </label>
-                                    <Form.Item 
-                                        name="auctionDate" 
-                                        rules={[{ required: true, message: 'Please select auction date!' }]} 
-                                        className="mb-0"
-                                    >
-                                        <DatePicker 
-                                            style={{ width: '100%' }} 
-                                            className="border-gray-400 h-10" 
-                                            placeholder="Select Auction Date" 
-                                            format="DD-MM-YYYY"
-                                        />
+                                    <Form.Item name="auctionDate" rules={[{ required: true, message: 'Please select auction date!' }]} className="mb-0">
+                                        <DatePicker style={{ width: '100%' }} className="border-gray-400 h-10" placeholder="Select Auction Date" format="DD-MM-YYYY" />
+                                    </Form.Item>
+                                </div>
+                                <div>
+                                    <label className="block font-semibold text-gray-700 mb-1">
+                                        Auction Time <span className="text-red-500">*</span>
+                                    </label>
+                                    <Form.Item name="auctionTime" rules={[{ required: true, message: 'Please select auction time!' }]} className="mb-0">
+                                        <TimePicker style={{ width: '100%' }} className="border-gray-400 h-10" format="h:mm A" use12Hours placeholder="Select Time" />
                                     </Form.Item>
                                 </div>
                             </div>
                         </div>
 
                         <div className="flex gap-4 pt-4 border-t">
-                            <Button 
-                                onClick={() => window.close()} 
-                                className="flex-1 h-12 font-semibold border-gray-400 text-lg"
-                            >
-                                Cancel
-                            </Button>
-                            <Button 
-                                type="primary" 
-                                htmlType="submit" 
-                                loading={loading} 
-                                className="flex-1 bg-blue-900 hover:bg-blue-800 h-12 font-bold uppercase tracking-wide text-lg"
-                                disabled={createGroups.length === 0}
-                            >
-                                Submit Request
-                            </Button>
+                            <Button onClick={() => window.close()} className="flex-1 h-12 font-semibold border-gray-400 text-lg">Cancel</Button>
+                            <Button type="primary" htmlType="submit" loading={loading} className="flex-1 bg-blue-900 hover:bg-blue-800 h-12 font-bold uppercase tracking-wide text-lg" disabled={createGroups.length === 0}>Submit Request</Button>
                         </div>
                     </Form>
                 </div>
