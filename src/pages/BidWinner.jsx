@@ -621,10 +621,10 @@ const BidWinner = () => {
                   data={filteredUsers}
                   columns={Auctioncolumns}
                   catcher="_id"
-                  exportedPdfName="Bid Winner"
+                  exportedPdfName="Auction Bid Winner"
                   printHeaderKeys={["Group Name"]}
                   printHeaderValues={[groupFilter]}
-                  exportedFileName={`Bid Winner.csv`}
+                  exportedFileName={`Auction Bid Winner.csv`}
                 />
               </div>
                )}

@@ -213,8 +213,8 @@ const HoldedCustomerReport = () => {
           catcher="_id"
           data={holdedCustomers}
           columns={columns}
-          exportedPdfName="HoldedCustomer"
-          exportedFileName={`HoldedCustomer.csv`}
+          exportedPdfName="Holded Customer"
+          exportedFileName={`Holded Customer.csv`}
         />
       )}
     </div>

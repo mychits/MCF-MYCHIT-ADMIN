@@ -571,6 +571,7 @@ const UnApprovedCustomerReport = () => {
                 Pending
               </div>
             ),
+            approval_status_raw: group?.approval_status,
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
@@ -653,6 +654,16 @@ const UnApprovedCustomerReport = () => {
   const columns = [
     { key: "id", header: "SL. NO" },
     { key: "approval_status", header: "Approval Status" },
+    { key: "customer_id", header: "Customer Id" },
+    { key: "name", header: "Customer Name" },
+    { key: "phone_number", header: "Customer Phone Number" },
+    { key: "createdAt", header: "Joined On" },
+    { key: "action", header: "Action" },
+  ];
+
+    const unapprovedcolumns = [
+    { key: "id", header: "SL. NO" },
+    { key: "approval_status_raw", header: "Approval Status" },
     { key: "customer_id", header: "Customer Id" },
     { key: "name", header: "Customer Name" },
     { key: "phone_number", header: "Customer Phone Number" },
@@ -868,8 +879,9 @@ const UnApprovedCustomerReport = () => {
               catcher="_id"
               data={filterOption(filteredByDate, searchText)}
               columns={columns}
+              exportCols={unapprovedcolumns}
               exportedPdfName="UnApproved Customers"
-              exportedFileName={`UnApproved_Customers.csv`}
+              exportedFileName={`UnApproved Customers.csv`}
             />
           ) : (
             <CircularLoader

@@ -294,8 +294,8 @@ const CustomerDueLoanWhatsAppMessage = () => {
                 data={filteredUsers}
                 columns={columns}
                 catcher="_id"
-                exportedPdfName="Loan Due Report"
-                exportedFileName="loan_due.csv"
+                exportedPdfName="Loan Outstanding Whatsapp Report"
+                exportedFileName="Loan Outstanding Whatsapp Report.csv"
               />
             </>
           )}

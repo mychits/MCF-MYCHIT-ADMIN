@@ -446,8 +446,8 @@ export default function VisitorList() {
         <DataTable
           data={formattedData}
           columns={customerColumns}
-          exportedPdfName="All_Visitors_Report"
-          exportedFileName="All_Visitors.csv"
+          exportedPdfName="All Visitors_Report"
+          exportedFileName="All Visitors.csv"
           updateHandler={() => { }}
         />
       )
@@ -459,8 +459,8 @@ export default function VisitorList() {
         <DataTable
           data={formattedData.filter(d => d.visitorType === 'Guest')}
           columns={standardColumns}
-          exportedPdfName="Guest_Visitors_Report"
-          exportedFileName="Guest_Visitors.csv"
+          exportedPdfName="Guest Visitors_Report"
+          exportedFileName="Guest Visitors.csv"
           updateHandler={() => { }}
         />
       )
@@ -472,8 +472,8 @@ export default function VisitorList() {
         <DataTable
           data={formattedData.filter(d => d.visitorType === 'Customers')}
           columns={customerColumns}
-          exportedPdfName="Customer_Visitors_Report"
-          exportedFileName="Customer_Visitors.csv"
+          exportedPdfName="Customer Visitors Report"
+          exportedFileName="Customer Visitors.csv"
           updateHandler={() => { }}
         />
       )
@@ -485,8 +485,8 @@ export default function VisitorList() {
         <DataTable
           data={formattedData.filter(d => d.visitorType === 'Sales Leads')}
           columns={standardColumns}
-          exportedPdfName="Sales_Leads_Report"
-          exportedFileName="Sales_Leads.csv"
+          exportedPdfName="Sales Leads_Report"
+          exportedFileName="Sales Leads.csv"
           updateHandler={() => { }}
         />
       )
@@ -498,8 +498,8 @@ export default function VisitorList() {
         <DataTable
           data={formattedData.filter(d => d.visitorType === 'Others')}
           columns={standardColumns}
-          exportedPdfName="Other_Visitors_Report"
-          exportedFileName="Other_Visitors.csv"
+          exportedPdfName="Other Visitors_Report"
+          exportedFileName="Other Visitors.csv"
           updateHandler={() => { }}
         />
       )

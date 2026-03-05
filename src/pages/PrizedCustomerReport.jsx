@@ -302,7 +302,8 @@ const PrizedCustomerReport = () => {
               data={reports}
               columns={columns}
               exportCols={exportColumns}
-              exportedPdfName="Prized_Customer_Payout_Report"
+              exportedPdfName="Prized Customer Payout Report"
+              exportedFileName="Prized Customer Payout Report.csv"
             />
           )}
         </div>

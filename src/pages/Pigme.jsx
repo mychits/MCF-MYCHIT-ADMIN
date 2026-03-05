@@ -429,7 +429,7 @@ const Pigme = () => {
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(tableBorrowers, searchText)}
                 columns={columns}
-                exportedPdfName="Pigme"
+                exportedPdfName="Pigmy"
                 exportedFileName={`Pigmy.csv`}
               />
             ) : (

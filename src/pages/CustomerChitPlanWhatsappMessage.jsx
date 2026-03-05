@@ -885,7 +885,7 @@ const CustomerChitPlanWhatsappMessage = () => {
                   exportedPdfName="Customer Chit Plan"
                   printHeaderKeys={["Group"]}
                   printHeaderValues={[groupFilter]}
-                  exportedFileName="CustomerChitPlan.csv"
+                  exportedFileName="Customer Chit Plan.csv"
                 />
               </div>
             </div>

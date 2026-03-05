@@ -1149,7 +1149,7 @@ const HRSalaryManagement = () => {
                 className="w-full"
               />
             ) : (allSalaryPayments || []).length > 0 ? (
-              <DataTable columns={columns} data={allSalaryPayments} exportCols={excelColumns} />
+              <DataTable columns={columns} data={allSalaryPayments} exportCols={excelColumns} exportedFileName="Salary Payments.csv" exportedPdfName="Salary Payments" />
             ) : (
               <Empty description="No Salary Data Found" />
             )}

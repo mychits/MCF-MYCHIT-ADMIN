@@ -359,7 +359,7 @@ function HelpAndSupport() {
                 data={formattedEnquiries}
                 columns={getEnquiryColumns(enquiryTab)}
                 exportCols={getEnquiryColumns(enquiryTab)}
-                exportedFileName={`Enquiry_Report_${enquiryTab}.csv`}
+                exportedFileName={`Enquiry Report_${enquiryTab}.csv`}
                 exportedPdfName={`Enquiry Report - ${enquiryTab}`}
                 isExportEnabled={true}
               />

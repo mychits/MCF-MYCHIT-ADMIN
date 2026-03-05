@@ -245,42 +245,8 @@ const Navbar = ({
     },
   ];
 
-  const [taskCount, setTaskCount] = useState(0);
-  useEffect(() => {
-    const fetchMyTaskCount = async () => {
-      try {
-        const userStr = localStorage.getItem("user");
-        if (!userStr) return;
-        const user = JSON.parse(userStr);
-        const myId = user._id;
 
-        const res = await API.get("/complaints/all");
-        const complaints = res.data?.data || [];
 
-        const myPendingTickets = complaints.filter((item) => {
-          if (!item.assignedTo) return false;
-
-          let assignedId = null;
-          if (typeof item.assignedTo === "object" && item.assignedTo._id) {
-            assignedId = item.assignedTo._id;
-          } else if (typeof item.assignedTo === "string") {
-            assignedId = item.assignedTo;
-          }
-
-          const isAssignedToMe = String(assignedId) === String(myId);
-          const isPending = item.status !== "Closed";
-
-          return isAssignedToMe && isPending;
-        });
-
-        setTaskCount(myPendingTickets.length);
-      } catch (error) {
-        console.error("Error fetching task count", error);
-      }
-    };
-
-    fetchMyTaskCount();
-  }, []);
 
   return (
     <>
@@ -463,23 +429,7 @@ const Navbar = ({
             )}
           </NavLink>
 
-          <NavLink to={"/my-tasks"}>
-            {({ isActive }) => (
-              <Button
-                className={`pl-5  pr-4 py-2  w-30 h-12 rounded-full  focus:rounded-full px-4 border ${isActive
-                  ? "bg-blue-200 text-blue-900 font-bold"
-                  : "font-semibold"
-                  }`}
-              >
-                My Tickets
-                {taskCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white shadow-sm">
-                    {taskCount > 9 ? "9+" : taskCount}
-                  </span>
-                )}
-              </Button>
-            )}
-          </NavLink>
+         
 
           <div className="flex items-center gap-4">
 

@@ -406,6 +406,7 @@ const LoanCompletionReport = () => {
                 data={filteredLoanReport}
                 
                 exportedPdfName="Customer Completion Loan Report"
+                exportedFileName="Customer Completion Loan Report.csv"
               />
             </div>
           </>

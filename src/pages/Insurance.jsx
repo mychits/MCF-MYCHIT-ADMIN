@@ -83,7 +83,10 @@ const Insurance = () => {
               </div>
             </div>
             {insuranceTable && !isLoading ? (
-            <DataTable data={insuranceTable} columns={column} />
+            <DataTable data={insuranceTable} columns={column} 
+            exportedFileName="Insurance.csv"
+            exportedPdfName="Insurance"
+            />
           ) : (
             <CircularLoader
               isLoading={isLoading}

@@ -50,6 +50,8 @@ import { useLocation } from "react-router-dom";
 
 import { MdAdminPanelSettings } from "react-icons/md";
 import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
+import { FiClipboard } from "react-icons/fi";
+import { FaRupeeSign } from "react-icons/fa";
 
 const MenuSidebar = [
   {
@@ -443,11 +445,25 @@ const MenuSidebar = [
   },
 
    {
-    id: "$201",
-    title: "Bid Request",
-    icon: <LiaFileInvoiceDollarSolid />,
-    link: "/bid-request",
-  },
+  id: "$205",
+  title: "Request Management",
+  icon: <FiClipboard />,
+  submenu: true,
+  submenuItems: [
+    {
+      id: "$201",
+      title: "Bid Request",
+      icon: <LiaFileInvoiceDollarSolid />,
+      link: "/bid-request",
+    },
+    {
+      id: "$205",
+      title: "Loan Request",
+      icon: <FaRupeeSign />,
+      link: "/loan-request",
+    },
+  ],
+},
 
 ];
 

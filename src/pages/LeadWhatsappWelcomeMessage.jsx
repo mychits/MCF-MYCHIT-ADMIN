@@ -374,7 +374,7 @@ const LeadWhatsappWelcomeMessage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 mb-6">
   <div className="bg-blue-100 rounded-xl p-6 shadow flex items-center justify-between">
     <div>
-      <p className="text-sm text-gray-600">Total Customers</p>
+      <p className="text-sm text-gray-600">Total Leads</p>
       <p className="text-3xl font-bold text-blue-700">
         {filteredUsers.length}
       </p>
@@ -501,10 +501,10 @@ const LeadWhatsappWelcomeMessage = () => {
                   data={filteredUsers}
                   columns={Auctioncolumns}
                   catcher="_id"
-                  exportedPdfName="Bid Winner"
+                  exportedPdfName="Lead Welcome Whatsapp Message"
                   printHeaderKeys={["Group Name"]}
                   printHeaderValues={[groupFilter]}
-                  exportedFileName={`Bid Winner.csv`}
+                  exportedFileName={`Lead Welcome Whatsapp Message.csv`}
                 />
               </div>
             )}

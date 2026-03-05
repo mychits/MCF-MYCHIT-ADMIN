@@ -986,6 +986,7 @@ const DetailedUser = () => {
                                       searchText
                                     )}
                                     columns={Auctioncolumns}
+                                    exportedPdfName="CustomerReport"
                                     exportedFileName={`CustomerReport-${
                                       TableAuctions.length > 0
                                         ? TableAuctions[0].date +
@@ -1005,6 +1006,7 @@ const DetailedUser = () => {
                                         data={filteredBorrowerData}
                                         columns={loanColumns}
                                         exportedFileName={`CustomerReport.csv`}
+                                        exportedPdfName="Customer Report"
                                       />
                                     </div>
                                   )}
@@ -1174,6 +1176,8 @@ const DetailedUser = () => {
                           (borrowersData.length > 0 && !basicLoading) ? (
                             <div className="mt-10">
                               <DataTable
+                              exportedFileName="Details User.csv"
+                              exportedPdfName="Details User"
                                 printHeaderKeys={[
                                   "Customer Name",
                                   "Customer Id",
@@ -1227,7 +1231,8 @@ const DetailedUser = () => {
                             <DataTable
                               data={filteredDisbursement}
                               columns={DisbursementColumns}
-                              p
+                              exportedFileName="Disbursement.csv"
+                              exportedPdfName="Disbursement"
                             />
                           </div>
                         ) : (

@@ -223,6 +223,8 @@ const EmployeeRewardPoints = () => {
             <DataTable
               columns={rewardColumns}
               data={rewardTable}
+              exportedFileName="Employee Redeem Points.csv"
+              exportedPdfName="Exported Redeem Points"
             />
           ) : (
             <CircularLoader

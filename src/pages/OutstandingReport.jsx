@@ -296,12 +296,12 @@ const OutstandingReport = () => {
     { key: "amountToBePaid", header: "Amount to be Paid" },
     { key: "amountPaid", header: "Amount Paid" },
     { key: "balanceWithoutPenalty", header: "Balance" },
-    { key: "regularPenalty", header: "Regular Penalty" },
-    { key: "vcPenalty", header: "VC Penalty" },
-    { key: "totalPenalty", header: "Total Penalty" },
-    { key: "totalLateFee", header: "Late Fee" },
-    { key: "totalOverdueCharges", header: "Total Overdue Charges" },
-    { key: "balance", header: "Outstanding with Penalty" },
+   // { key: "regularPenalty", header: "Regular Penalty" },
+   // { key: "vcPenalty", header: "VC Penalty" },
+  //  { key: "totalPenalty", header: "Total Penalty" },
+   // { key: "totalLateFee", header: "Late Fee" },
+   // { key: "totalOverdueCharges", header: "Total Overdue Charges" },
+  //  { key: "balance", header: "Outstanding with Penalty" },
     { key: "status", header: "Status" },
   ];
 

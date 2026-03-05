@@ -432,6 +432,7 @@ const CustomerLoanReport = () => {
                   `₹ ${summaryStats.totalBalance.toLocaleString("en-IN")}`,
                 ]}
                 exportedPdfName="Customer Loan Report"
+                exportedFileName="Customer Loan Report.csv"
               />
             </div>
           </>

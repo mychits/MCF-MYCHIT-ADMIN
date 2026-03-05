@@ -404,7 +404,7 @@ const CollectionAreaReport = () => {
         columns={collectionAreaColumns}
         data={collectionAreaTable}
         exportedPdfName="Collection Area Report"
-        exportedFileName="CollectionAreaReport.csv"
+        exportedFileName="Collection Area Report.csv"
         noDataMessage="Please select a collection area to view data"
       />
     </div>

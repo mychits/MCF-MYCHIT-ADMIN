@@ -432,6 +432,7 @@ const ChitAskingMonthReport = () => {
               <DataTable
                 catcher="sl_no"
                 data={formattedData}
+                
                 columns={[
                   { key: "sl_no", header: "SL. NO" },
                   { key: "customer_id", header: "Customer ID" },
@@ -444,6 +445,8 @@ const ChitAskingMonthReport = () => {
                   { key: "chit_asking_month", header: "Chit Asking Month" },
                   { key: "referred_by", header: "Referred By" },
                 ]}
+                exportedFileName="Chit Asking Month Report.csv"
+                exportedPdfName="Chit Asking Month Report"
               />
             ) : (
               <Empty description="No Chit Asking Month Data Found" />

@@ -4,13 +4,14 @@ import Sidebar from "../components/layouts/Sidebar";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
-import { Input, Select, Dropdown } from "antd";
+import { Input, Select, Dropdown, Collapse } from "antd";
 import { IoMdMore } from "react-icons/io";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { fieldSize } from "../data/fieldSize";
+const { Panel } = Collapse;
 const FilterGroups = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -54,6 +55,9 @@ const FilterGroups = () => {
     filter_group: "",
     createdAt: "",
     app_display_vacany_seat: "",
+    auction_processing_type: "",
+    auction_mode: "",
+    group_code: "",
   });
   const [errors, setErrors] = useState({});
   const [updateFormData, setUpdateFormData] = useState({
@@ -72,6 +76,9 @@ const FilterGroups = () => {
     reg_fee: "",
     filter_group: "",
     app_display_vacany_seat: "",
+    auction_processing_type: "",
+    auction_mode: "",
+    group_code: "",
   });
 
   const groupOptions = [
@@ -160,6 +167,9 @@ const FilterGroups = () => {
           filter_group: group?.filter_group,
           app_display_vacany_seat: group?.app_display_vacany_seat,
           date: group?.createdAt?.split("T")[0],
+          auction_processing_type: group?.auction_processing_type,
+          auction_mode: group?.auction_mode,
+          group_code: group?.group_code,
           action: (
             <div className="flex justify-center gap-2">
               {/* <button
@@ -414,6 +424,8 @@ const FilterGroups = () => {
           commission: "",
           filter_group: "",
           app_display_vacany_seat: "",
+          auction_processing_type: "",
+          auction_mode: "",
         });
       } else {
         console.log(errors);
@@ -459,6 +471,8 @@ const FilterGroups = () => {
         incentives: response?.data?.incentives,
         reg_fee: response?.data?.reg_fee,
         app_display_vacany_seat: response?.data?.app_display_vacany_seat,
+        auction_processing_type: response?.data?.auction_processing_type,
+        auction_mode: response?.data?.auction_mode,
         filter_group: response?.data?.filter_group,
       });
       setShowModalUpdate(true);
@@ -528,6 +542,7 @@ const FilterGroups = () => {
   const columns = [
     { key: "checkBox", header: "Mobile Access" },
     { key: "id", header: "SL. NO" },
+    {key: "group_code", header: "Group Code"},
     { key: "name", header: "Group Name" },
     { key: "type", header: "Group Type" },
     { key: "date", header: "Created On" },
@@ -981,6 +996,79 @@ const FilterGroups = () => {
                 </div>
               </div>
 
+              <Collapse
+  defaultActiveKey={["1"]}
+  className="bg-white rounded-xl shadow-md border border-gray-200"
+>
+  <Panel
+    header={
+      <span className="text-sm font-semibold text-gray-800">
+        Auction Details
+      </span>
+    }
+    key="1"
+  >
+    <div className="flex flex-row justify-between space-x-4">
+      
+      {/* Auction Processing Type */}
+      <div className="w-1/2">
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+          Auction Processing Type
+        </label>
+        <Select
+          className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+          placeholder="Select Auction Processing Type"
+          popupMatchSelectWidth={false}
+          showSearch
+          name="auction_processing_type"
+          filterOption={(input, option) =>
+            option.children.toLowerCase().includes(input.toLowerCase())
+          }
+          value={formData?.auction_processing_type || undefined}
+          onChange={(value) =>
+            handleAntDSelect("auction_processing_type", value)
+          }
+        >
+          {["SYSTEM", "MANUAL"].map((stype) => (
+            <Select.Option key={stype} value={stype}>
+              {stype.charAt(0).toUpperCase() +
+                stype.slice(1).toLowerCase()}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+
+      {/* Auction Mode */}
+      <div className="w-1/2">
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+          Auction Mode
+        </label>
+        <Select
+          className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+          placeholder="Select Auction Mode"
+          popupMatchSelectWidth={false}
+          showSearch
+          name="auction_mode"
+          filterOption={(input, option) =>
+            option.children.toLowerCase().includes(input.toLowerCase())
+          }
+          value={formData?.auction_mode || undefined}
+          onChange={(value) =>
+            handleAntDSelect("auction_mode", value)
+          }
+        >
+          {["ONLINE", "OFFLINE"].map((stype) => (
+            <Select.Option key={stype} value={stype}>
+              {stype.charAt(0).toUpperCase() +
+                stype.slice(1).toLowerCase()}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+    </div>
+  </Panel>
+</Collapse>
+
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
@@ -1359,6 +1447,87 @@ const FilterGroups = () => {
                   />
                 </div>
               </div>
+
+              <Collapse
+                defaultActiveKey={["1"]}
+                className="bg-white rounded-xl shadow-md border border-gray-200"
+              >
+                <Panel
+                  header={
+                    <span className="text-sm font-semibold text-gray-800">
+                      Auction Details
+                    </span>
+                  }
+                  key="1"
+                >
+                  <div className="flex flex-row justify-between space-x-4">
+                    {/* Auction Processing Type */}
+                    <div className="w-1/2">
+                      <label className="block mb-2 text-sm font-medium text-gray-700">
+                        Auction Processing Type
+                      </label>
+                      <Select
+                        className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                        placeholder="Select Processing Type"
+                        popupMatchSelectWidth={false}
+                        showSearch
+                        name="auction_processing_type"
+                        filterOption={(input, option) =>
+                          option.children
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        value={
+                          updateFormData?.auction_processing_type || undefined
+                        }
+                        onChange={(value) =>
+                          handleAntInputDSelect(
+                            "auction_processing_type",
+                            value,
+                          )
+                        }
+                      >
+                        {["SYSTEM", "MANUAL"].map((stype) => (
+                          <Select.Option key={stype} value={stype}>
+                            {stype.charAt(0).toUpperCase() +
+                              stype.slice(1).toLowerCase()}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </div>
+
+                    {/* Auction Mode */}
+                    <div className="w-1/2">
+                      <label className="block mb-2 text-sm font-medium text-gray-700">
+                        Auction Mode
+                      </label>
+                      <Select
+                        className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
+                        placeholder="Select Auction Mode"
+                        popupMatchSelectWidth={false}
+                        showSearch
+                        name="auction_mode"
+                        filterOption={(input, option) =>
+                          option.children
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        value={updateFormData?.auction_mode || undefined}
+                        onChange={(value) =>
+                          handleAntInputDSelect("auction_mode", value)
+                        }
+                      >
+                        {["ONLINE", "OFFLINE"].map((stype) => (
+                          <Select.Option key={stype} value={stype}>
+                            {stype.charAt(0).toUpperCase() +
+                              stype.slice(1).toLowerCase()}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </div>
+                  </div>
+                </Panel>
+              </Collapse>
 
               <div className="w-full flex justify-end">
                 <button

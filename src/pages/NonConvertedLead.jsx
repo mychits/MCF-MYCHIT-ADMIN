@@ -763,7 +763,7 @@ const NonConvertedLead = () => {
             <Spin />
           </div>
         ) : (
-          <DataTable columns={leadColumns} data={leadTableData} />
+          <DataTable columns={leadColumns} data={leadTableData} exportedFileName="Non Converted Lead.csv" exportedPdfName="Non Converted Lead"/>
         )}
       </div>
     </div>

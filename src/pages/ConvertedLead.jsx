@@ -381,7 +381,7 @@ const ConvertedLead = () => {
             <Spin />
           </div>
         ) : (
-          <DataTable columns={leadColumns} data={leadTableData} />
+          <DataTable columns={leadColumns} data={leadTableData} exportedFileName="Converted Lead.csv" exportedPdfName="Converted Lead" />
         )}
       </div>
     </div>

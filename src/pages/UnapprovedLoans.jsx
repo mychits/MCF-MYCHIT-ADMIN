@@ -109,6 +109,7 @@ const UnapprovedLoans = () => {
                 {loan.approval_status}
               </span>
             ),
+            approval_status_raw: loan?.approval_status,
             actions: (
               <Dropdown overlay={menu} trigger={["click"]}>
                 <Button
@@ -214,6 +215,18 @@ const UnapprovedLoans = () => {
     { key: "actions", header: "Actions" },
   ];
 
+   const loanColumns = [
+    { key: "id", header: "SL.NO" },
+    { key: "customer_name", header: "Customer Name" },
+    { key: "phone_number", header: "Phone Number" },
+    { key: "address", header: "Address" },
+    { key: "loan_amount", header: "Loan Amount" },
+    { key: "loan_purpose", header: "Loan Purpose" },
+    { key: "createdAt", header: "Created Date" }, // <--- Column Added Here
+    { key: "approval_status_raw", header: "Approval Status" },
+    // { key: "actions", header: "Actions" },
+  ];
+
   return (
     <div className="flex mt-20">
       <Sidebar />
@@ -228,8 +241,9 @@ const UnapprovedLoans = () => {
           <DataTable
             data={tableData}
             columns={columns}
+            exportCols={loanColumns}
             exportedPdfName="Unapproved Loans"
-            exportedFileName="unapproved_loans.csv"
+            exportedFileName="Unapproved Loans.csv"
           />
         ) : (
           <CircularLoader
