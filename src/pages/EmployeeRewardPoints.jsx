@@ -810,7 +810,6 @@ const EmployeeRewardPoints = () => {
                 <div className="px-6 py-2 bg-gray-50 border-b border-gray-200">
                   <h2 className="text-xl font-semibold text-gray-800">Employee Rewards Summary</h2>
 
-<<<<<<< Updated upstream
               {/* ================= TABLE ================= */}
               {rewardTable.length > 0 && !isLoading ? (
                 <DataTable columns={rewardColumns} data={rewardTable} exportedFileName="Employee Reward Points.csv" exportedPdfName="Employee Reward Points" />
@@ -822,7 +821,6 @@ const EmployeeRewardPoints = () => {
                 />
               )}
             </div>
-=======
                   <div className="overflow-x-auto mb-3">
                     <table className="w-full">
                       <thead className="bg-gray-50">
@@ -1045,9 +1043,9 @@ const EmployeeRewardPoints = () => {
                     failure={!isLoading && rewardTable.length === 0}
                   />
                 )}
-              </div>
+
+              
             </>
->>>>>>> Stashed changes
           ) : (
             <></>
           )
