@@ -8,6 +8,8 @@ import SettingSidebar from "../components/layouts/SettingSidebar";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { header } from "framer-motion/client";
 import Sidebar from "../components/layouts/Sidebar";
+import { Search, Calendar, Award, TrendingUp, Star, Gift, Trophy, Users } from 'lucide-react';
+
 // const CustomerRewards = () => {
 //   const [screenLoading, setScreenLoading] = useState(true);
 //   const [groupFilter, setGroupFilter] = useState("");
@@ -559,6 +561,12 @@ const CustomerRewards = () => {
 
   const [rewardTable, setRewardTable] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const todayString = new Date().toISOString().split("T")[0];
+  const [selectedLabel, setSelectedLabel] = useState("Today");
+  const [selectedFromDate, setSelectedFromDate] = useState(todayString);
+  const [selectedToDate, setSelectedToDate] = useState(todayString);
+    const [showFilterField, setShowFilterField] = useState(false);
+
 
   /* ================= SUMMARY ================= */
   const [summary, setSummary] = useState({
@@ -581,6 +589,14 @@ const CustomerRewards = () => {
     setErrors({ ...errors, [field]: "" });
   };
 
+    const [rewardState, setRewardState] = useState({
+    rewards: [],
+    activeRewards: [],
+    totalPointsAll: 0,
+    totalAmountAll: 0,
+    totalEmplyees: 0,
+  });
+
   /* ================= REDEEM ================= */
   const [redeemPoints, setRedeemPoints] = useState("");
   const [redeemType, setRedeemType] = useState("Cash");
@@ -600,6 +616,55 @@ const CustomerRewards = () => {
       console.error("Failed to fetch customers");
     }
   };
+    useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [employeeRes, empRewardsRes] = await Promise.all([
+          api.get("/agent/get-employee"),
+          api.get(`/reward-points/rewards/top-employees?from_date=${selectedFromDate}&to_date=${selectedToDate}`),
+        ]);
+        console.log(empRewardsRes.data.count, "empRewardsRes");
+        // setTotalEmployees(empRewardsRes.data.count || 0);
+        const rewardData = empRewardsRes.data?.data || [];
+
+        // 1️⃣ Remove zero points
+        const filtered = rewardData.filter(
+          (item) => item.total_points > 0
+        );
+
+        // 2️⃣ Sort descending
+        const sorted = [...filtered].sort(
+          (a, b) => b.total_points - a.total_points
+        );
+
+        // 3️⃣ Calculate totals (all data)
+        const totalPoints = rewardData.reduce(
+          (sum, item) => sum + item.total_points,
+          0
+        );
+
+        const totalAmount = rewardData.reduce(
+          (sum, item) => sum + item.total_amount,
+          0
+        );
+
+        // 4️⃣ Update single state
+        setRewardState({
+          rewards: filtered,
+          activeRewards: sorted,
+          totalPointsAll: totalPoints,
+          totalAmountAll: totalAmount,
+          totalEmplyees: empRewardsRes.data?.count || 0,
+        });
+        setEmployees(employeeRes.data.employee || []);
+        setRewards([empRewardsRes.data?.data] || []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchData();
+    setIsLoading(false);
+  }, [selectedFromDate,selectedToDate]);
 
   /* ================= FETCH SUMMARY ================= */
   const fetchRewardSummary = async (custId) => {
@@ -723,6 +788,52 @@ const CustomerRewards = () => {
     { key: "status", header: "Status" },
     { key: "remarks", header: "Remarks" },
   ];
+    const groupOptions = [
+    { value: "Today", label: "Today" },
+    { value: "Yesterday", label: "Yesterday" },
+    { value: "ThisMonth", label: "This Month" },
+    { value: "LastMonth", label: "Last Month" },
+    { value: "ThisYear", label: "This Year" },
+    { value: "Custom", label: "Custom" },
+  ];
+
+   const handleSelectFilter = (value) => {
+    setSelectedLabel(value);
+    //const { value } = e.target;
+    setShowFilterField(false);
+
+    const today = new Date();
+    const formatDate = (date) => date.toLocaleDateString("en-CA");
+
+    if (value === "Today") {
+      const formatted = formatDate(today);
+      setSelectedFromDate(formatted);
+      setSelectedToDate(formatted);
+    } else if (value === "Yesterday") {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const formatted = formatDate(yesterday);
+      setSelectedFromDate(formatted);
+      setSelectedToDate(formatted);
+    } else if (value === "ThisMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "LastMonth") {
+      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const end = new Date(today.getFullYear(), today.getMonth(), 0);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "ThisYear") {
+      const start = new Date(today.getFullYear(), 0, 1);
+      const end = new Date(today.getFullYear(), 11, 31);
+      setSelectedFromDate(formatDate(start));
+      setSelectedToDate(formatDate(end));
+    } else if (value === "Custom") {
+      setShowFilterField(true);
+    }
+  };
 
   return (
     <div>
@@ -735,8 +846,200 @@ const CustomerRewards = () => {
             Customer Reward Points
           </h1>
 
-          {/* ================= FILTER ================= */}
-          <div className="flex flex-wrap gap-4 mb-6 items-end">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 mb-2">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-700">Total Customers</h3>
+                <Users className="h-8 w-8 text-blue-500" />
+              </div>
+              <p className="text-3xl font-bold text-gray-800">{rewardState?.totalEmplyees}</p>
+              <p className="text-sm text-gray-500 mt-6">Across all department</p>
+            </div>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-gray-700">Total Amount/Rewards</h3>
+                <Award className="h-8 w-8 text-blue-500" />
+              </div>
+              <p className="text-3xl font-bold text-gray-800">{rewardState?.totalAmountAll}</p>
+              <p className="text-sm text-gray-500 mt-2">Across all employees</p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-700">Total Points</h3>
+                <Star className="h-8 w-8 text-yellow-500" />
+              </div>
+              <p className="text-3xl font-bold text-gray-800">{rewardState?.totalPointsAll}</p>
+              <p className="text-sm text-gray-500 mt-6">Points awarded in total</p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-700">Top Customer</h3>
+                <Trophy className="h-8 w-8 text-green-500" />
+              </div>
+              <p className="text-xl font-bold text-gray-800">
+                {rewardState?.activeRewards.length > 0 ? rewardState.activeRewards[0]?.employee_name : 'N/A'}
+              </p>
+              <p className="text-sm text-gray-500 mt-7">
+                {rewardState?.activeRewards.length > 0 ? `${rewardState.activeRewards[0].total_points} points` : 'No data available'}
+              </p>
+            </div>
+          </div>
+
+              <div className="relative mb-3">
+
+                {/* Background Glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 via-blue-100 to-purple-100 rounded-3xl blur-xl opacity-40"></div>
+
+                <div className="relative bg-white/80 backdrop-blur-xl 
+                  border border-gray-200 
+                  rounded-3xl shadow-lg 
+                  p-6">
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+
+                    {/* Filter Select */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-600">
+                        Filter Option
+                      </label>
+
+                      <Select
+                        showSearch
+                        popupMatchSelectWidth={false}
+                        onChange={handleSelectFilter}
+                        value={selectedLabel}
+                        placeholder="Search or Select Filter"
+                        filterOption={(input, option) =>
+                          option.children
+                            .toString()
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        className="w-full custom-select"
+                      >
+                        {groupOptions.map((time) => (
+                          <Select.Option key={time.value} value={time.value}>
+                            {time.label}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </div>
+
+                    {/* From Date */}
+                    {showFilterField && (
+                      <>
+                        <div className="space-y-2">
+                          <label className="block text-sm font-semibold text-gray-600">
+                            From Date
+                          </label>
+                          <input
+                            type="date"
+                            value={selectedFromDate}
+                            onChange={(e) => setSelectedFromDate(e.target.value)}
+                            className="w-full h-10 bg-white 
+                         border border-gray-300 
+                         rounded-xl px-4 
+                         focus:ring-2 focus:ring-indigo-500 
+                         focus:border-indigo-500 
+                         shadow-sm 
+                         transition-all duration-300 
+                         hover:border-indigo-400"
+                          />
+                        </div>
+
+                        {/* To Date */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-semibold text-gray-600">
+                            To Date
+                          </label>
+                          <input
+                            type="date"
+                            value={selectedToDate}
+                            onChange={(e) => setSelectedToDate(e.target.value)}
+                            className="w-full h-12 bg-white 
+                         border border-gray-300 
+                         rounded-xl px-4 
+                         focus:ring-2 focus:ring-indigo-500 
+                         focus:border-indigo-500 
+                         shadow-sm 
+                         transition-all duration-300 
+                         hover:border-indigo-400"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                  </div>
+                </div>
+              </div>
+
+   
+                        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="px-6 py-2 bg-gray-50 border-b border-gray-200">
+                  <h2 className="text-xl font-semibold text-gray-800">Customer Rewards Summary</h2>
+
+                  <div className="overflow-x-auto mb-3">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sl no</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rewards / Ammount</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trend</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {rewardState.activeRewards?.slice(0, 5)?.map((employee, key) => (
+                          <tr key={employee.id} className="hover:bg-gray-50 ">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
+                                  <span className="text-blue-600 font-medium">{key + 1}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.employee_name}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.department || "Sales"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <span className="text-sm font-medium text-gray-900">{employee.total_points}</span>
+                                <span className="ml-2 text-xs text-gray-500">pts</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.total_amount}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {employee.total_points > 2000 && (
+                                <span className="flex items-center text-sm text-green-600">
+                                  <TrendingUp className="h-4 w-4 mr-1" />
+                                  Up
+                                </span>
+                              )}
+                              {employee.total_points < 2000 && (
+                                <span className="flex items-center text-sm text-red-600">
+                                  <TrendingUp className="h-4 w-4 mr-1 rotate-180" />
+                                  Down
+                                </span>
+                              )}
+                              {employee.trend === 'same' && (
+                                <span className="flex items-center text-sm text-gray-600">
+                                  <div className="h-4 w-4 mr-1 bg-gray-400 rounded-full"></div>
+                                  Same
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+  </div>
+    </div>
+       {/* ================= FILTER ================= */}
+          <div className="flex flex-wrap gap-4 mt-4 mb-5 items-end">
             <div>
               <label className="block text-sm font-medium mb-1">Customer</label>
 
@@ -803,7 +1106,6 @@ const CustomerRewards = () => {
               {isLoading ? "Processing..." : "Create Reward"}
             </button>
           </div>
-
           {/* ================= SUMMARY ================= */}
           {customerId && (
             <div className="grid grid-cols-4 gap-4 mb-6">

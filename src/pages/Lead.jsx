@@ -329,47 +329,50 @@ const Lead = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const isValid = validateForm("addLead");
+  const isValid = validateForm("addLead");
+  if (!isValid) return;
 
-    try {
-      if (isValid) {
-        setShowModal(false);
-        const response = await api.post("/lead/add-lead", formData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        setReloadTrigger((prev) => prev + 1);
-        setAlertConfig({
-          visibility: true,
-          message: "Lead added successfully",
-          type: "success",
-        });
+  try {
+    const response = await api.post("/lead/add-lead", formData);
 
-        setFormData({
-          lead_name: "",
-          lead_phone: "",
-          lead_profession: "",
-          group_id: "",
-          lead_type: "",
-          lead_customer: "",
-          lead_agent: "",
-          lead_needs: "",
-          note: "",
-        });
-      }
-    } catch (error) {
-      setShowModal(false);
-      setAlertConfig({
-        visibility: true,
-        message: "Lead added successfully",
-        type: "error",
-      });
-    }
-  };
+    console.log("response", response);
+
+    // ✅ Close modal ONLY after success
+    setShowModal(false);
+
+    setReloadTrigger((prev) => prev + 1);
+
+    setAlertConfig({
+      visibility: true,
+      message: "Lead added successfully",
+      type: "success",
+    });
+
+    setFormData({
+      lead_name: "",
+      lead_phone: "",
+      lead_profession: "",
+      group_id: "",
+      lead_type: "",
+      lead_customer: "",
+      lead_agent: "",
+      lead_needs: "",
+      note: "",
+    });
+
+  } catch (error) {
+    console.log("Error:", error.response?.data);
+
+    setAlertConfig({
+      visibility: true,
+      message: error.response?.data?.message || "Something went wrong",
+      type: "error",
+    });
+  }
+};
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -1009,24 +1012,7 @@ const Lead = () => {
                   </div>
                 </>
               )}
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="date"
-                >
-                  Note
-                </label>
-                <input
-                  type="text"
-                  name="note"
-                  value={formData.note}
-                  onChange={handleChange}
-                  id="text"
-                  placeholder="Specify note if any!"
-                  required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
-                />
-              </div>
+           
 
               <div className="w-full">
                 <label
@@ -1070,6 +1056,25 @@ const Lead = () => {
                     {errors.lead_needs}
                   </p>
                 )}
+              </div>
+                 <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="date"
+                >
+                  Note
+                </label>
+                <textarea
+                  // type="text"
+                    rows={2} // adjust height
+                  name="note"
+                  value={formData.note}
+                  onChange={handleChange}
+                  id="text"
+                  placeholder="Specify note if any!"
+                  required
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                />
               </div>
               <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-sm space-y-4">
                 <div className="flex items-center space-x-3">

@@ -56,7 +56,10 @@ useEffect(() => {
  
   if (!isVisible && !isClosing) return null;
   return (
-    <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 transform">
+    <div
+  className="fixed top-4 left-1/2 -translate-x-1/2 transform"
+  style={{ zIndex: 9999 }}
+>
       <div
         className={`${alertConfig[type].bg} ${alertConfig[type].border} ${
           alertConfig[type].text
