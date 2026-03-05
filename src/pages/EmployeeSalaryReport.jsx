@@ -1953,7 +1953,7 @@ const EmployeeSalaryReport = () => {
             exportedPdfName="Employee Salary Report"
             printHeaderKeys={printHeaderKeys}
             printHeaderValues={printHeaderValues}
-            exportedFileName="EmployeeSalaryReport.csv"
+            exportedFileName="Employee Salary Report.csv"
           />
         )}
       </div>

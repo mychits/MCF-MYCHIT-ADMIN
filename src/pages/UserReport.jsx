@@ -1860,7 +1860,7 @@ const UserReport = () => {
                                         searchText,
                                       )}
                                       columns={Auctioncolumns}
-                                      exportedPdfName="Customer Report"
+                                      exportedPdfName="Customer Chit Enrollment Details"
                                       printHeaderKeys={[
                                         "Customer Name",
                                         "Phone Number",
@@ -1879,7 +1879,7 @@ const UserReport = () => {
                                           ? NetTotalprofit - Totalpaid
                                           : "",
                                       ]}
-                                      exportedFileName={`Customer Report.csv`}
+                                      exportedFileName={`Customer Chit Enrollment Details.csv`}
                                     />
                                   </div>
                                 )}
@@ -1894,7 +1894,8 @@ const UserReport = () => {
                                     <DataTable
                                       data={filteredBorrowerData}
                                       columns={loanColumns}
-                                      exportedFileName="CustomerLoanReport.csv"
+                                      exportedFileName="Loan Details.csv"
+                                      exportedPdfName="Loan Details"
                                     />
                                   </div>
                                 )}
@@ -1909,7 +1910,8 @@ const UserReport = () => {
                                     <DataTable
                                       data={filteredPigmeData}
                                       columns={pigmeColumns}
-                                      exportedFileName="PigmeCustomerReport.csv"
+                                      exportedFileName="Pigmy Details.csv"
+                                      exportedPdfName="Pigmy Details"
                                     />
                                   </div>
                                 )}

@@ -143,12 +143,13 @@ const DataTable = ({
     // const date = new Date().toISOString().split("T")[0];
   const now = new Date();
 
-const fileNameExcel = `${now.getFullYear()}-${
+const fileNameExcel = `${String(now.getDate()).padStart(2, "0")}-${
   String(now.getMonth() + 1).padStart(2, "0")
-}-${String(now.getDate()).padStart(2, "0")}_${
+}-${now.getFullYear()}_${
   String(now.getHours()).padStart(2, "0")
 }-${String(now.getMinutes()).padStart(2, "0")
 }-${String(now.getSeconds()).padStart(2, "0")}`;
+console.log(fileNameExcel, "fjhgdsjkhfgsdkjfggdf")
 
     // Filter columns based on selection
     const selectedCols = exportColumns.filter(
@@ -203,7 +204,13 @@ const fileNameExcel = `${now.getFullYear()}-${
     // Default settings for all reports
     let showSummaryCards = true;
     let showCountCards = true;
-    const date = new Date().toISOString().split("T")[0];
+    
+    const date = `${String(new Date().getDate()).padStart(2, "0")}-${
+  String(new Date().getMonth() + 1).padStart(2, "0")
+}-${new Date().getFullYear()}_${
+  String(new Date().getHours()).padStart(2, "0")
+}-${String(new Date().getMinutes()).padStart(2, "0")
+}-${String(new Date().getSeconds()).padStart(2, "0")}`;
     const reportType = String(exportedPdfName || "").trim();
     const fileName = `${reportType}_${date}`;
 
@@ -359,33 +366,7 @@ const fileNameExcel = `${now.getFullYear()}-${
               .join("")}
           </div>
 
-          ${
-            showSummaryCards
-              ? `
-          <div class="summary-cards">
-            <div class="card"><div class="card-title">Total Cash</div><div class="card-value">₹ ${totalCash.toLocaleString(
-              "en-IN"
-            )}</div></div>
-            <div class="card"><div class="card-title">Total Online</div><div class="card-value">₹ ${totalOnline.toLocaleString(
-              "en-IN"
-            )}</div></div>
-            <div class="card"><div class="card-title">Total Amount</div><div class="card-value">₹ ${totalAmount.toLocaleString(
-              "en-IN"
-            )}</div></div>
-          </div>`
-              : ""
-          }
-
-          ${
-            showCountCards
-              ? `
-          <div class="count-summary-cards">
-            <div class="count-card customer">Total Customers<br /><span>${totalCustomers}</span></div>
-            <div class="count-card cash">Cash Payments<br /><span>${totalCashCount}</span></div>
-            <div class="count-card online">Online Payments<br /><span>${totalOnlineCount}</span></div>
-          </div>`
-              : ""
-          }
+         
 
           <table style="width: 100%; border-collapse: collapse;">
             <thead>

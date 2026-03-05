@@ -1011,7 +1011,7 @@ const EmployeeMonthlyReport = () => {
                 columns={selectedEmployee === "all" ? allEmployeesColumns : individualColumns}
                 data={safeData}
                 exportedPdfName="Employee Monthly Attendence Report"
-                exportedFileName={`EmployeeMonthlyAttendenceReport.csv`}
+                exportedFileName={`EmployeeMonthly Attendence Report.csv`}
                 loading={loading}
               />
 

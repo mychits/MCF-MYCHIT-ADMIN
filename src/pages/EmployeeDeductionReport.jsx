@@ -842,10 +842,10 @@ const EmployeeDeductionReport = () => {
             data={allSalaryTable}
             exportCols={columns}
             isExportEnabled={true}
-            exportedPdfName="Employee Salary Report"
+            exportedPdfName="Employee Deduction Report"
             printHeaderKeys={printHeaderKeys}
             printHeaderValues={printHeaderValues}
-            exportedFileName="EmployeeSalaryReport.csv"
+            exportedFileName="Employee Deduction Report.csv"
           />
         )}
       </div>

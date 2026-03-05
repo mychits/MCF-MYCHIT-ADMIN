@@ -321,8 +321,8 @@ const AuctionPage = () => {
               data={auctions}
               columns={columns}
               exportCols={exportColumns}
-              exportedPdfName="Auction_Report"
-              exportedFileName="Auction Filter Report.csv"
+              exportedPdfName="Auction Report"
+              exportedFileName="Auction Report.csv"
             />
           )}
         </div>

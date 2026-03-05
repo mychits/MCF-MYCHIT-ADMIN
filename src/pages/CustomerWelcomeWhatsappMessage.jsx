@@ -849,8 +849,8 @@ const CustomerWelcomeWhatsappMessage = () => {
                 data={filteredUsers}
                 columns={Auctioncolumns}
                 catcher="_id"
-                exportedPdfName="Customer Welcome Message"
-                exportedFileName="Customer_Welcome_Message.csv"
+                exportedPdfName="Customer Welcome Whatsapp Message"
+                exportedFileName="Customer Welcome Whatsapp Message.csv"
               />
               </div>
                )}

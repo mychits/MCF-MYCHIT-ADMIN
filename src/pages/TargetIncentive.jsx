@@ -1196,7 +1196,7 @@ const TargetIncentive = () => {
                           )})`,
                           `${grossIncentiveSummary.total_gross_enrollments || "0"}`,
                         ]}
-                        exportedFileName={`GrossIncentiveReport-${
+                        exportedFileName={`Gross Incentive Report-${
                           selectedEmployeeDetails?.name || "all"
                         }-${
                           dateSelectionMode === "month"

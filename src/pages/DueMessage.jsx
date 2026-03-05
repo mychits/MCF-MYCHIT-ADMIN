@@ -352,10 +352,10 @@ const DueMessage = () => {
                   data={filteredUsers}
                   columns={Auctioncolumns}
                   catcher="_id"
-                  exportedPdfName="Due Message"
+                  exportedPdfName="Outstanding Whatsapp Message"
                   printHeaderKeys={["Group Name"]}
                   printHeaderValues={[groupFilter]}
-                  exportedFileName={`Due Message.csv`}
+                  exportedFileName={`Outstanding Whatsapp Message.csv`}
                 />
               </div>
             )}

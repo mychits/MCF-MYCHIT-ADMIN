@@ -477,7 +477,7 @@ const SalesReport = () => {
           <DataTable
             data={tableReportData}
             columns={columns}
-            exportedFileName="SalesReport.csv"
+            exportedFileName="Sales Report.csv"
             exportedPdfName="Sales Report"
             printHeaderKeys={[
               "Agent Name",

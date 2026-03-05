@@ -833,7 +833,7 @@ const CommissionReport = () => {
     commissionTotalDetails?.total_customers || "0",
     commissionTotalDetails?.total_groups || "0"
   ]}
-  exportedFileName={`CommissionReport-${selectedEmployeeDetails?.name || "all"}.csv`}
+  exportedFileName={`Commission Report-${selectedEmployeeDetails?.name || "all"}.csv`}
 />
             </>
           ) : (

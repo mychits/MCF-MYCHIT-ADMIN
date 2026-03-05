@@ -1709,7 +1709,7 @@ const PaymentSummary = () => {
                 printHeaderValues={[
                   summaryTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 }),
                 ]}
-                exportedFileName={`PaymentSummaryReport.csv`}
+                exportedFileName={`Payment Summary Report.csv`}
               />
             </div>
           </div>

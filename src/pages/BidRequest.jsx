@@ -1144,7 +1144,7 @@ function BidRequest() {
                                 data={formattedBidData}
                                 columns={columns}
                                 exportedFileName="Bid Requests.csv"
-                                exportedPdfName="Bid_Requests.pdf"
+                                exportedPdfName="Bid Requests"
                                 printHeaderKeys={[
                                     "Total Requests",
                                     "Total Balance",

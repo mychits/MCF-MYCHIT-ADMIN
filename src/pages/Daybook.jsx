@@ -1026,8 +1026,8 @@ const Daybook = () => {
               data={filterOption(TableDaybook, searchText)}
               columns={columns}
               exportCols={exportCols}
-              exportedFileName = {`Daybook_`}
-              exportedPdfName={`Daybook_${new Date().getDate()}`}
+              exportedFileName = {"Daybook_"}
+              exportedPdfName={`Daybook_`}
               printHeaderKeys={[
                 "Total IN",
                 "Total OUT",

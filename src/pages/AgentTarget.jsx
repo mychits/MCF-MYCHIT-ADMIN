@@ -560,8 +560,8 @@ const AgentTarget = () => {
                 <DataTable
                   data={tableData}
                   columns={getColumns()}
-                  exportedPdfName="Agent-Target-Report"
-                  exportedFileName="Agent-Target-Report.csv"
+                  exportedPdfName="Agent Target Report"
+                  exportedFileName="Agent Target Report.csv"
                 />
               </div>
             </>

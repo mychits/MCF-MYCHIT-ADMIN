@@ -66,6 +66,7 @@ const AllEmployeeIncentives = () => {
               {targetStatus}
             </Tag>
           ),
+          target_status_raw: targetStatus,
           incentive_earned: incentiveEarned,
           incentive_paid: incentivePaid,
           incentive_remaining: incentiveRemaining,
@@ -74,6 +75,7 @@ const AllEmployeeIncentives = () => {
               {data?.incentive_status || "Pending"}
             </Tag>
           ),
+          incentive_status_raw:data?.incentive_status || "N/A",
           action: (
             <Button
               type="primary"
@@ -165,6 +167,21 @@ const AllEmployeeIncentives = () => {
     { key: "action", header: "Action" },
   ];
 
+  const employeeColumns = [
+    { key: "id", header: "SL. NO" },
+    { key: "employee_name", header: "Employee Name" },
+    { key: "salary_month", header: "Month" },
+    { key: "salary_year", header: "Year" },
+    { key: "target_amount", header: "Target (₹)" },
+    { key: "actual_closed", header: "Business Closed (₹)" },
+    { key: "target_status_raw", header: "Target Status" },
+    { key: "incentive_earned", header: "Incentive Earned (₹)" },
+    { key: "incentive_paid", header: "Paid (₹)" },
+    { key: "incentive_remaining", header: "Remaining (₹)" },
+    { key: "incentive_status_raw", header: "Incentive Status" },
+    { key: "action", header: "Action" },
+  ];
+
   return (
     <>
       <Navbar
@@ -200,6 +217,7 @@ const AllEmployeeIncentives = () => {
               catcher="_id"
               data={filterOption(tableData, searchText)}
               columns={columns}
+              exportCols={employeeColumns}
               exportedPdfName="All Employee Incentives"
               exportedFileName="All_Employee_Incentives.csv"
             />
