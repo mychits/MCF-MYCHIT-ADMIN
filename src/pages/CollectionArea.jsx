@@ -77,6 +77,7 @@ const CollectionArea = () => {
             return {
               _id: collectionArea?._id,
               id: index + 1,
+              collection_area_code: collectionArea?.collection_area_code,
               name: collectionArea?.route_name,
               pincode: collectionArea?.route_pincode,
               employee_name: collectionArea?.agent_id?.map(emp=>emp?.name).join(","),
@@ -205,6 +206,7 @@ const CollectionArea = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    {key: "collection_area_code", header: "Collection Code"},
     { key: "name", header: "Collection Area Name" },
     { key: "pincode", header: "pincode" },
     { key: "employee_name", header: "Employee" },

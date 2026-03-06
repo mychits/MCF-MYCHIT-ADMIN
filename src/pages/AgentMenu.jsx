@@ -3,6 +3,7 @@ import Navbar from "../components/layouts/Navbar";
 import Sidebar from "../components/layouts/Sidebar";
 import { Users, Briefcase, ChevronRight,Zap  } from "lucide-react";
 import { SlCalender } from "react-icons/sl";
+import { VscUnverified } from "react-icons/vsc";
 
 const StaffMenu = () => {
   const staffCategories = [
@@ -28,6 +29,17 @@ const StaffMenu = () => {
       borderColor: "border-green-200",
       href: "/staff-menu/agent-menu/agent-target",
       stats: "Agent target information",
+    },
+     {
+      id: 3,
+      title: "Unverified Agent",
+      description: "Manage Unverified Agent  records",
+      icon: <VscUnverified className="w-8 h-8" />,
+      color: "from-green-600 to-green-700",
+      lightColor: "bg-green-50",
+      borderColor: "border-green-200",
+      href: "/staff-menu/agent-menu/unverified-agent",
+      stats: "Unverified Agent information",
     },
   ];
 
@@ -101,6 +113,8 @@ const StaffMenu = () => {
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">Quick Tips</h3>
                 <p className="text-slate-700">Use the Agent directory to manage personnel, update agent information and Provide Designation all in one place. </p>
                 <p className="text-slate-700">Use the Agent target directory to manage targets, update and submit target information. </p>
+                <p className="text-slate-700">Use the Unverified Agent directory to manage Approve and update and submit information. </p>
+
               </div>
             </div>
           </div>

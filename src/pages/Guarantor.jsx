@@ -258,6 +258,7 @@ const Guarantor = () => {
           return {
             _id: group?._id,
             id: index + 1,
+            guarantor_code: group?.guarantor_code,
             user_id: group?.user_id?.full_name,
             enrollment_summary: enrollmentDetails.join(", "),
             guarantor_referred_type: group?.guarantor_referred_type,
@@ -959,6 +960,7 @@ const handleUpdate = async (e) => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    {key: "guarantor_code", header: "Guarantor Code"},
     { key: "user_id", header: "Customer Name" },
 
     { key: "guarantor_referred_type", header: "Referred Type" },

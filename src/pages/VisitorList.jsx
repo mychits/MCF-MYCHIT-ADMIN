@@ -349,6 +349,7 @@ export default function VisitorList() {
     return {
       ...item,
       slNo: index + 1,
+      visitor_code: item?.visitor_code,
       visitorId: item.visitorId || "N/A",
       visitorType: type.charAt(0).toUpperCase() + type.slice(1),
       agentName: getMeetPersonName(item.meetPerson),
@@ -403,13 +404,14 @@ export default function VisitorList() {
 
   const standardColumns = [
     { key: "slNo", header: "Sl.No" },
+    {key: "visitor_code", header: "Visitor Code"},
     { key: "visitorId", header: "Visitor ID" },
     { key: "name", header: "Visitor Name" },
     { key: "visitorType", header: "Type" },
     { key: "phone", header: "Phone No" },
     { key: "email", header: "Email" },
     { key: "purpose", header: "Purpose" },
-    { key: "description", header: "Description" },
+    { key: "description", header: "Description" },  
     { key: "formattedDate", header: "Date & Time" },
     { key: "agentName", header: "Whom to Meet" },
     { key: "action", header: "Action" }, // Ensure this key exists
@@ -417,7 +419,7 @@ export default function VisitorList() {
 
   const customerColumns = [
     { key: "slNo", header: "Sl.No" },
-    { key: "visitorId", header: "Visitor ID" },
+    {key: "visitor_code", header: "Visitor Code"},
     { key: "name", header: "Visitor Name" },
     { key: "visitorType", header: "Type" },
     { key: "phone", header: "Phone No" },
