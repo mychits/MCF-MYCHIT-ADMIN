@@ -102,7 +102,7 @@ const Lead = () => {
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
           id: index + 1,
-          lead_id: group?.lead_id, // <--- ADDED LEAD_ID
+          lead_code: group?.lead_code, // <--- ADDED LEAD_ID
           name: group?.lead_name,
           phone: group?.lead_phone,
           profession: group?.lead_profession,
@@ -513,7 +513,7 @@ const Lead = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
-    { key: "lead_id", header: "Lead ID" }, // <--- ADDED LEAD_ID COLUMN
+    { key: "lead_code", header: "Lead ID" }, // <--- ADDED LEAD_ID COLUMN
     { key: "name", header: "Lead Name" },
     { key: "phone", header: "Lead Phone Number" },
     { key: "profession", header: "Lead Profession" },
