@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Form, Input, DatePicker, TimePicker, Button, Select, notification, Popconfirm, Spin, Modal } from "antd";
+import { Form, Input, DatePicker, TimePicker, Button, Select, notification, Popconfirm, Spin, Modal, Radio } from "antd";
 import { EditOutlined, DeleteOutlined, CheckCircleOutlined, PrinterOutlined, DownOutlined, UpOutlined, AppstoreOutlined, UnorderedListOutlined, StopOutlined, CloseOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
@@ -28,6 +28,9 @@ function BidRequest() {
 
     // View Mode State for Group Stats
     const [groupViewMode, setGroupViewMode] = useState('grid'); // 'grid' or 'list'
+    
+    // New State for Toggle View (All / Upcoming)
+    const [viewType, setViewType] = useState('upcoming'); 
 
     // Store RAW data
     const [rawBidRequests, setRawBidRequests] = useState([]);
@@ -55,7 +58,7 @@ function BidRequest() {
         return () => {
             window.removeEventListener('focus', handleFocus);
         };
-    }, []);
+    }, [viewType]); // Added viewType dependency
 
     const fetchCustomerBalance = async (enrollmentId) => {
         if (!enrollmentId) return;
@@ -497,10 +500,11 @@ function BidRequest() {
         printWindow.focus();
     };
 
+    // Updated fetchBidRequests to use viewType
     const fetchBidRequests = async () => {
         try {
             setLoadingTable(true);
-            const response = await API.get("/bid-request/get-all");
+            const response = await API.get(`/bid-request/get-all?type=${viewType}`);
             setRawBidRequests(response.data?.data || []);
         } catch (error) {
             setRawBidRequests([]);
@@ -701,7 +705,7 @@ function BidRequest() {
 
     useEffect(() => {
         fetchBidRequests();
-    }, []);
+    }, [viewType]); // Fetch data when viewType changes
 
     return (
         <>
@@ -715,12 +719,23 @@ function BidRequest() {
                             <h1 className="text-3xl font-bold text-gray-800">Bid Management</h1>
                             <p className="text-gray-500">Submit a new bid request for an auction</p>
                         </div>
-                        <div>
+                        <div className="flex items-center gap-4">
+                            {/* View Toggle Added Here */}
+                            <Radio.Group 
+                                value={viewType} 
+                                onChange={(e) => setViewType(e.target.value)}
+                                buttonStyle="solid"
+                                size="large"
+                            >
+                                <Radio.Button value="upcoming">Upcoming</Radio.Button>
+                                <Radio.Button value="all">All</Radio.Button>
+                            </Radio.Group>
+
                             <Button
                                 type="primary"
                                 size="large"
                                 onClick={handleOpenCreatePage}
-                                className="h-10 px-6 text-lg font-semibold bg-blue-800 hover:bg-blue-700 rounded-md shadow-lg mr-4"
+                                className="h-10 px-6 text-lg font-semibold bg-blue-800 hover:bg-blue-700 rounded-md shadow-lg"
                             >
                                 + Bid Request
                             </Button>
@@ -1116,12 +1131,7 @@ function BidRequest() {
                                                         ))}
                                                     </Select>
                                                 </Form.Item>
-                                                <div>
-                                                    <label className="block font-semibold text-gray-700 mb-1">Referred By</label>
-                                                    <Form.Item name="referredBy" className="mb-0">
-                                                        <Input readOnly className="bg-yellow-50 border-yellow-200 text-yellow-900 font-semibold h-10" />
-                                                    </Form.Item>
-                                                </div>
+                                               
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                                                 <div>
