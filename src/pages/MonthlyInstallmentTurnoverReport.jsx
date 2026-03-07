@@ -88,6 +88,7 @@ const MonthlyInstallmentTurnoverReport = () => {
             ticket: group?.ticket,
             monthlyPaid: group?.monthlyPaid,
             totalPaid: group?.totalPaid,
+            diffrence: (group?.group_id?.monthly_installment)-(group?.monthlyPaid),
             status: group?.status === "true" ? "Paid" : "Not Paid",
           })
         );
@@ -108,6 +109,7 @@ const MonthlyInstallmentTurnoverReport = () => {
     { key: "ticket", header: "Ticket" },
     { key: "monthlyInstallment", header: "Monthly Installment Turnover" },
     {key: "monthlyPaid", header: "Monthly Paid"},
+    {key: "diffrence", header: "Not Paid in Month"},
     { key: "totalPaid", header: "Total Paid" },
     { key: "status", header: "Status" },
   ];
@@ -122,7 +124,7 @@ const MonthlyInstallmentTurnoverReport = () => {
         <div className="flex-grow p-6">
           <h1 className="text-3xl font-bold mb-6">Reports - Monthly Installment Turnover</h1>
 
-          {/* Filters & Summary */}
+    
           
           <div className="flex flex-wrap gap-4">
             {/* 🎯 Filters */}
@@ -195,7 +197,7 @@ const MonthlyInstallmentTurnoverReport = () => {
           </div>
           </div>
 
-          {/* 🧾 Table */}
+         
           {!isLoading ? (
             <DataTable data={monthlyInstallmentTable} columns={columns}
             exportedPdfName="Monthly Installment Turnover "

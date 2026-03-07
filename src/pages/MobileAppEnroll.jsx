@@ -150,6 +150,7 @@ const MobileAppEnroll = () => {
         const data = res.data.map((item, index) => ({
           _id: item._id,
           id: index + 1,
+          mobile_enroll_code: item?.mobile_enroll_code,
           name: item.user_id?.full_name || "-",
           phone_number: item.user_id?.phone_number || "-",
           group_name: item.group_id?.group_name || "-",
@@ -562,6 +563,7 @@ const MobileAppEnroll = () => {
   }
   columns.push(
    // { key: "ticket", header: "Ticket Number" },
+    {key: "mobile_enroll_code", header: "Mobile Enroll Code"},
     { key: "referred_type", header: "Referred Type" },
     { key: "payment_type", header: "Payment Type" },
     { key: "enrollment_date", header: "Enrollment Date" },
