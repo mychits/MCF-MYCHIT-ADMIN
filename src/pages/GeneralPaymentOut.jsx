@@ -162,7 +162,7 @@ const GeneralPaymentOut = () => {
     setTableAuctions([]);
     setIsLoading(true);
     try {
-      const { data } = await api.get(`/auction/group/${groupId}`);
+      const { data } = await api.get(`/auction/prized/group/${groupId}`);
       if (data?.length) {
         setFilteredAuction(data);
         const formatted = [
