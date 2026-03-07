@@ -1,6 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { Form, Input, DatePicker, TimePicker, Button, Select, notification, Popconfirm, Spin, Modal } from "antd";
-import { EditOutlined, DeleteOutlined, CheckCircleOutlined, PrinterOutlined, DownOutlined, UpOutlined, AppstoreOutlined, UnorderedListOutlined, StopOutlined, CloseOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { 
+  EditOutlined, 
+  DeleteOutlined, 
+  CheckCircleOutlined, 
+  PrinterOutlined, 
+  DownOutlined, 
+  UpOutlined, 
+  AppstoreOutlined, 
+  UnorderedListOutlined, 
+  StopOutlined, 
+  CloseOutlined, 
+  ClockCircleOutlined
+} from '@ant-design/icons';
 import Sidebar from "../components/layouts/Sidebar";
 import Navbar from "../components/layouts/Navbar";
 import ModalComponent from "../components/modals/Modal";
@@ -43,19 +55,22 @@ function BidRequest() {
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
 
+    // View Type State (Upcoming or All)
+    const [viewType, setViewType] = useState('upcoming'); // 'upcoming' or 'all'
+
     const handleOpenCreatePage = () => {
         window.open('/bid-request/create', '_blank', 'noopener,noreferrer');
     };
 
     useEffect(() => {
         const handleFocus = () => {
-            fetchBidRequests();
+            fetchBidRequests(viewType);
         };
         window.addEventListener('focus', handleFocus);
         return () => {
             window.removeEventListener('focus', handleFocus);
         };
-    }, []);
+    }, [viewType]);
 
     const fetchCustomerBalance = async (enrollmentId) => {
         if (!enrollmentId) return;
@@ -236,7 +251,7 @@ function BidRequest() {
         setEditingId(null);
     };
 
-    // Function to update status - WhatsApp removed
+    // Function to update status
     const updateStatus = async (newStatus) => {
         try {
             setLoading(true);
@@ -281,7 +296,7 @@ function BidRequest() {
             });
 
             handleCloseEditModal();
-            fetchBidRequests();
+            fetchBidRequests(viewType);
         } catch (error) {
             console.error(error);
             api.error({ message: "Error", description: "Failed to update status." });
@@ -290,7 +305,7 @@ function BidRequest() {
         }
     };
 
-    // Individual status handlers - WhatsApp removed
+    // Individual status handlers
     const handleSetPending = async () => {
         await updateStatus('Pending');
     };
@@ -312,7 +327,7 @@ function BidRequest() {
         try {
             await API.delete(`/bid-request/delete/${id}`);
             api.success({ message: "Deleted", description: "Deleted successfully." });
-            fetchBidRequests();
+            fetchBidRequests(viewType);
         } catch (error) {
             api.error({ message: "Error", description: "Failed to delete." });
         }
@@ -497,10 +512,10 @@ function BidRequest() {
         printWindow.focus();
     };
 
-    const fetchBidRequests = async () => {
+    const fetchBidRequests = async (type = viewType) => {
         try {
             setLoadingTable(true);
-            const response = await API.get("/bid-request/get-all");
+            const response = await API.get(`/bid-request/get-all?type=${type}`);
             setRawBidRequests(response.data?.data || []);
         } catch (error) {
             setRawBidRequests([]);
@@ -700,8 +715,8 @@ function BidRequest() {
     ];
 
     useEffect(() => {
-        fetchBidRequests();
-    }, []);
+        fetchBidRequests(viewType);
+    }, [viewType]);
 
     return (
         <>
@@ -724,6 +739,50 @@ function BidRequest() {
                             >
                                 + Bid Request
                             </Button>
+                        </div>
+                    </div>
+
+                    {/* View Type Toggle Buttons */}
+                    <div className="flex justify-end mb-4">
+                        <div className="bg-gray-100 rounded-lg p-1 flex gap-1">
+                            <button
+                                onClick={() => {
+                                    setViewType('upcoming');
+                                    fetchBidRequests('upcoming');
+                                }}
+                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
+                                    viewType === 'upcoming' 
+                                        ? 'bg-blue-600 text-white shadow-md' 
+                                        : 'text-gray-600 hover:text-gray-900'
+                                }`}
+                            >
+                                <ClockCircleOutlined />
+                                <span>Upcoming Auctions</span>
+                                {viewType === 'upcoming' && (
+                                    <span className="bg-white text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                                        {summaryStats.totalRequests}
+                                    </span>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setViewType('all');
+                                    fetchBidRequests('all');
+                                }}
+                                className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${
+                                    viewType === 'all' 
+                                        ? 'bg-blue-600 text-white shadow-md' 
+                                        : 'text-gray-600 hover:text-gray-900'
+                                }`}
+                            >
+                                <UnorderedListOutlined />
+                                <span>All Requests</span>
+                                {viewType === 'all' && (
+                                    <span className="bg-white text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                                        {rawBidRequests.length}
+                                    </span>
+                                )}
+                            </button>
                         </div>
                     </div>
 
@@ -1200,7 +1259,7 @@ function BidRequest() {
                                 <Form.Item name="enrollmentId" hidden><Input /></Form.Item>
                                 <Form.Item name="groupId" hidden><Input /></Form.Item>
 
-                                {/* Status Buttons - WhatsApp removed */}
+                                {/* Status Buttons */}
                                 <div className="mb-6">
                                     <h3 className="font-bold text-blue-900 mb-3 border-b pb-1">Update Status</h3>
                                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
