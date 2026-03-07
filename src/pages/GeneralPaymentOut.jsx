@@ -15,6 +15,7 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import { Space } from "lucide-react";
 
 import { numberToIndianWords } from "../helpers/numberToIndianWords";
+import { SearchOutlined, InfoCircleOutlined, TeamOutlined, MoneyCollectOutlined } from '@ant-design/icons';
 
 const GeneralPaymentOut = () => {
   const [groups, setGroups] = useState([]);
@@ -423,6 +424,25 @@ const GeneralPaymentOut = () => {
   const selectednewGroup = groups.find((g) => g._id === selectedAuctionGroupId);
   return (
     <>
+    <style jsx>{`
+  .custom-select :global(.ant-select-selector) {
+    border: 2px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+  
+  .custom-select:hover :global(.ant-select-selector) {
+    border-color: #60a5fa;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .custom-select-focused :global(.ant-select-selector) {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  }
+`}</style>
       <div className="flex mt-20">
         <Navbar
           onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
@@ -442,35 +462,60 @@ const GeneralPaymentOut = () => {
           </h1>
 
           <div className="mt-6 mb-8">
-            <div className="mb-10">
-              <label>Select or Search Group</label>
-              <div className="flex justify-between items-center w-full">
-                <Select
-                  value={selectedAuctionGroupId || undefined}
-                  onChange={handleGroupAuction}
-                  popupMatchSelectWidth={false}
-                  showSearch
-                  className="w-full max-w-md"
-                  placeholder="Search or Select Group"
-                  filterOption={(input, option) =>
-                    option.children
-                      .toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                >
-                  {groups.map((g) => (
-                    <Select.Option key={g._id} value={g._id}>
-                      {g.group_name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
-
-              {filteredAuction[0]?.group_id?.group_type && (
-                <p className="text-xl mt-5">Balance: {double.amount}</p>
-              )}
+        <div className="mb-10 relative">
+  <label className="block font-semibold mb-2 text-gray-800 text-base">
+    Select or Search Group
+    <span className="text-red-500 ml-1">*</span>
+  </label>
+  
+  <div className="flex justify-between items-center w-full">
+    <div className="relative w-full">
+      <Select
+        value={selectedAuctionGroupId || undefined}
+        onChange={handleGroupAuction}
+        popupMatchSelectWidth={false}
+        showSearch
+        className="w-full max-w-md"
+        placeholder="Search or select a group..."
+        filterOption={(input, option) =>
+          option.children
+            .toString()
+            .toLowerCase()
+            .includes(input.toLowerCase())
+        }
+        suffixIcon={<SearchOutlined className="text-gray-400" />}
+        notFoundContent="No groups found"
+        dropdownClassName="rounded-lg shadow-lg py-2 border border-gray-100"
+      >
+        {groups.map((g) => (
+          <Select.Option 
+            key={g._id} 
+            value={g._id}
+            className="px-4 py-2.5 hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center">
+              <TeamOutlined className="mr-2 text-blue-500" />
+              <span>{g.group_name}</span>
             </div>
+          </Select.Option>
+        ))}
+      </Select>
+      <div className="flex items-center mt-1.5 text-xs text-gray-500">
+        <InfoCircleOutlined className="mr-1" />
+        Start typing to search or click to select from the list
+      </div>
+    </div>
+  </div>
+
+  {filteredAuction[0]?.group_id?.group_type && (
+    <div className="mt-4 p-3 bg-gray-50 rounded-md border-l-4 border-blue-500">
+      <p className="text-xl">
+        <MoneyCollectOutlined className="mr-2 text-green-600" />
+        Balance: {double.amount}
+      </p>
+    </div>
+  )}
+</div>
 
             <div>
               {TableAuctions.length ? (

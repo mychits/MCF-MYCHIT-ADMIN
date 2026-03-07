@@ -133,6 +133,7 @@ const User = () => {
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
           id: index + 1,
+          customer_code: group?.customer_code,
           name: group.full_name,
           phone_number: group.phone_number,
           createdAt: group?.createdAt?.split("T")[0],
@@ -465,6 +466,7 @@ const User = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    {key: "customer_code", header:"Customer Code"},
     { key: "approval_status", header: "Approval Status" },
     { key: "customer_id", header: "Customer Id" },
     { key: "name", header: "Customer Name" },

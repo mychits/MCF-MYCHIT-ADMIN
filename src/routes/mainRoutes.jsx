@@ -193,7 +193,7 @@ import BidRequest from "../pages/BidRequest";
 import CreateBidRequest from '../pages/CreateBidRequest';
 import LoanRequest from "../pages/LoanRequest";
 import CreateLoanRequest from "../pages/CreateLoanRequest";
-
+import UnverifiedAgent from "../pages/UnverifiedAgents";
 
 const mainRoutes = createBrowserRouter([
   {
@@ -303,6 +303,14 @@ const mainRoutes = createBrowserRouter([
       <ProtectedRoute>
         <Navbar />
         <QuickSearch />
+      </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/staff-menu/agent-menu/unverified-agent",
+    element: (
+      <ProtectedRoute>
+        <UnverifiedAgent />
       </ProtectedRoute>
     ),
   },

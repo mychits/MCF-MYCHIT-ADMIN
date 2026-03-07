@@ -493,7 +493,7 @@ const Task = () => {
         return {
           _id: task._id,
           id: index + 1,
-
+          task_code: task?.task_code,
           employeeName: owner?.name || "N/A",
           employeeCode: owner?.employeeCode || "N/A",
 
@@ -818,6 +818,8 @@ const Task = () => {
   };
 
   const columns = [
+    {key: "id", header: "SL No"},
+    {key: "task_code", header: "Task Code"},
     { key: "employeeName", header: "Employee Name" },
     { key: "employeeCode", header: "Employee ID" },
     { key: "taskTitle", header: "Task Name" },

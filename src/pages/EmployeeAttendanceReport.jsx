@@ -3035,7 +3035,7 @@ if (loginTime && logoutTime) {
             attendanceId: details?._id,
             Approved: isApproved,
             InitialApproved: isApproved,
-            // preserve initial status for comparison during submit
+          
             InitialStatus:
               normalizedStatus === "-" ? "Absent" : normalizedStatus,
           };

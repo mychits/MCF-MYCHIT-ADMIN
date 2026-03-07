@@ -39,6 +39,7 @@ const Insurance = () => {
         const formattedData = responseData?.map((group, index) => ({
           _id: group._id,
           id: index + 1,
+          insurance_code: group?.insurance_code,
           customerName: group.customer_id?.full_name,
           phoneNumber: group.customer_id?.phone_number,
           insuranceType: group.insurance_type.join(", ") || [],
@@ -55,6 +56,7 @@ const Insurance = () => {
 
   const column = [
     { key: "id", header: "SL No" },
+    {key: "insurance_code", header: "Insurance Code"},
     { key: "customerName", header: "Customer Name" },
     { key: "phoneNumber", header: "Phone Number" },
     { key: "insuranceType", header: "Insurance Type" },

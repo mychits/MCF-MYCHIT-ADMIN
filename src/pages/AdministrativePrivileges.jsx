@@ -38,6 +38,7 @@ const AdministrativePrivileges = () => {
   });
 
   const [formData, setFormData] = useState({
+    admin_code: "",
     name: "",
     password: "",
     phoneNumber: "",
@@ -74,6 +75,7 @@ const AdministrativePrivileges = () => {
         const formattedData = response.data.map((admin, index) => ({
           _id: admin?._id,
           id: index + 1,
+          admin_code: admin?.admin_code,
           name: admin?.name,
           phoneNumber: admin?.phoneNumber,
           password: admin?.password,
@@ -326,6 +328,8 @@ const AdministrativePrivileges = () => {
   };
 
   const columns = [
+    {key: "id", header: "Sl No"},
+    {key: "admin_code", header: "Admin Code"},
     { key: "name", header: "Admin Name" },
     { key: "password", header: "Password" },
     { key: "phoneNumber", header: "Phone Number" },

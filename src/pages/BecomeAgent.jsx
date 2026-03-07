@@ -45,6 +45,7 @@ const BecomeAgent = () => {
   });
 
   const [formData, setFormData] = useState({
+    unverified_agent_code: "",
     agent_full_name: "",
     agent_email: "",
     agent_phone_number: "",
@@ -79,6 +80,7 @@ const BecomeAgent = () => {
           (group, index) => ({
             _id: group?._id,
             id: index + 1,
+            unverified_agent_code: group?.unverified_agent_code,
             agent_full_name: group?.agent_full_name,
             agent_phone_number: group?.agent_phone_number,
             agent_address: group?.agent_address,
@@ -274,6 +276,7 @@ const BecomeAgent = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    {key: "unverified_agent_code", header: "Agent Code"},
     { key: "agent_full_name", header: "Name" },
     { key: "agent_phone_number", header: "Phone Number" },
     { key: "agent_address", header: "Address" },

@@ -247,6 +247,7 @@ useEffect(() => {
         return {
           _id: group?._id,
           id: index + 1,
+          co_applicant_code: group?.co_applicant_code,
           user_id: group?.user_id?.full_name ?? "N/A",
           enrollment_summary: enrollmentSummary,
           co_applicant_referred_type: group?.co_applicant_referred_type,
@@ -710,6 +711,7 @@ useEffect(() => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    {key: "co_applicant_code", header: "Co Applicant Code"},
     { key: "user_id", header: "Customer Name" },
     { key: "co_applicant_referred_type", header: "Referred Type" },
     { key: "enrollment_summary", header: "Enrollment Details" },

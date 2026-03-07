@@ -555,9 +555,9 @@ console.log(fileNameExcel, "fjhgdsjkhfgsdkjfggdf")
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            <tr className="bg-gray-50">
+            <tr className="bg-gray-50 sticky top-14 z-20">
               {safeColumns.map((column) => (
-                <td key={`filter-${column.key}`} className="px-6 py-2">
+                <td key={`filter-${column.key}`} className="px-6 py-2 ">
                   {column.key.toLowerCase() !== "action" && (
                     <Select
                       className="w-full max-w-xs "
