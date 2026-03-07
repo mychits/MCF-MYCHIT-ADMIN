@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-import { Input, Select, Dropdown } from "antd";
+import { Input, Select, Dropdown, Modal as madal } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -13,6 +13,7 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { fieldSize } from "../data/fieldSize"
+const { confirm } = madal;
 const Agent = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
@@ -51,7 +52,8 @@ const Agent = () => {
     adhaar_no: "",
     designation_id: "",
     pan_no: "",
-    agent_type: "agent"
+    agent_type: "agent",
+    isVerified: "true",
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -64,6 +66,7 @@ const Agent = () => {
     adhaar_no: "",
     designation_id: "",
     pan_no: "",
+    isVerified: "false",
   });
 
 
@@ -73,9 +76,10 @@ const Agent = () => {
         setIsLoading(true);
         const response = await api.get("/agent/get");
         setUsers(response?.data?.agent);
-        const formattedData = response.data?.agent?.map((group, index) => ({
+        const formattedData = response.data?.agent?.filter((v) => v.isVerified === true || v.isVerified === "true").map((group, index) => ({
           _id: group?._id,
           id: index + 1,
+          agent_code: group?.agent_code,
           name: group?.name,
           employeeCode: group?.employeeCode || "N/A",
           phone_number: group?.phone_number,
@@ -104,8 +108,19 @@ const Agent = () => {
                         </div>
                       ),
                     },
+                     {
+                        key: "2",
+                        label: (
+                          <div
+                            className="text-blue-600 cursor-pointer"
+                            onClick={() => handleVerifyAgent(group._id)}
+                          >
+                           Un Verify
+                          </div>
+                        ),
+                      },
                     {
-                      key: "2",
+                      key: "3",
                       label: (
                         <div
                           className="text-red-600"
@@ -357,6 +372,65 @@ const Agent = () => {
     }
   };
 
+
+  //   const   handleVerifyAgent = async (userId) => {
+  //   try {
+  //     const response = await api.put(`/agent/update/${userId}`, {
+  //       isVerified: false,
+  //     });
+  //     console.info(response.data, "hfdfjhdfg test");
+  
+  //     setReloadTrigger((prev) => prev + 1);
+  
+  //     setAlertConfig({
+  //       visibility: true,
+  //       message: "Agent Verified Successfully",
+  //       type: "success",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error Un verifying agent:", error);
+  
+  //     setAlertConfig({
+  //       visibility: true,
+  //       message: error?.response?.data?.message || "Failed to verify agent",
+  //       type: "error",
+  //     });
+  //   }
+  // };
+const handleVerifyAgent = (userId) => {
+
+  confirm({
+    title: "Are you sure you want to Un-Verify this agent?",
+    content: "This action will mark the agent as Un-Verified.",
+    okText: "Yes, Verify",
+    cancelText: "Cancel",
+
+    async onOk() {
+      try {
+        await api.put(`/agent/update/${userId}`, {
+          isVerified: false,
+        });
+
+        setReloadTrigger((prev) => prev + 1);
+
+        setAlertConfig({
+          visibility: true,
+          message: "Agent Un-Verified Successfully",
+          type: "success",
+        });
+
+      } catch (error) {
+
+        setAlertConfig({
+          visibility: true,
+          message:
+            error?.response?.data?.message || "Failed to verify agent",
+          type: "error",
+        });
+      }
+    },
+  });
+};
 
 
   const columns = [

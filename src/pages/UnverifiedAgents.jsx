@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-import { Input, Select, Dropdown } from "antd";
+import { Input, Select, Dropdown, Modal as madal } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -13,6 +13,7 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { fieldSize } from "../data/fieldSize";
+const { confirm } = madal;
 const UnverifiedAgent = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
@@ -446,30 +447,65 @@ const UnverifiedAgent = () => {
     }
   };
 
-  const   handleVerifyAgent = async (userId) => {
-  try {
-    const response = await api.put(`/agent/update/${userId}`, {
-      isVerified: true,
-    });
+//   const   handleVerifyAgent = async (userId) => {
+//   try {
+//     const response = await api.put(`/agent/update/${userId}`, {
+//       isVerified: true,
+//     });
 
-    setReloadTrigger((prev) => prev + 1);
+//     setReloadTrigger((prev) => prev + 1);
 
-    setAlertConfig({
-      visibility: true,
-      message: "Agent Verified Successfully",
-      type: "success",
-    });
-  } catch (error) {
-    console.error("Error verifying agent:", error);
+//     setAlertConfig({
+//       visibility: true,
+//       message: "Agent Verified Successfully",
+//       type: "success",
+//     });
+//   } catch (error) {
+//     console.error("Error verifying agent:", error);
 
-    setAlertConfig({
-      visibility: true,
-      message: error?.response?.data?.message || "Failed to verify agent",
-      type: "error",
-    });
-  }
+//     setAlertConfig({
+//       visibility: true,
+//       message: error?.response?.data?.message || "Failed to verify agent",
+//       type: "error",
+//     });
+//   }
+// };
+
+
+const handleVerifyAgent = (userId) => {
+
+  confirm({
+    title: "Are you sure you want to verify this agent?",
+    content: "This action will mark the agent as verified.",
+    okText: "Yes, Verify",
+    cancelText: "Cancel",
+
+    async onOk() {
+      try {
+        await api.put(`/agent/update/${userId}`, {
+          isVerified: true,
+        });
+
+        setReloadTrigger((prev) => prev + 1);
+
+        setAlertConfig({
+          visibility: true,
+          message: "Agent Verified Successfully",
+          type: "success",
+        });
+
+      } catch (error) {
+
+        setAlertConfig({
+          visibility: true,
+          message:
+            error?.response?.data?.message || "Failed to verify agent",
+          type: "error",
+        });
+      }
+    },
+  });
 };
-
   const handleUpdate = async (e) => {
     e.preventDefault();
     const isValid = validateForm();
