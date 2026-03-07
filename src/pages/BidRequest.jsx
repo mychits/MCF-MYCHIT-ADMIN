@@ -131,6 +131,7 @@ function BidRequest() {
 
                     return {
                         id: groupId,
+                        bid_request_code: group?.bid_request_code,
                         groupName: groupData?.group_name || "No Group Name",
                         ticketNumber: enrollment?.tickets || enrollment?.ticket_number || "N/A",
                         startDate: groupData?.start_date ? groupData.start_date.split("T")[0] : "N/A",
@@ -701,6 +702,7 @@ function BidRequest() {
 
     const columns = [
         { key: "id", header: "SL. NO" },
+        { key: "bid_request_code", header:"Bid Request Code"},
         { key: "date", header: "Request Date" },
         { key: "userName", header: "Subscriber Name" },
         { key: "customerId", header: "Customer Id" },
