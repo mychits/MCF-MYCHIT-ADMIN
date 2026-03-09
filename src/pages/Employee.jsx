@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import { IoMdMore } from "react-icons/io";
-import { Input, Select, Dropdown } from "antd";
+import { Input, Select, Dropdown, Modal as madal } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -11,6 +11,7 @@ import filterOption from "../helpers/filterOption";
 import { fieldSize } from "../data/fieldSize";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+const { confirm } = madal;
 const Employee = () => {
   const [users, setUsers] = useState([]);
   const [TableEmployees, setTableEmployees] = useState([]);
@@ -20,6 +21,7 @@ const Employee = () => {
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
+  const [unVerifiedUser, setUnVerifiedUser] = useState(null);
   const [errors, setErrors] = useState({});
   const [searchText, setSearchText] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
@@ -59,9 +61,7 @@ const Employee = () => {
     emergency_contact_person: "",
     emergency_contact_number: [""],
     total_allocated_leaves: "2",
-
-
-
+    isVerified: true,
   });
   const [updateFormData, setUpdateFormData] = useState({
     name: "",
@@ -83,8 +83,7 @@ const Employee = () => {
     emergency_contact_person: "",
     emergency_contact_number: [""],
     total_allocated_leaves: "2",
-
-
+    isVerified: "",
   });
   useEffect(() => {
     const fetchEmployeeProfile = async () => {
@@ -93,7 +92,7 @@ const Employee = () => {
         const response = await api.get("/agent/get-additional-employee-info");
         const employeeData = response.data?.employee || [];
         setUsers(employeeData);
-        const formattedData = employeeData.map((group, index) => ({
+        const formattedData = employeeData.filter((emp) => emp.isVerified === true).map((group, index) => ({
           _id: group?._id,
           id: index + 1,
           name: group?.name || "N/A",
@@ -104,7 +103,7 @@ const Employee = () => {
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
-                trigger={['click']}
+                trigger={["click"]}
                 menu={{
                   items: [
                     {
@@ -120,6 +119,17 @@ const Employee = () => {
                     },
                     {
                       key: "2",
+                      label: (
+                        <div
+                          className="text-blue-600"
+                          onClick={() => handleUnverifyEmployee(group._id)}
+                        >
+                          Un-Verify
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "3",
                       label: (
                         <div
                           className="text-red-600"
@@ -138,6 +148,7 @@ const Employee = () => {
             </div>
           ),
         }));
+        console.info(formattedData, "test check");
         setTableEmployees(formattedData);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -277,7 +288,7 @@ const Employee = () => {
     } else if (!regex.aadhaar.test(data.adhaar_no)) {
       newErrors.adhaar_no = "Invalid Aadhaar number (12 digits required)";
     }
-  
+
     if (!data.pan_no) {
       newErrors.pan_no = "PAN number is required";
     } else if (!regex.pan.test(data.pan_no.toUpperCase())) {
@@ -292,13 +303,13 @@ const Employee = () => {
       newErrors.emergency_contact_person = "Contact Person Name is Required";
     }
     if (!data.total_allocated_leaves) {
-      newErrors.total_allocated_leaves = "Please Provide Total Allocated Leaves";
+      newErrors.total_allocated_leaves =
+        "Please Provide Total Allocated Leaves";
     }
-    if(!selectedManagerId){
-      newErrors.designation_id = "Please Enter Designation";  
+    if (!selectedManagerId) {
+      newErrors.designation_id = "Please Enter Designation";
     }
 
-  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -307,7 +318,7 @@ const Employee = () => {
     const lastPhone = phones[phones.length - 1];
     if (phones.length > 0 && (!lastPhone || lastPhone.trim() === "")) {
       alert(
-        "Please fill in the last emergency contact number before adding a new one."
+        "Please fill in the last emergency contact number before adding a new one.",
       );
       return;
     }
@@ -320,7 +331,7 @@ const Employee = () => {
     const value = e.target.value;
     let phones =
       formState.emergency_contact_number &&
-        formState.emergency_contact_number.length > 0
+      formState.emergency_contact_number.length > 0
         ? [...formState.emergency_contact_number]
         : [""];
     while (phones.length <= index) {
@@ -363,7 +374,7 @@ const Employee = () => {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
         setShowModal(false);
         setFormData({
@@ -385,17 +396,16 @@ const Employee = () => {
           emergency_contact_person: "",
           emergency_contact_number: [""],
           total_allocated_leaves: "2",
-
-          
+          isVerified: true,
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("");
         setReloadTrigger((prev) => prev + 1);
-        setAlertConfig({
-          visibility: true,
-          message: "Employee Added Successfully",
-          type: "success",
-        });
+        // setAlertConfig({
+        //   visibility: true,
+        //   message: "Employee Added Successfully",
+        //   type: "success",
+        // });
       }
     } catch (error) {
       console.error("Error adding Employee:", error);
@@ -436,12 +446,12 @@ const Employee = () => {
     { key: "action", header: "Action" },
   ];
   const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   const handleDeleteModalOpen = async (userId) => {
     try {
       const response = await api.get(
-        `/agent/get-additional-employee-info-by-id/${userId}`
+        `/agent/get-additional-employee-info-by-id/${userId}`,
       );
       setCurrentUser(response.data?.employee);
       setShowModalDelete(true);
@@ -453,9 +463,10 @@ const Employee = () => {
   const handleUpdateModalOpen = async (userId) => {
     try {
       const response = await api.get(
-        `/agent/get-additional-employee-info-by-id/${userId}`
+        `/agent/get-additional-employee-info-by-id/${userId}`,
       );
       setCurrentUpdateUser(response.data?.employee);
+      setUnVerifiedUser(response.data?.employee);
       setUpdateFormData({
         name: response?.data?.employee?.name,
         email: response?.data?.employee?.email,
@@ -476,14 +487,12 @@ const Employee = () => {
           ?.emergency_contact_number || [""],
         emergency_contact_person:
           response?.data?.employee?.emergency_contact_person,
-        total_allocated_leaves: response?.data?.employee?.total_allocated_leaves?.toString() || "2",
-
-     
-
+        total_allocated_leaves:
+          response?.data?.employee?.total_allocated_leaves?.toString() || "2",
       });
       setSelectedManagerId(response.data?.employee?.designation_id?._id || "");
       setSelectedReportingManagerId(
-        response.data?.employee?.reporting_manager_id || ""
+        response.data?.employee?.reporting_manager_id || "",
       );
       setSelectedManagerTitle(response.data?.employee?.designation_id?.title);
       setShowModalUpdate(true);
@@ -503,7 +512,7 @@ const Employee = () => {
     if (currentUser) {
       try {
         await api.delete(
-          `/agent/delete-additional-employee-info-by-id/${currentUser._id}`
+          `/agent/delete-additional-employee-info-by-id/${currentUser._id}`,
         );
         setShowModalDelete(false);
         setCurrentUser(null);
@@ -518,6 +527,40 @@ const Employee = () => {
       }
     }
   };
+  const handleUnverifyEmployee = async (id) => {
+    confirm({
+      title: "Are you sure you want to Un-Verify this Employee?",
+      content: "This action will mark the Employee as Un-Verified.",
+      okText: "Yes, Verify",
+      cancelText: "Cancel",
+
+      async onOk() {
+        try {
+          console.log(id ," thhis is unverfied use")
+          const response = await api.put(
+            `/agent/un-approve-employee/${id}`,
+            {
+              isVerified: false,
+            },
+          );
+         
+          setReloadTrigger((prev) => prev + 1);
+
+          setAlertConfig({
+            visibility: true,
+            message: "Employee Un-Verified Successfully",
+            type: "success",
+          });
+        } catch (error) {
+          setAlertConfig({
+            visibility: true,
+            message: error?.response?.data?.message || "Failed to verify agent",
+            type: "error",
+          });
+        }
+      },
+    });
+  };
   const handleUpdate = async (e) => {
     e.preventDefault();
     const isValid = validateForm();
@@ -528,9 +571,10 @@ const Employee = () => {
           designation_id: selectedManagerId,
           reporting_manager_id: selectedReportingManagerId,
         };
+        console.log(currentUpdateUser,"this isi yy")
         const response = await api.put(
           `/agent/update-additional-employee-info/${currentUpdateUser._id}`,
-          dataToSend
+          dataToSend,
         );
         setShowModalUpdate(false);
         setSelectedManagerId("");
@@ -573,9 +617,6 @@ const Employee = () => {
     const reportingId = event.target.value;
     setSelectedReportingManagerId(reportingId);
   };
-
-
-
 
   return (
     <>
@@ -843,8 +884,10 @@ const Employee = () => {
                       </Select.Option>
                     ))}
                   </Select>
-                  { errors.designation_id && (
-                    <p className="mt-2 text-sm text-red-600">{errors.designation_id}</p>
+                  {errors.designation_id && (
+                    <p className="mt-2 text-sm text-red-600">
+                      {errors.designation_id}
+                    </p>
                   )}
                 </div>
                 <div className="w-1/2">
@@ -879,7 +922,7 @@ const Employee = () => {
                     value={formData?.status || undefined}
                     onChange={(value) => handleAntDSelect("status", value)}
                   >
-                    {["Active", "Inactive", "Terminated",].map((stype) => (
+                    {["Active", "Inactive", "Terminated"].map((stype) => (
                       <Select.Option key={stype} value={stype.toLowerCase()}>
                         {stype}
                       </Select.Option>
@@ -1048,7 +1091,8 @@ const Employee = () => {
                     className="block mb-2 text-sm font-medium text-gray-900"
                     htmlFor="total_allocated_leaves"
                   >
-                    Total Allocated Leaves <span className="text-red-500">*</span>
+                    Total Allocated Leaves{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <Input
                     type="number"
@@ -1098,7 +1142,6 @@ const Employee = () => {
                     htmlFor="emergency"
                   >
                     Emergency Phone Number{" "}
-                    
                   </label>
                   <div className="flex items-center mb-2 gap-2">
                     <Input
@@ -1127,7 +1170,7 @@ const Employee = () => {
                               formData,
                               setFormData,
                               index + 1,
-                              e
+                              e,
                             )
                           }
                           id={`emergency_${index + 1}`}
@@ -1156,11 +1199,6 @@ const Employee = () => {
                   </button>
                 </div>
               </div>
-
-
-            
-
-
 
               <div className="w-full flex justify-end">
                 <button
@@ -1373,7 +1411,7 @@ const Employee = () => {
                   >
                     Designation <span className="text-red-500 ">*</span>
                   </label>
-                 
+
                   <Select
                     id="designation_id"
                     name="designation_id"
@@ -1480,8 +1518,8 @@ const Employee = () => {
                     value={
                       updateFormData?.leaving_date
                         ? new Date(updateFormData?.leaving_date || "")
-                          .toISOString()
-                          .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                         : ""
                     }
                     onChange={handleInputChange}
@@ -1506,8 +1544,8 @@ const Employee = () => {
                     value={
                       updateFormData?.dob
                         ? new Date(updateFormData?.dob || "")
-                          .toISOString()
-                          .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                         : ""
                     }
                     onChange={handleInputChange}
@@ -1664,7 +1702,6 @@ const Employee = () => {
                     htmlFor="emergency"
                   >
                     Emergency Phone Number{" "}
-                  
                   </label>
                   <div className="flex items-center mb-2 gap-2">
                     <Input
@@ -1676,7 +1713,7 @@ const Employee = () => {
                           updateFormData,
                           setUpdateFormData,
                           0,
-                          e
+                          e,
                         )
                       }
                       id="emergency_0"
@@ -1701,7 +1738,7 @@ const Employee = () => {
                               updateFormData,
                               setUpdateFormData,
                               index + 1,
-                              e
+                              e,
                             )
                           }
                           id={`emergency_${index + 1}`}
@@ -1714,7 +1751,7 @@ const Employee = () => {
                             removePhoneField(
                               updateFormData,
                               setUpdateFormData,
-                              index + 1
+                              index + 1,
                             )
                           }
                           className="text-red-600 text-sm"
@@ -1734,9 +1771,6 @@ const Employee = () => {
                   </button>
                 </div>
               </div>
-
-
-            
 
               <div className="w-full flex justify-end">
                 <button
