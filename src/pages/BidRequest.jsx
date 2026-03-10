@@ -119,7 +119,7 @@ function BidRequest() {
 
                     return {
                         id: groupId,
-                        bid_request_code: group?.bid_request_code,
+                        bid_request_code: groupData?.bid_request_code,
                         groupName: groupData?.group_name || "No Group Name",
                         ticketNumber: enrollment?.tickets || enrollment?.ticket_number || "N/A",
                         startDate: groupData?.start_date ? groupData.start_date.split("T")[0] : "N/A",
@@ -187,13 +187,13 @@ function BidRequest() {
     };
 
     const handleOpenEditModal = async (item) => {
-        setOpenActionId(null);
-        setEditingId(item._id);
-        setShowBalance(true);
-        setIsEditModalOpen(true);
-
-        const userObj = typeof item.subscriberId === 'object' ? item.subscriberId : {};
-        const userId = userObj._id || item.subscriberId;
+  setOpenActionId(null);
+  setEditingId(item._id);
+  setShowBalance(true);
+  setIsEditModalOpen(true);
+  
+  const userObj = typeof item.subscriberId === 'object' ? item.subscriberId : {};
+  const userId = userObj._id || item.subscriberId;
         const nameToDisplay = userObj.full_name || userObj.name || item.subscriberName || item.userName || "";
         const phoneToDisplay = userObj.phone_number || userObj.mobile || item.mobileNumber || item.mobileNumberRaw || "";
         const customerIdToDisplay = (typeof userObj === 'object') ? (userObj.customer_id || "N/A") : "N/A";
@@ -208,29 +208,32 @@ function BidRequest() {
                         : item.referredBy || "N/A";
 
         editForm.setFieldsValue({
-            subscriberId: userId,
-            
-            subscriberName: nameToDisplay,
-            mobileNumber: phoneToDisplay,
-            customerId: customerIdToDisplay,
-            auctionDate: item.auctionDate ? dayjs(item.auctionDate) : null,
-            auctionTime: item.auction_time ? dayjs(item.auction_time, "HH:mm") : null,
-            referredBy: referredByFromTable,
-            requestDate: item.createdAt ? dayjs(item.createdAt) : dayjs(),
-            groupName: item.groupName,
-            ticketNumber: item.ticketNumber,
-            enrollmentId: item.enrollmentId,
-            groupId: item.groupId?._id || item.groupId
-        });
+    subscriberId: userId,
+    subscriberName: nameToDisplay,
+    mobileNumber: phoneToDisplay,
+    customerId: customerIdToDisplay,
+    auctionDate: item.auctionDate ? dayjs(item.auctionDate) : null,
+    auctionTime: item.auction_time ? dayjs(item.auction_time, "HH:mm") : null,
+    referredBy: referredByFromTable,
+    requestDate: item.createdAt ? dayjs(item.createdAt) : dayjs(),
+    groupName: item.groupName,
+    ticketNumber: item.ticketNumber,
+    enrollmentId: item.enrollmentId,
+    // Ensure groupId is set correctly:
+    groupId: item.groupId?._id || item.groupId || item.groupId?.id
+  });
 
         setCustomerBalance(item.auctions?.balance || 0);
+  
+  if (users.length === 0) await fetchUsers();
+  
 
-        if (users.length === 0) await fetchUsers();
-        await fetchEditCustomerDetails(userId, item.enrollmentId);
-        if (item.enrollmentId) {
-            await fetchCustomerBalance(item.enrollmentId);
-        }
-    };
+  await fetchEditCustomerDetails(userId, item.enrollmentId);
+  
+  if (item.enrollmentId) {
+    await fetchCustomerBalance(item.enrollmentId);
+  }
+};
 
     const handleCloseEditModal = () => {
         setIsEditModalOpen(false);
@@ -241,71 +244,112 @@ function BidRequest() {
         setEditingId(null);
     };
 
-    // Function to update status - WhatsApp removed
-    const updateStatus = async (newStatus) => {
-        try {
-            setLoading(true);
-            const values = editForm.getFieldsValue();
-            const groupIndex = values.selectedGroupIndex ?? selectedEditGroupIndex;
-            const selectedGroup = editGroups[groupIndex];
 
-            if (!selectedGroup) {
-                api.error({ message: "Error", description: "Please select a valid group." });
-                setLoading(false);
-                return;
-            }
+   const updateStatus = async (newStatus) => {
+  try {
+    setLoading(true);
 
-            const formattedTime = values.auctionTime ? values.auctionTime.format('HH:mm') : null;
+    const values = await editForm.validateFields();
+    const groupIndex = values.selectedGroupIndex ?? selectedEditGroupIndex;
+    const selectedGroup = editGroups[groupIndex];
 
-            const payload = {
-                subscriberId: values.subscriberId,
-                subscriberName: values.subscriberName,
-                mobileNumber: values.mobileNumber,
-                groupName: selectedGroup?.groupName,
-                ticketNumber: selectedGroup?.ticketNumber,
-                auctionDate: values.auctionDate ? values.auctionDate.format('YYYY-MM-DD') : null,
-                auction_time: formattedTime,
-                referred_by: values.referredBy,
-                groupId: selectedGroup?.id,
-                enrollmentId: selectedGroup?.enrollmentId,
-                status: newStatus,
-            };
 
-            await API.put(`/bid-request/update/${editingId}`, payload);
+    if (!selectedGroup) {
+      api.error({ 
+        message: "Error", 
+        description: "Group details not found. Please select a valid group." 
+      });
+      setLoading(false);
+      return;
+    }
 
-            const statusMessages = {
-                'Pending': 'Bid Request moved to Pending successfully',
-                'Approved': 'Bid Request approved successfully',
-                'Declined': 'Bid Request declined successfully',
-                'Rejected': 'Bid Request rejected for non-payment successfully'
-            };
+   
+    const auctionDate = values.auctionDate?.format('YYYY-MM-DD');
+    const auctionTime = values.auctionTime?.format('HH:mm');
+    const requestDate = values.requestDate?.format('YYYY-MM-DD');
 
-            api.success({
-                message: "Status Updated",
-                description: statusMessages[newStatus] || `Status updated to ${newStatus}`
-            });
-
-            handleCloseEditModal();
-            fetchBidRequests();
-        } catch (error) {
-            console.error(error);
-            api.error({ message: "Error", description: "Failed to update status." });
-        } finally {
-            setLoading(false);
-        }
+    
+    const payload = {
+      subscriberId: values.subscriberId,
+      subscriberName: values.subscriberName,
+      mobileNumber: values.mobileNumber,
+      customerId: values.customerId,
+      groupName: selectedGroup.groupName,
+      ticketNumber: selectedGroup.ticketNumber,
+      auctionDate: auctionDate,          
+      auction_time: auctionTime,      
+      auctionTime: auctionTime,          
+      referredBy: values.referredBy,     
+      referred_by: values.referredBy,    
+      groupId: selectedGroup.id,        
+      enrollmentId: selectedGroup.enrollmentId,
+      status: newStatus,
+      requestDate: requestDate,         
+      updatedBy: users.find(u => u._id === values.subscriberId)?._id 
     };
 
-    // Individual status handlers - WhatsApp removed
+
+    console.log('📤 Sending payload:', payload); // Debug log
+
+    // 6. API Call
+    const response = await API.put(`/bid-request/update/${editingId}`, payload);
+    
+    // 7. Success handling
+    const statusMessages = {
+      'Pending': 'Bid Request moved to Pending successfully',
+      'Accept': 'Bid Request accepted successfully',
+      'Decline': 'Bid Request declined successfully',
+      'Rejected': 'Bid Request rejected for non-payment successfully'
+    };
+    
+    api.success({
+      message: "Status Updated",
+      description: statusMessages[newStatus] || `Status updated to ${newStatus}`
+    });
+    
+    handleCloseEditModal();
+    fetchBidRequests();
+    
+  } catch (error) {
+    console.error('❌ Update Error:', error);
+    
+    // Extract meaningful error message
+    let errorMessage = "Failed to update status.";
+    
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.response?.data?.errors) {
+      // Handle validation errors array
+      errorMessage = Object.values(error.response.data.errors)
+        .flat()
+        .join(', ');
+    } else if (error.errorFields) {
+      // Antd form validation errors
+      errorMessage = error.errorFields
+        .map(f => `${f.name.join('.')}: ${f.errors.join(', ')}`)
+        .join('; ');
+    }
+    
+    api.error({ 
+      message: "Update Failed", 
+      description: errorMessage 
+    });
+    
+  } finally {
+    setLoading(false);
+  }
+};
+
     const handleSetPending = async () => {
         await updateStatus('Pending');
     };
 
-    const handleSetApproved = async () => {
-        await updateStatus('Approved');
+    const handleSetAccept = async () => {
+        await updateStatus('Accept');
     };
 
-    const handleSetDeclined = async () => {
-        await updateStatus('Declined');
+    const handleSetDecline = async () => {
+        await updateStatus('Decline');
     };
 
     const handleSetRejected = async () => {
@@ -560,8 +604,8 @@ function BidRequest() {
     const summaryStats = useMemo(() => {
         const totalRequests = rawBidRequests.length;
         const pendingRequests = rawBidRequests.filter(item => item.status === "Pending").length;
-        const approvedRequests = rawBidRequests.filter(item => item.status === "Approved").length;
-        const declinedRequests = rawBidRequests.filter(item => item.status === "Declined").length;
+        const acceptRequests = rawBidRequests.filter(item => item.status === "Accept").length;
+        const declineRequests = rawBidRequests.filter(item => item.status === "Decline").length;
         const rejectedRequests = rawBidRequests.filter(item => item.status === "Rejected").length;
         const totalBalance = rawBidRequests.reduce((sum, item) => sum + (item.auctions?.balance || 0), 0);
 
@@ -573,23 +617,23 @@ function BidRequest() {
                 groupStats[groupName] = {
                     total: 0,
                     pending: 0,
-                    approved: 0,
-                    declined: 0,
+                    accept: 0,
+                    decline: 0,
                     rejected: 0
                 };
             }
             groupStats[groupName].total++;
             if (item.status === "Pending") groupStats[groupName].pending++;
-            if (item.status === "Approved") groupStats[groupName].approved++;
-            if (item.status === "Declined") groupStats[groupName].declined++;
+            if (item.status === "Accept") groupStats[groupName].accept++;
+            if (item.status === "Decline") groupStats[groupName].decline++;
             if (item.status === "Rejected") groupStats[groupName].rejected++;
         });
 
         return {
             totalRequests,
             pendingRequests,
-            approvedRequests,
-            declinedRequests,
+            acceptRequests,
+            declineRequests,
             rejectedRequests,
             totalBalance,
             groupStats
@@ -783,13 +827,13 @@ function BidRequest() {
 
                         {/* Approved Requests */}
                         <div
-                            className={`bg-white rounded-lg shadow p-4 border-l-4 border-green-500 cursor-pointer hover:shadow-lg transition-all ${selectedStatus === 'Approved' ? 'ring-2 ring-green-500 bg-green-50' : ''}`}
-                            onClick={() => setSelectedStatus(selectedStatus === 'Approved' ? 'all' : 'Approved')}
+                            className={`bg-white rounded-lg shadow p-4 border-l-4 border-green-500 cursor-pointer hover:shadow-lg transition-all ${selectedStatus === 'Accept' ? 'ring-2 ring-green-500 bg-green-50' : ''}`}
+                            onClick={() => setSelectedStatus(selectedStatus === 'Accept' ? 'all' : 'Accept')}
                         >
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <p className="text-sm text-gray-500">Approved Requests</p>
-                                    <p className="text-2xl font-bold text-green-600">{summaryStats.approvedRequests}</p>
+                                    <p className="text-sm text-gray-500">Accept Requests</p>
+                                    <p className="text-2xl font-bold text-green-600">{summaryStats.acceptRequests}</p>
                                 </div>
                                 <div className="p-3 bg-green-100 rounded-full">
                                     <CheckCircleOutlined className="text-green-600 text-xl" />
@@ -799,13 +843,13 @@ function BidRequest() {
 
                         {/* Declined Requests */}
                         <div
-                            className={`bg-white rounded-lg shadow p-4 border-l-4 border-red-500 cursor-pointer hover:shadow-lg transition-all ${selectedStatus === 'Declined' ? 'ring-2 ring-red-500 bg-red-50' : ''}`}
-                            onClick={() => setSelectedStatus(selectedStatus === 'Declined' ? 'all' : 'Declined')}
+                            className={`bg-white rounded-lg shadow p-4 border-l-4 border-red-500 cursor-pointer hover:shadow-lg transition-all ${selectedStatus === 'Decline' ? 'ring-2 ring-red-500 bg-red-50' : ''}`}
+                            onClick={() => setSelectedStatus(selectedStatus === 'Decline' ? 'all' : 'Decline')}
                         >
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <p className="text-sm text-gray-500">Declined Requests</p>
-                                    <p className="text-2xl font-bold text-red-600">{summaryStats.declinedRequests}</p>
+                                    <p className="text-sm text-gray-500">Decline Requests</p>
+                                    <p className="text-2xl font-bold text-red-600">{summaryStats.declineRequests}</p>
                                 </div>
                                 <div className="p-3 bg-red-100 rounded-full">
                                     <CloseOutlined className="text-red-600 text-xl" />
@@ -894,13 +938,13 @@ function BidRequest() {
                                                             <div className="text-[10px] text-gray-500">Pend</div>
                                                             <div className={`text-sm font-bold ${stats.pending > 0 ? 'text-yellow-600' : 'text-gray-400'}`}>{stats.pending}</div>
                                                         </div>
-                                                        <div className={`p-1 rounded ${stats.approved > 0 ? 'bg-green-50' : 'bg-gray-50'}`}>
+                                                        <div className={`p-1 rounded ${stats.accept > 0 ? 'bg-green-50' : 'bg-gray-50'}`}>
                                                             <div className="text-[10px] text-gray-500">Appr</div>
-                                                            <div className={`text-sm font-bold ${stats.approved > 0 ? 'text-green-600' : 'text-gray-400'}`}>{stats.approved}</div>
+                                                            <div className={`text-sm font-bold ${stats.accept > 0 ? 'text-green-600' : 'text-gray-400'}`}>{stats.accept}</div>
                                                         </div>
-                                                        <div className={`p-1 rounded ${stats.declined > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
+                                                        <div className={`p-1 rounded ${stats.decline > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
                                                             <div className="text-[10px] text-gray-500">Decl</div>
-                                                            <div className={`text-sm font-bold ${stats.declined > 0 ? 'text-red-600' : 'text-gray-400'}`}>{stats.declined}</div>
+                                                            <div className={`text-sm font-bold ${stats.decline > 0 ? 'text-red-600' : 'text-gray-400'}`}>{stats.decline}</div>
                                                         </div>
                                                         <div className={`p-1 rounded ${stats.rejected > 0 ? 'bg-orange-50' : 'bg-gray-50'}`}>
                                                             <div className="text-[10px] text-gray-500">Rej</div>
@@ -922,8 +966,8 @@ function BidRequest() {
                                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Group Name</th>
                                                     <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Total</th>
                                                     <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Pending</th>
-                                                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Approved</th>
-                                                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Declined</th>
+                                                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Accept</th>
+                                                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Decline</th>
                                                     <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Rejected</th>
                                                 </tr>
                                             </thead>
@@ -948,13 +992,13 @@ function BidRequest() {
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                            <span className={`px-3 py-1 inline-flex text-sm font-bold leading-5 rounded-full ${stats.approved > 0 ? 'text-green-700 bg-green-100' : 'text-gray-500 bg-gray-100'}`}>
-                                                                {stats.approved}
+                                                            <span className={`px-3 py-1 inline-flex text-sm font-bold leading-5 rounded-full ${stats.accept > 0 ? 'text-green-700 bg-green-100' : 'text-gray-500 bg-gray-100'}`}>
+                                                                {stats.accept}
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                            <span className={`px-3 py-1 inline-flex text-sm font-bold leading-5 rounded-full ${stats.declined > 0 ? 'text-red-700 bg-red-100' : 'text-gray-500 bg-gray-100'}`}>
-                                                                {stats.declined}
+                                                            <span className={`px-3 py-1 inline-flex text-sm font-bold leading-5 rounded-full ${stats.decline > 0 ? 'text-red-700 bg-red-100' : 'text-gray-500 bg-gray-100'}`}>
+                                                                {stats.decline}
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -985,8 +1029,8 @@ function BidRequest() {
                                 >
                                     <Option value="all">All Status</Option>
                                     <Option value="Pending">Pending</Option>
-                                    <Option value="Approved">Approved</Option>
-                                    <Option value="Declined">Declined</Option>
+                                    <Option value="Accept">Accept</Option>
+                                    <Option value="Decline">Decline</Option>
                                     <Option value="Rejected">Rejected</Option>
                                 </Select>
                             </div>
@@ -1065,15 +1109,15 @@ function BidRequest() {
                                     "Total Requests",
                                     "Total Balance",
                                     "Pending Requests",
-                                    "Approved Requests",
-                                    "Declined Requests"
+                                    "Accept Requests",
+                                    "Decline Requests"
                                 ]}
                                 printHeaderValues={[
                                     summaryStats.totalRequests.toString(),
                                     `₹ ${summaryStats.totalBalance.toLocaleString("en-IN")}`,
                                     summaryStats.pendingRequests.toString(),
-                                    summaryStats.approvedRequests.toString(),
-                                    summaryStats.declinedRequests.toString()
+                                    summaryStats.acceptRequests.toString(),
+                                    summaryStats.declineRequests.toString()
                                 ]}
                             />
                         )}
@@ -1230,36 +1274,38 @@ function BidRequest() {
                                                 loading={loading}
                                                 className="h-14 font-bold border-yellow-500 text-yellow-600 hover:bg-yellow-50"
                                                 icon={<ClockCircleOutlined />}
+                                                disabled={editGroups.length === 0}
                                                 block
                                             >
                                                 Pending
                                             </Button>
                                         </Popconfirm>
 
-                                        {/* Approved Button */}
+                                        {/* Accept Button */}
                                         <Popconfirm
                                             title="Approve Request?"
-                                            description="This will update the status to Approved."
-                                            onConfirm={handleSetApproved}
+                                            description="This will update the status to Accepted."
+                                            onConfirm={handleSetAccept}
                                             okText="Yes"
                                             cancelText="No"
                                         >
                                             <Button
                                                 type="primary"
                                                 loading={loading}
+                                                disabled={editGroups.length === 0}
                                                 className="h-14 font-bold bg-green-600 hover:bg-green-700 border-green-600"
                                                 icon={<CheckCircleOutlined />}
                                                 block
                                             >
-                                                Approved
+                                                Accept
                                             </Button>
                                         </Popconfirm>
 
                                         {/* Declined Button */}
                                         <Popconfirm
                                             title="Decline Request?"
-                                            description="This will update the status to Declined."
-                                            onConfirm={handleSetDeclined}
+                                            description="This will update the status to Decline."
+                                            onConfirm={handleSetDecline}
                                             okText="Yes"
                                             cancelText="No"
                                         >
@@ -1269,9 +1315,10 @@ function BidRequest() {
                                                 loading={loading}
                                                 className="h-14 font-bold"
                                                 icon={<CloseOutlined />}
+                                                disabled={editGroups.length === 0}
                                                 block
                                             >
-                                                Declined
+                                                Decline
                                             </Button>
                                         </Popconfirm>
 
@@ -1289,6 +1336,7 @@ function BidRequest() {
                                                 loading={loading}
                                                 className="h-14 font-bold bg-orange-600 hover:bg-orange-700 border-orange-600"
                                                 icon={<StopOutlined />}
+                                                 disabled={editGroups.length === 0}
                                                 block
                                             >
                                                 Reject<br/>(Non-Pay)

@@ -1012,13 +1012,13 @@ const CustomerRewards = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.total_amount}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              {employee.total_points > 2000 && (
+                              {employee.total_points > 1500 && (
                                 <span className="flex items-center text-sm text-green-600">
                                   <TrendingUp className="h-4 w-4 mr-1" />
                                   Up
                                 </span>
                               )}
-                              {employee.total_points < 2000 && (
+                              {employee.total_points < 1500 && (
                                 <span className="flex items-center text-sm text-red-600">
                                   <TrendingUp className="h-4 w-4 mr-1 rotate-180" />
                                   Down
