@@ -128,7 +128,7 @@ const User = () => {
     const fetchUsers = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get("/user/get-user");
+        const response = await api.get("/user/get-new-user");
         setUsers(response.data);
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
