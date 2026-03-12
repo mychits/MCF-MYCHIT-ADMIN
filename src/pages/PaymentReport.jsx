@@ -746,233 +746,7 @@ const PaymentReport = () => {
                 Track and manage all receipt transactions
               </p>
             </div>
-            <div className="p-6 bg-gray-50 rounded-2xl font-mono">
-              {/* SECTION: Overview */}
-              <div className="mb-6">
-                <Title level={4} className="!mb-4 text-gray-700">
-                  Financial Overview
-                </Title>
-                <Spin spinning={overviewLoading} size="large">
-                  <Row gutter={[20, 20]}>
-                    <Col xs={24} md={12}>
-                      <Card
-                        className="border border-gray-200 shadow-md rounded-lg bg-white relative overflow-hidden"
-                        bodyStyle={{ padding: 16 }}
-                      >
-                       
-                        <div className="text-center border-b border-dashed pb-2 mb-3">
-                          
-                          <p className="text-sm font-semibold text-gray-700">
-                            Total Collections
-                          </p>
-                        </div>
-
-                        <Statistic
-                          prefix={
-                            <ArrowUpOutlined className="text-emerald-500" />
-                          }
-                          value={totals.in}
-                          precision={2}
-                          valueStyle={{
-                            color: "#065f46",
-                            fontWeight: "700",
-                            fontSize: "2.0rem",
-                            textAlign: "center",
-                          }}
-                        />
-
-                        <div className="border-t border-dashed mt-3 pt-2 text-center text-[11px] italic text-gray-600">
-                          {numberToIndianWords(Number(totals.in))}
-                        </div>
-                      </Card>
-                    </Col>
-                    <Col xs={24} md={12}>
-                      <Card
-                        className="border border-gray-200 shadow-md rounded-lg bg-white relative overflow-hidden"
-                        bodyStyle={{ padding: 16 }}
-                      >
-                    
-                        <div className="text-center border-b border-dashed pb-2 mb-3">
-                          
-                          <p className="text-sm font-semibold text-gray-700">
-                            Total PayOuts
-                          </p>
-                        </div>
-
-                        <Statistic
-                          prefix={
-                            <ArrowDownOutlined className="text-rose-500" />
-                          }
-                          value={totals.out}
-                          precision={2}
-                          valueStyle={{
-                            color: "#065f46",
-                            fontWeight: "700",
-                            fontSize: "2.0rem",
-                            textAlign: "center",
-                          }}
-                        />
-
-                        <div className="border-t border-dashed mt-3 pt-2 text-center text-[11px] italic text-gray-600">
-                          {numberToIndianWords(Number(totals.out))}
-                        </div>
-                      </Card>
-                    </Col>
-                  </Row>
-                </Spin>
-              </div>
-
-              <Divider />
-
-        
-              <div className="mb-6">
-                <Title level={4} className="!mb-4 text-gray-700">
-                  Category Breakdown
-                </Title>
-                <Spin spinning={categoryLoading} size="large">
-                  <Row gutter={[16, 16]}>
-                    {[
-                      {
-                        title: "Chit Collections",
-                        val: categoryTotals.chit,
-                        color: "#4f46e5",
-                        bg: "from-indigo-50 to-white",
-                        icon: <BankOutlined className="text-indigo-500" />,
-                      },
-                      {
-                        title: "Loan Collections",
-                        val: categoryTotals.loan,
-                        color: "#f59e0b",
-                        bg: "from-amber-50 to-white",
-                        icon: (
-                          <span className="text-amber-500 font-bold">₹</span>
-                        ),
-                      },
-                      {
-                        title: "Pigme Collections",
-                        val: categoryTotals.pigme,
-                        color: "#0d9488",
-                        bg: "from-teal-50 to-white",
-                        icon: <WalletOutlined className="text-teal-500" />,
-                      },
-                      {
-                        title: "Registration Fees",
-                        val: categoryTotals.registration,
-                        color: "#db2777",
-                        bg: "from-pink-50 to-white",
-                        icon: (
-                          <SafetyCertificateOutlined className="text-pink-500" />
-                        ),
-                      },
-                    ].map((item, idx) => (
-                      <Col xs={24} sm={12} md={6} key={idx}>
-                        <Card
-                          size="small"
-                          className={`border shadow-md rounded-xl bg-gradient-to-b ${item.bg}`}
-                          bodyStyle={{ padding: 14 }}
-                        >
-                          {/* Header */}
-                          <div className="text-center border-b border-dashed pb-2 mb-2">
-                            
-
-                            <p className="text-xs font-semibold flex items-center justify-center gap-2">
-                              <span className="text-[15px]">
-                                {item.icon}
-
-                                {item.title}
-                              </span>
-                            </p>
-                          </div>
-
-                          {/* Amount */}
-                          <div
-                            className="text-center text-xl font-bold"
-                            style={{ color: item.color }}
-                          >
-                            ₹ {(item.val || 0).toLocaleString("en-IN")}
-                          </div>
-
-                          {/* Words */}
-                          <div className="border-t border-dashed mt-2 pt-2 text-[10px] text-center italic text-gray-500">
-                            {numberToIndianWords(item.val || 0)} Only
-                          </div>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
-                </Spin>
-              </div>
-
-              {/* ================= SECTION: Payment Modes ================= */}
-              <div className="mb-6">
-                <Title level={4} className="!mb-4 text-gray-700">
-                  Payment Modes
-                </Title>
-                <Spin spinning={modeLoading} size="large">
-              
-                <Row gutter={[16, 16]}>
-                  {[
-                    {
-                      title: "Cash",
-                      val: modeTotals.cash,
-                      color: "#16a34a",
-                      bg: "from-green-50 to-white",
-                      icon: <WalletOutlined className="text-green-500" />,
-                    },
-                    {
-                      title: "Online",
-                      val: modeTotals.online,
-                      color: "#2563eb",
-                      bg: "from-blue-50 to-white",
-                      icon: <GlobalOutlined className="text-blue-500" />,
-                    },
-                    {
-                      title: "Payment Link",
-                      val: modeTotals.link,
-                      color: "#7c3aed",
-                      bg: "from-violet-50 to-white",
-                      icon: <LinkOutlined className="text-violet-500" />,
-                    },
-                  ].map((mode, idx) => (
-                    <Col xs={24} md={8} key={idx}>
-                      <Card
-                        className={`border shadow-md rounded-xl bg-gradient-to-b ${mode.bg}`}
-                        bodyStyle={{ padding: 16 }}
-                      >
-                        {/* Header */}
-                        <div className="text-center border-b border-dashed pb-2 mb-2">
-                          
-
-                          <p className="text-sm font-semibold flex items-center justify-center gap-2">
-                            <span className="text-[15px]">
-                              {mode.icon }
-                              {mode.title} Collection
-                            </span>
-                          </p>
-                        </div>
-
-                        {/* Amount */}
-                        <div
-                          className="text-center text-xl font-bold"
-                          style={{ color: mode.color }}
-                        >
-                          ₹ {(mode.val || 0).toLocaleString("en-IN")}
-                        </div>
-
-                        {/* Words */}
-                        <div className="border-t border-dashed mt-2 pt-2 text-[10px] italic text-center text-gray-500">
-                          {numberToIndianWords(mode.val || 0)} Only
-                        </div>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-                </Spin>
-              </div>
-            </div>
-
-            <div className="mt-6 mb-8">
-              {/* Filters Section */}
+               {/* Filters Section */}
               <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                   <svg
@@ -1242,6 +1016,233 @@ const PaymentReport = () => {
                   </div>
                 </div>
               </div>
+            <div className="p-6 bg-gray-50 rounded-2xl font-mono">
+              {/* SECTION: Overview */}
+              <div className="mb-6">
+                <Title level={4} className="!mb-4 text-gray-700">
+                  Financial Overview
+                </Title>
+                <Spin spinning={overviewLoading} size="large">
+                  <Row gutter={[20, 20]}>
+                    <Col xs={24} md={12}>
+                      <Card
+                        className="border border-gray-200 shadow-md rounded-lg bg-white relative overflow-hidden"
+                        bodyStyle={{ padding: 16 }}
+                      >
+                       
+                        <div className="text-center border-b border-dashed pb-2 mb-3">
+                          
+                          <p className="text-sm font-semibold text-gray-700">
+                            Total Collections
+                          </p>
+                        </div>
+
+                        <Statistic
+                          prefix={
+                            <ArrowUpOutlined className="text-emerald-500" />
+                          }
+                          value={totals.in}
+                          precision={2}
+                          valueStyle={{
+                            color: "#065f46",
+                            fontWeight: "700",
+                            fontSize: "2.0rem",
+                            textAlign: "center",
+                          }}
+                        />
+
+                        <div className="border-t border-dashed mt-3 pt-2 text-center text-[11px] italic text-gray-600">
+                          {numberToIndianWords(Number(totals.in))}
+                        </div>
+                      </Card>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Card
+                        className="border border-gray-200 shadow-md rounded-lg bg-white relative overflow-hidden"
+                        bodyStyle={{ padding: 16 }}
+                      >
+                    
+                        <div className="text-center border-b border-dashed pb-2 mb-3">
+                          
+                          <p className="text-sm font-semibold text-gray-700">
+                            Total PayOuts
+                          </p>
+                        </div>
+
+                        <Statistic
+                          prefix={
+                            <ArrowDownOutlined className="text-rose-500" />
+                          }
+                          value={totals.out}
+                          precision={2}
+                          valueStyle={{
+                            color: "#065f46",
+                            fontWeight: "700",
+                            fontSize: "2.0rem",
+                            textAlign: "center",
+                          }}
+                        />
+
+                        <div className="border-t border-dashed mt-3 pt-2 text-center text-[11px] italic text-gray-600">
+                          {numberToIndianWords(Number(totals.out))}
+                        </div>
+                      </Card>
+                    </Col>
+                  </Row>
+                </Spin>
+              </div>
+
+              <Divider />
+
+        
+              <div className="mb-6">
+                <Title level={4} className="!mb-4 text-gray-700">
+                  Category Breakdown
+                </Title>
+                <Spin spinning={categoryLoading} size="large">
+                  <Row gutter={[16, 16]}>
+                    {[
+                      {
+                        title: "Chit Collections",
+                        val: categoryTotals.chit,
+                        color: "#4f46e5",
+                        bg: "from-indigo-50 to-white",
+                        icon: <BankOutlined className="text-indigo-500" />,
+                      },
+                      {
+                        title: "Loan Collections",
+                        val: categoryTotals.loan,
+                        color: "#f59e0b",
+                        bg: "from-amber-50 to-white",
+                        icon: (
+                          <span className="text-amber-500 font-bold">₹</span>
+                        ),
+                      },
+                      {
+                        title: "Pigme Collections",
+                        val: categoryTotals.pigme,
+                        color: "#0d9488",
+                        bg: "from-teal-50 to-white",
+                        icon: <WalletOutlined className="text-teal-500" />,
+                      },
+                      {
+                        title: "Registration Fees",
+                        val: categoryTotals.registration,
+                        color: "#db2777",
+                        bg: "from-pink-50 to-white",
+                        icon: (
+                          <SafetyCertificateOutlined className="text-pink-500" />
+                        ),
+                      },
+                    ].map((item, idx) => (
+                      <Col xs={24} sm={12} md={6} key={idx}>
+                        <Card
+                          size="small"
+                          className={`border shadow-md rounded-xl bg-gradient-to-b ${item.bg}`}
+                          bodyStyle={{ padding: 14 }}
+                        >
+                          {/* Header */}
+                          <div className="text-center border-b border-dashed pb-2 mb-2">
+                            
+
+                            <p className="text-xs font-semibold flex items-center justify-center gap-2">
+                              <span className="text-[15px]">
+                                {item.icon}
+
+                                {item.title}
+                              </span>
+                            </p>
+                          </div>
+
+                          {/* Amount */}
+                          <div
+                            className="text-center text-xl font-bold"
+                            style={{ color: item.color }}
+                          >
+                            ₹ {(item.val || 0).toLocaleString("en-IN")}
+                          </div>
+
+                          {/* Words */}
+                          <div className="border-t border-dashed mt-2 pt-2 text-[10px] text-center italic text-gray-500">
+                            {numberToIndianWords(item.val || 0)} Only
+                          </div>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                </Spin>
+              </div>
+
+              {/* ================= SECTION: Payment Modes ================= */}
+              <div className="mb-6">
+                <Title level={4} className="!mb-4 text-gray-700">
+                  Payment Modes
+                </Title>
+                <Spin spinning={modeLoading} size="large">
+              
+                <Row gutter={[16, 16]}>
+                  {[
+                    {
+                      title: "Cash",
+                      val: modeTotals.cash,
+                      color: "#16a34a",
+                      bg: "from-green-50 to-white",
+                      icon: <WalletOutlined className="text-green-500" />,
+                    },
+                    {
+                      title: "Online",
+                      val: modeTotals.online,
+                      color: "#2563eb",
+                      bg: "from-blue-50 to-white",
+                      icon: <GlobalOutlined className="text-blue-500" />,
+                    },
+                    {
+                      title: "Payment Link",
+                      val: modeTotals.link,
+                      color: "#7c3aed",
+                      bg: "from-violet-50 to-white",
+                      icon: <LinkOutlined className="text-violet-500" />,
+                    },
+                  ].map((mode, idx) => (
+                    <Col xs={24} md={8} key={idx}>
+                      <Card
+                        className={`border shadow-md rounded-xl bg-gradient-to-b ${mode.bg}`}
+                        bodyStyle={{ padding: 16 }}
+                      >
+                        {/* Header */}
+                        <div className="text-center border-b border-dashed pb-2 mb-2">
+                          
+
+                          <p className="text-sm font-semibold flex items-center justify-center gap-2">
+                            <span className="text-[15px]">
+                              {mode.icon }
+                              {mode.title} Collection
+                            </span>
+                          </p>
+                        </div>
+
+                        {/* Amount */}
+                        <div
+                          className="text-center text-xl font-bold"
+                          style={{ color: mode.color }}
+                        >
+                          ₹ {(mode.val || 0).toLocaleString("en-IN")}
+                        </div>
+
+                        {/* Words */}
+                        <div className="border-t border-dashed mt-2 pt-2 text-[10px] italic text-center text-gray-500">
+                          {numberToIndianWords(mode.val || 0)} Only
+                        </div>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+                </Spin>
+              </div>
+            </div>
+
+            <div className="mt-6 mb-8">
+           
 
               {/* Total Amount Card */}
               <div className="mb-8">

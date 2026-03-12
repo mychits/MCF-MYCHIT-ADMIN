@@ -413,6 +413,238 @@ const Daybook = () => {
           </p>
         </div>
 
+        {/* Existing Filters Card */}
+        <div className="bg-white rounded-xl shadow-md border p-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* New IN/OUT Filter */}
+            {/* <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500">TRANSACTION TYPE</label>
+              <Select className="w-full h-10" value={selectedTransactionType} onChange={setSelectedTransactionType}>
+                <Select.Option value="All">All (IN & OUT)</Select.Option>
+                <Select.Option value="IN">Payment IN Only</Select.Option>
+                <Select.Option value="OUT">Payment OUT Only</Select.Option>
+              </Select>
+            </div> */}
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Filter Option
+              </label>
+              <Select
+                showSearch
+                popupMatchSelectWidth={false}
+                onChange={handleSelectFilter}
+                value={selectedLabel}
+                placeholder="Search Or Select Filter"
+                filterOption={(input, option) =>
+                  option.children
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                className="w-full h-11"
+              >
+                {groupOptions.map((time) => (
+                  <Select.Option key={time.value} value={time.value}>
+                    {time.label}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            {showFilterField && (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedFromDate}
+                    onChange={(e) => setSelectedFromDate(e.target.value)}
+                    className="w-full h-11 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    value={selectedToDate}
+                    onChange={(e) => setSelectedToDate(e.target.value)}
+                    className="w-full h-11 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500">GROUP</label>
+              <Select
+                className="w-full h-10"
+                showSearch
+                value={selectedAuctionGroupId}
+                onChange={setSelectedAuctionGroupId}
+                placeholder="Select Group"
+                filterOption={(input, option) =>
+                  option?.children
+                    ?.toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              >
+                <Select.Option value="">All Groups</Select.Option>
+                {groups.map((g) => (
+                  <Select.Option key={g._id} value={g._id}>
+                    {g.group_name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500">
+                CUSTOMER
+              </label>
+              <Select
+                className="w-full h-10"
+                showSearch
+                value={selectedCustomers}
+                onChange={setSelectedCustomers}
+                placeholder="Select Customer"
+                filterOption={(input, option) =>
+                  option?.children
+                    ?.toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              >
+                <Select.Option value="">All Customers</Select.Option>
+                {filteredUsers.map((u) => (
+                  <Select.Option key={u._id} value={u?._id}>
+                    {u?.full_name} - {u?.phone_number}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500">
+                PAYMENT FOR
+              </label>
+              <Select
+                mode="multiple"
+                className="w-full min-h-10"
+                value={selectedPaymentFor}
+                onChange={setSelectedPaymentFor}
+                placeholder="Chit, Loan, etc."
+              >
+                <Select.Option value="Chit">Chit</Select.Option>
+                <Select.Option value="Pigme">Pigme</Select.Option>
+                <Select.Option value="Loan">Loan</Select.Option>
+                <Select.Option value="Registration">
+                  Registration Fee
+                </Select.Option>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500">
+                PAYMENT MODE
+              </label>
+              <Select
+                mode="multiple"
+                className="w-full min-h-10"
+                value={selectedPaymentMode}
+                onChange={setSelectedPaymentMode}
+                options={[
+                  { label: "Cash", value: "cash" },
+                  { label: "Online", value: "online" },
+                  { label: "Payment Link", value: "Payment Link" },
+                ]}
+                placeholder="Cash, Online, etc."
+              />
+            </div>
+
+            {showAllPaymentModes && (
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">
+                  ACCOUNT TYPE
+                </label>
+                <Select
+                  className="w-full h-10"
+                  value={selectedAccountType}
+                  onChange={setSelectedAccountType}
+                  options={[
+                    { label: "All", value: "" },
+                    { label: "Suspense", value: "suspense" },
+                    { label: "Credit", value: "credit" },
+                  ]}
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Collection Employee
+              </label>
+              <Select
+                showSearch
+                placeholder="Select employee"
+                popupMatchSelectWidth={false}
+                onChange={(selection) => {
+                  const [id, type] = selection.split("|") || [];
+                  if (type === "admin_type") {
+                    setCollectionAdmin(id);
+                    setCollectionAgent("");
+                  } else if (type === "agent_type") {
+                    setCollectionAgent(id);
+                    setCollectionAdmin("");
+                  } else {
+                    setCollectionAdmin("");
+                    setCollectionAgent("");
+                  }
+                }}
+                filterOption={(input, option) =>
+                  option.children
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                className="w-full"
+                style={{ height: "44px" }}
+              >
+                <Select.Option value="">All Employees</Select.Option>
+                {[...new Set(agents), ...new Set(admins)].map((dt) => (
+                  <Select.Option
+                    key={dt?._id}
+                    value={`${dt._id}|${dt.selected_type}`}
+                  >
+                    {dt.selected_type === "admin_type"
+                      ? "Admin | "
+                      : "Employee | "}
+                    {dt.full_name} | {dt.phone_number}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            {/* <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500">
+                TOTAL DISPLAYED
+              </label>
+              <div className="h-10 px-3 flex items-center bg-blue-50 border border-blue-200 rounded text-blue-700 font-bold">
+                ₹ {totals?.net.toLocaleString("en-IN")}
+              </div>
+              <span
+                className={`text-sm font-mono ${totals?.net < 0 ? "text-red-700" : "text-green-700"}`}
+              >
+                {numberToIndianWords(totals?.net || 0)}
+              </span>
+            </div> */}
+          </div>
+        </div>
         {/* <Row gutter={[16, 16]} className="mb-8">
           <Col xs={24} md={8}>
             <Card className="shadow-sm border-l-4 border-green-500">
@@ -781,238 +1013,6 @@ const Daybook = () => {
           </div>
         </div>
 
-        {/* Existing Filters Card */}
-        <div className="bg-white rounded-xl shadow-md border p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* New IN/OUT Filter */}
-            {/* <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500">TRANSACTION TYPE</label>
-              <Select className="w-full h-10" value={selectedTransactionType} onChange={setSelectedTransactionType}>
-                <Select.Option value="All">All (IN & OUT)</Select.Option>
-                <Select.Option value="IN">Payment IN Only</Select.Option>
-                <Select.Option value="OUT">Payment OUT Only</Select.Option>
-              </Select>
-            </div> */}
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Filter Option
-              </label>
-              <Select
-                showSearch
-                popupMatchSelectWidth={false}
-                onChange={handleSelectFilter}
-                value={selectedLabel}
-                placeholder="Search Or Select Filter"
-                filterOption={(input, option) =>
-                  option.children
-                    .toString()
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                className="w-full h-11"
-              >
-                {groupOptions.map((time) => (
-                  <Select.Option key={time.value} value={time.value}>
-                    {time.label}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-
-            {showFilterField && (
-              <>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    From Date
-                  </label>
-                  <input
-                    type="date"
-                    value={selectedFromDate}
-                    onChange={(e) => setSelectedFromDate(e.target.value)}
-                    className="w-full h-11 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    To Date
-                  </label>
-                  <input
-                    type="date"
-                    value={selectedToDate}
-                    onChange={(e) => setSelectedToDate(e.target.value)}
-                    className="w-full h-11 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
-                  />
-                </div>
-              </>
-            )}
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500">GROUP</label>
-              <Select
-                className="w-full h-10"
-                showSearch
-                value={selectedAuctionGroupId}
-                onChange={setSelectedAuctionGroupId}
-                placeholder="Select Group"
-                filterOption={(input, option) =>
-                  option?.children
-                    ?.toString()
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-              >
-                <Select.Option value="">All Groups</Select.Option>
-                {groups.map((g) => (
-                  <Select.Option key={g._id} value={g._id}>
-                    {g.group_name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500">
-                CUSTOMER
-              </label>
-              <Select
-                className="w-full h-10"
-                showSearch
-                value={selectedCustomers}
-                onChange={setSelectedCustomers}
-                placeholder="Select Customer"
-                filterOption={(input, option) =>
-                  option?.children
-                    ?.toString()
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-              >
-                <Select.Option value="">All Customers</Select.Option>
-                {filteredUsers.map((u) => (
-                  <Select.Option key={u._id} value={u?._id}>
-                    {u?.full_name} - {u?.phone_number}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500">
-                PAYMENT FOR
-              </label>
-              <Select
-                mode="multiple"
-                className="w-full min-h-10"
-                value={selectedPaymentFor}
-                onChange={setSelectedPaymentFor}
-                placeholder="Chit, Loan, etc."
-              >
-                <Select.Option value="Chit">Chit</Select.Option>
-                <Select.Option value="Pigme">Pigme</Select.Option>
-                <Select.Option value="Loan">Loan</Select.Option>
-                <Select.Option value="Registration">
-                  Registration Fee
-                </Select.Option>
-              </Select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500">
-                PAYMENT MODE
-              </label>
-              <Select
-                mode="multiple"
-                className="w-full min-h-10"
-                value={selectedPaymentMode}
-                onChange={setSelectedPaymentMode}
-                options={[
-                  { label: "Cash", value: "cash" },
-                  { label: "Online", value: "online" },
-                  { label: "Payment Link", value: "Payment Link" },
-                ]}
-                placeholder="Cash, Online, etc."
-              />
-            </div>
-
-            {showAllPaymentModes && (
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500">
-                  ACCOUNT TYPE
-                </label>
-                <Select
-                  className="w-full h-10"
-                  value={selectedAccountType}
-                  onChange={setSelectedAccountType}
-                  options={[
-                    { label: "All", value: "" },
-                    { label: "Suspense", value: "suspense" },
-                    { label: "Credit", value: "credit" },
-                  ]}
-                />
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
-                Collection Employee
-              </label>
-              <Select
-                showSearch
-                placeholder="Select employee"
-                popupMatchSelectWidth={false}
-                onChange={(selection) => {
-                  const [id, type] = selection.split("|") || [];
-                  if (type === "admin_type") {
-                    setCollectionAdmin(id);
-                    setCollectionAgent("");
-                  } else if (type === "agent_type") {
-                    setCollectionAgent(id);
-                    setCollectionAdmin("");
-                  } else {
-                    setCollectionAdmin("");
-                    setCollectionAgent("");
-                  }
-                }}
-                filterOption={(input, option) =>
-                  option.children
-                    .toString()
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                className="w-full"
-                style={{ height: "44px" }}
-              >
-                <Select.Option value="">All Employees</Select.Option>
-                {[...new Set(agents), ...new Set(admins)].map((dt) => (
-                  <Select.Option
-                    key={dt?._id}
-                    value={`${dt._id}|${dt.selected_type}`}
-                  >
-                    {dt.selected_type === "admin_type"
-                      ? "Admin | "
-                      : "Employee | "}
-                    {dt.full_name} | {dt.phone_number}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-
-            {/* <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500">
-                TOTAL DISPLAYED
-              </label>
-              <div className="h-10 px-3 flex items-center bg-blue-50 border border-blue-200 rounded text-blue-700 font-bold">
-                ₹ {totals?.net.toLocaleString("en-IN")}
-              </div>
-              <span
-                className={`text-sm font-mono ${totals?.net < 0 ? "text-red-700" : "text-green-700"}`}
-              >
-                {numberToIndianWords(totals?.net || 0)}
-              </span>
-            </div> */}
-          </div>
-        </div>
 
         <div className="bg-white rounded-xl shadow-md border p-4 min-h-[450px]">
           {isLoading ? (
