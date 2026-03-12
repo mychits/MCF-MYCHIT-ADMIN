@@ -27,7 +27,7 @@ import { Tag } from "antd";
 import {
   ClockCircleOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import Receipt from "../components/receipts/CustomReceiptOne";
 import { BsGrid3X3GapFill, BsListUl } from "react-icons/bs";
@@ -51,7 +51,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [transactionsLoading, setTransactionsLoading] = useState(false);
   const [tableTransactions, setTableTransactions] = useState([]);
-  const [viewMode, setViewMode] = useState('list');
+  const [viewMode, setViewMode] = useState("list");
   const [targetValue, setTotalTargetAmount] = useState(0);
 
   const fetchGroupData = useCallback(async () => {
@@ -67,7 +67,10 @@ const Home = () => {
   const fetchAgentData = useCallback(async () => {
     try {
       const response = await api.get("/agent/get");
-      setAgents(response.data?.agent || []);
+      const verifiedAgent = (response.data.agent || []).filter(
+        (agent) => agent.isVerified === true,
+      );
+      setAgents(verifiedAgent || []);
     } catch (error) {
       console.error("Error fetching agent data:", error);
       setAgents([]);
@@ -77,7 +80,10 @@ const Home = () => {
   const fetchStaffData = useCallback(async () => {
     try {
       const response = await api.get("/agent/get-agent");
-      setStaffs(response.data || []);
+      const verifiedStaff = (response.data || []).filter(
+        (staff) => staff.isVerified === true,
+      );
+      setStaffs(verifiedStaff || []);
     } catch (error) {
       console.error("Error fetching staff data:", error);
       setStaffs([]);
@@ -86,8 +92,11 @@ const Home = () => {
 
   const fetchEmployeeData = useCallback(async () => {
     try {
-      const response = await api.get("/employee");
-      setEmployees(response.data?.employee || []);
+      const response = await api.get("/agent/get-employee");
+      const verifiedEmployee = (response.data?.employee || []).filter(
+        (employee) => employee.isVerified === true,
+      );
+      setEmployees(verifiedEmployee || []);
     } catch (error) {
       console.error("Error fetching employee data:", error);
       setEmployees([]);
@@ -95,7 +104,6 @@ const Home = () => {
   }, []);
   const fetchTotalBranchTarget = useCallback(async () => {
     try {
-
       const response = await api.get("/payment/branch/target");
 
       setTotalTargetAmount(response?.data?.data?.[0].branchTarget || 0);
@@ -131,7 +139,7 @@ const Home = () => {
       const currentYear = today.getFullYear();
       const firstDay = `${currentYear}-${String(currentMonth + 1).padStart(
         2,
-        "0"
+        "0",
       )}-01`;
       const lastDay = new Date(currentYear, currentMonth + 1, 0);
       const lastDayFormatted = lastDay.toISOString().split("T")[0];
@@ -190,7 +198,7 @@ const Home = () => {
       fetchEmployeeData(),
       fetchTotalAmount(),
       fetchMonthlyPayments(),
-      fetchTotalBranchTarget()
+      fetchTotalBranchTarget(),
     ]).then(() => setLoading(false));
   }, [
     reloadTrigger,
@@ -201,8 +209,7 @@ const Home = () => {
     fetchEmployeeData,
     fetchTotalAmount,
     fetchMonthlyPayments,
-    fetchTotalBranchTarget
-
+    fetchTotalBranchTarget,
   ]);
   async function getTransactions() {
     try {
@@ -211,33 +218,64 @@ const Home = () => {
       const transactionsData = response.data?.data;
       const filteredData = transactionsData.map((order, index) => {
         const status = order?.status;
-        const color = status === "ACTIVE" ? "blue" : status === "PAID" ? "green" : "red"
-        const icon = status === "ACTIVE" ? <ClockCircleOutlined /> : status === "PAID" ? <CheckCircleOutlined /> : <CloseCircleOutlined />;
+        const color =
+          status === "ACTIVE" ? "blue" : status === "PAID" ? "green" : "red";
+        const icon =
+          status === "ACTIVE" ? (
+            <ClockCircleOutlined />
+          ) : status === "PAID" ? (
+            <CheckCircleOutlined />
+          ) : (
+            <CloseCircleOutlined />
+          );
         const groups = order?.groups;
         const pigmys = order.pigmys;
         const loans = order?.loans;
-        const groupsString = (groups?.map(group => `${group?.group_id?.group_name} | ${group?.ticket}`) || []).join(" | ");
-        const pigmysString = (pigmys?.map(pigmy => `${pigmy?.payable_amount} | ${pigmy?.pigme_id}`) || []).join(" | ");
-        const loansString = (loans?.map(loan => `${loan?.loan_amount} | ${loan?.loan_id}`) || []).join(" | ");
-        return ({
+        const groupsString = (
+          groups?.map(
+            (group) => `${group?.group_id?.group_name} | ${group?.ticket}`,
+          ) || []
+        ).join(" | ");
+        const pigmysString = (
+          pigmys?.map(
+            (pigmy) => `${pigmy?.payable_amount} | ${pigmy?.pigme_id}`,
+          ) || []
+        ).join(" | ");
+        const loansString = (
+          loans?.map((loan) => `${loan?.loan_amount} | ${loan?.loan_id}`) || []
+        ).join(" | ");
+        return {
           id: index + 1,
           orderType: order?.order_type,
           user_name: order?.user_id?.full_name,
           phone_number: order?.user_id?.phone_number,
-          groups: (groups?.map(group => `${group?.group_id?.group_name} | ${group?.ticket}`) || []).join(" | "),
-          pigmys: (pigmys?.map(pigmy => `${pigmy?.payable_amount} | ${pigmy?.pigme_id}`) || []).join(" | "),
-          loans: (loans?.map(loan => `${loan?.loan_amount} | ${loan?.loan_id}`) || []).join(" | "),
+          groups: (
+            groups?.map(
+              (group) => `${group?.group_id?.group_name} | ${group?.ticket}`,
+            ) || []
+          ).join(" | "),
+          pigmys: (
+            pigmys?.map(
+              (pigmy) => `${pigmy?.payable_amount} | ${pigmy?.pigme_id}`,
+            ) || []
+          ).join(" | "),
+          loans: (
+            loans?.map((loan) => `${loan?.loan_amount} | ${loan?.loan_id}`) ||
+            []
+          ).join(" | "),
           others: groupsString + pigmysString + loansString,
-          status: <Tag key={"success"} color={color} icon={icon} variant={"filled"}>
-            {status}
-          </Tag>,
+          status: (
+            <Tag key={"success"} color={color} icon={icon} variant={"filled"}>
+              {status}
+            </Tag>
+          ),
           amount: order?.amount,
           purpose: order?.purpose,
           link_url: order?.link_url,
           statusRaw: status,
           collectedBy: order?.collected_by,
-          createdAt: dayjs(order?.createdAt)?.endOf("D")?.format("YYYY-MM-DD")
-        })
+          createdAt: dayjs(order?.createdAt)?.endOf("D")?.format("YYYY-MM-DD"),
+        };
       });
       setTableTransactions(filteredData);
     } catch (error) {
@@ -249,7 +287,7 @@ const Home = () => {
 
   useEffect(() => {
     getTransactions();
-  }, [])
+  }, []);
   const handleCopyLink = (url) => {
     if (!url) {
       message.warning("No payment link found for this transaction");
@@ -308,7 +346,7 @@ const Home = () => {
       bgGradient: "from-teal-500 to-teal-600",
       iconBg: "bg-teal-700",
       hoverBg: "hover:from-teal-600 hover:to-teal-700",
-      redirect: "/staff-menu/agent",
+      redirect: "/staff-menu/agent-menu",
     },
     {
       id: 5,
@@ -320,24 +358,23 @@ const Home = () => {
       hoverBg: "hover:from-lime-600 hover:to-lime-700",
       redirect: "/staff-menu/employee-menu",
     },
-
   ];
   const shortcuts = [
-        {
+    {
       label: "Quick Search",
       icon: SiQuicklook,
       path: "/quick-search",
       bg: "bg-yellow-50 hover:bg-yellow-100",
       text: "text-yellow-700",
     },
-        {
+    {
       label: "Accounts",
       icon: FaBriefcase,
       path: "/payment-menu",
       bg: "bg-indigo-50 hover:bg-indigo-100",
       text: "text-indigo-700",
     },
-        {
+    {
       label: "Visitors",
       icon: IoIosPeople,
       path: "/visitorsection",
@@ -385,37 +422,37 @@ const Home = () => {
 
   const paymentCards = hidePayment
     ? [
-      {
-        id: 6,
-        icon: <MdOutlinePayments size={24} />,
-        text: "Payments",
-        count: totalAmount,
-        bgGradient: "from-yellow-500 to-yellow-600",
-        iconBg: "bg-yellow-700",
-        hoverBg: "hover:from-yellow-600 hover:to-yellow-700",
-        redirect: "/payment-in-out-menu/pay-in-menu/payment",
-      },
-      {
-        id: 7,
-        icon: (
-          <div className="flex items-center justify-center">
-            <SlCalender size={24} className="mr-1" />
-          </div>
-        ),
-        text: "Current Month Payments",
-        count: paymentsPerMonthValue,
-        bgGradient: "from-purple-500 to-purple-600",
-        iconBg: "bg-purple-700",
-        hoverBg: "hover:from-purple-600 hover:to-purple-700",
-        redirect: "/payment-in-out-menu/pay-in-menu/payment",
-      },
-    ]
+        {
+          id: 6,
+          icon: <MdOutlinePayments size={24} />,
+          text: "Payments",
+          count: totalAmount,
+          bgGradient: "from-yellow-500 to-yellow-600",
+          iconBg: "bg-yellow-700",
+          hoverBg: "hover:from-yellow-600 hover:to-yellow-700",
+          redirect: "/payment-in-out-menu/pay-in-menu/payment",
+        },
+        {
+          id: 7,
+          icon: (
+            <div className="flex items-center justify-center">
+              <SlCalender size={24} className="mr-1" />
+            </div>
+          ),
+          text: "Current Month Payments",
+          count: paymentsPerMonthValue,
+          bgGradient: "from-purple-500 to-purple-600",
+          iconBg: "bg-purple-700",
+          hoverBg: "hover:from-purple-600 hover:to-purple-700",
+          redirect: "/payment-in-out-menu/pay-in-menu/payment",
+        },
+      ]
     : [];
 
   const allCards = [...baseCards, ...paymentCards];
 
   const filteredCards = allCards.filter((card) =>
-    card.text.toLowerCase().includes(searchValue.toLowerCase())
+    card.text.toLowerCase().includes(searchValue.toLowerCase()),
   );
 
   // Event Handlers
@@ -482,8 +519,6 @@ const Home = () => {
                     </Link>
                   );
                 })}
-
-
               </div>
             </div>
 
@@ -491,17 +526,17 @@ const Home = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {loading
                 ? Array(baseCards.length)
-                  .fill(0)
-                  .map((_, i) => <SkeletonCard key={i} />)
+                    .fill(0)
+                    .map((_, i) => <SkeletonCard key={i} />)
                 : filteredCards.map((card, index) => (
-                  <Link
-                    to={card.redirect}
-                    key={card.id}
-                    onClick={() => handleCardClick(index)}
-                    onKeyDown={(e) => handleCardKeyDown(e, index)}
-                    role="button"
-                    tabIndex={0}
-                    className={`
+                    <Link
+                      to={card.redirect}
+                      key={card.id}
+                      onClick={() => handleCardClick(index)}
+                      onKeyDown={(e) => handleCardKeyDown(e, index)}
+                      role="button"
+                      tabIndex={0}
+                      className={`
                         group relative flex flex-col p-6 rounded-xl
                         bg-gradient-to-br ${card.bgGradient}
                         text-white cursor-pointer
@@ -509,91 +544,105 @@ const Home = () => {
                         shadow-lg hover:shadow-2xl
                         transform hover:scale-105 hover:translate-y-[-4px]
                         ${card.hoverBg}
-                        ${notRendered
-                        ? "-translate-y-56 opacity-0 pointer-events-none"
-                        : "translate-y-0 opacity-100 pointer-events-auto"
-                      }
-                        ${clickedIndex === index
-                        ? "scale-95 brightness-110"
-                        : ""
-                      }
+                        ${
+                          notRendered
+                            ? "-translate-y-56 opacity-0 pointer-events-none"
+                            : "translate-y-0 opacity-100 pointer-events-auto"
+                        }
+                        ${
+                          clickedIndex === index
+                            ? "scale-95 brightness-110"
+                            : ""
+                        }
                         overflow-hidden
                       `}
-                    style={{
-                      transitionDelay: `${index * 100}ms`,
-                    }}>
-                    {/* Decorative Background */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-5 rounded-full -ml-12 -mb-12" />
+                      style={{
+                        transitionDelay: `${index * 100}ms`,
+                      }}
+                    >
+                      {/* Decorative Background */}
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500" />
+                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-5 rounded-full -ml-12 -mb-12" />
 
-                    {/* Content */}
-                    <div className="relative z-10">
-                      {/* Icon */}
-                      <div
-                        className={`
+                      {/* Content */}
+                      <div className="relative z-10">
+                        {/* Icon */}
+                        <div
+                          className={`
                             flex items-center justify-center w-16 h-16
                             ${card.iconBg} text-white rounded-xl mb-4
                             group-hover:scale-110 transition-transform duration-300
                             shadow-md
-                          `}>
-                        {card.icon}
-                      </div>
+                          `}
+                        >
+                          {card.icon}
+                        </div>
 
-                      {/* Title and Count */}
-                      <h3
-                        className={`
+                        {/* Title and Count */}
+                        <h3
+                          className={`
                           font-semibold text-white mb-2 
                           group-hover:translate-x-1 transition-transform duration-300
                           line-clamp-2
                           ${card.text.length > 20 ? "text-base" : "text-lg"}
                           ${card.text.length > 30 ? "text-sm" : ""}
-                        `}>
-                        {card.text}
-                      </h3>
+                        `}
+                        >
+                          {card.text}
+                        </h3>
 
-                      <div className="flex items-baseline justify-between gap-2">
-                        <span
-                          className={`
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span
+                            className={`
                             font-bold text-white truncate
-                            ${String(card.count).length > 10
-                              ? "text-2xl"
-                              : "text-3xl"
+                            ${
+                              String(card.count).length > 10
+                                ? "text-2xl"
+                                : "text-3xl"
                             }
                             ${String(card.count).length > 15 ? "text-xl" : ""}
-                          `}>
-                          {card.count}
-                        </span>
-                        <div className="text-xs font-semibold text-white opacity-75 bg-white bg-opacity-20 px-2 py-1 rounded-full whitespace-nowrap">
-                          View
+                          `}
+                          >
+                            {card.count}
+                          </span>
+                          <div className="text-xs font-semibold text-white opacity-75 bg-white bg-opacity-20 px-2 py-1 rounded-full whitespace-nowrap">
+                            View
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  ))}
             </div>
             <div className="mt-16">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800">Recent Transactions</h2>
-                  <p className="text-sm text-gray-500">Real-time update of latest payments</p>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Recent Transactions
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Real-time update of latest payments
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-4">
                   <div className="flex bg-gray-200 p-1 rounded-lg">
                     <button
-                      onClick={() => setViewMode('grid')}
-                      className={`p-2 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}
+                      onClick={() => setViewMode("grid")}
+                      className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-white shadow-sm text-blue-600" : "text-gray-500"}`}
                     >
                       <BsGrid3X3GapFill size={18} />
                     </button>
                     <button
-                      onClick={() => setViewMode('list')}
-                      className={`p-2 rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}
+                      onClick={() => setViewMode("list")}
+                      className={`p-2 rounded-md transition-all ${viewMode === "list" ? "bg-white shadow-sm text-blue-600" : "text-gray-500"}`}
                     >
                       <BsListUl size={18} />
                     </button>
                   </div>
-                  <button onClick={getTransactions} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                  <button
+                    onClick={getTransactions}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+                  >
                     Refresh
                   </button>
                 </div>
@@ -602,18 +651,25 @@ const Home = () => {
               {transactionsLoading ? (
                 <div className="space-y-3">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-16 bg-gray-100 animate-pulse rounded-xl" />
+                    <div
+                      key={i}
+                      className="h-16 bg-gray-100 animate-pulse rounded-xl"
+                    />
                   ))}
                 </div>
               ) : (
-                <div className={viewMode === 'grid'
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : "bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
-                }>
-
+                <div
+                  className={
+                    viewMode === "grid"
+                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                      : "bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
+                  }
+                >
                   {/* HEADER SECTION */}
-                  {viewMode === 'list' && (
-                    <div className={`grid ${GRID_LAYOUT} items-center bg-gray-50 px-6 py-4 border-b border-gray-200 font-bold text-[11px] text-gray-400 uppercase tracking-widest gap-4`}>
+                  {viewMode === "list" && (
+                    <div
+                      className={`grid ${GRID_LAYOUT} items-center bg-gray-50 px-6 py-4 border-b border-gray-200 font-bold text-[11px] text-gray-400 uppercase tracking-widest gap-4`}
+                    >
                       <div>SL</div>
                       <div>Date</div>
                       <div>Customer</div>
@@ -626,19 +682,27 @@ const Home = () => {
 
                   {/* BODY SECTION */}
                   {tableTransactions.length > 0 ? (
-                    tableTransactions.map((item, index) => (
-                      viewMode === 'list' ? (
+                    tableTransactions.map((item, index) =>
+                      viewMode === "list" ? (
                         <div
                           key={item.id}
                           className={`grid ${GRID_LAYOUT} items-center px-6 py-4 border-b border-gray-50 hover:bg-gray-50/80 transition-colors gap-4 text-sm`}
                         >
-                          <div className="text-gray-400 font-mono">{(index + 1).toString().padStart(2, '0')}</div>
+                          <div className="text-gray-400 font-mono">
+                            {(index + 1).toString().padStart(2, "0")}
+                          </div>
 
-                          <div className="text-gray-600 font-medium whitespace-nowrap">{item.createdAt}</div>
+                          <div className="text-gray-600 font-medium whitespace-nowrap">
+                            {item.createdAt}
+                          </div>
 
                           <div className="overflow-hidden">
-                            <div className="font-bold text-gray-800 truncate">{item.user_name}</div>
-                            <div className="text-xs text-gray-400">{item.phone_number}</div>
+                            <div className="font-bold text-gray-800 truncate">
+                              {item.user_name}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              {item.phone_number}
+                            </div>
                           </div>
 
                           {/* PURPOSE & DETAILS */}
@@ -659,22 +723,36 @@ const Home = () => {
 
                           {/* ACTIONS: Icons stay visible even if link is missing */}
                           <div className="flex items-center justify-center gap-2">
-                            <Tooltip title={item.link_url ? "Copy Payment Link" : "No link available"}>
+                            <Tooltip
+                              title={
+                                item.link_url
+                                  ? "Copy Payment Link"
+                                  : "No link available"
+                              }
+                            >
                               <button
                                 onClick={() => handleCopyLink(item.link_url)}
-                                className={`p-2 rounded-lg transition-all ${item.link_url ? 'text-blue-600 hover:bg-blue-100' : 'text-gray-300'}`}
+                                className={`p-2 rounded-lg transition-all ${item.link_url ? "text-blue-600 hover:bg-blue-100" : "text-gray-300"}`}
                               >
                                 <FaCopy size={14} />
                               </button>
                             </Tooltip>
 
-                            <Tooltip title={item.link_url ? "Open Link" : "Link not found"}>
+                            <Tooltip
+                              title={
+                                item.link_url ? "Open Link" : "Link not found"
+                              }
+                            >
                               <button
                                 onClick={() => {
-                                  if (item.link_url) window.open(item.link_url, "_blank");
-                                  else message.info("External link is not available for this entry");
+                                  if (item.link_url)
+                                    window.open(item.link_url, "_blank");
+                                  else
+                                    message.info(
+                                      "External link is not available for this entry",
+                                    );
                                 }}
-                                className={`p-2 rounded-lg transition-all ${item.link_url ? 'text-gray-500 hover:bg-gray-100' : 'text-gray-300'}`}
+                                className={`p-2 rounded-lg transition-all ${item.link_url ? "text-gray-500 hover:bg-gray-100" : "text-gray-300"}`}
                               >
                                 <FaExternalLinkAlt size={13} />
                               </button>
@@ -682,9 +760,14 @@ const Home = () => {
                           </div>
                         </div>
                       ) : (
-                        <Receipt key={item.id} {...item} status={item.statusRaw} viewMode="grid" />
-                      )
-                    ))
+                        <Receipt
+                          key={item.id}
+                          {...item}
+                          status={item.statusRaw}
+                          viewMode="grid"
+                        />
+                      ),
+                    )
                   ) : (
                     <div className="p-20 text-center text-gray-400 italic bg-white">
                       No transactions found.
@@ -693,9 +776,6 @@ const Home = () => {
                 </div>
               )}
             </div>
-
-
-
           </div>
         </main>
       </div>
