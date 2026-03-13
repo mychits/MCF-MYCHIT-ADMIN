@@ -136,8 +136,9 @@ const PigmySummaryReport = () => {
       0
     );
     const totalPayablePigmy = filtered.reduce(
-      (sum, pigmy) => sum + Number(pigmy.amount || 0),0
-    )
+  (sum, pigmy) => sum + Number(pigmy?.amount || 0),
+  0
+);
     const avgDuration =
       filtered.length > 0
         ? filtered.reduce((sum, pigmy) => {

@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { BsArrowLeftShort, BsChevronDown } from "react-icons/bs";
 import { FiChevronLeft } from "react-icons/fi";
 import { RiDashboardFill } from "react-icons/ri";
@@ -52,6 +52,7 @@ import { MdAdminPanelSettings } from "react-icons/md";
 import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 import { FiClipboard } from "react-icons/fi";
 import { FaRupeeSign } from "react-icons/fa";
+import api from "../../instance/TokenInstance";
 
 const MenuSidebar = [
   {
@@ -210,6 +211,7 @@ const MenuSidebar = [
     title: "Other Services",
     icon: <GiTakeMyMoney />,
    link: "/other-service-menu",
+    pendingNotification:true,
 //     submenu: true,
 //     submenuItems: [
 //   {
@@ -472,6 +474,20 @@ const Sidebar = () => {
     const location = useLocation();
   const [open, setOpen] = useState(true);
   const [submenuOpenIndex, setSubmenuOpenIndex] = useState(null);
+  const [pendingCounts,setPendingCounts]=useState(0)
+
+    useEffect(() => {
+      const fetchPendingCounts = async () => {
+        try {
+          const res = await api.get("/other-services/daily/counts");
+          setPendingCounts(res.data.data.total);
+        } catch (error) {
+          console.error("Error fetching employees:", error);
+        }
+      };
+      fetchPendingCounts();
+    }, []);
+
 
   const [nestedSubmenuOpenIndex, setNestedSubmenuOpenIndex] = useState({});
 
@@ -540,6 +556,9 @@ const Sidebar = () => {
                       }`}
                   >
                     {menu.title}
+                                  {  menu.pendingNotification ===true && pendingCounts > 0  && (
+    <span className="bg-red-500 px-2 py-0.5 rounded-full text-white text-xs font-semibold ml-6">
+      {pendingCounts > 0 ? pendingCounts : ""}</span>)}
                   </span>
                   {menu.submenu &&
                     open &&

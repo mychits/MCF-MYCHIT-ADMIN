@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, DatePicker, TimePicker, Button, Select, notification, Spin } from "antd";
+import { Form, Input, DatePicker, TimePicker, Button, Select, notification, Spin, Tag } from "antd";
 import API from "../instance/TokenInstance";
 import dayjs from "dayjs";
 
@@ -16,7 +16,6 @@ function CreateBidRequest() {
     const [selectedCreateGroupIndex, setSelectedCreateGroupIndex] = useState(0);
     const [selectedEnrollmentId, setSelectedEnrollmentId] = useState(null);
 
-    // ✅ FETCH USERS
     const fetchUsers = async () => {
         try {
             setLoadingUsers(true);
@@ -30,59 +29,64 @@ function CreateBidRequest() {
         }
     };
 
-    // ✅ FETCH AUCTION COUNT
-    const fetchAuctionCount = async (groupId) => {
-        if (!groupId) return 0;
+    const fetchAuctionInfo = async (groupId, userId, ticketNumber) => {
+        if (!groupId) return { count: 0, isPrized: false };
+        
         try {
-            const response = await API.get(`/auction/get-group-auction/${groupId}`);
-            return response.data ? response.data.length : 0;
+   
+            const response = await API.get(`/bid-request/get-group-auction-stats/${groupId}`);
+            
+            const data = response.data;
+
+            if (!data || !data.success) {
+                return { count: 0, isPrized: false };
+            }
+
+            const count = data.count || 0;
+
+            const prizedList = data.prizedTickets || [];
+            const isPrized = prizedList.some((item) => 
+                String(item.user_id) === String(userId) && 
+                String(item.ticket) === String(ticketNumber)
+            );
+
+            return { count, isPrized };
         } catch (error) { 
-            return 0; 
+            console.error("Error fetching auction stats:", error);
+            return { count: 0, isPrized: false }; 
         }
     };
 
-    // ✅ FETCH GROUPS WITH AGENT & REFERRAL DATA
     const fetchCreateCustomerDetails = async (userId) => {
         try {
             const response = await API.post(`/enroll/get-user-tickets-report/${userId}`);
             const dataList = response.data || response.data?.data || [];
 
-            // DEBUG: Check what is coming from the API
-            // console.log("API Response Data:", dataList);
-
             if (dataList && dataList.length > 0) {
                 const groupsData = await Promise.all(dataList.map(async (item) => {
-                    const enrollment = item?.enrollment; // This is the Enrollment Object
-                    const groupData = enrollment?.group;   // This is the Group Object
-                    
-                    const auctionsDone = await fetchAuctionCount(groupData?._id);
-                    
-                    // --- EXTRACT REFERRAL DATA ---
-                    // LOGIC UPDATE: Check Enrollment First (matches Table Controller), then Group.
+                    const enrollment = item?.enrollment;
+                    const groupData = enrollment?.group;
+
+                    const ticketNumber = enrollment?.tickets || enrollment?.ticket_number || "N/A";
+
+                    const auctionInfo = await fetchAuctionInfo(groupData?._id, userId, ticketNumber);
                     
                     let referredType = "N/A";
                     let referredBy = "N/A";
                     let agentName = "N/A";
 
-                    // 1. Check Agent in Enrollment (As per your Table Controller logic)
                     if (enrollment?.agent?.name) {
                         referredType = "Agent";
                         agentName = enrollment.agent.name;
                         referredBy = `${enrollment.agent.name} | ${enrollment.agent.phone_number}`;
-                    } 
-                    // 2. Check Agent in Group (Fallback)
-                    else if (groupData?.agent?.name) {
+                    } else if (groupData?.agent?.name) {
                         referredType = "Agent";
                         agentName = groupData.agent.name;
                         referredBy = `${groupData.agent.name} | ${groupData.agent.phone_number}`;
-                    }
-                    // 3. Check Referred Customer
-                    else if (groupData?.referred_customer?.full_name) {
+                    } else if (groupData?.referred_customer?.full_name) {
                         referredType = "Customer";
                         referredBy = `${groupData.referred_customer.full_name} | ${groupData.referred_customer.phone_number}`;
-                    } 
-                    // 4. Check Referred Lead
-                    else if (groupData?.referred_lead?.lead_name) {
+                    } else if (groupData?.referred_lead?.lead_name) {
                         referredType = "Lead";
                         referredBy = `${groupData.referred_lead.lead_name} | ${groupData.referred_lead.agent_number}`;
                     }
@@ -90,13 +94,13 @@ function CreateBidRequest() {
                     return {
                         id: groupData?._id,
                         groupName: groupData?.group_name || "No Group Name",
-                        ticketNumber: enrollment?.tickets || enrollment?.ticket_number || "N/A",
+                        ticketNumber: ticketNumber,
                         startDate: groupData?.start_date ? groupData.start_date.split("T")[0] : "N/A",
                         endDate: groupData?.end_date ? groupData.end_date.split("T")[0] : "N/A",
-                        auctionsDone: auctionsDone,
+                        auctionsDone: auctionInfo.count, 
                         enrollmentId: enrollment?._id,
+                        isPrized: auctionInfo.isPrized, 
                         
-                        // ✅ Store extracted fields
                         agentName: agentName,
                         referredType: referredType,
                         referredBy: referredBy
@@ -104,24 +108,33 @@ function CreateBidRequest() {
                 }));
                 
                 setCreateGroups(groupsData);
+                
+                const firstAvailableIndex = groupsData.findIndex(g => !g.isPrized);
+                const initialIndex = firstAvailableIndex !== -1 ? firstAvailableIndex : 0;
+
                 if (groupsData.length > 0) {
-                    setSelectedCreateGroupIndex(0);
-                    setSelectedEnrollmentId(groupsData[0].enrollmentId);
+                    setSelectedCreateGroupIndex(initialIndex);
+                    const group = groupsData[initialIndex];
+                    setSelectedEnrollmentId(group.enrollmentId);
                     
-                    const group = groupsData[0];
                     createForm.setFieldsValue({
                         groupName: group.groupName,
                         ticketNumber: group.ticketNumber,
-                        selectedGroupIndex: 0,
+                        selectedGroupIndex: initialIndex,
                         startDate: group.startDate,
                         endDate: group.endDate,
                         auctionsDone: group.auctionsDone,
-                        
-                        // ✅ Set Form Values for Referral Section
                         agentName: group.agentName,
                         referredType: group.referredType,
                         referredBy: group.referredBy
                     });
+
+                    if (group.isPrized) {
+                        api.warning({ 
+                            message: "Ticket Already Prized", 
+                            description: "This customer has prized tickets. Please select an available ticket." 
+                        });
+                    }
                 }
             } else {
                 api.warning({ 
@@ -185,6 +198,13 @@ function CreateBidRequest() {
                 referredType: selectedGroup.referredType,
                 referredBy: selectedGroup.referredBy
             });
+
+            if (selectedGroup.isPrized) {
+                api.error({ 
+                    message: "Ticket Not Available", 
+                    description: "This ticket is already prized. You cannot raise a request for it." 
+                });
+            }
         }
     };
 
@@ -194,10 +214,16 @@ function CreateBidRequest() {
             const selectedGroup = createGroups[values.selectedGroupIndex || selectedCreateGroupIndex];
             
             if (!selectedGroup) {
+                api.error({ message: "Error", description: "Please select a group first." });
+                return;
+            }
+
+            if (selectedGroup.isPrized) {
                 api.error({ 
-                    message: "Error", 
-                    description: "Please select a group first." 
+                    message: "Request Denied", 
+                    description: "This ticket is already prized. Bid request cannot be raised." 
                 });
+                setLoading(false);
                 return;
             }
 
@@ -212,8 +238,8 @@ function CreateBidRequest() {
                 ticketNumber: selectedGroup.ticketNumber,
                 auctionDate: values.auctionDate ? values.auctionDate.format('YYYY-MM-DD') : null,
                 auction_time: formattedTime, 
-                agentName: selectedGroup.agentName, // ✅ Include in payload
-                referredType: selectedGroup.referredType, // ✅ Include in payload
+                agentName: selectedGroup.agentName,
+                referredType: selectedGroup.referredType,
                 referredBy: selectedGroup.referredBy,
                 groupId: selectedGroup.id,
                 ...(selectedGroup.enrollmentId && { enrollmentId: selectedGroup.enrollmentId }),
@@ -241,6 +267,8 @@ function CreateBidRequest() {
         fetchUsers();
         createForm.setFieldsValue({ date: dayjs() });
     }, []);
+
+    const isSubmitDisabled = createGroups.length === 0 || createGroups[selectedCreateGroupIndex]?.isPrized;
 
     return (
         <div className="min-h-screen bg-gray-100 p-6 flex justify-center">
@@ -289,17 +317,13 @@ function CreateBidRequest() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                                 <div>
-                                    <label className="block font-semibold text-gray-700 mb-1">
-                                        Subscriber Name
-                                    </label>
+                                    <label className="block font-semibold text-gray-700 mb-1">Subscriber Name</label>
                                     <Form.Item name="subscriberName" rules={[{ required: true, message: 'Required!' }]} className="mb-0">
                                         <Input readOnly className="bg-gray-100 border-gray-300" />
                                     </Form.Item>
                                 </div>
                                 <div>
-                                    <label className="block font-semibold text-gray-700 mb-1">
-                                        Mobile Number
-                                    </label>
+                                    <label className="block font-semibold text-gray-700 mb-1">Mobile Number</label>
                                     <Form.Item name="mobileNumber" rules={[{ required: true, message: 'Required!' }]} className="mb-0">
                                         <Input readOnly className="bg-gray-100 border-gray-300" />
                                     </Form.Item>
@@ -332,10 +356,18 @@ function CreateBidRequest() {
                                                     value={index} 
                                                     label={`${group.groupName} (Ticket: ${group.ticketNumber})`}
                                                     className="py-3"
+                                                    disabled={group.isPrized}
                                                 >
-                                                    <div className="flex flex-col justify-center py-1">
-                                                        <span className="font-semibold text-gray-900 text-base">{group.groupName}</span>
-                                                        <span className="text-xs text-gray-500 mt-0.5">Ticket: {group.ticketNumber}</span>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold text-gray-900 text-base">{group.groupName}</span>
+                                                            <span className="text-xs text-gray-500 mt-0.5">Ticket: {group.ticketNumber}</span>
+                                                        </div>
+                                                        {group.isPrized && (
+                                                            <Tag color="error" className="ml-2 text-xs font-bold">
+                                                                Already Prized
+                                                            </Tag>
+                                                        )}
                                                     </div>
                                                 </Option>
                                             ))}
@@ -344,13 +376,13 @@ function CreateBidRequest() {
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                                         <div>
-                                            <label className="block font-semibold text-gray-700 mb-1">Start Date</label>
+                                            <label className="block font-semibold text-gray-700 mb-1">Auction Start Date</label>
                                             <Form.Item name="startDate" className="mb-0">
                                                 <Input readOnly className="bg-blue-50 border-blue-200 text-blue-900 font-semibold h-10" />
                                             </Form.Item>
                                         </div>
                                         <div>
-                                            <label className="block font-semibold text-gray-700 mb-1">End Date</label>
+                                            <label className="block font-semibold text-gray-700 mb-1">Auction End Date</label>
                                             <Form.Item name="endDate" className="mb-0">
                                                 <Input readOnly className="bg-blue-50 border-blue-200 text-blue-900 font-semibold h-10" />
                                             </Form.Item>
@@ -413,7 +445,15 @@ function CreateBidRequest() {
 
                         <div className="flex gap-4 pt-4 border-t">
                             <Button onClick={() => window.close()} className="flex-1 h-12 font-semibold border-gray-400 text-lg">Cancel</Button>
-                            <Button type="primary" htmlType="submit" loading={loading} className="flex-1 bg-blue-900 hover:bg-blue-800 h-12 font-bold uppercase tracking-wide text-lg" disabled={createGroups.length === 0}>Submit Request</Button>
+                            <Button 
+                                type="primary" 
+                                htmlType="submit" 
+                                loading={loading} 
+                                className="flex-1 bg-blue-900 hover:bg-blue-800 h-12 font-bold uppercase tracking-wide text-lg" 
+                                disabled={isSubmitDisabled}
+                            >
+                                Submit Request
+                            </Button>
                         </div>
                     </Form>
                 </div>
