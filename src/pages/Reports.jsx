@@ -352,6 +352,14 @@ const subMenus = [
    Icon: MdCalendarMonth,
    color: "from-blue-500 to-blue-600",
   },
+     {
+    id:"86",
+    title: "Chit Cancellation Report",
+    link: "/reports/chit-cancellation-report",
+    category: "Customer",
+   Icon: MdCalendarMonth,
+   color: "from-blue-500 to-blue-600",
+  },
        {
     id:"32",
     title: "User Installed Source Report",

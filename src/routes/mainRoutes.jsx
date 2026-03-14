@@ -194,7 +194,7 @@ import CreateBidRequest from '../pages/CreateBidRequest';
 import LoanRequest from "../pages/LoanRequest";
 import CreateLoanRequest from "../pages/CreateLoanRequest";
 import UnverifiedAgent from "../pages/UnverifiedAgents";
-
+import ChitCancellationReport from "../pages/ChitCancellationReport"
 const mainRoutes = createBrowserRouter([
   {
     path: "/",
@@ -1061,7 +1061,7 @@ const mainRoutes = createBrowserRouter([
       {path: "date-wise-reward-points", element: <DateWiseRewardreport/>},
       {path: "auction-filter-report", element: <AuctionFilterReport/>},
         {path: "prized-customer-report", element: <PrizedCustomerReport/>},
-      
+       {path: "chit-cancellation-report", element: <ChitCancellationReport/>},
     ],
   },
 
