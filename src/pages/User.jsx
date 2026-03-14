@@ -12,9 +12,14 @@ import CircularLoader from "../components/loaders/CircularLoader";
 import handleEnrollmentRequestPrint from "../components/printFormats/enrollmentRequestPrint";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
 import { fieldSize } from "../data/fieldSize";
+import { CloudUpload, X, Download } from "lucide-react";
 import PageWrapper from "../components/modals/PageWrapper";
 import dayjs from "dayjs"
 import ReConfirmModal from "../components/modals/ReConfirmModal";
+import { Modal as AntModal } from "antd"; // renamed
+// import { IoMdMore } from "react-icons/io";
+
+const { confirm } = AntModal;
 const User = () => {
   const [users, setUsers] = useState([]);
   const [TableUsers, setTableUsers] = useState([]);
@@ -31,6 +36,7 @@ const User = () => {
   const [files, setFiles] = useState({});
   const [districts, setDistricts] = useState([]);
   const [reloadTrigger, setReloadTrigger] = useState(0);
+    const [attachments, setAttachments] = useState([]);
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
     message: "Something went wrong!",
@@ -38,6 +44,7 @@ const User = () => {
   });
   const [errors, setErrors] = useState({});
    const [showConfirm, setShowConfirm] = useState(false);
+   const [showPreview, setShowPreview] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -238,7 +245,7 @@ const User = () => {
                               : "text-red-600"
                           }`}
                           onClick={() =>
-                            handleCustomerStatus(
+                            handleCustomerStatusWithConfirm(
                               group?._id,
                               group?.approval_status !== "true"
                                 ? "true"
@@ -400,69 +407,123 @@ const User = () => {
     const isValid = validateForm("addCustomer");
     if (isValid) {
       try {
-        const response = await api.post("/user/add-user-admin", formData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
 
-        setReloadTrigger((prev) => prev + 1);
-        setAlertConfig({
-          type: "success",
-          message: "User Added Successfully",
-          visibility: true,
-        });
+          const payload = new FormData();
 
-        setShowModal(false);
-        setErrors({});
-        setFormData({
-          full_name: "",
-          email: "",
-          phone_number: "",
-          password: "",
-          address: "",
-          pincode: "",
-          adhaar_no: "",
-          pan_no: "",
+    // Append all fields from formData
+    Object.entries(formData).forEach(([key, value]) => {
+      payload.append(key, value);
+    });
 
-          track_source: "admin-panel",
-        });
-      } catch (error) {
-        console.error("Error adding user:", error);
-
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message &&
-          error.response.data.message.toLowerCase().includes("phone number")
-        ) {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            phone_number: "Phone number already exists",
-          }));
-        }
-
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          setAlertConfig({
-            type: "error",
-            message: `${error?.response?.data?.message}`,
-            visibility: true,
-          });
-        } else {
-          setAlertConfig({
-            type: "error",
-            message: "An unexpected error occurred. Please try again.",
-            visibility: true,
-          });
-           setShowConfirm(false);
-        }
-      }
+    // Append first attachment as "profilephoto"
+    if (attachments[0]) {
+      payload.append("profilephoto", attachments[0]);
     }
-  };
+         const response = await api.post("/user/add-new-user-admin", payload);
+
+    if (response.status === 201) {
+      setAlertConfig({
+        visibility: true,
+        message: "Customer added successfully",
+        type: "success",
+      }); 
+
+  //       setReloadTrigger((prev) => prev + 1);
+  //       setAlertConfig({
+  //         type: "success",
+  //         message: "User Added Successfully",
+  //         visibility: true,
+  //       });
+
+  //       setShowModal(false);
+  //       setErrors({});
+  //       setFormData({
+  //         full_name: "",
+  //         email: "",
+  //         phone_number: "",
+  //         password: "",
+  //         address: "",
+  //         pincode: "",
+  //         adhaar_no: "",
+  //         pan_no: "",
+
+  //         track_source: "admin-panel",
+  //       });
+  //     } catch (error) {
+  //       console.error("Error adding user:", error);
+
+  //       if (
+  //         error.response &&
+  //         error.response.data &&
+  //         error.response.data.message &&
+  //         error.response.data.message.toLowerCase().includes("phone number")
+  //       ) {
+  //         setErrors((prevErrors) => ({
+  //           ...prevErrors,
+  //           phone_number: "Phone number already exists",
+  //         }));
+  //       }
+
+  //       if (
+  //         error.response &&
+  //         error.response.data &&
+  //         error.response.data.message
+  //       ) {
+  //         setAlertConfig({
+  //           type: "error",
+  //           message: `${error?.response?.data?.message}`,
+  //           visibility: true,
+  //         });
+  //       } else {
+  //         setAlertConfig({
+  //           type: "error",
+  //           message: "An unexpected error occurred. Please try again.",
+  //           visibility: true,
+  //         });
+  //          setShowConfirm(false);
+  //       }
+  //     }
+  //   }
+  // };
+  // Reset form only after success
+      setFormData({
+        full_name: "",
+        email: "",
+        phone_number: "",
+        password: "",
+        address: "",
+        pincode: "",
+        adhaar_no: "",
+        pan_no: "",
+        track_source: "admin_panel",
+        collection_area: "",
+        profilephoto: null,
+      });
+      setAttachments([]);
+      setShowConfirm(false)
+     setShowModal(false);
+      setReloadTrigger((prev) => prev + 1);
+    } else {
+      // API returned non-201 but still didn't throw
+      setAlertConfig({
+        visibility: true,
+        message: response.data?.message || "Something went wrong",
+        type: "error",
+      });
+    }
+  } catch (error) {
+    // Only show error if request truly failed
+    setAlertConfig({
+      visibility: true,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong",
+      type: "error",
+    });
+  }
+}
+}
 
   const columns = [
     { key: "id", header: "SL. NO" },
@@ -520,6 +581,8 @@ const User = () => {
   const handleUpdateModalOpen = async (userId) => {
     try {
       const response = await api.get(`/user/get-user-by-id/${userId}`);
+      console.log("response",response);
+      
       setCurrentUpdateUser(response.data);
       setSelectedGroup(response?.data?.selected_plan);
       setUpdateFormData({
@@ -565,7 +628,7 @@ const User = () => {
       console.error("Error fetching user:", error);
     }
   };
-
+console.log('formdata',updateFormData);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUpdateFormData((prevData) => ({
@@ -608,34 +671,51 @@ const User = () => {
     }
   };
 
-  const handleCustomerStatus = async (id, currentStatus) => {
-    try {
-      if (!id) {
-        console.warn("No user ID provided");
-        return;
-      }
-      const response = await api.put(`/user/update-user/${id}`, {
-        approval_status: currentStatus,
-      });
-
-      if (response.status === 200) {
-        setReloadTrigger((prev) => prev + 1);
-        setAlertConfig({
-          visibility: true,
-          message: `User status has been successfully updated to ${currentStatus}`,
-          type: "success",
-        });
-        console.info(
-          `Approval status updated to ${currentStatus} for user ID:`,
-          id
-        );
-      } else {
-        console.warn("Failed to update customer status:", response?.data);
-      }
-    } catch (err) {
-      console.error("Error updating customer status:", err.message);
+ // API call to update customer status
+const handleCustomerStatus = async (id, newStatus) => {
+  try {
+    if (!id) {
+      console.warn("No user ID provided");
+      return;
     }
-  };
+
+    const response = await api.put(`/user/update-user/${id}`, {
+      approval_status: newStatus,
+    });
+
+    if (response.status === 200) {
+      setReloadTrigger((prev) => prev + 1);
+      setAlertConfig({
+        visibility: true,
+        message: `User status has been successfully updated to ${newStatus === "true" ? "Approved" : "Unapproved"}`,
+        type: "success",
+      });
+      console.info(`Approval status updated to ${newStatus} for user ID:`, id);
+    } else {
+      console.warn("Failed to update customer status:", response?.data);
+    }
+  } catch (err) {
+    console.error("Error updating customer status:", err.message);
+  }
+};
+
+// Handles both Approve and Unapprove with confirmation
+const handleCustomerStatusWithConfirm = (id, currentStatus) => {
+  const isApproving = currentStatus === "true"; // new status to apply
+  const actionText = isApproving ? "approve" : "unapprove";
+
+  confirm({
+    title: `Are you sure?`,
+    content: `Do you want to ${actionText} this customer?`,
+    okText: "Yes",
+    cancelText: "No",
+    async onOk() {
+      await handleCustomerStatus(id, currentStatus);
+    },
+  });
+};
+
+
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -696,6 +776,7 @@ const User = () => {
       }
     }
   };
+console.log('formdata1111',updateFormData?.profilephoto);
 
   return (
     <>
@@ -973,6 +1054,75 @@ const User = () => {
                   ))}
                 </Select>
               </div>
+                  {/* ATTACH DOCUMENT */}
+            <div className="grid grid-cols-1 gap-4">
+              <label
+                className="block  text-sm font-semibold text-gray-700"
+                htmlFor="collection_area"
+              >
+                Photo
+              </label>
+
+              <label
+                htmlFor="attachment"
+                className="relative flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden"
+              >
+                <input
+                  id="attachment"
+                  type="file"
+                  accept=".jpeg,.jpg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    // Check file type
+                    if (!file.type.startsWith("image/jpeg") && !file.type.startsWith("image/jpg")) {
+                      alert("Only JPEG images are allowed!");
+                      return;
+                    }
+
+                    // Only allow 1 file at a time
+                    setAttachments([file]);
+                  }}
+                />
+
+                {attachments.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center z-10 pointer-events-none">
+                    <CloudUpload size={40} className="text-gray-400 mb-2" />
+                    <p className="text-sm font-medium text-gray-700">Attach Photo</p>
+                    <p className="text-xs text-gray-500">JPEG only (Max 5MB)</p>
+                  </div>
+                ) : (
+                  <div className="relative h-32 w-full flex items-center justify-center">
+                    <img
+                      src={URL.createObjectURL(attachments[0])}
+                      alt="preview"
+                      className="h-full object-cover rounded"
+                    />
+                    <div className="absolute top-1 right-1 flex space-x-1">
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={() => setAttachments([])}
+                        className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm"
+                      >
+                        <X size={12} />
+                      </button>
+
+                      {/* Download Button */}
+                      <a
+                        href={URL.createObjectURL(attachments[0])}
+                        download={attachments[0].name}
+                        className="bg-blue-500 text-white rounded-full p-1 hover:bg-blue-600 shadow-sm"
+                      >
+                        <Download size={12} />
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </label>
+            </div>
 
               <div className="w-full flex justify-end">
                 <button
@@ -1889,9 +2039,95 @@ const User = () => {
                       } text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                     />
                   </div>
-                </div>
 
-                <div className="w-full flex justify-end">
+                  
+                </div>
+    {/* ATTACH DOCUMENT */}
+<div className="grid grid-cols-1 gap-4">
+  {/* Label */}
+  <label className="block text-sm font-semibold text-gray-700" htmlFor="photo">
+    Photo
+  </label>
+
+  {/* Upload / Preview Box */}
+  <div className="relative h-32 w-full border-2 border-dashed rounded-lg overflow-hidden flex items-center justify-center cursor-pointer bg-gray-50 hover:bg-gray-100">
+    <input
+      id="photo"
+      type="file"
+      accept=".jpeg,.jpg"
+      className="hidden"
+      onChange={(e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/jpeg") && !file.type.startsWith("image/jpg")) {
+          alert("Only JPEG images are allowed!");
+          return;
+        }
+        setAttachments([file]);
+      }}
+    />
+
+    {/* Placeholder or Image Preview */}
+    {attachments.length === 0 && !updateFormData?.profilephoto ? (
+      <div className="flex flex-col items-center justify-center pointer-events-none">
+        <CloudUpload size={40} className="text-gray-400 mb-2" />
+        <p className="text-sm font-medium text-gray-700">Attach Photo</p>
+        <p className="text-xs text-gray-500">JPEG only (Max 5MB)</p>
+      </div>
+    ) : (
+      <div className="relative h-full w-full flex items-center justify-center">
+      <img
+  src={attachments?.length > 0 ? URL.createObjectURL(attachments[0]) : updateFormData?.profilephoto}
+  alt="preview"
+  className="h-full w-full object-contain rounded" // <-- changed object-cover to object-contain
+  onClick={() => setShowPreview(true)}
+/>
+
+        {/* Remove & Download Buttons */}
+        <div className="absolute top-1 right-1 flex space-x-1">
+       {(attachments?.length > 0 || updateFormData?.profilephoto) && (
+  <a
+    href={
+      attachments?.length > 0
+        ? URL.createObjectURL(attachments[0])
+        : updateFormData?.profilephoto
+    }
+    download={attachments?.length > 0 ? attachments[0].name : undefined}
+    className="bg-blue-500 text-white rounded-full p-1 hover:bg-blue-600 shadow-sm"
+  >
+    <Download size={12} />
+  </a>
+)}
+        </div>
+      </div>
+    )}
+  </div>
+
+  {/* Fullscreen Modal Preview */}
+  {showPreview && (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+      onClick={() => setShowPreview(false)} // close on background click
+    >
+      <div className="relative" onClick={(e) => e.stopPropagation()}>
+        {/* Close Button */}
+        <button
+          onClick={() => setShowPreview(false)}
+          className="absolute top-2 right-2 text-white bg-gray-800 bg-opacity-70 hover:bg-gray-700 rounded-full p-2 shadow-lg z-10"
+        >
+          <X size={20} />
+        </button>
+
+        {/* Fullscreen Image */}
+        <img
+          src={attachments?.length > 0 ? URL.createObjectURL(attachments[0]) : updateFormData?.profilephoto}
+          alt="large preview"
+          className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+        />
+      </div>
+    </div>
+  )}
+</div>                <div className="w-full flex justify-end">
                   <button
                     type="submit"
                     className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black

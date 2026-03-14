@@ -441,6 +441,12 @@ const Reports = () => {
           className={`${open ? "w-[300px]" : "w-[100px]"
             } bg-gray-50 min-h-screen p-4 border-r border-gray-200`}
         >
+               <div
+        onClick={() => navigate("/reports")}
+        className="cursor-pointer text-center font-bold text-lg  text-blue-400 hover:text-blue-600 transition-colors"
+      >
+        {open ? "Reports" : "R"}
+      </div>
           <div
             ref={ref}
             className={` min-h-screen max-h-auto p-5 pt-8  ${open ? "w-64" : "w-20"
@@ -451,7 +457,7 @@ const Reports = () => {
                     }`}
                   onClick={() => setOpen(!open)}
                 />
-          
+      
           {subMenus?.map(({ title, link, Icon, red }) => (
             <NavLink
               key={link}
